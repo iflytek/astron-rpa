@@ -95,6 +95,9 @@ rpa:
   auth:
     # 部署模式：saas | private-enterprise | private-uap | casdoor
     deployment-mode: casdoor
+    # HTTPS deployments default to Secure session cookies. The explicit
+    # legacy-http compose override sets this to false for migration only.
+    session-cookie-secure: ${SESSION_COOKIE_SECURE:true}
 
 casdoor:
   endpoint: ${CASDOOR_ENDPOINT}

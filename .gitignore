@@ -121,6 +121,8 @@ pids
 *.key
 *.crt
 *.cert
+docker/certs/*
+!docker/certs/README.md
 
 # Configuration files that might contain secrets
 config.local.*

@@ -1,0 +1,53 @@
+include /etc/nginx/includes/http-common.conf;
+
+# Existing HTTP ports remain reachable only to migrate callers to TLS.
+server {
+    listen 80;
+    server_name @@RPA_SERVER_NAME@@;
+    access_log /usr/local/openresty/nginx/logs/access.log sanitized_access;
+
+    return 308 https://@@RPA_HTTPS_REDIRECT_AUTHORITY@@$request_uri;
+}
+
+server {
+    listen 8080;
+    server_name @@CASDOOR_SERVER_NAME@@;
+    access_log /usr/local/openresty/nginx/logs/access.log sanitized_access;
+
+    return 308 https://@@CASDOOR_HTTPS_REDIRECT_AUTHORITY@@$request_uri;
+}
+
+server {
+    listen 443 ssl;
+    server_name @@RPA_SERVER_NAME@@;
+    access_log /usr/local/openresty/nginx/logs/access.log sanitized_access;
+
+    ssl_certificate /etc/nginx/certs/@@TLS_CERTIFICATE_FILE@@;
+    ssl_certificate_key /etc/nginx/certs/@@TLS_CERTIFICATE_KEY_FILE@@;
+    include /etc/nginx/includes/tls-settings.conf;
+    include /etc/nginx/includes/gateway-common.conf;
+    include /etc/nginx/includes/gateway-routes.conf;
+}
+
+server {
+    listen 8443 ssl;
+    server_name @@CASDOOR_SERVER_NAME@@;
+    access_log /usr/local/openresty/nginx/logs/access.log sanitized_access;
+
+    ssl_certificate /etc/nginx/certs/@@TLS_CERTIFICATE_FILE@@;
+    ssl_certificate_key /etc/nginx/certs/@@TLS_CERTIFICATE_KEY_FILE@@;
+    include /etc/nginx/includes/tls-settings.conf;
+    include /etc/nginx/includes/casdoor-proxy.conf;
+}
+
+# The container health check stays internal and does not weaken public TLS.
+server {
+    listen 8090;
+    server_name 127.0.0.1;
+    access_log off;
+
+    location = /health {
+        return 200 "healthy\n";
+        add_header Content-Type text/plain;
+    }
+}

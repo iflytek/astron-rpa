@@ -166,11 +166,27 @@ services:
     image: openresty/openresty:1.27.1.1-alpine
     container_name: rpa-opensource-openresty-nginx
     restart: always
+    environment:
+      DEPLOYMENT_MODE: ${DEPLOYMENT_MODE:-https}
+      RPA_SERVER_NAME: ${RPA_SERVER_NAME:-localhost}
+      CASDOOR_SERVER_NAME: ${CASDOOR_SERVER_NAME:-localhost}
+      RPA_HTTPS_REDIRECT_AUTHORITY: ${RPA_HTTPS_REDIRECT_AUTHORITY:-localhost}
+      CASDOOR_HTTPS_REDIRECT_AUTHORITY: ${CASDOOR_HTTPS_REDIRECT_AUTHORITY:-localhost:8443}
+      TLS_CERTIFICATE_FILE: ${TLS_CERTIFICATE_FILE:-tls.crt}
+      TLS_CERTIFICATE_KEY_FILE: ${TLS_CERTIFICATE_KEY_FILE:-tls.key}
     ports:
-      - "32742:80"
+      - "${RPA_HTTP_BIND_ADDRESS:-127.0.0.1}:${RPA_HTTP_PORT:-32742}:80"
+      - "${RPA_HTTPS_BIND_ADDRESS:-0.0.0.0}:${RPA_HTTPS_PORT:-443}:443"
+      - "${CASDOOR_HTTP_BIND_ADDRESS:-127.0.0.1}:${CASDOOR_HTTP_PORT:-8000}:8080"
+      - "${CASDOOR_HTTPS_BIND_ADDRESS:-0.0.0.0}:${CASDOOR_HTTPS_PORT:-8443}:8443"
+    entrypoint: ["/bin/sh", "/etc/nginx/render-config.sh"]
+    command: ["/usr/local/openresty/bin/openresty", "-g", "daemon off;"]
     volumes:
-      - ./volumes/nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./volumes/nginx/render-config.sh:/etc/nginx/render-config.sh:ro
+      - ./volumes/nginx/templates:/etc/nginx/templates:ro
+      - ./volumes/nginx/includes:/etc/nginx/includes:ro
       - ./volumes/nginx/lua:/usr/local/openresty/nginx/lua:ro
+      - ./certs:/etc/nginx/certs:ro
       - ./logs/nginx:/usr/local/openresty/nginx/logs
     depends_on:
       - resource-service
@@ -178,8 +194,9 @@ services:
       - ai-service
       - openapi-service
       - rpa-auth
+      - casdoor
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://127.0.0.1/health"]
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://127.0.0.1:8090/health"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -196,8 +213,6 @@ services:
       - driverName=mysql
       - dataSourceName=${DATABASE_USERNAME}:${DATABASE_PASSWORD}@tcp(${DATABASE_HOST}:${DATABASE_PORT})/
       - CASDOOR_ENABLE_HTTP_WEBHOOK=true
-    ports:
-      - "8000:8000"
     volumes:
       - ./volumes/casdoor/init_data_dump.json:/init_data.json
     depends_on:
@@ -316,6 +331,8 @@ services:
     container_name: rpa-opensource-rpa-auth
     restart: always
     env_file: *env_file
+    environment:
+      - SESSION_COOKIE_SECURE=${SESSION_COOKIE_SECURE:-true}
     # ports:
     #   - "10251:10251"
     volumes:

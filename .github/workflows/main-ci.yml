@@ -25,6 +25,7 @@ jobs:
       engine-changed: ${{ steps.changes.outputs.engine }}
       frontend-changed: ${{ steps.changes.outputs.frontend }}
       backend-changed: ${{ steps.changes.outputs.backend }}
+      deployment-changed: ${{ steps.changes.outputs.deployment }}
     steps:
       - uses: actions/checkout@v4
       - uses: dorny/paths-filter@v3
@@ -38,6 +39,12 @@ jobs:
             backend:
               - 'backend/robot-service/**'
               - 'backend/resource-service/**'
+            deployment:
+              - 'docker/**'
+              - 'backend/rpa-auth/src/main/java/com/iflytek/rpa/auth/conf/SessionConfig.java'
+              - 'backend/rpa-auth/src/main/resources/application-casdoor.yml'
+              - 'backend/rpa-auth/src/test/java/com/iflytek/rpa/auth/conf/SessionConfigTest.java'
+              - '.github/workflows/main-ci.yml'
 
   # Run tests in parallel
   style-check:
@@ -49,13 +56,35 @@ jobs:
       needs.check-changes.outputs.frontend-changed == 'true' ||
       needs.check-changes.outputs.backend-changed == 'true'
 
+  deployment-security-test:
+    name: HTTPS Deployment Security Test
+    runs-on: ubuntu-latest
+    needs: check-changes
+    if: needs.check-changes.outputs.deployment-changed == 'true'
+    steps:
+      - uses: actions/checkout@v4
+      - name: Test OpenResty configuration renderer
+        run: sh docker/tests/test-render-config.sh
+      - name: Test Compose and OpenResty configurations
+        run: sh docker/tests/test-nginx-config.sh
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: corretto
+          java-version: '8'
+          cache: maven
+          cache-dependency-path: backend/rpa-auth/pom.xml
+      - name: Test secure session cookie configuration
+        working-directory: backend/rpa-auth
+        run: mvn -B -DskipTests=false -Dtest=SessionConfigTest test
+
   # ============================================================================
   # Summary Stage
   # ============================================================================
   summary:
     name: 📊 CI Pipeline Summary
     runs-on: ubuntu-latest
-    needs: [check-changes, style-check]
+    needs: [check-changes, style-check, deployment-security-test]
     if: always()
     timeout-minutes: 2
     steps:
@@ -67,10 +96,12 @@ jobs:
           echo "  🔧 Engine: ${{ needs.check-changes.outputs.engine-changed }}"
           echo "  🎨 Frontend: ${{ needs.check-changes.outputs.frontend-changed }}"
           echo "  ⚙️ Backend: ${{ needs.check-changes.outputs.backend-changed }}"
+          echo "  🔒 Deployment: ${{ needs.check-changes.outputs.deployment-changed }}"
           echo ""
           echo "🔍 Job Results:"
           echo "  📋 Change Detection: ${{ needs.check-changes.result }}"
           echo "  ✨ Style Check: ${{ needs.style-check.result }}"
+          echo "  🔒 HTTPS Deployment Security Test: ${{ needs.deployment-security-test.result }}"
           echo ""
 
           # Determine overall status
@@ -90,6 +121,15 @@ jobs:
             fi
           else
             echo "ℹ️ Style check skipped (no engine changes)"
+          fi
+
+          if [[ "${{ needs.check-changes.outputs.deployment-changed }}" == "true" ]]; then
+            if [[ "${{ needs.deployment-security-test.result }}" != "success" ]]; then
+              echo "❌ HTTPS deployment security test failed"
+              overall_success=false
+            fi
+          else
+            echo "ℹ️ HTTPS deployment security test skipped (no deployment changes)"
           fi
 
           echo ""

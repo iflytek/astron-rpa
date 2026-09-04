@@ -265,8 +265,15 @@ cd docker
 # 复制.env
 cp .env.example .env
 
-# 修改.env中casdoor的服务配置
-CASDOOR_EXTERNAL_ENDPOINT="http://{YOUR_SERVER_IP}:8000"
+# 在 .env 中配置公网 HTTPS 域名
+RPA_SERVER_NAME="rpa.example.com"
+CASDOOR_SERVER_NAME="auth.example.com"
+RPA_HTTPS_REDIRECT_AUTHORITY="rpa.example.com"
+CASDOOR_HTTPS_REDIRECT_AUTHORITY="auth.example.com:8443"
+CASDOOR_EXTERNAL_ENDPOINT="https://auth.example.com:8443"
+
+# 将匹配的证书链和私钥分别复制到
+# docker/certs/tls.crt 和 docker/certs/tls.key
 
 # 🚀 启动所有服务
 docker compose up -d
@@ -274,6 +281,9 @@ docker compose up -d
 # 📊 检查服务状态
 docker compose ps
 ```
+
+证书、自定义端口、旧版 HTTP 兼容和回滚步骤请参阅
+[HTTPS 部署、迁移与回滚](./docker/HTTPS_DEPLOYMENT.md)。
 
 <details>
 <summary>💡 <b>预期输出示例</b></summary>
@@ -476,12 +486,11 @@ pnpm build:desktop
 安装好后在安装目录下的 `resources/conf.yaml` 中修改服务端地址：
 
 ```yaml
-# 32742为默认端口，如有修改自行变更
-remote_addr: http://YOUR_SERVER_ADDRESS:32742/
+remote_addr: https://rpa.example.com/
 skip_engine_start: false
 ```
 
-> **💡 提示：** 将 `YOUR_SERVER_ADDRESS` 替换为实际的服务端地址
+> **💡 提示：** 将 `rpa.example.com` 替换为实际的 HTTPS 网关域名。
 
 </details>
 
@@ -492,8 +501,8 @@ skip_engine_start: false
 | 服务 | 地址 | 说明 |
 |-----|------|------|
 | 🖥️ **桌面应用** | 自动启动窗口 | 桌面客户端 |
-| 🔌 **后端服务 API** | http://localhost:32742 | 后端网关服务Nginx |
-| 🔑 **Casdoor服务 API** | http://localhost:8000 | 认证服务Casdoor |
+| 🔌 **后端服务 API** | https://localhost | 后端网关服务Nginx |
+| 🔑 **Casdoor服务 API** | https://localhost:8443 | 认证服务Casdoor |
 
 ---
 
@@ -506,7 +515,7 @@ skip_engine_start: false
 docker compose ps
 
 # 🔍 验证 API 响应
-在浏览器访问 http://{YOUR_SERVER_IP}:32742/api/rpa-auth/user/login-check （32742为默认端口，如有修改自行变更）
+在浏览器访问 https://rpa.example.com/api/rpa-auth/user/login-check
 如果显示 {"code":"900001","data":null,"message":"unauthorized"} 则表示部署正确且能正常联通。
 ```
 
@@ -514,7 +523,7 @@ docker compose ps
 
 ```bash
 # 🔍 验证 Casdoor 服务
-浏览器打开http://localhost:8000
+浏览器打开 https://auth.example.com:8443
 出现casdoor认证页面
 ```
 
@@ -621,15 +630,15 @@ dir  # Windows 检查可用空间
 ```bash
 # 🌐 检查网络连通性
 # 用浏览器直接打开下方连接，看是否有结果返回
-# http://localhost:32742 可替换为你部署的服务器的地址+端口
-http://localhost:32742/api/rpa-auth/user/login-check
+# 将示例域名替换为实际部署的 HTTPS 网关域名
+https://rpa.example.com/api/rpa-auth/user/login-check
 
 # 🛡️ 检查防火墙设置
 # Windows: 控制面板 > 系统和安全 > Windows Defender 防火墙
 # Linux: ufw status
 
 # ✅ 检查服务端健康状态
-curl http://localhost:32742/health
+curl https://rpa.example.com/health
 ```
 
 **常见原因：**
@@ -648,7 +657,7 @@ curl http://localhost:32742/health
 ```bash
 # 🔌 检查 WebSocket 端点
 curl -i -N -H "Connection: Upgrade" -H "Upgrade: websocket" \
-     http://localhost:8080/ws
+     https://rpa.example.com/api/rpa-openapi/ws
 
 # 🔍 检查代理设置
 echo $http_proxy

@@ -60,8 +60,15 @@ cd docker
 # Copy .env
 cp .env.example .env
 
-# Modify casdoor service configuration in .env (8000 is the default port)
-CASDOOR_EXTERNAL_ENDPOINT="http://{YOUR_SERVER_IP}:8000"
+# Configure the public HTTPS names in .env
+RPA_SERVER_NAME="rpa.example.com"
+CASDOOR_SERVER_NAME="auth.example.com"
+RPA_HTTPS_REDIRECT_AUTHORITY="rpa.example.com"
+CASDOOR_HTTPS_REDIRECT_AUTHORITY="auth.example.com:8443"
+CASDOOR_EXTERNAL_ENDPOINT="https://auth.example.com:8443"
+
+# Copy a certificate covering both names and its private key
+# to docker/certs/tls.crt and docker/certs/tls.key
 
 # 🚀 Start all services
 docker compose up -d
@@ -70,9 +77,9 @@ docker compose up -d
 docker compose ps
 ```
 
-- After all services have started, open your browser and go to: `http://{YOUR_SERVER_IP}:32742/api/rpa-auth/user/login-check` (32742 is the default port; change it if you modified the configuration).
+- After all services have started, open your browser and go to: `https://rpa.example.com/api/rpa-auth/user/login-check`.
 - If you see `{"code":"900001","data":null,"message":"unauthorized"}`, it means the deployment is correct and the connection is working properly.
-- Open your browser and go to: `http://{YOUR_SERVER_IP}:8000` (8000 is the default port; change it if you modified the configuration).
+- Open your browser and go to: `https://auth.example.com:8443`.
 - If you see the Casdoor login page, it means Casdoor is deployed correctly.
 - For production deployment and security hardening, refer to the [Deployment Guide](./docker/QUICK_START.md).
 
@@ -130,8 +137,7 @@ Download the latest [Release Package](https://github.com/iflytek/astron-rpa/rele
 #### ⚙️ After installation, modify the server address in `resources/conf.yaml` in the installation directory:
 
     ```yaml
-    # 32742 is the default port; change it if you modified the configuration
-    remote_addr: http://YOUR_SERVER_ADDRESS:32742/
+    remote_addr: https://rpa.example.com/
     skip_engine_start: false
     ```
 

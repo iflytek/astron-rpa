@@ -32,14 +32,14 @@
 
 1. **确认 RPA 服务端正常运行**
 
-   先检查 RPA 服务端各组件是否正常启动，重点查看异常退出的容器及其日志。默认网关端口为 `32742`；如果修改过端口，请以下面的实际端口为准。
+   先检查 RPA 服务端各组件是否正常启动，重点查看异常退出的容器及其日志。默认公网 HTTPS 网关端口为 `443`；`32742` 是默认仅绑定回环地址的 HTTP 迁移端口。
 
 2. **配置 Agent 访问 RPA 的地址**
 
    在 Agent 部署目录的 `.env` 中，将 `RPA_URL` 设置为 **Agent 服务端能够访问** 的 RPA 地址：
 
    ```env
-   RPA_URL=http://YOUR_RPA_SERVER_IP:32742
+   RPA_URL=https://rpa.example.com
    ```
 
    远程或容器化部署时不要填写 `localhost`：它通常指向 Agent 容器或 Agent 所在主机自身，而不是 RPA 服务端。
@@ -49,7 +49,7 @@
    在 RPA 客户端安装目录的 `resources/conf.yaml` 中，将 `remote_addr` 指向同一套 RPA 服务端网关：
 
    ```yaml
-   remote_addr: http://YOUR_RPA_SERVER_IP:32742/
+   remote_addr: https://rpa.example.com/
    skip_engine_start: false
    ```
 
@@ -295,8 +295,7 @@ docker-compose logs -f atlas
 **✅ 解决方案：** 安装好后在安装目录下的 `resources/conf.yaml` 中修改服务端地址：
 
 ```yaml
-# 32742 为默认端口，如有修改自行变更
-remote_addr: http://YOUR_SERVER_ADDRESS:32742/
+remote_addr: https://rpa.example.com/
 skip_engine_start: false
 ```
 
@@ -317,8 +316,8 @@ skip_engine_start: false
 **✅ 解决方案：**
 
 ```bash
-# 修改 .env 中 casdoor 的服务配置（8000 为默认端口）
-CASDOOR_EXTERNAL_ENDPOINT="http://{YOUR_SERVER_IP}:8000"
+# 在 .env 中配置 Casdoor 的公网 HTTPS 地址
+CASDOOR_EXTERNAL_ENDPOINT="https://auth.example.com:8443"
 ```
 
 ---
@@ -397,7 +396,7 @@ JFBYM_API_TOKEN="xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
 https://newapi.iflyrpa.com/api/rpa-openapi/workflows/get
 
 # 开源版：
-http://{IP_ADDRESS}:32742/api/rpa-openapi/workflows/get
+https://rpa.example.com/api/rpa-openapi/workflows/get
 ```
 
 > 📌 **提醒：** 所有想要被外部调用的机器人需要在设计器中发版，然后在执行器中进行外部调用配置

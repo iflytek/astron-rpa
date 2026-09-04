@@ -28,7 +28,7 @@
 
 ### Q: 🆕 Agent server cannot connect to RPA service?
 
-**A:** Please check the `.env` file in the Agent deployment directory to ensure `RPA_URL` is set to the actual address of the RPA server (e.g., `http://YOUR_IP:32742`).
+**A:** Please check the `.env` file in the Agent deployment directory to ensure `RPA_URL` is set to the public HTTPS address of the RPA server (e.g., `https://rpa.example.com`).
 
 ### Q: 🆕 Client installation stuck at the last step for a long time?
 
@@ -266,8 +266,7 @@ If you've made extensive changes or want to fully update the client, you can use
 **✅ Solution:** After installation, modify the server address in `resources/conf.yaml` in the installation directory:
 
 ```yaml
-# 32742 is the default port, change if modified
-remote_addr: http://YOUR_SERVER_ADDRESS:32742/
+remote_addr: https://rpa.example.com/
 skip_engine_start: false
 ```
 
@@ -288,8 +287,8 @@ skip_engine_start: false
 **✅ Solution:**
 
 ```bash
-# Modify casdoor service configuration in .env (8000 is the default port)
-CASDOOR_EXTERNAL_ENDPOINT="http://{YOUR_SERVER_IP}:8000"
+# Configure the public Casdoor HTTPS endpoint in .env
+CASDOOR_EXTERNAL_ENDPOINT="https://auth.example.com:8443"
 ```
 
 ---
@@ -368,7 +367,7 @@ The only thing to note is that all URLs need to be changed from the official dom
 https://newapi.iflyrpa.com/api/rpa-openapi/workflows/get
 
 # Open-source version:
-http://{IP_ADDRESS}:32742/api/rpa-openapi/workflows/get
+https://rpa.example.com/api/rpa-openapi/workflows/get
 ```
 
 > 📌 **Reminder:** All robots that need to be called externally need to be published in the designer first, then configured for external calls in the executor

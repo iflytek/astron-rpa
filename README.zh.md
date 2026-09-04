@@ -59,8 +59,15 @@ cd docker
 # 复制 .env
 cp .env.example .env
 
-# 修改 .env 中 Casdoor 的服务配置（8000 为默认端口）
-CASDOOR_EXTERNAL_ENDPOINT="http://{YOUR_SERVER_IP}:8000"
+# 在 .env 中配置公网 HTTPS 域名
+RPA_SERVER_NAME="rpa.example.com"
+CASDOOR_SERVER_NAME="auth.example.com"
+RPA_HTTPS_REDIRECT_AUTHORITY="rpa.example.com"
+CASDOOR_HTTPS_REDIRECT_AUTHORITY="auth.example.com:8443"
+CASDOOR_EXTERNAL_ENDPOINT="https://auth.example.com:8443"
+
+# 将覆盖上述两个域名的证书和私钥分别复制到
+# docker/certs/tls.crt 和 docker/certs/tls.key
 
 # 🚀 启动所有服务
 docker compose up -d
@@ -69,9 +76,9 @@ docker compose up -d
 docker compose ps
 ```
 
-- 等服务都启动后，在浏览器访问 `http://{YOUR_SERVER_IP}:32742/api/rpa-auth/user/login-check`（32742 为默认端口，如有修改自行变更）
+- 等服务都启动后，在浏览器访问 `https://rpa.example.com/api/rpa-auth/user/login-check`
 - 如果显示 `{"code":"900001","data":null,"message":"unauthorized"}`，则表示部署正确且能正常连通。
-- 在浏览器访问 `http://{YOUR_SERVER_IP}:8000`（8000 为默认端口，如有修改自行变更）
+- 在浏览器访问 `https://auth.example.com:8443`
 - 如果显示 Casdoor 的登录页面，则表示 Casdoor 部署正确。
 - 生产部署及安全加固请参考 [部署文档](docker/QUICK_START.md)
 
@@ -129,8 +136,7 @@ docker compose ps
 #### ⚙️ 安装好后在安装目录下的 `resources/conf.yaml` 中修改服务端地址：
 
     ```yaml
-    # 32742 为默认端口，如有修改自行变更
-    remote_addr: http://YOUR_SERVER_ADDRESS:32742/
+    remote_addr: https://rpa.example.com/
     skip_engine_start: false
     ```
 

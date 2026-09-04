@@ -1,0 +1,13 @@
+# Explicit, insecure compatibility mode for existing HTTP deployments.
+# New installations and production deployments must use the default HTTPS mode.
+services:
+  openresty-nginx:
+    environment:
+      DEPLOYMENT_MODE: legacy-http
+    ports: !override
+      - "${RPA_HTTP_BIND_ADDRESS:-127.0.0.1}:${RPA_HTTP_PORT:-32742}:80"
+      - "${CASDOOR_HTTP_BIND_ADDRESS:-127.0.0.1}:${CASDOOR_HTTP_PORT:-8000}:8080"
+  rpa-auth:
+    environment:
+      SESSION_COOKIE_SECURE: "false"
+      CASDOOR_EXTERNAL_ENDPOINT: ${LEGACY_CASDOOR_EXTERNAL_ENDPOINT:-http://127.0.0.1:8000}

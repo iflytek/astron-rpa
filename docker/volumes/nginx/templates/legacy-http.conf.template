@@ -1,0 +1,31 @@
+include /etc/nginx/includes/http-common.conf;
+
+# Explicit compatibility mode only. Do not use this mode for new public
+# deployments because credentials and workflow data are sent without TLS.
+server {
+    listen 80;
+    server_name @@RPA_SERVER_NAME@@;
+    access_log /usr/local/openresty/nginx/logs/access.log sanitized_access;
+
+    include /etc/nginx/includes/gateway-common.conf;
+    include /etc/nginx/includes/gateway-routes.conf;
+}
+
+server {
+    listen 8080;
+    server_name @@CASDOOR_SERVER_NAME@@;
+    access_log /usr/local/openresty/nginx/logs/access.log sanitized_access;
+
+    include /etc/nginx/includes/casdoor-proxy.conf;
+}
+
+server {
+    listen 8090;
+    server_name 127.0.0.1;
+    access_log off;
+
+    location = /health {
+        return 200 "healthy\n";
+        add_header Content-Type text/plain;
+    }
+}

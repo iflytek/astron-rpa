@@ -60,12 +60,13 @@ ruff: `uv run --project engine --dev ruff format ./engine`.
 ```bash
 cd docker
 cp .env.example .env
-# set CASDOOR_EXTERNAL_ENDPOINT to http://<YOUR_SERVER_IP>:8000
+# configure the public HTTPS names and copy the certificate/key to docker/certs/
+# see docker/HTTPS_DEPLOYMENT.md for required variables
 docker compose up -d
 docker compose ps
 ```
 
-Gateway API: http://localhost:32742 · Casdoor auth: http://localhost:8000
+Gateway API: https://localhost · Casdoor auth: https://localhost:8443
 
 ### Build the client (Windows)
 

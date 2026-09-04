@@ -1,5 +1,6 @@
 package com.iflytek.rpa.auth.conf;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.session.web.http.CookieSerializer;
@@ -22,6 +23,12 @@ import org.springframework.session.web.http.DefaultCookieSerializer;
  */
 @Configuration
 public class SessionConfig {
+
+    private final boolean secureCookie;
+
+    public SessionConfig(@Value("${rpa.auth.session-cookie-secure:true}") boolean secureCookie) {
+        this.secureCookie = secureCookie;
+    }
 
     /**
      * 配置Session Cookie的序列化器
@@ -47,9 +54,9 @@ public class SessionConfig {
         // 启用HttpOnly，防止JavaScript访问Cookie，提高安全性
         serializer.setUseHttpOnlyCookie(true);
 
-        // 是否启用Secure（仅在HTTPS下传输Cookie）
-        // 开发环境可以不启用，生产环境建议启用
-        // serializer.setUseSecureCookie(true);
+        // HTTPS is the secure default. Explicit legacy HTTP deployments
+        // override this property to keep their existing session behavior.
+        serializer.setUseSecureCookie(secureCookie);
 
         // SameSite属性，防止CSRF攻击
         // Lax: 允许部分第三方请求携带Cookie（GET请求）
