@@ -131,7 +131,7 @@ class BrowserCore:
         edit = win32gui.FindWindowEx(a4, None, "Edit", None)
         origin_name = get_text_from_edit(edit)
         if origin_name.find(".") != -1:
-            name = origin_name.split(".")[0]
+            name = origin_name.rsplit(".", 1)[0]
             suffix = origin_name.rsplit(".", 1)[-1]
             if not suffix.isalpha():
                 name = origin_name
