@@ -467,6 +467,10 @@ In an environment without external network access, normal `pip install` or offli
 
 **A:** Some Go components live on the `dev` branch — switch to that branch to find them. If you cannot locate the directory on `main`, check your current branch first.
 
+### Q: 🆕 With multiple clients connected to the same server, how do I choose which client runs a workflow via the API?
+
+**A:** When triggering via the API, use the **API Key** of the target client to specify which client executes the workflow (each client has its own API Key). Note that **remote scheduled tasks are dispatched randomly** to the connected clients and are not pinned to a specific one.
+
 ---
 
 ## 🐛 Troubleshooting
@@ -532,6 +536,21 @@ If a crash or complete failure occurs when capturing elements, it may be because
 ### Q: The client program keeps in an infinite loop or reports errors?
 
 **A:** Check the logs in `data/logs/picker` or `robot-service`. Sometimes you need to clear the local cache data (delete the `data` directory) and try again.
+
+### Q: 🆕 The startup progress bar hangs at the last step and the log shows the scheduler failed to start?
+
+**A:** After extracting the Python core package (`python_core.7z`), the client starts the scheduler service (`astronverse.scheduler`). If this step fails (the log shows the scheduler start command returning error code 1), it is usually caused by **stale local cache** or **insufficient account privileges**. Try the following in order:
+
+1. **Clear cache and restart**: manually delete `C:\Users\{username}\AppData\Roaming\astron-rpa\`, reboot, then launch the client again.
+2. **Run as administrator**: on company machines a **restricted domain account** may prevent the scheduler from starting — running the client as administrator resolves it.
+3. If it still fails, the current machine environment may be incompatible; provide your OS version to technical support for further diagnosis.
+
+### Q: 🆕 Login fails after creating a new organization in Casdoor?
+
+**A:** The open-source RPA uses Casdoor for authentication but only relies on part of its capabilities and **does not support multi-tenancy (multiple organizations)**. The server always maps to the single built-in organization, so keep **only one non-built-in organization**:
+
+- If you created extra organizations in the Casdoor console, login may fail; deleting the extra ones restores it.
+- The built-in example organization is an internal, end-user-invisible feature. You may rename it, but **do not add additional organizations**.
 
 ### Q: The server Redis container keeps restarting?
 
