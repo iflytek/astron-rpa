@@ -76,11 +76,11 @@ class ToolsConfig:
                 if APIKeyUtils.verify_api_key(api_key, hashed_key):
                     return str(key.user_id)
             return None
-        except Exception as e:
+        except Exception:
             logger.exception("Error getting user ID from API key")
             if db:
                 await db.rollback()
-            return None
+            raise
         finally:
             # 确保数据库会话被关闭
             if db:
