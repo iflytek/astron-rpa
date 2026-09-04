@@ -229,9 +229,9 @@ AstronRPA adopts a **Server-Client** architecture:
 ### Deployment Overview
 
 1. **Server Deployment** - Quick deployment using Docker
-   - Web management interface
-   - Backend API services
-   - Database and cache
+   - Backend API gateway and services (default port `32742`; it does not host the workflow designer)
+   - Casdoor authentication service and its administration UI (default port `8000`)
+   - Database, cache, and object storage
    - AI services
 
 2. **Client Deployment** - Deploy using packaging scripts
@@ -243,7 +243,7 @@ AstronRPA adopts a **Server-Client** architecture:
 
 > **Quick Deployment** · Launch all server components with Docker Compose in one command
 
-The server provides web management interface, API services, database and other core services.
+The server provides the API gateway, authentication, database, and other core services. RPA workflow design and local execution run in the Windows desktop client; the server gateway root does not provide the workflow designer.
 
 ---
 

@@ -95,9 +95,31 @@ Things to watch out for:
 
 ## 👥 Client Related
 
-### Q: Do I need to install a client?
+### Q: 🔄 Do I need to install a client? Why is there no workflow designer in the browser after starting the server?
 
-**A:** ✅ **Yes!** RPA currently doesn't have a web version and requires a client to run.
+**A:** ✅ **Yes!** The open-source edition uses a server-client architecture. The Docker server and Windows desktop client have different responsibilities:
+
+- `docker compose up -d` starts server-side components such as the API gateway, authentication, database, cache, and object storage. The default gateway is `http://YOUR_SERVER_ADDRESS:32742`; a `404 Not Found` response at its root path is expected because it does not host the RPA workflow designer. Use `http://YOUR_SERVER_ADDRESS:32742/health` to check whether the gateway is running.
+- `http://YOUR_SERVER_ADDRESS:8000` is the Casdoor authentication service, not the RPA workflow designer.
+- Workflow design and local execution require the Windows desktop client. Download the MSI from the [Releases page](https://github.com/iflytek/astron-rpa/releases), or build it from source by following [`BUILD_GUIDE.md`](./BUILD_GUIDE.md#-client-deployment-local).
+- After installation, point `remote_addr` in the client's `resources/conf.yaml` to the server gateway, then restart the client:
+
+  ```yaml
+  remote_addr: http://YOUR_SERVER_ADDRESS:32742/
+  skip_engine_start: false
+  ```
+
+Deploying only the Docker server does not provide a browser-based workflow design entry point.
+
+### Q: 🆕 What does Casdoor do in the open-source deployment? Can I remove or disable it?
+
+**A:** Casdoor is the default login and identity provider for the open-source deployment. The client login flow, the `rpa-auth` service, and gateway authentication are configured for Casdoor, so it is not an optional container that can simply be removed from the standard deployment.
+
+- **For a normal self-hosted deployment:** Keep Casdoor and set `CASDOOR_EXTERNAL_ENDPOINT` in `docker/.env` to an address reachable by the client browser, such as `http://192.0.2.10:8000`. Remote clients must not use `127.0.0.1` or a Docker-internal service name.
+- **Do not only comment out the container:** Removing `casdoor` directly breaks login or protected API access. The default `resources/conf.yaml` also uses `app_auth_type: casdoor`.
+- **To replace the identity provider:** Treat this as a secondary-development task. You must adapt the backend authentication profile/deployment mode, frontend and client authentication type, gateway routes, and service dependencies together. The repository's `uap` path is not a plug-and-play switch for an arbitrary third-party IdP.
+
+If the goal is only to restrict account creation, change the application's signup settings in Casdoor instead of removing the authentication service.
 
 ### Q: 🆕 Is there any difference between the open-source version and the enterprise version of RPA?
 
