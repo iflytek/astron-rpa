@@ -16,6 +16,7 @@ import com.iflytek.rpa.base.entity.vo.ElementVo;
 import com.iflytek.rpa.base.entity.vo.GroupInfoVo;
 import com.iflytek.rpa.base.service.CElementService;
 import com.iflytek.rpa.common.feign.RpaAuthFeign;
+import com.iflytek.rpa.common.feign.RpaResourceFeign;
 import com.iflytek.rpa.common.feign.entity.User;
 import com.iflytek.rpa.robot.dao.RobotDesignDao;
 import com.iflytek.rpa.utils.IdWorker;
@@ -27,6 +28,8 @@ import java.util.*;
 import java.util.stream.Collectors;
 import javax.annotation.Resource;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -41,6 +44,9 @@ import org.springframework.transaction.annotation.Transactional;
  */
 @Service("cElementService")
 public class CElementServiceImpl extends ServiceImpl<CElementDao, CElement> implements CElementService {
+
+    private static final Logger logger = LoggerFactory.getLogger(CElementServiceImpl.class);
+
     @Resource
     private CElementDao cElementDao;
 
@@ -58,6 +64,9 @@ public class CElementServiceImpl extends ServiceImpl<CElementDao, CElement> impl
 
     @Autowired
     private RpaAuthFeign rpaAuthFeign;
+
+    @Autowired
+    private RpaResourceFeign rpaResourceFeign;
     //    @Override
     //    @RobotVersionAnnotation
     //    public AppResponse<?> getElementNameList(BaseDto baseDto) throws NoLoginException {
@@ -257,7 +266,8 @@ public class CElementServiceImpl extends ServiceImpl<CElementDao, CElement> impl
                 element.getElementName(),
                 cGroup.getElementType());
         if (null != sameNameElement) {
-            // todo 删除oss图片
+            // 截图在本次请求中刚上传，元素记录又没有写入，这张图不会被任何元素引用，直接清理
+            deleteUnreferencedImage(element.getImageId());
             return AppResponse.error(ErrorCodeEnum.E_SERVICE, "名称重复，请重新命名");
         }
         cElementDao.insertElement(element);
@@ -265,6 +275,29 @@ public class CElementServiceImpl extends ServiceImpl<CElementDao, CElement> impl
         resultMap.put("elementId", elementId);
         resultMap.put("groupId", groupId);
         return AppResponse.success(resultMap);
+    }
+
+    /**
+     * 清理一张确定未被引用的截图。
+     *
+     * <p>只用于"图片已上传、元素记录未写入"的失败路径。删除已有元素时不能走这里：
+     * 元素带版本（robotVersion），imageId / parentImageId 常被多个版本和兄弟元素共享，
+     * 需要先做引用计数才能删，见 issue #793。</p>
+     *
+     * <p>清理失败只记日志：用户该看到的是"名称重复"，而不是一个清理错误。</p>
+     */
+    private void deleteUnreferencedImage(String imageId) {
+        if (StringUtils.isBlank(imageId)) {
+            return;
+        }
+        try {
+            AppResponse<Boolean> response = rpaResourceFeign.deleteFile(imageId);
+            if (response == null || !response.ok()) {
+                logger.warn("清理未被引用的元素截图失败, imageId: {}", imageId);
+            }
+        } catch (Exception e) {
+            logger.warn("清理未被引用的元素截图异常, imageId: {}", imageId, e);
+        }
     }
 
     @Override

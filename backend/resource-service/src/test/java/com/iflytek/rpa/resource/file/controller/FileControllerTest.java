@@ -58,4 +58,20 @@ class FileControllerTest {
         assertThat(response.getData()).isEqualTo("file-id");
         verify(fileService).uploadFile(file);
     }
+
+    @Test
+    void deleteFileRejectsBlankFileId() {
+        assertThatThrownBy(() -> fileController.deleteFile("")).isInstanceOf(ServiceException.class);
+        verify(fileService, never()).deleteFile(Mockito.anyString());
+    }
+
+    @Test
+    void deleteFileDelegatesToTheService() {
+        when(fileService.deleteFile("file-id")).thenReturn(AppResponse.success(true));
+
+        AppResponse<Boolean> response = fileController.deleteFile("file-id");
+
+        assertThat(response.getData()).isTrue();
+        verify(fileService).deleteFile("file-id");
+    }
 }
