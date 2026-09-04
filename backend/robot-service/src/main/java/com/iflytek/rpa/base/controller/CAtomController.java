@@ -5,9 +5,11 @@ import com.iflytek.rpa.base.entity.AtomCommon;
 import com.iflytek.rpa.base.entity.dto.AtomKeyListDto;
 import com.iflytek.rpa.base.entity.dto.AtomListDto;
 import com.iflytek.rpa.base.entity.dto.SaveAtomicsDto;
+import com.iflytek.rpa.base.security.AtomAdminAccessGuard;
 import com.iflytek.rpa.base.service.CAtomMetaService;
 import com.iflytek.rpa.utils.response.AppResponse;
 import java.util.Map;
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -21,6 +23,9 @@ public class CAtomController {
 
     @Autowired
     private CAtomMetaService cAtomMetaService;
+
+    @Autowired
+    private AtomAdminAccessGuard atomAdminAccessGuard;
 
     /**
      * 获取原子能力树层级关系和公共信息
@@ -65,8 +70,9 @@ public class CAtomController {
      * 新增原子能力公共数据（types、commonAdvancedParameter、atomicTree、atomicTreeExtend）
      */
     @PostMapping("/add-common")
-    public AppResponse<?> addAtomCommonInfo(@Valid @RequestBody AtomCommon atomCommon) throws JsonProcessingException {
-        // todo 加密码，限流
+    public AppResponse<?> addAtomCommonInfo(@Valid @RequestBody AtomCommon atomCommon, HttpServletRequest request)
+            throws JsonProcessingException {
+        atomAdminAccessGuard.checkWriteAccess(request);
 
         return cAtomMetaService.addAtomCommonInfo(atomCommon);
     }
@@ -79,9 +85,10 @@ public class CAtomController {
      * @return
      */
     @PostMapping("/update-common")
-    public AppResponse<?> updateAtomCommonInfo(@Valid @RequestBody AtomCommon atomCommon)
+    public AppResponse<?> updateAtomCommonInfo(@Valid @RequestBody AtomCommon atomCommon, HttpServletRequest request)
             throws JsonProcessingException {
-        // todo 加密码，限流
+        atomAdminAccessGuard.checkWriteAccess(request);
+
         return cAtomMetaService.updateAtomCommonInfo(atomCommon);
     }
 
@@ -89,7 +96,9 @@ public class CAtomController {
      * 插入或更新原子能力定义信息（atomics），存入DB
      */
     @PostMapping("/save-atomics")
-    public AppResponse<?> saveAtomicsInfo(@RequestBody SaveAtomicsDto saveAtomicsDto) throws Exception {
+    public AppResponse<?> saveAtomicsInfo(@RequestBody SaveAtomicsDto saveAtomicsDto, HttpServletRequest request)
+            throws Exception {
+        atomAdminAccessGuard.checkWriteAccess(request);
 
         return cAtomMetaService.saveAtomicsInfo(saveAtomicsDto.getAtomMap(), saveAtomicsDto.getSaveWay());
     }
