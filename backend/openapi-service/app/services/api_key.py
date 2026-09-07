@@ -27,7 +27,7 @@ class ApiKeyService:
             if keys:
                 await self.redis.delete(*keys)
 
-    async def create_api_key(self, api_key_data: ApiKeyCreate, user_id: str) -> OpenAPIDB:
+    async def create_api_key(self, api_key_data: ApiKeyCreate, user_id: str) -> str:
         """创建新API Key"""
 
         # 生成唯一ID和密钥

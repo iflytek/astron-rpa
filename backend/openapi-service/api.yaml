@@ -116,9 +116,13 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Execution'
+                $ref: '#/components/schemas/StandardResponse'
         '404':
           description: 执行记录不存在
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StandardResponse'
   /api-keys:
     get:
       tags: [api-key]
@@ -168,6 +172,18 @@ paths:
           description: 成功删除 API Key
 components:
   schemas:
+    StandardResponse:
+      type: object
+      required: [code, msg]
+      properties:
+        code:
+          type: string
+          enum: ['0000', '5001']
+        msg:
+          type: string
+        data:
+          nullable: true
+          type: object
     Workflow:
       type: object
       properties:

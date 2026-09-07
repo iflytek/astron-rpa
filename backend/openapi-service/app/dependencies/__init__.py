@@ -1,6 +1,5 @@
 import os
 from datetime import datetime
-from typing import Dict, List, Optional
 
 from fastapi import Depends, Header, HTTPException, Security, status  # Added status
 from fastapi.security import APIKeyHeader
@@ -110,34 +109,6 @@ async def verify_getkey_bearer_token(
         )
 
     return bearer_token
-
-
-def extract_api_key_from_request(ctx) -> Optional[str]:
-    """
-    从请求上下文中提取API_KEY
-    MCP使用
-    """
-
-    # 尝试多种方式获取查询参数
-    query_params = ctx.request.query_params
-
-    if query_params:
-        # 如果是字典类型
-        if isinstance(query_params, dict):
-            return query_params.get("key")
-
-        # 如果是QueryParams对象（Starlette）
-        if hasattr(query_params, "get"):
-            return query_params.get("key")
-
-        # 如果是字符串类型的查询字符串
-        if isinstance(query_params, str):
-            from urllib.parse import parse_qs
-
-            parsed = parse_qs(query_params)
-            key_values = parsed.get("key", [])
-            return key_values[0] if key_values else None
-    return None
 
 
 async def get_user_id_from_api_key(

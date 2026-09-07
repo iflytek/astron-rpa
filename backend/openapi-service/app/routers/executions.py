@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, Path, Query
+from fastapi import APIRouter, Depends, Path, Query, Response, status
 
 from app.dependencies import get_execution_service, get_user_id_from_api_key
 from app.logger import get_logger
@@ -53,6 +53,7 @@ async def get_executions(
     description="查询工作流执行的状态和结果",
 )
 async def get_execution(
+    response: Response,
     execution_id: str = Path(..., description="执行记录ID"),
     user_id: str = Depends(get_user_id_from_api_key),
     service: ExecutionService = Depends(get_execution_service),
@@ -61,6 +62,7 @@ async def get_execution(
     try:
         execution = await service.get_execution(execution_id, user_id)
         if not execution:
+            response.status_code = status.HTTP_404_NOT_FOUND
             return StandardResponse(
                 code=ResCode.ERR,
                 msg=f"Execution with ID {execution_id} not found",

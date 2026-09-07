@@ -132,6 +132,25 @@ rpa-openapi-service/
 ### 5. MCP Protocol Support (`/mcp`)
 - **Model Context Protocol** - Support for AI model interaction with workflows
 - **Streaming HTTP Processing** - Support for streaming data transmission and processing
+- **API Key Authentication** - Supports Bearer and `X-API-Key` request headers
+
+#### MCP Authentication
+
+Bearer authentication is recommended for production:
+
+```http
+Authorization: Bearer <API_KEY>
+```
+
+The dedicated header is also supported:
+
+```http
+X-API-Key: <API_KEY>
+```
+
+URL query credentials (`?key=`) are rejected by default so credentials do not enter browser history or proxy logs.
+Set `MCP_ALLOW_QUERY_API_KEY=true` only while migrating legacy clients. A request must use exactly one credential
+source. Missing, malformed, invalid, or revoked credentials return HTTP 401.
 
 ## 🚀 Quick Start
 
@@ -169,6 +188,9 @@ REDIS_URL=redis://localhost:6379/0
 
 # Application name
 APP_NAME="RPA OpenAPI Service"
+
+# Enable temporarily only while migrating legacy MCP clients
+MCP_ALLOW_QUERY_API_KEY=false
 ```
 
 ### 3. Start Service
