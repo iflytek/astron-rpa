@@ -1,7 +1,7 @@
 import json
 import os.path
 import platform
-import random
+import secrets
 import socket
 import string
 import sys
@@ -14,7 +14,7 @@ from astronverse.scheduler.logger import logger
 def generate_password(length=8):
     """生成指定长度的随机密码（数字+英文字母）"""
     chars = string.ascii_letters + string.digits
-    return "".join(random.choice(chars) for _ in range(length))
+    return "".join(secrets.choice(chars) for _ in range(length))
 
 
 class Terminal:
@@ -42,7 +42,11 @@ class Terminal:
                 "isDispatch": 1 if svc.terminal_mod else 0,  # 是否调度模式 (0: 否, 1: 是)
                 "monitorUrl": "/terminal/ping",  # 视频监控URL
             }
-            logger.info("Terminal register data: {}".format(data))
+            logger.info(
+                "Terminal registration requested: terminal_id={}, status={}",
+                data["terminalId"],
+                data["status"],
+            )
             response = requests.post(
                 url="http://127.0.0.1:{}{}".format(svc.rpa_route_port, api),
                 json=data,
