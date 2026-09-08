@@ -46,6 +46,7 @@ worker_processes 1;
 events { worker_connections 32; }
 http {
     lua_package_path "/usr/local/openresty/nginx/lua/?.lua;;";
+    resolver 127.0.0.11 ipv6=off;
 
     server {
         listen 8080;
