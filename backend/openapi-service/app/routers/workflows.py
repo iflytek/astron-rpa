@@ -128,11 +128,12 @@ async def get_workflows(
 )
 async def get_workflow(
     project_id: str = Path(..., description="项目ID"),
+    user_id: str = Depends(get_user_id_with_fallback),
     service: WorkflowService = Depends(get_workflow_service),
 ):
     """获取工作流详情"""
     try:
-        workflow = await service.get_workflow(project_id, None)
+        workflow = await service.get_workflow(project_id, user_id)
         if not workflow:
             # 改成成功返回code，前端处理
             return StandardResponse(
