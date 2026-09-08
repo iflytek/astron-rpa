@@ -136,9 +136,9 @@ local function authenticate_user()
         return ngx.exit(res.status)
     end
 
-    local userResponse, json_err = json.decode(res.body)
-    if json_err then
-        ngx_log(ngx_ERR, "Failed to decode robot-service response for " .. ctx_type .. " auth: " .. json_err)
+    local json_ok, userResponse = pcall(json.decode, res.body)
+    if not json_ok or type(userResponse) ~= "table" then
+        ngx_log(ngx_ERR, "Failed to decode robot-service response for " .. ctx_type .. " auth")
         ngx.status = ngx_HTTP_INTERNAL_SERVER_ERROR
         ngx.say(json.encode({code = "5000", message = "Internal Server Error: Invalid auth service response"}))
         return ngx.exit(ngx_HTTP_INTERNAL_SERVER_ERROR)
@@ -149,7 +149,7 @@ local function authenticate_user()
     local is_success = (response_code == "000000") or (response_code == 200) or (tostring(response_code) == "000000")
     
     if not is_success then
-        ngx_log(ngx_ERR, "robot-service returned error code: " .. (response_code or "nil") .. " for " .. ctx_type .. " auth")
+        ngx_log(ngx_ERR, "robot-service returned error code: " .. tostring(response_code) .. " for " .. ctx_type .. " auth")
         ngx.status = ngx_HTTP_UNAUTHORIZED
         ngx.say(json.encode({
             code = response_code or "U_AUTH_FAIL",
@@ -159,13 +159,16 @@ local function authenticate_user()
         return ngx.exit(ngx_HTTP_UNAUTHORIZED)
     end
 
-    local user_id = userResponse.data and userResponse.data["id"]
-    if not user_id then
-        ngx_log(ngx_ERR, "robot-service response missing 'id' in 'data' field for " .. ctx_type .. " auth")
-        ngx.status = ngx_HTTP_INTERNAL_SERVER_ERROR
-        ngx.say(json.encode({code = "5000", message = "Internal Server Error: Auth service response missing user_id"}))
-        return ngx.exit(ngx_HTTP_INTERNAL_SERVER_ERROR)
+    local response_data = userResponse.data
+    local user_id = type(response_data) == "table" and response_data["id"] or nil
+    local user_id_type = type(user_id)
+    if (user_id_type ~= "string" and user_id_type ~= "number") or tostring(user_id) == "" then
+        ngx_log(ngx_WARN, "robot-service response has no authenticated user for " .. ctx_type .. " auth")
+        ngx.status = ngx_HTTP_UNAUTHORIZED
+        ngx.say(json.encode({code = "4001", message = "Authentication credential is invalid or expired"}))
+        return ngx.exit(ngx_HTTP_UNAUTHORIZED)
     end
+    user_id = tostring(user_id)
 
     ngx_log(ngx_WARN, "User authenticated successfully. user_id: " .. user_id .. " in " .. ctx_type .. " context. Setting headers.")
     ngx.req.set_header("user_id", user_id)
