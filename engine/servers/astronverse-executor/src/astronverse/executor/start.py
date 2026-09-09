@@ -14,7 +14,7 @@ from astronverse.executor.debug.debug import Debug
 from astronverse.executor.debug.debug_svc import DebugSvc
 from astronverse.executor.flow.flow import Flow
 from astronverse.executor.flow.flow_svc import FlowSvc
-from astronverse.executor.utils.utils import str_to_list_if_possible
+from astronverse.executor.run_params import parse_run_params
 
 
 def flow_start(svc, args):
@@ -193,23 +193,7 @@ def start():
         flow_svc = FlowSvc(conf=Config)
         flow_start(svc=flow_svc, args=args)
         flow_tip = flow_svc.flow_tip  # 生成python脚本的提示信息
-        temp_run_param = {}
-        if args.run_param and isinstance(args.run_param, list):
-            for p in args.run_param:
-                param = flow_svc.param.parse_param(
-                    {
-                        "value": str_to_list_if_possible(p.get("varValue")),
-                        "types": p.get("varType"),
-                        "name": p.get("varName"),
-                    }
-                )
-                if param.show_value():
-                    temp_run_param[p.get("varName")] = eval(
-                        param.show_value(), {}, {}
-                    )  # 外部参数，只有简单的逻辑处理，不会引用变量
-                else:
-                    temp_run_param[p.get("varName")] = ""
-        args.run_param = temp_run_param  # 生成python脚本的外部参数
+        args.run_param = parse_run_params(args.run_param, flow_svc.param)  # 生成python脚本的外部参数
 
         # 执行代码
         debug_svc = DebugSvc(conf=Config, debug_model=args.debug == "y")
