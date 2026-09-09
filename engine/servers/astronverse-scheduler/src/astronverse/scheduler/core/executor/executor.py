@@ -9,6 +9,7 @@ import time
 import traceback
 import uuid
 from enum import Enum
+from pathlib import Path
 from typing import Union
 from urllib.parse import quote
 
@@ -108,6 +109,21 @@ def read_status(file) -> (ExecuteStatus, str):
     except Exception as e:
         logger.exception("read_exec_status error: {}".format(e))
     return ExecuteStatus.FAIL, "运行日志为空", {}
+
+
+def _write_run_param_file(run_param: str) -> str:
+    """Write remote execution parameters to a fresh scheduler temp file."""
+    temp_dir = os.path.join(os.getcwd(), "logs", "param")
+    os.makedirs(temp_dir, exist_ok=True)
+
+    temp_file_path = os.path.join(temp_dir, f"run_param_{uuid.uuid4().hex}.tmp")
+    try:
+        run_param_obj = json.loads(run_param)
+        with open(temp_file_path, "w", encoding="utf-8") as file:
+            json.dump(run_param_obj, file, ensure_ascii=False)
+    except (json.JSONDecodeError, TypeError):
+        Path(temp_file_path).write_text(run_param, encoding="utf-8")
+    return temp_file_path
 
 
 class Executor:
@@ -317,25 +333,7 @@ class ExecutorManager:
         ins.set_param("exec_id", executor.exec_id)
         if run_param:
             try:
-                # 在 temp 目录下创建临时文件
-                temp_dir = os.path.join(os.getcwd(), "logs", "param")
-                if os.path.exists(temp_dir):
-                    if os.listdir(temp_dir):
-                        shutil.rmtree(temp_dir)
-                else:
-                    os.makedirs(temp_dir)
-                random_filename = f"run_param_{uuid.uuid4().hex}.tmp"
-                temp_file_path = os.path.join(temp_dir, random_filename)
-
-                # 解析 run_param 字符串为 JSON 对象，然后写入文件
-                try:
-                    run_param_obj = json.loads(run_param)
-                    with open(temp_file_path, "w", encoding="utf-8") as f:
-                        json.dump(run_param_obj, f, ensure_ascii=False)
-                except (json.JSONDecodeError, TypeError):
-                    with open(temp_file_path, "w", encoding="utf-8") as f:
-                        f.write(run_param)
-
+                temp_file_path = _write_run_param_file(run_param)
                 executor.run_param_file = temp_file_path
                 ins.set_param("run_param", quote(temp_file_path))
             except Exception:
