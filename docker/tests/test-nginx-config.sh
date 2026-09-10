@@ -23,6 +23,71 @@ openssl req -x509 -newkey rsa:2048 -nodes -days 1 \
     -keyout "$TEST_ROOT/tls.key" \
     -out "$TEST_ROOT/tls.crt" >/dev/null 2>&1
 
+# Exercise the actual proxy location against an upstream, not only a TLS
+# listener returning 502. The fixture is private to each test container.
+cat > "$TEST_ROOT/upstream.conf" <<'NGINX'
+server {
+    listen 8000;
+    access_log off;
+    location / {
+        default_type application/json;
+        content_by_lua_block {
+            local headers = ngx.req.get_headers()
+            ngx.say(require("cjson").encode({
+                host = headers["host"],
+                real_ip = headers["x-real-ip"],
+                forwarded_for = headers["x-forwarded-for"],
+                forwarded_host = headers["x-forwarded-host"],
+                forwarded_proto = headers["x-forwarded-proto"],
+                forwarded_port = headers["x-forwarded-port"],
+                upgrade = headers["upgrade"],
+                connection = headers["connection"]
+            }))
+        }
+    }
+}
+NGINX
+
+assert_casdoor_headers() {
+    scheme="$1"
+    published_port="$2"
+    authority="$3"
+    expected_port="$4"
+    upgrade="$5"
+
+    curl --noproxy '*' --silent --show-error --fail --max-time 10 \
+        --cacert "$TEST_ROOT/tls.crt" \
+        -H "Host: $authority" \
+        -H 'X-Forwarded-Host: spoofed.invalid' \
+        -H 'X-Forwarded-Proto: spoofed' \
+        -H 'X-Forwarded-Port: 1' \
+        -H 'X-Real-IP: 198.51.100.10' \
+        -H "Upgrade: $upgrade" -H 'Connection: upgrade' \
+        "$scheme://localhost:$published_port/?key=casdoor-do-not-log" > "$TEST_ROOT/upstream.json"
+
+    python3 - "$TEST_ROOT/upstream.json" "$authority" "$scheme" "$expected_port" "$upgrade" <<'PY'
+import ipaddress
+import json
+import sys
+
+with open(sys.argv[1], encoding="utf-8") as response:
+    headers = json.load(response)
+authority, scheme, port, upgrade = sys.argv[2:]
+for field, expected in {
+    "host": authority,
+    "forwarded_host": authority,
+    "forwarded_proto": scheme,
+    "forwarded_port": port,
+    "connection": "upgrade" if upgrade else "close",
+}.items():
+    assert headers.get(field) == expected, f"{scheme} upstream {field}: {headers.get(field)!r} != {expected!r}"
+assert headers.get("upgrade", "") == upgrade, headers
+ipaddress.ip_address(headers["real_ip"])
+assert headers["real_ip"] != "198.51.100.10", headers
+assert headers["forwarded_for"] == headers["real_ip"], headers
+PY
+}
+
 docker compose --project-directory "$TEST_ROOT/compose" \
     -f "$TEST_ROOT/compose/docker-compose.yml" \
     config --format json > "$TEST_ROOT/compose-https.json"
@@ -143,6 +208,7 @@ docker run -d --name "$CONTAINER_NAME" \
     -v "$DOCKER_DIR/volumes/nginx/lua:/usr/local/openresty/nginx/lua:ro" \
     -v "$TEST_ROOT:/etc/nginx/certs:ro" \
     -v "$TEST_ROOT/logs:/usr/local/openresty/nginx/logs" \
+    -v "$TEST_ROOT/upstream.conf:/etc/nginx/conf.d/upstream.conf:ro" \
     --entrypoint /bin/sh \
     openresty/openresty:1.27.1.1-alpine \
     /etc/nginx/render-config.sh /usr/local/openresty/bin/openresty -g 'daemon off;' >/dev/null
@@ -166,9 +232,9 @@ headers=$(curl --silent --dump-header - --output /dev/null "http://127.0.0.1:$HT
 printf '%s' "$headers" | grep -q '^HTTP/1.1 308'
 printf '%s' "$headers" | grep -qi '^Location: https://localhost/health?key=do-not-log'
 
-# A 502 response is expected without the Casdoor upstream; a completed HTTPS
-# exchange proves that the dedicated TLS listener is active.
-curl --silent --insecure --output /dev/null "https://127.0.0.1:$CASDOOR_HTTPS_PORT/?key=casdoor-do-not-log"
+# Cover default and remapped public ports, normal requests and Upgrade headers.
+assert_casdoor_headers https "$CASDOOR_HTTPS_PORT" auth.example.test 443 ''
+assert_casdoor_headers https "$CASDOOR_HTTPS_PORT" "localhost:$CASDOOR_HTTPS_PORT" "$CASDOOR_HTTPS_PORT" websocket
 
 if grep -Eq 'do-not-log|casdoor-do-not-log' "$TEST_ROOT/logs/access.log"; then
     echo 'sanitized access log contains a query parameter' >&2
@@ -193,6 +259,7 @@ docker run -d --name "$CONTAINER_NAME" \
     -v "$DOCKER_DIR/volumes/nginx/lua:/usr/local/openresty/nginx/lua:ro" \
     -v "$TEST_ROOT:/etc/nginx/certs:ro" \
     -v "$TEST_ROOT/logs:/usr/local/openresty/nginx/logs" \
+    -v "$TEST_ROOT/upstream.conf:/etc/nginx/conf.d/upstream.conf:ro" \
     --entrypoint /bin/sh \
     openresty/openresty:1.27.1.1-alpine \
     /etc/nginx/render-config.sh /usr/local/openresty/bin/openresty -g 'daemon off;' >/dev/null
@@ -211,8 +278,7 @@ until curl --silent --fail "http://127.0.0.1:$LEGACY_HTTP_PORT/health" | grep -q
     sleep 1
 done
 
-# A 502 response is expected without the Casdoor upstream; a completed HTTP
-# exchange proves that the legacy compatibility proxy is active.
-curl --silent --output /dev/null "http://127.0.0.1:$LEGACY_CASDOOR_PORT/"
+assert_casdoor_headers http "$LEGACY_CASDOOR_PORT" auth.example.test 80 ''
+assert_casdoor_headers http "$LEGACY_CASDOOR_PORT" "localhost:$LEGACY_CASDOOR_PORT" "$LEGACY_CASDOOR_PORT" websocket
 
 echo 'OpenResty HTTPS and legacy configuration tests passed.'
