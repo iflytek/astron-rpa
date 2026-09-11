@@ -1,3 +1,4 @@
+import asyncio
 import os
 from unittest.mock import AsyncMock, MagicMock
 
@@ -15,7 +16,7 @@ from app.models.workflow import Execution
 from app.routers.executions import get_execution as get_execution_route
 from app.schemas import ResCode
 from app.schemas.workflow import ExecutionCreate
-from app.services.execution import ExecutionService
+from app.services.execution import ExecutionService, _execution_tasks
 
 
 class AsyncSessionAdapter:
@@ -32,6 +33,73 @@ class AsyncSessionAdapter:
 
     async def rollback(self):
         self.session.rollback()
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("fail", [False, True])
+async def test_request_cancellation_preserves_worker_and_final_status(monkeypatch, fail):
+    engine = create_engine("sqlite:///:memory:")
+    Execution.__table__.create(engine)
+    started, release = asyncio.Event(), asyncio.Event()
+    with Session(engine, expire_on_commit=False) as seed:
+        execution = Execution(id="cancel-wait", project_id="p", user_id="owner", status="PENDING")
+        seed.add(execution)
+        seed.commit()
+        with Session(engine, expire_on_commit=False) as worker_session:
+            context = MagicMock()
+            context.__aenter__ = AsyncMock(return_value=AsyncSessionAdapter(worker_session))
+            context.__aexit__ = AsyncMock(return_value=False)
+            monkeypatch.setattr("app.services.execution.AsyncSessionLocal", lambda: context)
+
+            async def dispatch(worker, record):
+                started.set()
+                await release.wait()
+                if fail:
+                    raise RuntimeError("test workflow failure")
+                await worker.update_execution_status(record.id, "COMPLETED", result={"ok": True})
+
+            dispatch_mock = AsyncMock(side_effect=dispatch)
+
+            async def logic(worker, record):
+                await dispatch_mock(worker, record)
+
+            monkeypatch.setattr(ExecutionService, "_execute_workflow_logic", logic)
+            service = ExecutionService(AsyncMock())
+            service.create_execution = AsyncMock(return_value=execution)
+            baseline = set(_execution_tasks)
+            request = asyncio.create_task(service.execute_workflow(ExecutionCreate(project_id="p"), "owner"))
+            await asyncio.wait_for(started.wait(), timeout=2)
+            request.cancel()
+            with pytest.raises(asyncio.CancelledError):
+                await request
+            pending = _execution_tasks - baseline
+            assert len(pending) == 1
+            assert not next(iter(pending)).done()
+            service.db.refresh.assert_not_awaited()
+            release.set()
+            await asyncio.wait_for(asyncio.gather(*pending), timeout=2)
+            dispatch_mock.assert_awaited_once()
+            assert not (_execution_tasks - baseline)
+            seed.expire_all()
+            stored = seed.get(Execution, execution.id)
+            assert stored.status == ("FAILED" if fail else "COMPLETED")
+            if fail:
+                assert stored.error == "test workflow failure"
+    engine.dispose()
+
+
+@pytest.mark.asyncio
+async def test_sync_worker_timeout_still_reaches_waiting_caller():
+    service = ExecutionService(AsyncMock())
+    service.create_execution = AsyncMock(
+        return_value=Execution(id="timeout", project_id="p", user_id="owner", status="PENDING")
+    )
+    service._run_workflow_with_new_session_sync = AsyncMock(side_effect=TimeoutError)
+    baseline = set(_execution_tasks)
+    with pytest.raises(TimeoutError):
+        await service.execute_workflow(ExecutionCreate(project_id="p"), "owner", workflow_timeout=1)
+    assert not (_execution_tasks - baseline)
+    service.db.refresh.assert_not_awaited()
 
 
 def empty_scalar_result():
@@ -195,6 +263,7 @@ async def test_websocket_dispatch_uses_only_recorded_execution_identity(monkeypa
         callback(MagicMock(data={"code": "0000"}))
 
     websocket_service.ws_manager.send_reply = AsyncMock(side_effect=reply_with_success)
+    websocket_service.ws_manager.conns = {"recorded-user": MagicMock()}
     monkeypatch.setattr(
         "app.dependencies.get_ws_service",
         AsyncMock(return_value=websocket_service),
@@ -213,6 +282,70 @@ async def test_websocket_dispatch_uses_only_recorded_execution_identity(monkeypa
     dispatched_message = websocket_service.ws_manager.send_reply.await_args.args[0]
     assert dispatched_message.send_uuid == "recorded-user"
     service.update_execution_status.assert_awaited_once()
+
+
+@pytest.mark.asyncio
+async def test_websocket_dispatch_accepts_json_string_execution_data(monkeypatch):
+    service = ExecutionService(AsyncMock())
+    service.update_execution_status = AsyncMock()
+    websocket_service = MagicMock()
+
+    async def reply_with_json_string(base_msg, timeout, callback):
+        callback(MagicMock(data='{"code":"0000","data":{"result":"stage0-short-ok"}}'))
+
+    websocket_service.ws_manager.send_reply = AsyncMock(side_effect=reply_with_json_string)
+    websocket_service.ws_manager.conns = {"recorded-user": MagicMock()}
+    monkeypatch.setattr(
+        "app.dependencies.get_ws_service",
+        AsyncMock(return_value=websocket_service),
+    )
+    execution = Execution(
+        id="execution-json-string",
+        project_id="project-1",
+        user_id="recorded-user",
+        status="PENDING",
+        parameters="{}",
+        exec_position="EXECUTOR",
+    )
+
+    await service._execute_workflow_logic(execution)
+
+    service.update_execution_status.assert_awaited_once_with(
+        "execution-json-string",
+        "COMPLETED",
+        result={"code": "0000", "data": {"result": "stage0-short-ok"}},
+        error=None,
+    )
+
+
+@pytest.mark.asyncio
+async def test_websocket_dispatch_rejects_python_dict_string_execution_data(monkeypatch):
+    service = ExecutionService(AsyncMock())
+    service.update_execution_status = AsyncMock()
+    websocket_service = MagicMock()
+
+    async def reply_with_python_dict_string(base_msg, timeout, callback):
+        callback(MagicMock(data="{'code': '0000', 'data': {'result': 'stage0-short-ok'}}"))
+
+    websocket_service.ws_manager.send_reply = AsyncMock(side_effect=reply_with_python_dict_string)
+    websocket_service.ws_manager.conns = {"recorded-user": MagicMock()}
+    monkeypatch.setattr(
+        "app.dependencies.get_ws_service",
+        AsyncMock(return_value=websocket_service),
+    )
+    execution = Execution(
+        id="execution-python-dict-string",
+        project_id="project-1",
+        user_id="recorded-user",
+        status="PENDING",
+        parameters="{}",
+        exec_position="EXECUTOR",
+    )
+
+    with pytest.raises(ValueError, match="invalid serialized execution data"):
+        await service._execute_workflow_logic(execution)
+
+    service.update_execution_status.assert_not_awaited()
 
 
 @pytest.mark.asyncio
@@ -235,3 +368,29 @@ async def test_websocket_dispatch_fails_closed_without_recorded_identity(monkeyp
         await service._execute_workflow_logic(execution)
 
     websocket_service.ws_manager.send_reply.assert_not_awaited()
+
+
+@pytest.mark.asyncio
+async def test_offline_client_fails_without_dispatch_and_records_safe_error(monkeypatch):
+    service = ExecutionService(AsyncMock())
+    service.update_execution_status = AsyncMock()
+    websocket_service = MagicMock()
+    websocket_service.ws_manager.conns = {"another-user": MagicMock()}
+    websocket_service.ws_manager.send_reply = AsyncMock()
+    monkeypatch.setattr("app.dependencies.get_ws_service", AsyncMock(return_value=websocket_service))
+    execution = Execution(
+        id="execution-offline",
+        project_id="project-1",
+        user_id="offline-user",
+        status="PENDING",
+        parameters="{}",
+        exec_position="EXECUTOR",
+    )
+    service.get_execution_internal = AsyncMock(return_value=execution)
+
+    await service._run_workflow("execution-offline", workflow_timeout=5)
+
+    websocket_service.ws_manager.send_reply.assert_not_awaited()
+    service.update_execution_status.assert_awaited_once_with(
+        "execution-offline", "FAILED", error="RPA client is offline or disconnected"
+    )

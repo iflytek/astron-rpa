@@ -1,4 +1,3 @@
-import json
 from typing import Optional
 
 from mcp import types
@@ -137,12 +136,13 @@ class ToolsConfig:
 
         try:
             # 查找对应的工作流项目ID
-            project_id, version = await self.get_project_id_by_name(name, user_id)
-            if not project_id:
+            workflow_ref = await self.get_project_id_by_name(name, user_id)
+            if not workflow_ref or not workflow_ref[0]:
                 return {
                     "success": False,
                     "error": f"No workflow found for tool '{name}' or permission denied",
                 }
+            project_id, version = workflow_ref
 
             # 创建执行参数
             from app.schemas.workflow import ExecutionCreate
@@ -166,12 +166,19 @@ class ToolsConfig:
                     workflow_timeout=600,
                 )
 
+                message = execution.get_result_as_dict()
+                if not message:
+                    return {
+                        "success": False,
+                        "error": execution.error or f"Workflow execution ended with status {execution.status}",
+                    }
+
                 return {
                     "success": True,
                     "execution_id": execution.id,
                     "project_id": project_id,
                     "data": execution.to_dict(),
-                    "message": json.loads(execution.result),
+                    "message": message,
                 }
 
         except Exception as e:

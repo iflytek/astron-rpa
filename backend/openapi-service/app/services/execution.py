@@ -16,6 +16,18 @@ from app.schemas.workflow import ExecutionCreate, ExecutionStatus
 
 logger = get_logger(__name__)
 
+# Keep dispatched work alive if an HTTP/MCP caller stops waiting. This is
+# process-local ownership, not a durable queue or cancellation API.
+_execution_tasks: set[asyncio.Task] = set()
+
+
+def _execution_task_done(task: asyncio.Task) -> None:
+    _execution_tasks.discard(task)
+    if not task.cancelled():
+        error = task.exception()  # Retrieve failures even when the caller disconnected.
+        if error is not None:
+            logger.error("Execution task %s ended with %s", task.get_name(), type(error).__name__)
+
 
 class ExecutionService:
     def __init__(self, db: AsyncSession, redis: Redis = None):
@@ -174,19 +186,19 @@ class ExecutionService:
         # 保存 execution_id，后续需要用
         execution_id = execution.id
 
-        # 执行工作流逻辑（异步/同步）
-        # 添加短暂延迟，确保数据库事务完全提交
-        await asyncio.sleep(0.1)
+        # The commit above has completed. Take ownership before another await,
+        # so request cancellation cannot abandon already committed work.
+        runner = self._run_workflow_with_new_session_sync if wait else self._run_workflow_with_new_session
+        task = asyncio.create_task(runner(execution_id, workflow_timeout), name=f"execution-{execution_id}")
+        _execution_tasks.add(task)
+        task.add_done_callback(_execution_task_done)
 
         if wait:
             # 同步执行模式 - 使用新的数据库会话，避免长时间占用连接
-            await self._run_workflow_with_new_session_sync(execution_id, workflow_timeout)
+            await asyncio.shield(task)
 
             # 使用原会话重新获取最新状态
             await self.db.refresh(execution)
-        else:
-            # 异步执行模式，后台执行（不等待结果）
-            asyncio.create_task(self._run_workflow_with_new_session(execution_id, workflow_timeout))
 
         return execution
 
@@ -260,6 +272,8 @@ class ExecutionService:
 
             if not execution.user_id:
                 raise ValueError(f"Execution {execution.id} has no authenticated user identity")
+            if str(execution.user_id) not in websocket_service.ws_manager.conns:
+                raise ConnectionError("RPA client is offline or disconnected")
             logger.info(
                 "Dispatching execution %s for recorded user %s",
                 execution.id,
@@ -328,7 +342,20 @@ class ExecutionService:
             await wait.wait()
             logger.info("Received response for execution %s", execution.id)
 
-            # 假设工作流执行成功
+            if res_e:
+                raise RuntimeError(f"WebSocket execution failed: {res_e}")
+
+            # rpawebsocket may deserialize the reply envelope while leaving its
+            # data field as a JSON string. Normalize both wire representations
+            # before classifying the client result.
+            if isinstance(res, str):
+                try:
+                    res = json.loads(res)
+                except json.JSONDecodeError as exc:
+                    raise ValueError("Client returned invalid serialized execution data") from exc
+            if not isinstance(res, dict):
+                raise TypeError(f"Client returned unsupported execution data type: {type(res).__name__}")
+
             if res.get("code") == "0000":
                 await self.update_execution_status(
                     execution.id,
@@ -345,6 +372,15 @@ class ExecutionService:
                     error=str(res_e) if res_e else None,
                 )
                 logger.info("Updated execution %s status to FAILED", execution.id)
+            else:
+                error = f"Client returned unexpected execution code: {res.get('code')!r}"
+                await self.update_execution_status(
+                    execution.id,
+                    ExecutionStatus.FAILED.value,
+                    result=res,
+                    error=error,
+                )
+                logger.info("Updated execution %s status to FAILED: %s", execution.id, error)
 
         except Exception:
             logger.exception("Error in workflow execution logic for %s", execution.id)

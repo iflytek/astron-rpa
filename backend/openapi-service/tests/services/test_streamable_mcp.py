@@ -56,3 +56,55 @@ async def test_workflow_lookup_uses_authenticated_user(monkeypatch):
     workflow_service.get_workflows.assert_awaited_once_with("authenticated-user")
     db.close.assert_awaited_once()
     assert workflows == [{"project_id": "robot-1", "status": 1}]
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("workflow_ref", [None, ("", 1)])
+async def test_unavailable_workflow_returns_safe_error_without_execution(monkeypatch, workflow_ref):
+    tools_config = ToolsConfig()
+    monkeypatch.setattr(tools_config, "_ensure_redis_connection", AsyncMock())
+    lookup = AsyncMock(return_value=workflow_ref)
+    monkeypatch.setattr(tools_config, "get_project_id_by_name", lookup)
+    execute = AsyncMock()
+    monkeypatch.setattr("app.services.execution.ExecutionService.execute_workflow", execute)
+
+    result = await tools_config.execute_workflow_by_name("unavailable-tool", "user-1", {})
+
+    assert result == {
+        "success": False,
+        "error": "No workflow found for tool 'unavailable-tool' or permission denied",
+    }
+    lookup.assert_awaited_once_with("unavailable-tool", "user-1")
+    execute.assert_not_awaited()
+
+
+@pytest.mark.asyncio
+async def test_execution_without_result_returns_recorded_error(monkeypatch):
+    tools_config = ToolsConfig()
+    monkeypatch.setattr(tools_config, "_ensure_redis_connection", AsyncMock())
+    monkeypatch.setattr(
+        tools_config,
+        "get_project_id_by_name",
+        AsyncMock(return_value=("project-1", 3)),
+    )
+
+    execution = type(
+        "ExecutionStub",
+        (),
+        {
+            "id": "execution-1",
+            "status": "FAILED",
+            "error": "RPA client is offline or disconnected",
+            "get_result_as_dict": lambda self: {},
+        },
+    )()
+    execute = AsyncMock(return_value=execution)
+    monkeypatch.setattr("app.services.execution.ExecutionService.execute_workflow", execute)
+
+    result = await tools_config.execute_workflow_by_name("workflow-tool", "user-1", {"value": 1})
+
+    assert result == {
+        "success": False,
+        "error": "RPA client is offline or disconnected",
+    }
+    execute.assert_awaited_once()
