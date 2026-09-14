@@ -466,6 +466,14 @@ In an environment without external network access, normal `pip install` or offli
 
 **A:** Some Go components live on the `dev` branch — switch to that branch to find them. If you cannot locate the directory on `main`, check your current branch first.
 
+### Q: 🆕 When several clients connect to the same server, how do I choose which client runs a workflow triggered via the API?
+
+**A:** It is selected by the **API Key**. The open-API execution endpoints (`execute` / `execute-async` under `/openapi`) resolve the caller from the API Key in the request, so the workflow runs on the **client logged in with the account that owns that API Key**.
+
+- To run on a specific client, use the API Key of that client's own account — whichever key you call with is where it runs.
+- Get the API Key from the open-API page in the client / platform.
+- Server-side **remote scheduled tasks** are dispatched by the scheduler to connected executors and are not selected via the API Key above.
+
 ---
 
 ## 🐛 Troubleshooting
@@ -560,6 +568,16 @@ Scheduled tasks run on an APScheduler cron trigger, whose default misfire tolera
 - With multiple scheduled tasks, check whether all of them or only one failed to fire — that quickly separates a scheduler problem from a single-task configuration problem.
 
 **4. When reporting**: attach the logs, a screenshot of the task configuration, and the exact timestamps that fired vs. did not fire.
+
+---
+
+### Q: 🆕 After self-hosting, the client fails to log in (auto-login works but clicking "Login" errors), or a renamed organization reverts after restart?
+
+**A:** This is usually caused by **Casdoor organization configuration**. The open-source edition authenticates through Casdoor but **uses only one non-built-in organization** (the seeded `example-org`, display name "示例组织"), and the **open-source edition does not support multi-tenancy / multiple organizations**.
+
+1. Open the Casdoor admin console (port 8000 by default) and **keep only one non-built-in organization** — delete any extra organizations you created, then retry login.
+2. Do not create additional organizations in Casdoor; the platform maps to the seeded one.
+3. You may change the **display name** of `example-org`, but it can revert to the default after a restart — it is an internal placeholder org that end users never see, so this is harmless.
 
 ---
 
