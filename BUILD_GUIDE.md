@@ -276,6 +276,9 @@ CASDOOR_EXTERNAL_ENDPOINT="https://auth.example.com:8443"
 # docker/certs/tls.crt and docker/certs/tls.key
 
 # 🚀 Start all services
+docker compose up -d mysql casdoor
+# Wait for Casdoor initialization (see docker/HTTPS_DEPLOYMENT.md section 1.3)
+python3 scripts/sync-casdoor-credentials.py
 docker compose up -d
 
 # 📊 Check service status

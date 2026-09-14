@@ -33,6 +33,10 @@ server {
         default_type application/json;
         content_by_lua_block {
             local headers = ngx.req.get_headers()
+            ngx.header["Set-Cookie"] = {
+                "casdoor_session_id=test-session; Path=/; HttpOnly",
+                "unrelated=test-value; Path=/"
+            }
             ngx.say(require("cjson").encode({
                 host = headers["host"],
                 real_ip = headers["x-real-ip"],
@@ -85,6 +89,31 @@ assert headers.get("upgrade", "") == upgrade, headers
 ipaddress.ip_address(headers["real_ip"])
 assert headers["real_ip"] != "198.51.100.10", headers
 assert headers["forwarded_for"] == headers["real_ip"], headers
+PY
+}
+
+assert_session_cookie() {
+    scheme="$1"
+    published_port="$2"
+    request_path="$3"
+    curl --noproxy '*' --silent --show-error --fail --max-time 10 \
+        --cacert "$TEST_ROOT/tls.crt" \
+        --dump-header "$TEST_ROOT/cookie-headers.txt" --output /dev/null \
+        "$scheme://localhost:$published_port$request_path"
+    python3 - "$TEST_ROOT/cookie-headers.txt" "$scheme" <<'PY'
+from http.cookies import SimpleCookie
+import sys
+
+cookies = SimpleCookie()
+with open(sys.argv[1], encoding="utf-8") as response:
+    for line in response:
+        if line.lower().startswith("set-cookie:"):
+            cookies.load(line.split(":", 1)[1].strip())
+session = cookies["casdoor_session_id"]
+assert session.value == "test-session" and session["path"] == "/"
+assert session["httponly"]
+assert bool(session["secure"]) == (sys.argv[2] == "https")
+assert not cookies["unrelated"]["secure"]
 PY
 }
 
@@ -235,6 +264,8 @@ printf '%s' "$headers" | grep -qi '^Location: https://localhost/health?key=do-no
 # Cover default and remapped public ports, normal requests and Upgrade headers.
 assert_casdoor_headers https "$CASDOOR_HTTPS_PORT" auth.example.test 443 ''
 assert_casdoor_headers https "$CASDOOR_HTTPS_PORT" "localhost:$CASDOOR_HTTPS_PORT" "$CASDOOR_HTTPS_PORT" websocket
+assert_session_cookie https "$CASDOOR_HTTPS_PORT" /
+assert_session_cookie https "$HTTPS_PORT" /api/casdoor/
 
 if grep -Eq 'do-not-log|casdoor-do-not-log' "$TEST_ROOT/logs/access.log"; then
     echo 'sanitized access log contains a query parameter' >&2
@@ -280,5 +311,7 @@ done
 
 assert_casdoor_headers http "$LEGACY_CASDOOR_PORT" auth.example.test 80 ''
 assert_casdoor_headers http "$LEGACY_CASDOOR_PORT" "localhost:$LEGACY_CASDOOR_PORT" "$LEGACY_CASDOOR_PORT" websocket
+assert_session_cookie http "$LEGACY_CASDOOR_PORT" /
+assert_session_cookie http "$LEGACY_HTTP_PORT" /api/casdoor/
 
 echo 'OpenResty HTTPS and legacy configuration tests passed.'

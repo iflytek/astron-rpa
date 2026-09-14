@@ -1,62 +1,15 @@
 import json
 import logging
-from collections.abc import Awaitable, Callable, Mapping
-from typing import Any
-from urllib.parse import parse_qs
+from collections.abc import Awaitable, Callable
 
 from starlette.types import ASGIApp, Receive, Scope, Send
+
+from app.security.api_key import APIKeyAuthenticationError as MCPAuthenticationError
+from app.security.api_key import extract_api_key as extract_mcp_api_key
 
 logger = logging.getLogger(__name__)
 
 APIKeyValidator = Callable[[str], Awaitable[str | None]]
-
-
-class MCPAuthenticationError(ValueError):
-    """Raised when an MCP request does not contain one unambiguous credential."""
-
-
-def _get_header_values(scope: Mapping[str, Any], name: bytes) -> list[str]:
-    values = []
-    for raw_name, raw_value in scope.get("headers", []):
-        if raw_name.lower() == name:
-            values.append(raw_value.decode("latin-1").strip())
-    return values
-
-
-def extract_mcp_api_key(scope: Mapping[str, Any], *, allow_query_api_key: bool = False) -> str:
-    """Extract exactly one MCP API key from the supported credential locations."""
-    credentials: list[str] = []
-
-    authorization_values = _get_header_values(scope, b"authorization")
-    if len(authorization_values) > 1:
-        raise MCPAuthenticationError("Multiple Authorization headers are not allowed")
-    if authorization_values:
-        parts = authorization_values[0].split()
-        if len(parts) != 2 or parts[0].lower() != "bearer" or not parts[1]:
-            raise MCPAuthenticationError("Invalid Authorization header")
-        credentials.append(parts[1])
-
-    api_key_header_values = _get_header_values(scope, b"x-api-key")
-    if len(api_key_header_values) > 1 or (api_key_header_values and not api_key_header_values[0]):
-        raise MCPAuthenticationError("Invalid X-API-Key header")
-    if api_key_header_values:
-        credentials.append(api_key_header_values[0])
-
-    query_values = parse_qs(
-        scope.get("query_string", b"").decode("latin-1"),
-        keep_blank_values=True,
-    ).get("key", [])
-    if query_values:
-        if not allow_query_api_key:
-            raise MCPAuthenticationError("Query parameter API keys are disabled")
-        if len(query_values) != 1 or not query_values[0].strip():
-            raise MCPAuthenticationError("Invalid query parameter API key")
-        credentials.append(query_values[0].strip())
-
-    if len(credentials) != 1:
-        raise MCPAuthenticationError("Exactly one API key credential is required")
-
-    return credentials[0]
 
 
 class MCPAPIKeyAuthMiddleware:
@@ -87,8 +40,8 @@ class MCPAPIKeyAuthMiddleware:
         except MCPAuthenticationError:
             await self._send_error(send, 401, "Invalid authentication credentials", authenticate=True)
             return
-        except Exception:
-            logger.exception("MCP API key validation failed")
+        except Exception as exc:
+            logger.error("MCP API key validation failed: %s", type(exc).__name__)  # noqa: TRY400 -- omit sensitive exception text
             await self._send_error(send, 503, "Authentication service unavailable")
             return
 

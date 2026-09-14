@@ -52,6 +52,15 @@ http {
         listen 8080;
         set $context_type "HTTP";
 
+        location /api/rpa-openapi/ {
+            rewrite ^/api/rpa-openapi/(.*)$ /$1 break;
+            access_by_lua_file /usr/local/openresty/nginx/lua/openapi_auth.lua;
+            content_by_lua_block {
+                local h = ngx.req.get_headers()
+                ngx.say((h["user_id"] or "missing") .. ":" .. (h["x-user-id"] or "missing"))
+            }
+        }
+
         location = /protected {
             access_by_lua_file /usr/local/openresty/nginx/lua/auth_handler.lua;
             content_by_lua_block {
@@ -114,4 +123,33 @@ assert_status_and_body null-token 401 'invalid or expired'
 assert_status_and_body scalar-token 401 'invalid or expired'
 assert_status_and_body malformed-token 500 'Invalid auth service response'
 
-echo 'OpenResty authentication response validation tests passed.'
+# These requests exercise the production OpenAPI gateway policy, including
+# rewrite ordering and removal of both public identity header spellings.
+assert_openapi() {
+    path="$1"
+    expected_status="$2"
+    expected_body="$3"
+    shift 3
+    response_file="$TEST_ROOT/openapi-response"
+    status=$(curl --silent --output "$response_file" --write-out '%{http_code}' \
+        --header 'user_id: attacker' --header 'X-User-Id: attacker' \
+        "$@" "http://127.0.0.1:$GATEWAY_PORT/api/rpa-openapi/$path")
+    if [ "$status" != "$expected_status" ] || ! grep -q "$expected_body" "$response_file"; then
+        echo "unexpected OpenAPI result for $path: $status" >&2
+        cat "$response_file" >&2
+        docker logs "$GATEWAY_NAME" >&2
+        exit 1
+    fi
+}
+assert_openapi api-keys/create 401 'Session authentication required' --header 'Authorization: Bearer arbitrary'
+assert_openapi workflows/upsert 401 'Session authentication required' --header 'X-API-Key: arbitrary'
+assert_openapi ws 401 'Session authentication required' --header 'Authorization: Bearer arbitrary'
+assert_openapi api-keys/get 200 '^user-123:missing$' --header 'Token: valid-token'
+# Repeat to verify the Lua auth handler executes on every request, not once.
+assert_openapi api-keys/get 401 'invalid or expired' --header 'Token: null-token'
+assert_openapi workflows/get 200 '^missing:missing$' --header 'Authorization: Basic invalid'
+assert_openapi workflows/execute 200 '^missing:missing$' --header 'Authorization: Bearer arbitrary'
+assert_openapi workflows/get 200 '^missing:missing$' --header 'X-API-Key: arbitrary'
+assert_openapi workflows/get 200 '^user-123:missing$' --header 'Token: valid-token'
+assert_openapi 'api-keys/get?key=arbitrary' 401 'Session authentication required'
+echo 'OpenResty authentication and OpenAPI identity boundary tests passed.'

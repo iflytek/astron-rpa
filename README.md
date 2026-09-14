@@ -49,6 +49,12 @@ AstronRPA is an enterprise-grade Robotic Process Automation (RPA) desktop applic
 
 Recommended for quick deployment:
 
+For self-hosting, prepare your own server and domain, add gateway/authentication
+DNS records at the authoritative DNS provider, and obtain a certificate covering
+both names. The deployer maintains DNS, private keys, public ports, and renewals.
+See [DNS and HTTPS setup](docker/HTTPS_DEPLOYMENT.md) before running the commands
+below; replace all `example.com` names with your own.
+
 ```bash
 # Clone the repository
 git clone https://github.com/iflytek/astron-rpa.git
@@ -71,6 +77,10 @@ CASDOOR_EXTERNAL_ENDPOINT="https://auth.example.com:8443"
 # to docker/certs/tls.crt and docker/certs/tls.key
 
 # 🚀 Start all services
+# Initialize independent Casdoor credentials (see docker/HTTPS_DEPLOYMENT.md 1.3)
+docker compose up -d mysql casdoor
+# Wait for Casdoor initialization
+python3 scripts/sync-casdoor-credentials.py
 docker compose up -d
 
 # 📊 Check service status

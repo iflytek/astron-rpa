@@ -6,3 +6,8 @@ The default file names are `tls.crt` and `tls.key`; both can be changed in
 
 The certificate must cover both `RPA_SERVER_NAME` and
 `CASDOOR_SERVER_NAME`. Never commit a real certificate or private key.
+
+The deployer obtains and renews these certificates; Compose does not do so
+automatically. See the [HTTPS deployment guide](../HTTPS_DEPLOYMENT.md) for
+DNS records, domain validation, private-key handling, and installation/reload
+steps after renewal.

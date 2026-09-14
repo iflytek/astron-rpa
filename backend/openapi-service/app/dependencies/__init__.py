@@ -1,276 +1,94 @@
 import os
-from datetime import datetime
+from typing import Annotated
 
-from fastapi import Depends, Header, HTTPException, Security, status  # Added status
-from fastapi.security import APIKeyHeader
+from fastapi import Depends, Header, HTTPException, Request, status
 from redis.asyncio import Redis
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.future import select
 
 from app.database import get_db
-from app.models.api_key import OpenAPIDB
 from app.redis import get_redis
+from app.security.api_key import APIKeyAuthenticationError, extract_api_key, has_api_key_credential, validate_api_key
 from app.services.api_key import ApiKeyService, AstronApiKeyService
 from app.services.execution import ExecutionService
 from app.services.user import UserService
 from app.services.websocket import WsManagerService, WsService
 from app.services.workflow import WorkflowService
-from app.utils.api_key import APIKeyUtils
 
 # 全局 WsManagerService 单例实例
 _ws_manager_service: WsManagerService | None = None
 
-# API Key 验证用的 APIKeyHeader
-API_KEY_HEADER = APIKeyHeader(name="Authorization", auto_error=False)
+
+def authentication_error() -> HTTPException:
+    return HTTPException(401, "Invalid authentication credentials", headers={"WWW-Authenticate": "Bearer"})
 
 
 def get_user_id_from_header(
+    request: Request,
     x_user_id: str | None = Header(default=None, alias="X-User-Id"),
     user_id: str | None = Header(default=None, alias="user_id"),
 ) -> str:
+    """Identity asserted by the session-authenticating gateway/private services.
+
+    The service port must remain private. The gateway strips caller identity
+    headers before authentication and never admits API keys to management routes.
     """
-    从请求头中获取用户ID，优先解析 X-User-Id，如果不存在则解析 user_id
-    """
-    header_user_id = x_user_id or user_id
-
-    if header_user_id is None:
-        raise HTTPException(
-            status_code=401,
-            detail="Missing X-User-Id or user_id header.",
-        )
-    return header_user_id
+    if has_api_key_credential(request.scope):
+        raise authentication_error()
+    if x_user_id and user_id and x_user_id != user_id:
+        raise authentication_error()
+    identity = x_user_id or user_id
+    if not identity or not identity.strip():
+        raise authentication_error()
+    return identity
 
 
-async def verify_register_bearer_token(
-    token: str = Security(API_KEY_HEADER),
-) -> str:
-    """
-    验证注册接口的 Bearer Token (使用 Security + APIKeyHeader 方式)
-    用于astron-agent快速注册
-
-    使用示例:
-    @router.post("/register")
-    async def register_user(
-        request: UserRegisterRequest,
-        token: str = Depends(verify_register_bearer_token),
-    ):
-        ...
-    """
-    if not token:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Missing Authorization header",
-        )
-
-    # 验证 Bearer 格式
-    parts = token.split()
-    if len(parts) != 2 or parts[0].lower() != "bearer":
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid Authorization header format",
-        )
-
-    bearer_token = parts[1]
-
-    # 验证 Token 是否正确
-    if bearer_token != "opensource-register-token":
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid token",
-        )
-
-    return bearer_token
+async def verify_register_bearer_token() -> str:
+    # The legacy public token plus phone lookup could issue another user's key.
+    # There is no delegated identity/permission model for this entry point.
+    raise HTTPException(403, "Legacy key provisioning is disabled; use authenticated API key management")
 
 
-async def verify_getkey_bearer_token(
-    token: str = Security(API_KEY_HEADER),
-) -> str:
-    if not token:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Missing Authorization header",
-        )
-
-    # 验证 Bearer 格式
-    parts = token.split()
-    if len(parts) != 2 or parts[0].lower() != "bearer":
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid Authorization header format",
-        )
-
-    bearer_token = parts[1]
-
-    # 验证 Token 是否正确
-    if bearer_token != "opensource-register-token":
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid token",
-        )
-
-    return bearer_token
+async def verify_getkey_bearer_token() -> str:
+    return await verify_register_bearer_token()
 
 
-async def get_user_id_from_api_key(
-    api_key_header: str = Security(API_KEY_HEADER),
-    db: AsyncSession = Depends(get_db),
-) -> str:
-    """
-    从 Authorization 请求头中获取 API Key，查询数据库得到 user_id
-    """
-    if api_key_header is None:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Not authenticated",
-            headers={"WWW-Authenticate": "Bearer"},
-        )
-
-    parts = api_key_header.split()
-    if len(parts) != 2 or parts[0].lower() != "bearer":
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid authentication credentials",
-            headers={"WWW-Authenticate": "Bearer"},
-        )
-
-    api_key = parts[1]
-
-    # 使用前缀匹配和哈希验证
-    keys = await db.execute(select(OpenAPIDB).where(OpenAPIDB.prefix == api_key[:8], OpenAPIDB.is_active == 1))
-    api_keys = keys.scalars().all()
-
-    for key in api_keys:
-        hashed_key = key.api_key
-        if APIKeyUtils.verify_api_key(api_key, hashed_key):
-            return str(key.user_id)
-
-    # 如果没有找到匹配的API key
-    raise HTTPException(
-        status_code=status.HTTP_401_UNAUTHORIZED,
-        detail="Invalid or inactive API key",
-        headers={"WWW-Authenticate": "Bearer"},
-    )
+async def get_user_id_from_api_key(request: Request, db: Annotated[AsyncSession, Depends(get_db)]) -> str:
+    try:
+        raw_key = extract_api_key(request.scope)  # REST never accepts URL keys.
+        identity = await validate_api_key(db, raw_key)
+    except APIKeyAuthenticationError:
+        raise authentication_error() from None
+    except Exception:
+        # No database exception or credential is returned/logged here.
+        raise HTTPException(503, "Authentication service unavailable") from None
+    if not identity:
+        raise authentication_error()
+    return identity
 
 
 async def get_user_id_with_fallback(
-    api_key_header: str = Security(API_KEY_HEADER),
+    request: Request,
+    db: Annotated[AsyncSession, Depends(get_db)],
     x_user_id: str | None = Header(default=None, alias="X-User-Id"),
     user_id: str | None = Header(default=None, alias="user_id"),
-    db: AsyncSession = Depends(get_db),
 ) -> str:
-    """
-    按优先级获取用户ID：
-    1. 首先尝试从Authorization Bearer token中获取API key并验证
-    2. 如果没有API key，则从X-User-Id或user_id header中获取
-    3. 如果都没有，则抛出401错误
-
-    用于get_workflows（既有可能本地调用，又有可能外部调用）
-
-    使用示例：
-    @router.get("/example")
-    async def example_endpoint(
-        user_id: str = Depends(get_user_id_with_fallback)
-    ):
-        return {"user_id": user_id}
-    """
-    # 首先尝试从API key获取用户ID
-    if api_key_header:
-        try:
-            parts = api_key_header.split()
-            if len(parts) == 2 and parts[0].lower() == "bearer":
-                api_key = parts[1]
-
-                # 使用前缀匹配和哈希验证
-                keys = await db.execute(
-                    select(OpenAPIDB).where(OpenAPIDB.prefix == api_key[:8], OpenAPIDB.is_active == 1)
-                )
-                api_keys = keys.scalars().all()
-
-                for key in api_keys:
-                    hashed_key = key.api_key
-                    if APIKeyUtils.verify_api_key(api_key, hashed_key):
-                        return str(key.user_id)
-
-                raise HTTPException(
-                    status_code=status.HTTP_401_UNAUTHORIZED,
-                    detail="Authentication failed. Your API_KEY is not correct.",
-                    headers={"WWW-Authenticate": "Bearer"},
-                )
-        except Exception as e:
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Authentication required. Please provide either a valid API key in Authorization header.",
-                headers={"WWW-Authenticate": "Bearer"},
-            )
-
-    # 如果API key验证失败或不存在，尝试从header获取
-    header_user_id = x_user_id or user_id
-    if header_user_id:
-        return header_user_id
-    else:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Authentication required. Please provide either a valid API key in Authorization header or user_id in X-User-Id/user_id header.",
-            headers={"WWW-Authenticate": "Bearer"},
-        )
+    # An explicit invalid/malformed/conflicting API credential never falls back
+    # to a caller-supplied identity, even when a session cookie is also present.
+    if has_api_key_credential(request.scope):
+        return await get_user_id_from_api_key(request, db)
+    return get_user_id_from_header(request, x_user_id, user_id)
 
 
 async def check_user_id_equality(
-    api_key_header: str = Security(API_KEY_HEADER),
+    request: Request,
+    db: Annotated[AsyncSession, Depends(get_db)],
     user_id: str | None = Header(default=None, alias="user_id"),
-    db: AsyncSession = Depends(get_db),
 ) -> bool:
-    """
-    使用示例：
-    @router.get("/example")
-    async def example_endpoint(
-        user_id: str = Depends(get_user_id_with_fallback)
-    ):
-        return {"user_id": user_id}
-    """
-    # 比较API_KEY对应的user_id和本地路由的user_id是否匹配
-    if api_key_header and user_id:
-        try:
-            parts = api_key_header.split()
-            if len(parts) == 2 and parts[0].lower() == "bearer":
-                api_key = parts[1]
-
-                # 使用前缀匹配和哈希验证
-                keys = await db.execute(
-                    select(OpenAPIDB).where(OpenAPIDB.prefix == api_key[:8], OpenAPIDB.is_active == 1)
-                )
-                api_keys = keys.scalars().all()
-                if not api_keys:
-                    raise HTTPException(
-                        status_code=status.HTTP_401_UNAUTHORIZED,
-                        detail="Authentication required. Please provide either a valid API key in Authorization header",
-                        headers={"WWW-Authenticate": "Bearer"},
-                    )
-
-                for key in api_keys:
-                    hashed_key = key.api_key
-                    if APIKeyUtils.verify_api_key(api_key, hashed_key):
-                        if str(key.user_id) == user_id:
-                            return True
-
-                return False
-
-        except Exception as e:
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Authentication required. Please provide either a valid API key in Authorization header",
-                headers={"WWW-Authenticate": "Bearer"},
-            )
-
-    raise HTTPException(
-        status_code=status.HTTP_401_UNAUTHORIZED,
-        detail="Authentication required. Either API key or user_id is not provided.",
-        headers={"WWW-Authenticate": "Bearer"},
-    )
-
-
-# 注意：get_uid_from_raw_key 函数已经被移动到 app.services.streamable_mcp.ToolsConfig 类中
-# 以避免创建多个数据库连接实例
+    identity = await get_user_id_from_api_key(request, db)
+    if not user_id:
+        raise authentication_error()
+    # This is a diagnostic comparison, never an authorization identity.
+    return identity == user_id
 
 
 async def get_workflow_service(

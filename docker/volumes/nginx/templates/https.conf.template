@@ -26,6 +26,8 @@ server {
     ssl_certificate_key /etc/nginx/certs/@@TLS_CERTIFICATE_KEY_FILE@@;
     include /etc/nginx/includes/tls-settings.conf;
     include /etc/nginx/includes/gateway-common.conf;
+    # Casdoor runs over private HTTP and may omit the public TLS cookie flag.
+    proxy_cookie_flags casdoor_session_id secure httponly;
     include /etc/nginx/includes/gateway-routes.conf;
 }
 
@@ -37,6 +39,7 @@ server {
     ssl_certificate /etc/nginx/certs/@@TLS_CERTIFICATE_FILE@@;
     ssl_certificate_key /etc/nginx/certs/@@TLS_CERTIFICATE_KEY_FILE@@;
     include /etc/nginx/includes/tls-settings.conf;
+    proxy_cookie_flags casdoor_session_id secure httponly;
     include /etc/nginx/includes/casdoor-proxy.conf;
 }
 

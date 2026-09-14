@@ -4,6 +4,8 @@ from contextlib import asynccontextmanager
 
 import uvicorn
 from fastapi import FastAPI
+from fastapi.exceptions import RequestValidationError
+from fastapi.responses import JSONResponse
 
 from app.dependencies import get_ws_service
 from app.internal import admin
@@ -62,6 +64,20 @@ app.include_router(websocket.router)
 app.mount("/mcp", handle_streamable_http)  # APISIX增加路由，解决307重定向问题
 
 app.add_middleware(RequestTracingMiddleware)
+
+
+@app.exception_handler(RequestValidationError)
+async def safe_request_validation_error(request, exc):
+    # FastAPI otherwise includes rejected inputs in errors (including API keys,
+    # passwords and workflow arguments). Keep locations/types for diagnostics.
+    return JSONResponse(
+        status_code=422,
+        content={
+            "detail": [
+                {"loc": error["loc"], "type": error["type"], "msg": "Invalid request value"} for error in exc.errors()
+            ]
+        },
+    )
 
 
 @app.get("/")

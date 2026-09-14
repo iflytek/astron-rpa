@@ -213,8 +213,10 @@ services:
       - driverName=mysql
       - dataSourceName=${DATABASE_USERNAME}:${DATABASE_PASSWORD}@tcp(${DATABASE_HOST}:${DATABASE_PORT})/
       - CASDOOR_ENABLE_HTTP_WEBHOOK=true
+      # Preserve generated signing keys and administrator changes across restarts.
+      - initDataNewOnly=true
     volumes:
-      - ./volumes/casdoor/init_data_dump.json:/init_data.json
+      - ./volumes/casdoor/init_data_dump.json:/init_data.json:ro
     depends_on:
       mysql:
         condition: service_healthy

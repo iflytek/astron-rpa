@@ -1,10 +1,9 @@
-from contextlib import asynccontextmanager
 from unittest.mock import AsyncMock
 
 import pytest
 from httpx import ASGITransport, AsyncClient
 from mcp import ClientSession
-from mcp.client.streamable_http import streamablehttp_client
+from mcp.client.streamable_http import streamable_http_client
 from mcp.server.streamable_http_manager import StreamableHTTPSessionManager
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session
@@ -17,6 +16,7 @@ from app.main import app as openapi_app
 from app.models.api_key import OpenAPIDB
 from app.routers.streamable_mcp import app as mcp_server
 from app.routers.streamable_mcp import tools_config
+from app.schemas.mcp import CONTROL_TOOLS
 from app.security.mcp_auth import MCPAPIKeyAuthMiddleware
 from app.services.streamable_mcp import ToolsConfig
 from app.utils.api_key import APIKeyUtils
@@ -27,6 +27,12 @@ class AsyncSessionAdapter:
 
     def __init__(self, session):
         self.session = session
+
+    async def __aenter__(self):
+        return self
+
+    async def __aexit__(self, *args):
+        await self.close()
 
     async def execute(self, statement):
         return self.session.execute(statement)
@@ -52,16 +58,6 @@ async def request_mcp(auth_app, *, headers=None, params=None):
     transport = ASGITransport(app=auth_app)
     async with AsyncClient(transport=transport, base_url="http://test") as client:
         return await client.post("/mcp", headers=headers, params=params)
-
-
-def make_asgi_http_client_factory(asgi_app):
-    @asynccontextmanager
-    async def asgi_http_client_factory(headers=None, timeout=None, auth=None):
-        transport = ASGITransport(app=asgi_app)
-        async with AsyncClient(transport=transport, headers=headers, timeout=timeout, auth=auth) as client:
-            yield client
-
-    return asgi_http_client_factory
 
 
 @pytest.mark.asyncio
@@ -124,6 +120,7 @@ async def test_mcp_x_api_key_authenticates():
 
 @pytest.mark.asyncio
 async def test_actual_mcp_endpoint_accepts_bearer_and_x_api_key(monkeypatch):
+    monkeypatch.setattr("sse_starlette.sse.AppStatus.should_exit_event", None)
     validator = AsyncMock(side_effect=lambda key: f"user-for-{key}")
     get_tools = AsyncMock(return_value=[])
     execute_workflow = AsyncMock(
@@ -144,7 +141,6 @@ async def test_actual_mcp_endpoint_accepts_bearer_and_x_api_key(monkeypatch):
     )
     test_auth_app = MCPAPIKeyAuthMiddleware(test_session_manager.handle_request, validator)
     test_asgi_app = Starlette(routes=[Mount("/mcp", app=test_auth_app)])
-    httpx_client_factory = make_asgi_http_client_factory(test_asgi_app)
 
     credential_cases = [
         ({"Authorization": "Bearer bearer-key"}, "bearer-key"),
@@ -153,18 +149,16 @@ async def test_actual_mcp_endpoint_accepts_bearer_and_x_api_key(monkeypatch):
 
     async with test_session_manager.run():
         for headers, expected_key in credential_cases:
-            async with streamablehttp_client(
-                "http://test/mcp/",
-                headers=headers,
-                terminate_on_close=False,
-                httpx_client_factory=httpx_client_factory,
-            ) as (read_stream, write_stream, _):
-                async with ClientSession(read_stream, write_stream) as client_session:
-                    await client_session.initialize()
-                    result = await client_session.list_tools()
-                    call_result = await client_session.call_tool("workflow-tool", {"value": 1})
+            async with AsyncClient(transport=ASGITransport(app=test_asgi_app), headers=headers) as http_client:
+                async with streamable_http_client(
+                    "http://test/mcp/", terminate_on_close=False, http_client=http_client
+                ) as (read_stream, write_stream, _):
+                    async with ClientSession(read_stream, write_stream) as client_session:
+                        await client_session.initialize()
+                        result = await client_session.list_tools()
+                        call_result = await client_session.call_tool("workflow-tool", {"value": 1})
 
-            assert result.tools == []
+            assert {tool.name for tool in result.tools} == set(CONTROL_TOOLS)
             assert call_result.isError is False
             assert validator.await_args.args == (expected_key,)
 

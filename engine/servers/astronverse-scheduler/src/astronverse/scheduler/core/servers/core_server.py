@@ -1,8 +1,7 @@
-from urllib.parse import urlparse
-
 import requests
 from astronverse.scheduler import ComponentType, ServerLevel
 from astronverse.scheduler.core.route.proxy import get_cmd
+from astronverse.scheduler.core.route.remote_transport import RemoteTransport
 from astronverse.scheduler.core.server import IServer
 from astronverse.scheduler.utils.subprocess import SubPopen
 
@@ -10,43 +9,42 @@ from astronverse.scheduler.utils.subprocess import SubPopen
 class RpaRouteServer(IServer):
     def __init__(self, svc):
         self.proc = None
+        self.remote_transport = None
         self.port = 0
         super().__init__(svc=svc, name="rpa_route", level=ServerLevel.CORE, run_is_async=False)
 
     def run(self):
         self.port = self.svc.rpa_route_port
+        self.remote_transport = RemoteTransport(self.svc.config.remote_addr)
+        remote_port = self.remote_transport.start()
 
         self.proc = SubPopen(name="rpa_route", cmd=[get_cmd()])
         self.proc.set_param("port", self.port)
 
-        remote_parsed_url = urlparse(self.svc.config.remote_addr)
-
-        if remote_parsed_url.scheme.lower() == "https":
-            self.proc.set_param("httpProtocol", "https")
-            self.proc.set_param("wsProtocol", "wss")
-        else:
-            self.proc.set_param("httpProtocol", "http")
-            self.proc.set_param("wsProtocol", "ws")
-
-        self.proc.set_param(
-            "remoteHost",
-            f"{remote_parsed_url.hostname}:{remote_parsed_url.port}"
-            if remote_parsed_url.port
-            else f"{remote_parsed_url.hostname}",
-        )
-        self.proc.run()
+        # The binary routes local modules; verified upstream HTTPS/WSS and
+        # origin-scoped sessions are owned by RemoteTransport.
+        self.proc.set_param("httpProtocol", "http")
+        self.proc.set_param("wsProtocol", "ws")
+        self.proc.set_param("remoteHost", f"127.0.0.1:{remote_port}")
+        try:
+            self.proc.run()
+        except Exception:
+            self.remote_transport.close()
+            raise
 
     def health(self) -> bool:
-        if not self.proc.is_alive():
+        if not self.proc.is_alive() or not self.remote_transport.is_alive():
             return False
         return True
 
     def recover(self):
         # 先关闭
         self.proc.kill()
+        self.remote_transport.close()
 
         # 再重启
         self.run()
+        self.svc.register_server()
 
 
 class RpaBrowserConnectorServer(IServer):

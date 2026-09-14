@@ -2,9 +2,9 @@ from typing import Any
 
 from fastapi import WebSocket
 from rpawebsocket.ws import IWebSocket
-from rpawebsocket.ws_service import WsManager
 
 from app.logger import get_logger
+from app.services.websocket_manager import MessageBoundWsManager
 
 logger = get_logger(__name__)
 
@@ -43,4 +43,4 @@ def ws_log(msg):
 
 class WsManagerService:
     def __init__(self):
-        self.ws_manager = WsManager(log=ws_log)
+        self.ws_manager = MessageBoundWsManager(log=ws_log)

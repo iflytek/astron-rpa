@@ -48,6 +48,8 @@ AstronRPA 是一款企业级机器人流程自动化（RPA）桌面应用。通�
 
 推荐使用 Docker 进行快速部署：
 
+自托管部署需要自行准备服务器和域名，在域名当前的权威 DNS 服务商处添加网关与认证子域名的解析记录，并申请覆盖两个域名的证书。注册商显示的 NS 仅表示由谁提供 DNS 服务，不等于已经配置应用的 A/CNAME 记录；无需为了本项目额外更换 NS。部署者负责域名解析、私钥保管、开放端口和证书续期。启动前请参阅 [DNS 与 HTTPS 部署说明](docker/HTTPS_DEPLOYMENT.md)，将下方 `example.com` 示例替换为自己的域名。
+
 ```bash
 # 克隆项目
 git clone https://github.com/iflytek/astron-rpa.git
@@ -70,6 +72,10 @@ CASDOOR_EXTERNAL_ENDPOINT="https://auth.example.com:8443"
 # docker/certs/tls.crt 和 docker/certs/tls.key
 
 # 🚀 启动所有服务
+# 初始化本部署独立的 Casdoor 凭据（详见 docker/HTTPS_DEPLOYMENT.md 1.3）
+docker compose up -d mysql casdoor
+# 等待 Casdoor 初始化完成
+python3 scripts/sync-casdoor-credentials.py
 docker compose up -d
 
 # 📊 检查服务状态

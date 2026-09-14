@@ -53,37 +53,11 @@ class ToolsConfig:
         直接传递API Key，查询数据库得到 user_id (用于MCP工具函数)
         使用依赖注入模式
         """
-        if not api_key:
-            return None
-
-        from sqlalchemy.future import select
-
         from app.database import AsyncSessionLocal
-        from app.models.api_key import OpenAPIDB
-        from app.utils.api_key import APIKeyUtils
+        from app.security.api_key import validate_api_key
 
-        db = None
-        try:
-            db = AsyncSessionLocal()
-
-            # 使用前缀匹配和哈希验证
-            keys = await db.execute(select(OpenAPIDB).where(OpenAPIDB.prefix == api_key[:8], OpenAPIDB.is_active == 1))
-            api_keys = keys.scalars().all()
-
-            for key in api_keys:
-                hashed_key = key.api_key
-                if APIKeyUtils.verify_api_key(api_key, hashed_key):
-                    return str(key.user_id)
-            return None
-        except Exception:
-            logger.exception("Error getting user ID from API key")
-            if db:
-                await db.rollback()
-            raise
-        finally:
-            # 确保数据库会话被关闭
-            if db:
-                await db.close()
+        async with AsyncSessionLocal() as db:
+            return await validate_api_key(db, api_key)
 
     async def get_user_workflows(self, user_id: str) -> list[dict]:
         """获取用户允许使用的工具列表"""
@@ -92,14 +66,14 @@ class ToolsConfig:
             workflow_service, db = await self._get_workflow_service()
 
             # 获取用户工作流
-            user_workflows = await workflow_service.get_workflows(user_id)
+            user_workflows = await workflow_service.get_external_workflows(user_id)
             workflows = []
             for workflow in user_workflows:
                 workflows.append(workflow.to_dict())
             return workflows
         except Exception as e:
-            logger.exception("Error getting user workflows")
-            return []
+            logger.error("Workflow discovery failed: %s", type(e).__name__)  # noqa: TRY400 -- omit SQL parameters
+            raise RuntimeError("Workflow discovery unavailable") from None
         finally:
             # 确保数据库会话被关闭
             if db:
@@ -112,7 +86,7 @@ class ToolsConfig:
             workflow_service, db = await self._get_workflow_service()
 
             # 获取用户工作流
-            user_workflows = await workflow_service.get_workflows(user_id)
+            user_workflows = await workflow_service.get_external_workflows(user_id)
 
             # 查找匹配的工作流
             for workflow in user_workflows:
@@ -123,7 +97,7 @@ class ToolsConfig:
 
             return None
         except Exception as e:
-            logger.exception("Error getting project_id for name '%s' and user_id '%s'", name, user_id)
+            logger.error("Workflow lookup failed: %s", type(e).__name__)  # noqa: TRY400 -- omit SQL parameters
             return None
         finally:
             # 确保数据库会话被关闭
@@ -159,7 +133,7 @@ class ToolsConfig:
                 execution_service = ExecutionService(db_session)
                 logger.info("[execute_workflow_by_name] user_id '%s'", user_id)
                 # 异步执行工作流
-                execution = await execution_service.execute_workflow(
+                execution = await execution_service.execute_authorized_workflow(
                     execution_data=execution_data,
                     user_id=user_id,
                     wait=True,  # 这里等待结果，用同步方法
@@ -170,7 +144,9 @@ class ToolsConfig:
                 if not message:
                     return {
                         "success": False,
-                        "error": execution.error or f"Workflow execution ended with status {execution.status}",
+                        "error": "RPA client is offline or disconnected"
+                        if execution.error == "RPA client is offline or disconnected"
+                        else "Workflow execution result is unavailable",
                     }
 
                 return {
@@ -182,8 +158,8 @@ class ToolsConfig:
                 }
 
         except Exception as e:
-            logger.exception("Error executing workflow for tool '%s'", name)
-            return {"success": False, "error": f"Failed to execute workflow: {str(e)}"}
+            logger.error("MCP execution failed: %s", type(e).__name__)  # noqa: TRY400 -- do not expose arguments
+            return {"success": False, "error": "Workflow unavailable or execution failed"}
 
     @staticmethod
     def workflow_to_tool(workflow: dict):
@@ -239,7 +215,9 @@ class ToolsConfig:
                     property_def = {"type": json_type, "description": var_describe}
 
                     # 如果有默认值，添加默认值
-                    if var_value and var_value != "":
+                    if var_type == "Password":
+                        property_def["writeOnly"] = True
+                    elif var_value and var_value != "":
                         if json_type == "integer":
                             try:
                                 property_def["default"] = int(var_value)

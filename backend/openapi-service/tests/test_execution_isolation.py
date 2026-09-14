@@ -154,7 +154,7 @@ async def test_user_cannot_read_or_cancel_another_users_execution():
 @pytest.mark.asyncio
 async def test_cross_user_and_unknown_execution_have_the_same_404_response():
     service = AsyncMock()
-    service.get_execution.return_value = None
+    service.get_authorized_execution.return_value = None
 
     cross_user_response = Response()
     cross_user_body = await get_execution_route(

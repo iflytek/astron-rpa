@@ -62,6 +62,9 @@ cd docker
 cp .env.example .env
 # configure the public HTTPS names and copy the certificate/key to docker/certs/
 # see docker/HTTPS_DEPLOYMENT.md for required variables
+docker compose up -d mysql casdoor
+# wait for Casdoor initialization, then synchronize this deployment's credentials
+python3 scripts/sync-casdoor-credentials.py
 docker compose up -d
 docker compose ps
 ```

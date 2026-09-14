@@ -129,6 +129,11 @@ config.local.*
 secrets.yml
 secrets.yaml
 
+# Desktop session stores (including when launched from the repository root)
+.cookie.json
+.remote-cookies/
+.casdoor-env-*
+
 # =============================================================================
 # Backup & Archive Files
 # =============================================================================
