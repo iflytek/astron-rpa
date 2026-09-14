@@ -91,6 +91,9 @@ class VerifyCode:
         mini_step: int = 5,
         offset: int = 0,
     ) -> int:
+        if unmatched_flag and mini_step <= 0:
+            raise ValueError("mini_step must be greater than zero")
+
         element = Locator.locator(picture_pick.get("elementData"), cur_target_app=browser_obj.browser_type.value)
         rect = element.rect()
         image_base64 = VerifyCodeCore.get_base64_screenshot(rect.left, rect.top, rect.width(), rect.height())
@@ -112,22 +115,24 @@ class VerifyCode:
         else:
             smooth_move(start_pos.x, start_pos.y, duration=0.5)
             pyautogui.mouseDown()
-            smooth_move(start_pos.x + drag_distance * 0.85, start_pos.y, duration=0.5)
-            time.sleep(0.5)
-            delta = drag_distance - round(float(VerifyCodeCore.get_margin_left(browser_obj, move_pic_pick)))
-            logger.info(delta)
-            while abs(delta) > mini_step:
-                if delta > 0:
-                    smooth_move(pyautogui.position().x + mini_step, start_pos.y, duration=0.5)
-                    # pyautogui.moveTo(pyautogui.position().x + mini_step, start_pos.y, duration=0.5)
-                else:
-                    smooth_move(pyautogui.position().x - mini_step, start_pos.y, duration=0.5)
-                    # pyautogui.moveTo(pyautogui.position().x - mini_step, start_pos.y, duration=0.5)
+            try:
+                deadline = time.monotonic() + 30
+                smooth_move(start_pos.x + drag_distance * 0.85, start_pos.y, duration=0.5)
                 time.sleep(0.5)
                 delta = drag_distance - round(float(VerifyCodeCore.get_margin_left(browser_obj, move_pic_pick)))
                 logger.info(delta)
-            # 释放滑块
-            pyautogui.mouseUp()
+                while abs(delta) > mini_step:
+                    if time.monotonic() >= deadline:
+                        raise TimeoutError("Slider adjustment did not finish within 30 seconds")
+                    if delta > 0:
+                        smooth_move(pyautogui.position().x + mini_step, start_pos.y, duration=0.5)
+                    else:
+                        smooth_move(pyautogui.position().x - mini_step, start_pos.y, duration=0.5)
+                    time.sleep(0.5)
+                    delta = drag_distance - round(float(VerifyCodeCore.get_margin_left(browser_obj, move_pic_pick)))
+                    logger.info(delta)
+            finally:
+                VerifyCodeCore.release_left_button()
 
         return drag_distance
 

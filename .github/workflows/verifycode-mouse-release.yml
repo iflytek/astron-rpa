@@ -1,0 +1,26 @@
+name: Verify slider mouse cleanup
+
+on:
+  pull_request:
+    paths:
+      - 'engine/components/astronverse-verifycode/**'
+      - '.github/workflows/verifycode-mouse-release.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'engine/components/astronverse-verifycode/**'
+      - '.github/workflows/verifycode-mouse-release.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  mouse-release:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - name: Run mouse-release regressions
+        run: python engine/components/astronverse-verifycode/tests/test_mouse_release.py -v
