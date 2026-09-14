@@ -217,8 +217,13 @@ class ExecutionService:
                 timeout=workflow_timeout,
             )
         except TimeoutError:
-            # 超时处理 - 使用update_execution_status方法避免会话问题
-            await self.update_execution_status(execution_id, ExecutionStatus.RUNNING.value)
+            # Losing the result does not establish that the desktop task is
+            # running, failed, or stopped. Keep this distinct from a terminal state.
+            await self.update_execution_status(
+                execution_id,
+                ExecutionStatus.UNKNOWN.value,
+                error="Execution result timed out; the client may still be running",
+            )
             raise
         except Exception as e:
             await self.update_execution_status(execution_id, ExecutionStatus.FAILED.value, error=str(e))
@@ -237,6 +242,10 @@ class ExecutionService:
                 execution_service = ExecutionService(db, self.redis)
                 logger.info("Running background workflow execution %s", execution_id)
                 await execution_service._run_workflow(execution_id, workflow_timeout)
+            except TimeoutError:
+                # _run_workflow already persisted UNKNOWN. Do not overwrite it
+                # with FAILED merely because this asynchronous observer expired.
+                return
             except Exception as e:
                 # 记录错误日志
                 logger.exception("Error in background workflow execution %s", execution_id)

@@ -152,6 +152,42 @@ URL query credentials (`?key=`) are rejected by default so credentials do not en
 Set `MCP_ALLOW_QUERY_API_KEY=true` only while migrating legacy clients. A request must use exactly one credential
 source. Missing, malformed, invalid, or revoked credentials return HTTP 401.
 
+#### Stable workflow control tools
+
+External integrations can use `https://<rpa-host>/api/rpa-openapi/mcp/` for asynchronous execution.
+These tools share the REST execution core and do not depend on workflow names, n8n, or a deployment address.
+
+| Tool | Input | Output |
+| --- | --- | --- |
+| `astron_workflow_list` | Optional `offset`, `limit` (1–100) | Authorized workflows and `nextOffset` |
+| `astron_workflow_get` | `projectId` | Published version, `inputSchema`, `supportsCancel=false` |
+| `astron_workflow_execute` | `projectId`, optional `params`, `version` | Immediate execution snapshot including `executionId` |
+| `astron_execution_get` | `executionId` | Execution state, result, or a safe error summary |
+
+Project IDs are strings. Starts require the authenticated user's current external-access release.
+Omitting `version` selects that release. Queries recheck ownership and current workflow/version authorization;
+disabling external access or changing the authorized release makes older executions unavailable through this entry point.
+Control tool names are reserved; colliding dynamic workflows remain callable by project ID. Other dynamic tools retain
+their synchronous behavior.
+
+The stable entry point accepts string, integer, and number inputs, including zero. Unknown fields, file/password inputs,
+complex objects, and unrecognized parameter metadata are rejected. Tools advertise input and output JSON Schemas.
+Successful calls provide both `structuredContent` and equivalent JSON text. Tool errors use `isError=true` with
+`error.code/message`, without echoing arguments or internal exceptions.
+
+Snapshots contain `executionId`, `projectId`, `version`, `status`, `terminal`, `acceptedAt`, `finishedAt`, `result`, and `error`.
+`acceptedAt` is the server record creation time; timestamps retain the existing database time convention without assuming
+a timezone. States are `accepted`, `running`, `succeeded`, `failed`, or `unknown`; the current client generally only reports
+acceptance and the final outcome. A successful query may describe a failed task; only `succeeded` and `failed` are known
+terminal outcomes. Safe errors distinguish `CLIENT_OFFLINE`, `CLIENT_BUSY`, `EXECUTION_FAILED`, and `EXECUTION_RESULT_TIMEOUT`.
+`unknown` does not establish whether the client is running or stopped. Legacy cancellation records do not establish a stop.
+
+Starts are not idempotent: disable automatic retries, including REST fallback starts after an uncertain response.
+After receiving an ID, poll over MCP. Caller-side wait expiry must retain the ID and does not stop the background task.
+Background work is process-local; restart recovery, precise cancellation, and recovery of replies arriving after the server's
+result-wait limit are not implemented. Results contain application data; configure execution-history retention and access
+according to its sensitivity.
+
 ## 🚀 Quick Start
 
 ### Environment Requirements

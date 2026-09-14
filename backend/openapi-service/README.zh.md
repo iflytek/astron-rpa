@@ -152,6 +152,38 @@ X-API-Key: <API_KEY>
 `MCP_ALLOW_QUERY_API_KEY=true`。同一请求只能使用一种凭据来源；缺失、格式错误、无效或已吊销的密钥返回
 HTTP 401。
 
+#### 稳定工作流控制工具
+
+外部集成可连接 `https://<服务域名>/api/rpa-openapi/mcp/`，通过以下工具完成异步执行。
+这些工具与 REST 共用执行核心，不依赖工作流名称、n8n 或特定部署地址。
+
+| 工具 | 输入 | 返回 |
+| --- | --- | --- |
+| `astron_workflow_list` | 可选 `offset`、`limit`（1～100） | 当前用户开放的工作流及 `nextOffset` |
+| `astron_workflow_get` | `projectId` | 发布版本、输入 `inputSchema`、`supportsCancel=false` |
+| `astron_workflow_execute` | `projectId`、可选 `params` 和 `version` | 立即返回执行快照，包含 `executionId` |
+| `astron_execution_get` | `executionId` | 执行状态、结果或安全错误摘要 |
+
+项目 ID 为字符串。启动仅允许当前用户开放的发布版本；省略版本时由服务端选择该版本。
+查询执行时重新检查所有权和当前项目/版本授权：关闭外部调用或更换授权发布版本后，旧版本记录不再通过此入口公开。
+固定工具名为保留名称；同名动态工具仍可通过项目 ID 调用。其他既有动态工具继续同步返回结果。
+
+当前稳定入口支持 string、integer、number 输入，保留零值；拒绝未知字段、文件、密码、复杂对象及无法识别的参数元数据。
+工具提供输入和输出 JSON Schema，成功结果同时返回 `structuredContent` 与等价的 JSON 文本。
+工具调用错误使用 `isError=true` 和 `error.code/message`，不回显输入参数或内部异常。
+
+执行快照包含 `executionId`、`projectId`、`version`、`status`、`terminal`、`acceptedAt`、`finishedAt`、`result`、`error`。
+`acceptedAt` 为服务端记录创建时间；时间字符串沿用现有数据库时间设置，不附加未经确认的时区。
+状态为 `accepted`、`running`、`succeeded`、`failed` 或 `unknown`；当前 Client 通道通常只能观察到受理与终态。
+查询成功不等于任务成功，应检查 `status`；仅 `succeeded` 和 `failed` 为已知终态。
+错误摘要区分 `CLIENT_OFFLINE`、`CLIENT_BUSY`、`EXECUTION_FAILED` 和 `EXECUTION_RESULT_TIMEOUT`。
+`unknown` 表示未能确认实际结果，不证明任务仍在运行或已经停止；旧取消记录同样不会被报告为已确认停止。
+
+启动操作尚不具备幂等性，调用方必须关闭自动重试，结果未知时也不得改走 REST 再次启动。
+取得 ID 后可经 MCP 轮询；调用方等待超时应保留该 ID，后台任务继续执行。
+后台任务目前由服务进程持有，未实现进程重启恢复或精准取消；服务端结果等待耗尽后也没有晚到结果恢复保证。
+正常查询返回任务数据，调用方应按业务敏感级别配置执行历史的保存和访问权限。
+
 ## 🚀 快速开始
 
 ### 环境要求

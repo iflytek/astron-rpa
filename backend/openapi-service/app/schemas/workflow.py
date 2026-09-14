@@ -16,6 +16,7 @@ class ExecutionStatus(str, Enum):
     COMPLETED = "COMPLETED"
     FAILED = "FAILED"
     CANCELLED = "CANCELLED"
+    UNKNOWN = "UNKNOWN"
 
 
 class WorkflowBase(BaseModel):
