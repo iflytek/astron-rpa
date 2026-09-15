@@ -1,3 +1,4 @@
+import asyncio
 import os
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
@@ -18,6 +19,7 @@ from app.routers.streamable_mcp import (
     session_manager,
     tools_config,
 )
+from app.services.execution_management import recover_executions
 
 logger = get_logger(__name__)
 
@@ -37,10 +39,13 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
 
     # 使用 async with 管理 session_manager 的生命周期
     async with session_manager.run():
+        recovery = asyncio.create_task(recover_executions(), name="execution-recovery")
         logger.info("Application started with StreamableHTTP session manager!")
         try:
             yield
         finally:
+            recovery.cancel()
+            await asyncio.gather(recovery, return_exceptions=True)
             logger.info("Application shutting down...")
 
             # 清理 tools_config 连接

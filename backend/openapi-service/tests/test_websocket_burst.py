@@ -1,4 +1,5 @@
 import asyncio
+import json
 from contextlib import suppress
 
 import pytest
@@ -21,6 +22,33 @@ class BufferedSocket:
 
     async def close(self):
         self.closed = True
+
+
+@pytest.mark.asyncio
+async def test_execution_control_pins_one_connection_and_ignores_foreign_stale_replies():
+    manager = WsManagerService().ws_manager
+    old, current, foreign = [Conn(ws=BufferedSocket()) for _ in range(3)]
+    manager._add_conn("owner", old)
+    manager._add_conn("owner", current)
+    manager._add_conn("other", foreign)
+    task = asyncio.create_task(manager.execution_request("owner", {"action": "get"}, timeout=0.5))
+    await asyncio.sleep(0)
+    assert len(current.ws.sent) == 1
+    assert old.ws.sent == []
+    assert foreign.ws.sent == []
+    request = BaseMsg(**json.loads(current.ws.sent[0]))
+    reply = request.to_reply()
+    reply.data = {"status": "succeeded"}
+    await manager._handle_message(reply, old, None)
+    await manager._handle_message(reply, foreign, None)
+    assert not task.done()
+    await manager._handle_message(reply, current, None)
+    assert await task == reply.data
+    assert not manager.execution_waiters
+    with pytest.raises(TimeoutError):
+        await manager.execution_request("owner", {"action": "get"}, timeout=0.01)
+    assert len(current.ws.sent) == 2  # Exactly one send per request, including timeout.
+    assert not manager.execution_waiters
 
 
 @pytest.mark.asyncio

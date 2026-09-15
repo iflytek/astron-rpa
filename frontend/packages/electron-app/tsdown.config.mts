@@ -9,6 +9,7 @@ export default defineConfig({
   sourcemap: true,
   outDir: '../../public/',
   noExternal: ['lodash-es', 'await-to-js'],
+  inlineOnly: ['lodash-es', 'await-to-js'],
   minify: true,
   outputOptions: {
     entryFileNames: 'client-sdk.js',

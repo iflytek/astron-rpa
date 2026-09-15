@@ -66,9 +66,40 @@ class DebugSvc:
         return self.ast_globals.process_info[process_id]
 
     def end(self, status: ExecuteStatus, data=None, reason=""):
-        logger.info("end: {}.{}.{}".format(status, data, reason))
+        if getattr(self.conf, "managed_execution", False):
+            from astronverse.executor.external_values import json_value
+
+            try:
+                data = json_value(data)
+            except (ValueError, TypeError):
+                status, data, reason = ExecuteStatus.FAIL, None, "UNSUPPORTED_RESULT"
+            if getattr(self.conf, "external_secrets", False):
+                data, reason = None, "Execution diagnostic omitted for secret inputs"
+            logger.info("Managed execution ended: {}".format(status.value))
+        else:
+            logger.info("end: {}.{}.{}".format(status, data, reason))
         with self.sys_exit_lock:
             if not self.sys_exit_lock_end:
+                if getattr(self.conf, "managed_execution", False) and self.conf.managed_receipt:
+                    from astronverse.executor.external_values import save_result
+
+                    outcome = {
+                        ExecuteStatus.SUCCESS: "succeeded",
+                        ExecuteStatus.FAIL: "failed",
+                        ExecuteStatus.CANCEL: "cancelled",
+                    }.get(status)
+                    if outcome:
+                        try:
+                            save_result(
+                                self.conf.managed_receipt,
+                                self.conf.exec_id,
+                                outcome,
+                                data,
+                                self.conf.managed_started_at,
+                                "UNSUPPORTED_RESULT" if reason == "UNSUPPORTED_RESULT" else None,
+                            )
+                        except (OSError, ValueError, TypeError):
+                            logger.error("Managed terminal receipt could not be persisted")
                 # 提示录制
                 if self.recording_tool.config.get("open"):
                     url = os.path.join(os.path.abspath(self.conf.resource_dir), "ffmpeg.exe")

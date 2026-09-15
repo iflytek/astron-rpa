@@ -17,6 +17,8 @@ class Settings(BaseSettings):
     # URL credentials are disabled by default because query strings commonly
     # appear in browser history and proxy access logs.
     MCP_ALLOW_QUERY_API_KEY: bool = False
+    # Browser origins are denied unless a deployer explicitly allows them.
+    MCP_ALLOWED_ORIGINS: str = ""
 
     model_config = SettingsConfigDict(
         env_file=None,

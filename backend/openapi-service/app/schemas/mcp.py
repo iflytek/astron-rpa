@@ -20,10 +20,14 @@ EXECUTION_PROPERTIES = {
     "executionId": {"type": "string"},
     "projectId": PROJECT_ID,
     "version": VERSION,
-    "status": {"enum": ["accepted", "running", "succeeded", "failed", "unknown"]},
+    "status": {"enum": ["accepted", "running", "succeeded", "failed", "cancelled", "timeout", "unknown"]},
     "terminal": {"type": "boolean"},
     "acceptedAt": {"type": ["string", "null"]},
     "finishedAt": {"type": ["string", "null"]},
+    "startedAt": {"type": ["string", "null"]},
+    "clientId": {"type": ["string", "null"]},
+    "runId": {"type": ["string", "null"]},
+    "cancelRequested": {"type": "boolean"},
     "result": {},
     "error": {
         "anyOf": [
@@ -31,7 +35,7 @@ EXECUTION_PROPERTIES = {
             object_schema({"code": {"type": "string"}, "message": {"type": "string"}}, ["code", "message"]),
         ]
     },
-    "supportsCancel": {"const": False},
+    "supportsCancel": {"type": "boolean"},
 }
 EXECUTION_SCHEMA = object_schema(EXECUTION_PROPERTIES, list(EXECUTION_PROPERTIES))
 
@@ -56,10 +60,10 @@ CONTROL_TOOLS = {
         ),
         types.Tool(
             name="astron_workflow_get",
-            description="Get an authorized workflow's published version and supported scalar input schema.",
+            description="Get an authorized workflow's published version and supported JSON input schema.",
             inputSchema=object_schema({"projectId": PROJECT_ID}, ["projectId"]),
             outputSchema=object_schema(
-                {**WORKFLOW_PROPERTIES, "inputSchema": {"type": "object"}, "supportsCancel": {"const": False}},
+                {**WORKFLOW_PROPERTIES, "inputSchema": {"type": "object"}, "supportsCancel": {"type": "boolean"}},
                 [*WORKFLOW_PROPERTIES, "inputSchema", "supportsCancel"],
             ),
             annotations=types.ToolAnnotations(readOnlyHint=True, openWorldHint=False),
@@ -68,13 +72,31 @@ CONTROL_TOOLS = {
             name="astron_workflow_execute",
             description=(
                 "Start an authorized published workflow asynchronously. Returns executionId before completion. "
-                "Use astron_execution_get to observe the result. Non-idempotent: do not automatically retry."
+                "Use astron_execution_get to observe the result. Reuse idempotencyKey for the same request; "
+                "without a key, do not automatically retry. executionTimeout is the RPA process deadline in seconds."
             ),
             inputSchema=object_schema(
-                {"projectId": PROJECT_ID, "version": VERSION, "params": {"type": "object"}}, ["projectId"]
+                {
+                    "projectId": PROJECT_ID,
+                    "version": VERSION,
+                    "params": {"type": "object"},
+                    "idempotencyKey": {"type": "string", "minLength": 1, "maxLength": 200},
+                    "executionTimeout": {"type": "integer", "minimum": 1, "maximum": 86400},
+                },
+                ["projectId"],
             ),
             outputSchema=EXECUTION_SCHEMA,
             annotations=types.ToolAnnotations(readOnlyHint=False, destructiveHint=True, idempotentHint=False),
+        ),
+        types.Tool(
+            name="astron_execution_cancel",
+            description="Request cancellation of the exact authorized execution. cancelRequested is intent, "
+            "not stopped confirmation. Query the same ID for the confirmed terminal outcome.",
+            inputSchema=object_schema(
+                {"executionId": {"type": "string", "minLength": 1, "maxLength": 36}}, ["executionId"]
+            ),
+            outputSchema=EXECUTION_SCHEMA,
+            annotations=types.ToolAnnotations(readOnlyHint=False, destructiveHint=True, idempotentHint=True),
         ),
         types.Tool(
             name="astron_execution_get",

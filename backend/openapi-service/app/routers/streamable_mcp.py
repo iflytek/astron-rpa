@@ -9,6 +9,7 @@ from starlette.types import Receive, Scope, Send
 from app.config import get_settings
 from app.database import AsyncSessionLocal
 from app.logger import get_logger
+from app.routers.mcp_modern import DualProtocolMCP
 from app.schemas.mcp import CONTROL_TOOLS
 from app.security.mcp_auth import MCPAPIKeyAuthMiddleware
 from app.services.streamable_mcp import ToolsConfig
@@ -54,7 +55,11 @@ def control_error(code: str, message: str) -> types.CallToolResult:
 async def call_tool(name: str, arguments: dict) -> list[types.ContentBlock] | dict | types.CallToolResult:
     ctx = app.request_context
     user_id = get_authenticated_user_id(ctx)
-    logger.info("MCP tool=%s request_id=%s user_id=%s", name, ctx.request_id, user_id)
+    return await dispatch_tool(user_id, name, arguments, ctx.request_id, ctx.session)
+
+
+async def dispatch_tool(user_id, name, arguments, request_id=None, session=None):
+    logger.info("MCP tool=%s request_id=%s user_id=%s", name, request_id, user_id)
 
     if name in CONTROL_TOOLS:
         try:
@@ -69,8 +74,15 @@ async def call_tool(name: str, arguments: dict) -> list[types.ContentBlock] | di
                     payload = await service.get_workflow(arguments["projectId"], user_id)
                 elif name == "astron_workflow_execute":
                     payload = await service.execute_workflow(
-                        arguments["projectId"], user_id, arguments.get("params", {}), arguments.get("version")
+                        arguments["projectId"],
+                        user_id,
+                        arguments.get("params", {}),
+                        arguments.get("version"),
+                        arguments.get("idempotencyKey"),
+                        arguments.get("executionTimeout"),
                     )
+                elif name == "astron_execution_cancel":
+                    payload = await service.cancel_execution(arguments["executionId"], user_id)
                 else:
                     payload = await service.get_execution(arguments["executionId"], user_id)
             # Validate before the SDK so serialization errors cannot echo results.
@@ -79,7 +91,7 @@ async def call_tool(name: str, arguments: dict) -> list[types.ContentBlock] | di
             logger.info(
                 "MCP tool=%s request_id=%s execution_id=%s",
                 name,
-                ctx.request_id,
+                request_id,
                 payload.get("executionId"),
             )
             return payload
@@ -88,7 +100,7 @@ async def call_tool(name: str, arguments: dict) -> list[types.ContentBlock] | di
         except Exception as exc:
             # SQL/validation exception strings can contain credentials or inputs.
             logger.error(  # noqa: TRY400 -- do not log exception text containing SQL parameters
-                "MCP control failed: tool=%s request_id=%s error_type=%s", name, ctx.request_id, type(exc).__name__
+                "MCP control failed: tool=%s request_id=%s error_type=%s", name, request_id, type(exc).__name__
             )
             return control_error(
                 "INTERNAL_ERROR", "Workflow control is unavailable; do not automatically retry a start"
@@ -109,14 +121,16 @@ async def call_tool(name: str, arguments: dict) -> list[types.ContentBlock] | di
 
     if result["success"]:
         # 记录成功执行
-        await ctx.session.send_log_message(
-            level="info",
-            data=(
-                f"Started workflow execution: execution_id={result['execution_id']}, project_id={result['project_id']}"
-            ),
-            logger="workflow_execution",
-            related_request_id=ctx.request_id,
-        )
+        if session is not None:
+            await session.send_log_message(
+                level="info",
+                data=(
+                    f"Started workflow execution: execution_id={result['execution_id']}, "
+                    f"project_id={result['project_id']}"
+                ),
+                logger="workflow_execution",
+                related_request_id=request_id,
+            )
 
         if result["message"]["code"] == "0000":
             return [types.TextContent(type="text", text=json.dumps(result["message"], indent=2, ensure_ascii=False))]
@@ -133,25 +147,21 @@ async def list_tools() -> list[types.Tool]:
     user_id = get_authenticated_user_id(ctx)
 
     # 获取用户可用的工具
+    return await available_tools(user_id)
+
+
+async def available_tools(user_id):
     allowed_tools = await tools_config.get_tools_for_user(user_id)
-    # Fixed control names are reserved. A published workflow with a colliding
-    # dynamic name remains accessible by projectId through the control tools.
-    allowed_tools = list(CONTROL_TOOLS.values()) + [tool for tool in allowed_tools if tool.name not in CONTROL_TOOLS]
-
-    # 记录权限检查成功
-    if hasattr(ctx, "session"):
-        await ctx.session.send_log_message(
-            level="info",
-            data=f"User access: user_id={user_id}, allowed_tools={len(allowed_tools)}",
-            logger="permission_check",
-            related_request_id=ctx.request_id,
-        )
-
-    return allowed_tools
+    return list(CONTROL_TOOLS.values()) + [tool for tool in allowed_tools if tool.name not in CONTROL_TOOLS]
 
 
 mcp_auth_app = MCPAPIKeyAuthMiddleware(
-    session_manager.handle_request,
+    DualProtocolMCP(
+        session_manager.handle_request,
+        available_tools,
+        dispatch_tool,
+        [origin.strip() for origin in get_settings().MCP_ALLOWED_ORIGINS.split(",") if origin.strip()],
+    ),
     tools_config.get_uid_from_raw_key,
     allow_query_api_key=get_settings().MCP_ALLOW_QUERY_API_KEY,
 )

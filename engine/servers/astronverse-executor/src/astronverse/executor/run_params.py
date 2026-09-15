@@ -1,3 +1,4 @@
+from astronverse.executor.external_values import json_value
 from astronverse.executor.utils.utils import str_to_list_if_possible
 
 
@@ -9,6 +10,10 @@ def parse_run_params(run_params, parser):
     for item in run_params:
         name = item.get("varName")
         value = item.get("varValue")
+        if item.get("encoding") == "json":
+            # Managed remote inputs are native JSON literals, never expressions.
+            values[name] = json_value(value)
+            continue
         if type(value) in (int, float, bool):
             values[name] = value
             continue

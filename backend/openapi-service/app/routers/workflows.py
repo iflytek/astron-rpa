@@ -27,6 +27,17 @@ logger = get_logger(__name__)
 router = APIRouter(prefix="/workflows", tags=["workflow"])
 
 
+def _execution_http_error(exc: WorkflowAccessError) -> HTTPException:
+    client_status = {
+        "CLIENT_OFFLINE": status.HTTP_503_SERVICE_UNAVAILABLE,
+        "CLIENT_CAPABILITY_UNCONFIRMED": status.HTTP_503_SERVICE_UNAVAILABLE,
+        "CLIENT_PROTOCOL_UNSUPPORTED": status.HTTP_409_CONFLICT,
+    }.get(exc.code)
+    if client_status is not None:
+        return HTTPException(client_status, detail={"code": exc.code, "message": str(exc)})
+    return HTTPException(404 if exc.code == "WORKFLOW_NOT_FOUND" else 403, str(exc))
+
+
 @router.post(
     "/upsert",
     response_model=StandardResponse,
@@ -183,7 +194,7 @@ async def execute_workflow(
 
         return StandardResponse(code=ResCode.SUCCESS, msg="", data={"execution": external_execution_dict(execution)})
     except WorkflowAccessError as exc:
-        raise HTTPException(404 if exc.code == "WORKFLOW_NOT_FOUND" else 403, str(exc)) from None
+        raise _execution_http_error(exc) from None
     except Exception as e:
         logger.error("Request failed: %s", type(e).__name__)  # noqa: TRY400 -- omit sensitive exception text
         return StandardResponse(code=ResCode.ERR, msg="Failed to execute workflow", data=None)
@@ -212,7 +223,7 @@ async def execute_workflow_async(
 
         return StandardResponse(code=ResCode.SUCCESS, msg="", data={"executionId": execution.id})
     except WorkflowAccessError as exc:
-        raise HTTPException(404 if exc.code == "WORKFLOW_NOT_FOUND" else 403, str(exc)) from None
+        raise _execution_http_error(exc) from None
     except Exception as e:
         logger.error("Request failed: %s", type(e).__name__)  # noqa: TRY400 -- omit sensitive exception text
         return StandardResponse(code=ResCode.ERR, msg="Failed to execute workflow asynchronously", data=None)

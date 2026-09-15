@@ -14,7 +14,40 @@ from rpawebsocket.ws_service import WsManager
 
 
 class MessageBoundWsManager(WsManager):
+    async def execution_request(self, user_id: str, data: dict, timeout: float = 5):
+        """Send once to one connection, accepting a reply only from that peer."""
+        connections = self.conns.get(str(user_id), [])
+        if not connections:
+            raise ConnectionError("CLIENT_OFFLINE")
+        conn = connections[-1]
+        msg = BaseMsg(
+            channel="execution",
+            key="control",
+            uuid="$root$",
+            send_uuid=str(user_id),
+            need_reply=True,
+            data={"protocol": 1, **data, "owner": str(user_id)},
+        ).init()
+        if not hasattr(self, "execution_waiters"):
+            self.execution_waiters = {}
+        future = asyncio.get_running_loop().create_future()
+        self.execution_waiters[msg.event_id] = (conn, future)
+        try:
+            # No payload logs, broadcasts, watch retries or cross-connection replies.
+            await conn.send_text(msg.tojson())
+            return await asyncio.wait_for(future, timeout)
+        finally:
+            self.execution_waiters.pop(msg.event_id, None)
+
     async def _handle_message(self, msg: BaseMsg, conn: Conn, svc):
+        if msg.channel == "execution" and msg.reply_event_id:
+            waiter = getattr(self, "execution_waiters", {}).get(msg.reply_event_id)
+            if waiter is not None:
+                expected, future = waiter
+                current = self.conns.get(conn.uuid, [])
+                if expected is conn and current and current[-1] is conn and not future.done():
+                    future.set_result(msg.data)
+            return
         if msg.channel == PingMsg.channel:
             conn.last_ping = int(time.time())
             await self._send_text(conn, PongMsg.tojson())

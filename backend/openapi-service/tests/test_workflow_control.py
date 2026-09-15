@@ -164,8 +164,8 @@ def test_scalar_schema_preserves_zero_defaults_and_rejects_boolean_numbers():
         "null",
         "false",
         '[{"varDirection":0,"varType":"PATH","varName":"file"}]',
-        '[{"varDirection":0,"varType":"Password","varName":"secret","varValue":"secret-value"}]',
-        '{"type":"object","properties":{"x":{"type":"array"}}}',
+        '[{"varDirection":0,"varType":"File","varName":"secret","varValue":"secret-value"}]',
+        '{"type":"object","properties":{"x":{"type":"file"}}}',
         '{"type":"object","$ref":"https://example.invalid/schema"}',
         '[{"varDirection":0,"varType":"Int","varName":"n","varValue":1.5}]',
         '[{"varDirection":0,"varType":"Float","varName":"n","varValue":"nan"}]',
@@ -265,7 +265,7 @@ async def test_real_mcp_async_start_disconnect_and_query_share_one_execution(dat
         async with mcp_session(manager, "owner") as session:
             listed = await session.list_tools()
             assert {t.name for t in listed.tools} == set(CONTROL_TOOLS)
-            assert len(listed.tools) == 4  # Reserved names cannot shadow fixed tools.
+            assert len(listed.tools) == 5  # Reserved names cannot shadow fixed tools.
             invalid = await session.call_tool(
                 "astron_workflow_execute", {"projectId": "allowed", "userId": "secret-value"}
             )

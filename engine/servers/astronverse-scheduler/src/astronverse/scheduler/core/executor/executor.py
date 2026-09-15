@@ -9,6 +9,7 @@ import time
 import traceback
 import uuid
 from enum import Enum
+from functools import wraps
 from pathlib import Path
 from typing import Union
 from urllib.parse import quote
@@ -126,6 +127,21 @@ def _write_run_param_file(run_param: str) -> str:
     return temp_file_path
 
 
+def _serialized_start(method):
+    @wraps(method)
+    def start(self, *args, **kwargs):
+        if not self.start_lock.acquire(blocking=False):
+            raise RuntimeError("CLIENT_BUSY")
+        try:
+            if self.status():
+                raise RuntimeError("CLIENT_BUSY")
+            return method(self, *args, **kwargs)
+        finally:
+            self.start_lock.release()
+
+    return start
+
+
 class Executor:
     """执行器进程 句柄"""
 
@@ -165,6 +181,7 @@ class Executor:
         self.kill_time = 0  # 强杀时间 0 不强杀 >0 强杀 <0 已经强杀
         self.report_log_time = 0  # 上报 0 没上报 > 0 上报中 <0 上报结束
         self.run_param_file = None  # run_param临时文件路径
+        self.launched_at = None
 
         # -运行结果
         self.execute_status = ExecuteStatus.EXECUTE  # 执行状态
@@ -242,6 +259,7 @@ class ExecutorManager:
         self.svc = svc
         self.thread_lock = threading.Lock()
         self.report_log_lock = threading.Lock()
+        self.start_lock = threading.Lock()
         # 正在执行队列
         self.executor_list = {}
 
@@ -254,6 +272,7 @@ class ExecutorManager:
         # 异步任务处理
         threading.Thread(target=self.async_call, daemon=True).start()
 
+    @_serialized_start
     def create(
         self,
         project_id: str = "",  # 工程id
@@ -273,6 +292,9 @@ class ExecutorManager:
         version: str = "",  # 版本号
         is_send_log_event: bool = True,  # 是否需要发送日志事件
         is_custom_component: bool = False,  # 是否是自定义组件
+        on_prepared=None,
+        on_started=None,
+        external_secrets: bool = False,
     ):
         """启动一个实例"""
         executor = Executor()
@@ -331,6 +353,9 @@ class ExecutorManager:
         ins.set_param("project_id", executor.project_id)
         ins.set_param("mode", exec_position.value)
         ins.set_param("exec_id", executor.exec_id)
+        if on_prepared is not None:
+            ins.set_param("managed_execution", "y")
+            ins.set_param("managed_secrets", "y" if external_secrets else "n")
         if run_param:
             try:
                 temp_file_path = _write_run_param_file(run_param)
@@ -394,12 +419,17 @@ class ExecutorManager:
             virtual_desk.start(self.svc)
 
         try:
+            if on_prepared is not None:
+                on_prepared(executor)
             executor.run()
+            executor.launched_at = time.time()
         except Exception as e:
             logger.error("ExecutorManager error: {}".format(e))
             return None
         with self.thread_lock:
             self.executor_list[executor.exec_id] = executor
+        if on_started is not None:
+            on_started(executor)
 
         # 7. 检查是否真启动完成
         if executor.wait_start(time_out=20):
@@ -548,7 +578,7 @@ class ExecutorManager:
             text = response.text
             if status_code != 200:
                 raise Exception("get error status_code: {}".format(status_code))
-            logger.info("report data: {}, response: {} {}".format(data, status_code, text))
+            logger.info("Execution record created: HTTP {}".format(status_code))
             return json.loads(text.strip())["data"]
         except Exception as e:
             logger.exception("[APP] request api: {} error: {}".format(api, e))
@@ -670,7 +700,7 @@ class ExecutorManager:
                 )
                 status_code = response.status_code
                 text = response.text
-                logger.info("report log data: {}, response: {} {}".format(data, status_code, text))
+                logger.info("Execution record reported: execution_id={} HTTP {}".format(executor.exec_id, status_code))
         except Exception as e:
             logger.exception("report_app_log error: {}".format(e))
         finally:

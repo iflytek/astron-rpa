@@ -30,7 +30,7 @@ async def test_published_workflow_is_exposed_as_mcp_tool(monkeypatch):
     assert len(tools) == 1
     assert tools[0].name == "invoice_bot"
     assert tools[0].description == "Process invoices"
-    assert tools[0].inputSchema == {"type": "object"}
+    assert tools[0].inputSchema == {"type": "object", "properties": {}, "required": [], "additionalProperties": False}
 
 
 @pytest.mark.asyncio

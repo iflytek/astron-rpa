@@ -176,6 +176,40 @@ def upstream_app(events, secure=True):
     )
 
 
+def test_managed_control_uses_verified_wss_and_preserves_router_frames(certificates, tmp_path):
+    received = []
+
+    async def peer(socket):
+        await socket.accept()
+        await socket.send_json(
+            {
+                "channel": "execution",
+                "key": "control",
+                "event_id": "request-1",
+                "uuid": "$root$",
+                "send_uuid": "owner",
+                "data": {"action": "get"},
+            }
+        )
+        received.append(await socket.receive_json())
+        await socket.send_text("legacy-frame")
+        received.append(await socket.receive_text())
+
+    with serve(Starlette(routes=[WebSocketRoute("/ws", peer)]), *certificates["trusted"]) as port:
+        app = create_app(
+            f"https://localhost:{port}", tmp_path, lambda command: {"status": "running", "action": command["action"]}
+        )
+        with TestClient(app) as client, client.websocket_connect("/ws") as socket:
+            assert socket.receive_text() == "legacy-frame"
+            socket.send_text("router-response")
+            until = time.monotonic() + 2
+            while len(received) < 2 and time.monotonic() < until:
+                time.sleep(0.01)
+    assert received[0]["reply_event_id"] == "request-1"
+    assert received[0]["data"] == {"status": "running", "action": "get"}
+    assert received[1] == "router-response"
+
+
 def test_https_session_streaming_and_wss(certificates, tmp_path, caplog):
     caplog.set_level(logging.DEBUG)
     events = []
@@ -212,7 +246,21 @@ def test_https_session_streaming_and_wss(certificates, tmp_path, caplog):
             assert client.post("/api/logout").status_code == 200
         with TestClient(create_app(base, directory)) as client:
             assert client.get("/api/echo").json()["cookie"] == ""
-    assert all(secret not in caplog.text for secret in ["query-secret", "header-secret", "session-secret"])
+    # Starlette versions may use httpx or httpx2 for the synthetic ASGI client.
+    # Exclude only its request log to testserver; upstream transport logs and
+    # every other diagnostic must still keep the secret values out.
+    diagnostic = "\n".join(
+        record.getMessage()
+        for record in caplog.records
+        if not (
+            record.name in ("httpx", "httpx2")
+            and record.msg == 'HTTP Request: %s %s "%s %d %s"'
+            and isinstance(record.args, tuple)
+            and len(record.args) == 5
+            and str(record.args[1]).startswith("http://testserver/")
+        )
+    )
+    assert all(secret not in diagnostic for secret in ["query-secret", "header-secret", "session-secret"])
 
 
 @pytest.mark.parametrize("certificate", ["wrong-host", "expired", "untrusted"])

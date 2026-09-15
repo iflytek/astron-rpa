@@ -1,6 +1,6 @@
 import json
 
-from sqlalchemy import Column, DateTime, Integer, String, Text, func
+from sqlalchemy import Boolean, Column, DateTime, Integer, String, Text, UniqueConstraint, func
 
 from app.database import Base
 
@@ -68,6 +68,7 @@ class Execution(Base):
     """工作流执行记录数据库模型"""
 
     __tablename__ = "openai_executions"
+    __table_args__ = (UniqueConstraint("user_id", "idempotency_key_hash", name="uq_execution_user_key"),)
 
     id = Column(String(36), primary_key=True, index=True)  # UUID格式
     project_id = Column(String(100), nullable=False, index=True)
@@ -81,6 +82,18 @@ class Execution(Base):
     version = Column(Integer, nullable=True)  # 工作流版本
     start_time = Column(DateTime, default=func.now(), nullable=False)
     end_time = Column(DateTime, nullable=True)
+    # NULL protocol denotes a historical execution with no durable Client contract.
+    protocol = Column(Integer, nullable=True)
+    idempotency_key_hash = Column(String(64), nullable=True)
+    request_hash = Column(String(64), nullable=True)
+    client_id = Column(String(36), nullable=True)
+    run_id = Column(String(100), nullable=True)
+    dispatch_state = Column(String(20), nullable=True, index=True)
+    started_at = Column(DateTime, nullable=True)
+    execution_timeout = Column(Integer, nullable=True)
+    cancel_requested = Column(Boolean, nullable=False, default=False, server_default="0")
+    cancel_supported = Column(Boolean, nullable=False, default=False, server_default="0")
+    secret_fields = Column(Text, nullable=True)
 
     def to_dict(self):
         """将Execution对象转换为可序列化的字典"""

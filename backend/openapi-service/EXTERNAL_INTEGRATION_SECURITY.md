@@ -210,7 +210,8 @@ and certificate replacement/recovery. Record unavailable conditions as untested.
 
 Review gateway/service/client logs and n8n history for credentials and internal
 error data. Legitimate workflow results may contain business secrets: restrict
-history access, retention and exports. This stage does not implement durable
-execution recovery, idempotency, precise cancellation or a new state machine;
-`supportsCancel=false` remains in effect until stage 3 supplies actual stop
-confirmation.
+history access, retention and exports. Managed execution extends this security
+contract with durable idempotency, reconciliation and confirmed cancellation;
+see [execution management](EXECUTION_MANAGEMENT.md). Cancellation uses the same
+ownership and current resource/version checks. Legacy Clients retain
+`supportsCancel=false`; revoking a Key still does not cancel running work.

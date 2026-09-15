@@ -1,5 +1,8 @@
+from pathlib import Path
+
 import requests
 from astronverse.scheduler import ComponentType, ServerLevel
+from astronverse.scheduler.core.executor.managed_execution import ManagedExecution
 from astronverse.scheduler.core.route.proxy import get_cmd
 from astronverse.scheduler.core.route.remote_transport import RemoteTransport
 from astronverse.scheduler.core.server import IServer
@@ -15,7 +18,11 @@ class RpaRouteServer(IServer):
 
     def run(self):
         self.port = self.svc.rpa_route_port
-        self.remote_transport = RemoteTransport(self.svc.config.remote_addr)
+        if not hasattr(self.svc, "managed_execution"):
+            self.svc.managed_execution = ManagedExecution(
+                self.svc.executor_mg, Path.cwd() / ".executions", self.svc.config.remote_addr
+            )
+        self.remote_transport = RemoteTransport(self.svc.config.remote_addr, self.svc.managed_execution.handle)
         remote_port = self.remote_transport.start()
 
         self.proc = SubPopen(name="rpa_route", cmd=[get_cmd()])

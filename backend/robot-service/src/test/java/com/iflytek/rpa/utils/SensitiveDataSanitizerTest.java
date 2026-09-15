@@ -64,4 +64,20 @@ class SensitiveDataSanitizerTest {
         assertTrue(sanitized.contains("\"status\":\"ok\""));
         assertTrue(source.get("osPwd").equals(secret));
     }
+
+    @Test
+    void omitsSerializedExecutionInputsWithoutChangingTheRequest() {
+        Map<String, Object> source = new LinkedHashMap<>();
+        String parameters = "[{\"varName\":\"businessValue\",\"varValue\":\"private-input\",\"secret\":true}]";
+        source.put("paramJson", parameters);
+        source.put("robotId", "project");
+
+        String sanitized = SensitiveDataSanitizer.sanitize(JSON.toJSONString(source));
+
+        assertFalse(sanitized.contains("private-input"));
+        assertFalse(sanitized.contains("businessValue"));
+        assertTrue(sanitized.contains("\"paramJson\":\"[REDACTED]\""));
+        assertTrue(sanitized.contains("\"robotId\":\"project\""));
+        assertTrue(source.get("paramJson").equals(parameters));
+    }
 }

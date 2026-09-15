@@ -20,6 +20,7 @@ from http.cookiejar import Cookie, LoadError, LWPCookieJar
 from http.cookies import CookieError, SimpleCookie
 from pathlib import Path
 from urllib.parse import urlsplit
+from uuid import uuid4
 
 import httpx
 import uvicorn
@@ -148,7 +149,7 @@ class SessionCookies:
             temporary.unlink(missing_ok=True)
 
 
-def create_app(remote_addr: str, cookie_directory: Path) -> Starlette:
+def create_app(remote_addr: str, cookie_directory: Path, execution_handler=None) -> Starlette:
     origin = urlsplit(remote_addr)
     if origin.scheme not in {"http", "https"} or not origin.hostname or origin.username or origin.password:
         raise ValueError("remote_addr must be an HTTP or HTTPS server address without credentials")
@@ -258,6 +259,36 @@ def create_app(remote_addr: str, cookie_directory: Path) -> Starlette:
 
                 async def inbound():
                     async for message in upstream:
+                        if execution_handler is not None:
+                            try:
+                                envelope = json.loads(message)
+                            except (ValueError, TypeError):
+                                envelope = None
+                            if (
+                                isinstance(envelope, dict)
+                                and envelope.get("channel") == "execution"
+                                and envelope.get("key") == "control"
+                                and not envelope.get("reply_event_id")
+                            ):
+                                try:
+                                    result = await asyncio.to_thread(execution_handler, envelope.get("data"))
+                                except Exception:
+                                    result = {"error": "CLIENT_CONTROL_UNAVAILABLE"}
+                                await upstream.send(
+                                    json.dumps(
+                                        {
+                                            "channel": "execution",
+                                            "key": "control",
+                                            "event_id": str(uuid4()),
+                                            "reply_event_id": envelope.get("event_id"),
+                                            "uuid": envelope.get("send_uuid"),
+                                            "send_uuid": envelope.get("uuid"),
+                                            "data": result,
+                                        },
+                                        allow_nan=False,
+                                    )
+                                )
+                                continue
                         if isinstance(message, bytes):
                             await websocket.send_bytes(message)
                         else:
@@ -292,8 +323,8 @@ def create_app(remote_addr: str, cookie_directory: Path) -> Starlette:
 class RemoteTransport:
     """A loopback-only relay whose lifetime follows the local router."""
 
-    def __init__(self, remote_addr: str):
-        self.app = create_app(remote_addr, Path.cwd() / ".remote-cookies")
+    def __init__(self, remote_addr: str, execution_handler=None):
+        self.app = create_app(remote_addr, Path.cwd() / ".remote-cookies", execution_handler)
         self.server = None
         self.thread = None
         self.socket = None

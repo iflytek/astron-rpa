@@ -1,5 +1,7 @@
 """Resource policy shared by fixed/dynamic MCP and external REST calls."""
 
+import json
+
 from app.models.workflow import Execution, Workflow
 
 
@@ -28,6 +30,9 @@ def require_workflow_access(workflow: Workflow | None, user_id: str, version: in
 def external_execution_dict(execution: Execution) -> dict:
     """Preserve the REST envelope without exposing stored internal exceptions."""
     result = execution.to_dict()
+    for key in json.loads(execution.secret_fields or "[]"):
+        if key in (result.get("parameters") or {}):
+            result["parameters"][key] = "[REDACTED]"
     if result.get("error") and result["error"] not in (
         "RPA client is offline or disconnected",
         "Execution result timed out; the client may still be running",

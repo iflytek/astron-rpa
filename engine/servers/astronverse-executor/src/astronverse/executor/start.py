@@ -4,16 +4,19 @@ import os
 import threading
 import time
 import traceback
+from datetime import UTC
 from urllib.parse import unquote
-from astronverse.executor.error import *
+
 from astronverse.actionlib import ReportFlow, ReportFlowStatus, ReportType
 from astronverse.executor import ExecuteStatus
 from astronverse.executor.config import Config
 from astronverse.executor.debug.apis.ws import Ws
 from astronverse.executor.debug.debug import Debug
 from astronverse.executor.debug.debug_svc import DebugSvc
+from astronverse.executor.error import *
 from astronverse.executor.flow.flow import Flow
 from astronverse.executor.flow.flow_svc import FlowSvc
+from astronverse.executor.logger import logger
 from astronverse.executor.run_params import parse_run_params
 
 
@@ -131,6 +134,9 @@ def start():
     parser.add_argument("--version", default="", help="运行版本", required=False)
     parser.add_argument("--run_param", default="", help="运行参数", required=False)
     parser.add_argument("--exec_id", default="", help="启动的执行id", required=False)
+    parser.add_argument("--managed_execution", default="n", choices=("y", "n"))
+    parser.add_argument("--managed_secrets", default="n", choices=("y", "n"))
+    parser.add_argument("--managed_receipt", default="")
 
     parser.add_argument("--process_id", default="", help="[调试]启动的流程id", required=False)
     parser.add_argument("--line", default="0", help="[调试]启动的行号", required=False)
@@ -164,6 +170,12 @@ def start():
     Config.wait_tip_ws = args.wait_tip_ws == "y"
     Config.debug_mode = args.debug == "y"
     Config.is_custom_component = args.is_custom_component == "y"
+    Config.managed_execution = args.managed_execution == "y"
+    if Config.managed_execution:
+        from datetime import datetime
+
+        Config.managed_started_at = datetime.now(UTC).isoformat()
+        Config.managed_receipt = unquote(args.managed_receipt)
 
     if args.run_param:
         try:
@@ -178,6 +190,7 @@ def start():
             args.run_param = {}
     else:
         args.run_param = {}
+    Config.external_secrets = Config.managed_execution and args.managed_secrets == "y"
     if args.recording_config:
         try:
             args.recording_config = unquote(args.recording_config)
@@ -199,12 +212,18 @@ def start():
         debug_svc = DebugSvc(conf=Config, debug_model=args.debug == "y")
         debug_start(svc=debug_svc, args=args, flow_tip=flow_tip)
     except BaseException as e:
-        logger.error("error {} traceback {}".format(e, traceback.format_exc()))
+        if Config.managed_execution:
+            logger.error("Managed execution failed")  # Exception text may contain secret inputs.
+        else:
+            logger.error("error {} traceback {}".format(e, traceback.format_exc()))
         if debug_svc:
             debug_svc.end(ExecuteStatus.FAIL, reason=e.code.message)
         return
     except Exception as e:
-        logger.error("error {} traceback {}".format(e, traceback.format_exc()))
+        if Config.managed_execution:
+            logger.error("Managed execution failed")  # Exception text may contain secret inputs.
+        else:
+            logger.error("error {} traceback {}".format(e, traceback.format_exc()))
         if debug_svc:
             debug_svc.end(ExecuteStatus.FAIL, reason=MSG_EXECUTION_ERROR)
         return

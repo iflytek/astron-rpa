@@ -29,6 +29,7 @@ from app.schemas.api_key import ApiKeyCreate
 from app.security.api_key import validate_api_key
 from app.security.mcp_auth import MCPAPIKeyAuthMiddleware
 from app.security.workflow_authorization import WorkflowAccessError
+from app.services import execution_management as management
 from app.services.api_key import ApiKeyService
 from app.services.execution import ExecutionService
 from app.services.streamable_mcp import ToolsConfig
@@ -235,7 +236,44 @@ async def test_denied_rest_start_never_creates_or_dispatches(security_db, monkey
 
 
 @pytest.mark.asyncio
+@pytest.mark.parametrize("path", ["/workflows/execute", "/workflows/execute-async"])
+@pytest.mark.parametrize(
+    ("failure", "code", "status"),
+    [
+        (ConnectionError, "CLIENT_OFFLINE", 503),
+        (TimeoutError, "CLIENT_CAPABILITY_UNCONFIRMED", 503),
+        (None, "CLIENT_PROTOCOL_UNSUPPORTED", 409),
+    ],
+)
+async def test_rest_preserves_client_capability_errors(security_db, monkeypatch, path, failure, code, status):
+    engine, _ = security_db
+    probe = (
+        AsyncMock(side_effect=failure("private-probe-detail")) if failure else AsyncMock(return_value={"protocol": 0})
+    )
+    monkeypatch.setattr(management, "request", probe)
+    dispatch = AsyncMock()
+    monkeypatch.setattr(ExecutionService, "execute_workflow", dispatch)
+    async with rest_client() as client:
+        result = await client.post(
+            path,
+            headers={"Authorization": "Bearer owner-key"},
+            json={"project_id": "allowed", "idempotency_key": "stable-key"},
+        )
+    assert result.status_code == status
+    assert result.json()["detail"]["code"] == code
+    assert "private-probe-detail" not in result.text
+    dispatch.assert_not_awaited()
+    with Session(engine) as session:
+        assert len(session.execute(select(Execution)).scalars().all()) == 5
+
+
+@pytest.mark.asyncio
 async def test_rest_start_pins_current_release_and_preserves_response(security_db, monkeypatch):
+    _, factory = security_db
+    async with factory() as db:
+        workflow = (await db.execute(select(Workflow).where(Workflow.project_id == "allowed"))).scalar_one()
+        workflow.parameters = json.dumps({"type": "object", "properties": {"value": {"type": "integer"}}})
+        await db.commit()
     dispatch = AsyncMock(
         return_value=Execution(
             id="new", project_id="allowed", user_id="owner", version=2, status="PENDING", parameters="{}"

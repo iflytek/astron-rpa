@@ -13,7 +13,9 @@ public final class SensitiveDataSanitizer {
                     + "access[ _-]?token|refresh[ _-]?token|id[ _-]?token|temp[ _-]?token|token|"
                     + "authorization|cookie|cache[ _-]?key|session(?:[ _-]?id)?|jsessionid|"
                     + "casdoor[ _-]?session[ _-]?id|client[ _-]?secret|private[ _-]?key|"
-                    + "verification[ _-]?code|verify[ _-]?code|sms[ _-]?code|captcha|credential|secret)";
+                    + "verification[ _-]?code|verify[ _-]?code|"
+                    + "sms[ _-]?code|captcha|credential|secret|"
+                    + "param[ _-]?json)";
 
     private static final Pattern QUOTED_VALUE = Pattern.compile(
             "([\"']" + SENSITIVE_KEY + "[\"']\\s*[:=]\\s*)" + "(\"(?:\\\\.|[^\"\\\\])*\"|'(?:\\\\.|[^'\\\\])*')",
