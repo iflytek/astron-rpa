@@ -130,14 +130,9 @@ class ApiKeyService:
 
     async def validate_api_key(self, key: str) -> Optional[str]:
         """验证API Key并返回关联的用户ID"""
-        query = select(OpenAPIDB).where(OpenAPIDB.key == key)
-        query = query.where(OpenAPIDB.is_active == 1)  # 只验证激活状态的记录
-        result = await self.db.execute(query)
-        api_key = result.scalars().first()
+        from app.security.api_key import validate_api_key
 
-        if api_key:
-            return str(api_key.user_id)
-        return None
+        return await validate_api_key(self.db, key)
 
 
 class AstronApiKeyService:

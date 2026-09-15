@@ -49,7 +49,7 @@
 | **pnpm** | >= 9 | Node.js package manager |
 | **UV** | 0.8+ | Python package manager |
 | **7-Zip** | - | Create deployment archives |
-| **SWIG** | - | Connect Python with C/C++ |
+| **SWIG** | 4.1.1 | Connect Python with C/C++ |
 
 ## 🛠️ Environment Setup
 
@@ -206,7 +206,13 @@ Download and install to system, or extract to a custom directory
 
 #### Step 1: Download SWIG
 Visit http://www.swig.org/download.html  
-Download `swigwin-x.x.x.zip` and extract to any directory
+Download `swigwin-4.1.1.zip` and extract to any directory.
+
+Use SWIG 4.1.1 for the current `pywinhook==1.6.2` dependency. SWIG 4.5.0
+removes the legacy `PyInt_AsLong` compatibility alias and causes a link failure
+with Python 3.13. Native extension builds also require Visual Studio Build Tools
+with the MSVC x64/x86 C++ tools and a Windows SDK; the VC++ Redistributable
+alone does not include these build tools.
 
 #### Step 2: Add to System Environment Variables
 Add the directory containing `swig.exe` to PATH environment variable  
@@ -276,6 +282,9 @@ CASDOOR_EXTERNAL_ENDPOINT="https://auth.example.com:8443"
 # docker/certs/tls.crt and docker/certs/tls.key
 
 # 🚀 Start all services
+docker compose up -d mysql casdoor
+# Wait for Casdoor initialization (see docker/HTTPS_DEPLOYMENT.md section 1.3)
+python3 scripts/sync-casdoor-credentials.py
 docker compose up -d
 
 # 📊 Check service status

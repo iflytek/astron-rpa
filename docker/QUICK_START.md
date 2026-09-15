@@ -5,6 +5,17 @@ continue to communicate over the private Compose network with HTTP.
 
 ## 1. Prepare the environment
 
+Prepare a server and domain you control. At the domain's authoritative DNS
+provider, point `rpa.example.com` and `auth.example.com` to your public ingress
+with A records (or CNAME records for an ingress hostname). NS settings select
+the DNS provider; application records must still be added there. Replace all
+example names with your own.
+
+The deployer manages DNS, public ports, certificate issuance/private keys, and
+renewal. Follow the [HTTPS deployment guide](./HTTPS_DEPLOYMENT.md) for DNS
+verification, ACME DNS-01/HTTP-01 validation, and custom-port configuration
+before starting the stack.
+
 ```bash
 cd docker
 cp .env.example .env
@@ -34,10 +45,18 @@ certificate or key is missing or empty.
 ## 2. Validate and start
 
 ```bash
-docker compose config
+docker compose config --quiet
+docker compose up -d mysql casdoor
+# After Casdoor initialization (see HTTPS_DEPLOYMENT.md section 1.3):
+python3 scripts/sync-casdoor-credentials.py
 docker compose up -d
 docker compose ps
 ```
+
+Keep ingress restricted until the default Casdoor administrator password and
+unused sample accounts have been secured. The signing keys and application
+secrets are generated per deployment; do not publish `.env`. Existing deployments
+must follow the rotation steps in [section 1.3](./HTTPS_DEPLOYMENT.md#13-initialize-and-rotate-authentication-credentials).
 
 Verify the HTTPS endpoints:
 
@@ -65,8 +84,10 @@ docker compose ps
 # View gateway logs
 docker compose logs -f openresty-nginx
 
-# Restart the gateway after certificate replacement
-docker compose restart openresty-nginx
+# Validate a replacement certificate before reloading this project's gateway
+docker compose exec -T openresty-nginx openresty -t
+# Run only if validation succeeds
+docker compose exec -T openresty-nginx openresty -s reload
 
 # Stop services without removing data volumes
 docker compose down
@@ -85,5 +106,5 @@ HTTP remains bound to loopback by default. Remote HTTP exposure requires an
 explicit bind-address change and is intended only for controlled migration or
 local development. It sends credentials and workflow data without TLS.
 
-See [HTTPS_DEPLOYMENT.md](./HTTPS_DEPLOYMENT.md) for certificate variables,
-custom ports, migration steps, validation, and rollback.
+See [HTTPS_DEPLOYMENT.md](./HTTPS_DEPLOYMENT.md) for DNS setup, certificate
+issuance/renewal, custom ports, migration steps, validation, and rollback.

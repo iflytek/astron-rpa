@@ -3,6 +3,7 @@ from fastapi import APIRouter, Depends, Path, Query, Response, status
 from app.dependencies import get_execution_service, get_user_id_from_api_key
 from app.logger import get_logger
 from app.schemas import ResCode, StandardResponse
+from app.security.workflow_authorization import external_execution_dict
 from app.services.execution import ExecutionService
 
 logger = get_logger(__name__)
@@ -28,7 +29,7 @@ async def get_executions(
     """分页获取执行记录列表"""
     try:
         executions, total = await service.get_executions_by_user(user_id, pageNo, pageSize)
-        executions_dict = [execution.to_dict() for execution in executions]
+        executions_dict = [external_execution_dict(execution) for execution in executions]
 
         return StandardResponse(
             code=ResCode.SUCCESS,
@@ -42,7 +43,7 @@ async def get_executions(
             },
         )
     except Exception as e:
-        logger.error(f"Error getting executions for user {user_id}: {str(e)}")
+        logger.error("Request failed: %s", type(e).__name__)  # noqa: TRY400 -- omit sensitive exception text
         return StandardResponse(code=ResCode.ERR, msg="Failed to get executions", data=None)
 
 
@@ -60,7 +61,7 @@ async def get_execution(
 ):
     """获取执行记录"""
     try:
-        execution = await service.get_execution(execution_id, user_id)
+        execution = await service.get_authorized_execution(execution_id, user_id)
         if not execution:
             response.status_code = status.HTTP_404_NOT_FOUND
             return StandardResponse(
@@ -69,7 +70,7 @@ async def get_execution(
                 data=None,
             )
 
-        return StandardResponse(code=ResCode.SUCCESS, msg="", data={"execution": execution.to_dict()})
+        return StandardResponse(code=ResCode.SUCCESS, msg="", data={"execution": external_execution_dict(execution)})
     except Exception as e:
-        logger.error(f"Error getting execution {execution_id}: {str(e)}")
+        logger.error("Request failed: %s", type(e).__name__)  # noqa: TRY400 -- omit sensitive exception text
         return StandardResponse(code=ResCode.ERR, msg="Failed to get execution", data=None)

@@ -2,6 +2,7 @@ package com.iflytek.rpa.base.annotation;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONException;
+import com.iflytek.rpa.utils.SensitiveDataSanitizer;
 import java.lang.reflect.Method;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -190,7 +191,7 @@ public class ApiLogAspect {
                     "[{}] [API日志异常] requestId={} message={}",
                     LocalDateTime.now().format(TIMESTAMP_FORMATTER),
                     requestId,
-                    e.getMessage());
+                    e.getClass().getSimpleName());
         }
     }
 
@@ -243,7 +244,7 @@ public class ApiLogAspect {
                     "[{}] [API日志异常] requestId={} message={}",
                     LocalDateTime.now().format(TIMESTAMP_FORMATTER),
                     requestId,
-                    e.getMessage());
+                    e.getClass().getSimpleName());
         }
     }
 
@@ -276,12 +277,7 @@ public class ApiLogAspect {
             // 记录异常信息
             if (apiLog == null || apiLog.logException()) {
                 logMsg.append(" exceptionType=").append(throwable.getClass().getSimpleName());
-                String exceptionMessage = throwable.getMessage();
-                if (exceptionMessage != null) {
-                    // 清理异常消息中的换行符和多余空格，便于grep
-                    exceptionMessage = exceptionMessage.replaceAll("\\s+", " ").trim();
-                    logMsg.append(" exceptionMessage=").append(exceptionMessage);
-                }
+                // Exception messages and stack traces can contain unlabelled credentials.
 
                 // 添加异常根因（如果是包装异常）
                 Throwable rootCause = getRootCause(throwable);
@@ -293,14 +289,14 @@ public class ApiLogAspect {
             // 添加状态标识
             logMsg.append(" status=ERROR");
 
-            log.error(logMsg.toString(), throwable);
+            log.error(logMsg.toString());
 
         } catch (Exception e) {
             log.warn(
                     "[{}] [API日志异常] requestId={} message={}",
                     LocalDateTime.now().format(TIMESTAMP_FORMATTER),
                     requestId,
-                    e.getMessage());
+                    e.getClass().getSimpleName());
         }
     }
 
@@ -313,7 +309,7 @@ public class ApiLogAspect {
         }
 
         try {
-            String jsonStr = JSON.toJSONString(args);
+            String jsonStr = SensitiveDataSanitizer.sanitize(JSON.toJSONString(args));
 
             // 限制长度
             int maxLength = apiLog != null ? apiLog.maxParamLength() : 2000;
@@ -324,9 +320,9 @@ public class ApiLogAspect {
             return jsonStr;
 
         } catch (JSONException e) {
-            return "参数序列化失败: " + e.getMessage();
+            return "参数序列化失败: " + e.getClass().getSimpleName();
         } catch (Exception e) {
-            return "参数格式化异常: " + e.getMessage();
+            return "参数格式化异常: " + e.getClass().getSimpleName();
         }
     }
 
@@ -339,7 +335,7 @@ public class ApiLogAspect {
         }
 
         try {
-            String jsonStr = JSON.toJSONString(result);
+            String jsonStr = SensitiveDataSanitizer.sanitize(JSON.toJSONString(result));
 
             // 限制长度
             int maxLength = apiLog != null ? apiLog.maxResultLength() : 2000;
@@ -350,9 +346,9 @@ public class ApiLogAspect {
             return jsonStr;
 
         } catch (JSONException e) {
-            return "结果序列化失败: " + e.getMessage();
+            return "结果序列化失败: " + e.getClass().getSimpleName();
         } catch (Exception e) {
-            return "结果格式化异常: " + e.getMessage();
+            return "结果格式化异常: " + e.getClass().getSimpleName();
         }
     }
 

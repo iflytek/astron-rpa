@@ -29,7 +29,7 @@ async def get_api_keys(
         api_keys = await service.get_api_keys(user_id, pageNo, pageSize)
         return StandardResponse(code=ResCode.SUCCESS, msg="", data={"total": len(api_keys), "records": api_keys})
     except Exception as e:
-        logger.error(f"Error getting API keys: {str(e)}")
+        logger.error("Request failed: %s", type(e).__name__)  # noqa: TRY400 -- omit sensitive exception text
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Failed to get API keys")
 
 
@@ -50,7 +50,7 @@ async def create_api_key(
         api_key = await service.create_api_key(api_key_data, user_id)
         return StandardResponse(code=ResCode.SUCCESS, msg="", data={"api_key": api_key})
     except Exception as e:
-        logger.error(f"Error creating API key: {str(e)}")
+        logger.error("Request failed: %s", type(e).__name__)  # noqa: TRY400 -- omit sensitive exception text
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Failed to create API key",
@@ -82,7 +82,7 @@ async def delete_api_key(
 
         return StandardResponse(code=ResCode.SUCCESS, msg="", data=None)
     except Exception as e:
-        logger.error(f"Error deleting API key {api_key_id}: {str(e)}")
+        logger.error("Request failed: %s", type(e).__name__)  # noqa: TRY400 -- omit sensitive exception text
         return StandardResponse(code=ResCode.ERR, msg="Failed to delete API key", data=None)
 
 
@@ -126,7 +126,7 @@ async def create_astron_agent(
     except HTTPException:
         raise
     except Exception as e:
-        logger.error(f"Error creating AstronAgent: {str(e)}")
+        logger.error("Request failed: %s", type(e).__name__)  # noqa: TRY400 -- omit sensitive exception text
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="创建星辰Agent认证失败",
@@ -152,7 +152,7 @@ async def get_astron_agents(
             code=ResCode.SUCCESS, msg="获取成功", data={"total": len(astron_agents), "records": astron_agents}
         )
     except Exception as e:
-        logger.error(f"Error getting AstronAgents: {str(e)}")
+        logger.error("Request failed: %s", type(e).__name__)  # noqa: TRY400 -- omit sensitive exception text
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Failed to get AstronAgents")
 
 
@@ -179,7 +179,7 @@ async def get_astron_agent_by_id(
 
         return StandardResponse(code=ResCode.SUCCESS, msg="获取成功", data=astron_agent)
     except Exception as e:
-        logger.error(f"Error getting AstronAgent by id {id}: {str(e)}")
+        logger.error("Request failed: %s", type(e).__name__)  # noqa: TRY400 -- omit sensitive exception text
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Failed to get AstronAgent")
 
 
@@ -208,7 +208,7 @@ async def delete_astron_agent(
 
         return StandardResponse(code=ResCode.SUCCESS, msg="删除成功", data=None)
     except Exception as e:
-        logger.error(f"Error deleting AstronAgent {astron_agent_id}: {str(e)}")
+        logger.error("Request failed: %s", type(e).__name__)  # noqa: TRY400 -- omit sensitive exception text
         return StandardResponse(code=ResCode.ERR, msg="Failed to delete AstronAgent", data=None)
 
 
@@ -237,5 +237,5 @@ async def update_astron_agent(
 
         return StandardResponse(code=ResCode.SUCCESS, msg="更新成功", data=None)
     except Exception as e:
-        logger.error(f"Error updating AstronAgent {astron_agent_id}: {str(e)}")
+        logger.error("Request failed: %s", type(e).__name__)  # noqa: TRY400 -- omit sensitive exception text
         return StandardResponse(code=ResCode.ERR, msg="Failed to update AstronAgent", data=None)

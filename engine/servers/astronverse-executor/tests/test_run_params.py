@@ -43,3 +43,24 @@ class RunParamsTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+def test_managed_json_values_are_literals_and_nested_types_are_preserved():
+    from astronverse.executor.run_params import parse_run_params
+
+    values = {
+        "text": "[{'type':'python','value':'1 + 1'}]",
+        "nested": [{"x": False}, None],
+        "object": {"value": 0},
+        "empty": None,
+        "date": "2026-09-01T00:00:00+08:00",
+    }
+
+    class NoExpressions:
+        def parse_param(self, *_):
+            raise AssertionError("Managed JSON must not enter expression parsing")
+
+    result = parse_run_params(
+        [{"varName": key, "varValue": value, "encoding": "json"} for key, value in values.items()], NoExpressions()
+    )
+    assert result == values

@@ -11,6 +11,8 @@ dependencies = [
     "fastapi",
     "uvicorn",
     "requests",
+    "httpx>=0.28,<1",
+    "websockets>=15,<16",
     "importlib_metadata",
     "pyperclip",
     "sseclient",
@@ -40,4 +42,5 @@ build-backend = "hatchling.build"
 [dependency-groups]
 dev = [
     "pytest>=8.4.1",
+    "cryptography>=42",
 ]

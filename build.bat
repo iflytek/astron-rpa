@@ -83,6 +83,7 @@ set ENGINE_DIR=engine
 set BUILD_DIR=build
 set PYTHON_CORE_DIR=%BUILD_DIR%\python_core
 set DIST_DIR=%BUILD_DIR%\dist
+set WHEEL_REQUIREMENTS=%BUILD_DIR%\requirements.txt
 set ARCHIVE_DIST_DIR=resources
 
 REM ============================================
@@ -155,8 +156,8 @@ if exist "%DIST_DIR%" (
 )
 
 echo Cleaning requirements.txt...
-if exist %ENGINE_DIR%\requirements.txt (
-    del /q %ENGINE_DIR%\requirements.txt
+if exist "%WHEEL_REQUIREMENTS%" (
+    del /q "%WHEEL_REQUIREMENTS%"
     if errorlevel 1 (
         echo Failed to delete requirements.txt
         exit /b 1
@@ -258,10 +259,10 @@ echo Upgrading pip...
 echo Generating requirements.txt from built packages...
 
 REM Generate requirements.txt from wheel files using PowerShell
-powershell -Command "$files = Get-ChildItem '%DIST_DIR%\*.whl' | ForEach-Object { $name = $_.BaseName -replace '_','-'; $name -replace '-\d+\.\d+\.\d+-py3-none-any$','' }; Set-Content -Path '%ENGINE_DIR%\requirements.txt' -Value '# Generated requirements from built packages'; Add-Content -Path '%ENGINE_DIR%\requirements.txt' -Value $files"
+powershell -Command "$files = Get-ChildItem -LiteralPath '%DIST_DIR%' -Filter '*.whl' | ForEach-Object { ([System.Uri]$_.FullName).AbsoluteUri }; Set-Content -Path '%WHEEL_REQUIREMENTS%' -Value '# Generated requirements from local wheels'; Add-Content -Path '%WHEEL_REQUIREMENTS%' -Value $files"
 
 echo Installing packages from requirements.txt...
-uv pip install --link-mode=copy --python "%PYTHON_CORE_DIR%\python.exe" --find-links="%DIST_DIR%" -r "%ENGINE_DIR%\requirements.txt" --upgrade --force-reinstall -i https://pypi.tuna.tsinghua.edu.cn/simple
+uv pip install --link-mode=copy --python "%PYTHON_CORE_DIR%\python.exe" --find-links="%DIST_DIR%" -r "%WHEEL_REQUIREMENTS%" --upgrade --force-reinstall -i https://pypi.tuna.tsinghua.edu.cn/simple
 if errorlevel 1 (
     echo Package installation failed
     exit /b 1

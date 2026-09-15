@@ -77,7 +77,11 @@ class Terminal:
                 "memory": int(Terminal.get_memory_percent()),  # 内存占用率（百分比)
                 "disk": int(Terminal.get_disk_percent()),  # 硬盘占用率（百分比)
             }
-            logger.info("Terminal upload data: {}".format(data))
+            logger.info(
+                "Terminal heartbeat requested: terminal_id={}, status={}",
+                data["terminalId"],
+                data["status"],
+            )
             response = requests.post(
                 url="http://127.0.0.1:{}{}".format(svc.rpa_route_port, api),
                 json=data,

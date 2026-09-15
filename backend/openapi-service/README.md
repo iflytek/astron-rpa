@@ -1,5 +1,7 @@
 # RPA OpenAPI Service - RPA Workflow Management Service
 
+See [external integration security, key rotation and Credentials design](EXTERNAL_INTEGRATION_SECURITY.md) for the current authentication contract and migration requirements.
+
 ## 📖 Project Introduction
 
 RPA OpenAPI Service is an RPA workflow management service built on FastAPI, providing workflow creation, execution, monitoring, and API key management functions. The service integrates WebSocket real-time communication, MCP (Model Context Protocol) support, Redis caching, request tracing and other modern technology stacks, providing complete API service capabilities for the RPA platform.
@@ -151,6 +153,42 @@ X-API-Key: <API_KEY>
 URL query credentials (`?key=`) are rejected by default so credentials do not enter browser history or proxy logs.
 Set `MCP_ALLOW_QUERY_API_KEY=true` only while migrating legacy clients. A request must use exactly one credential
 source. Missing, malformed, invalid, or revoked credentials return HTTP 401.
+
+#### Stable workflow control tools
+
+External integrations can use `https://<rpa-host>/api/rpa-openapi/mcp/` for asynchronous execution.
+These tools share the REST execution core and do not depend on workflow names, n8n, or a deployment address.
+
+| Tool | Input | Output |
+| --- | --- | --- |
+| `astron_workflow_list` | Optional `offset`, `limit` (1–100) | Authorized workflows and `nextOffset` |
+| `astron_workflow_get` | `projectId` | Published version, `inputSchema`, actual Client cancellation capability |
+| `astron_workflow_execute` | `projectId`, optional `params`, `version`, `idempotencyKey`, `executionTimeout` | Immediate execution snapshot including `executionId` |
+| `astron_execution_get` | `executionId` | Execution state, result, or a safe error summary |
+| `astron_execution_cancel` | `executionId` | Cancellation intent or an already confirmed terminal state |
+
+Project IDs are strings. Starts require the authenticated user's current external-access release.
+Omitting `version` selects that release. Queries recheck ownership and current workflow/version authorization;
+disabling external access or changing the authorized release makes older executions unavailable through this entry point.
+Control tool names are reserved; colliding dynamic workflows remain callable by project ID. Other dynamic tools retain
+their synchronous behavior.
+
+The stable entry point accepts published JSON strings, finite numbers, booleans, arrays, objects, enums,
+dates, timezone-qualified date-times and declared secret fields. Unknown fields, file/runtime objects and
+unsupported parameter metadata are rejected. Tools advertise input and output JSON Schemas.
+Successful calls provide both `structuredContent` and equivalent JSON text. Tool errors use `isError=true` with
+`error.code/message`, without echoing arguments or internal exceptions.
+
+Managed snapshots include Client/run identity, UTC accepted/started/finished times and cancellation intent.
+States are `accepted`, `running`, `succeeded`, `failed`, `cancelled`, `timeout`, or `unknown`.
+Cancellation and execution timeout require actual stop confirmation; observation loss remains nonterminal `unknown`.
+Legacy Clients/records retain their capability limitations and cannot confirm a managed cancellation.
+
+With an upgraded Client, a stable `idempotencyKey` and identical request return the original execution ID
+across retries and restarts. Calls without that key must not automatically retry a start. Never recover an
+uncertain MCP start by issuing a new REST start. Poll the original ID; caller wait expiry does not stop it.
+See [execution management](EXECUTION_MANAGEMENT.md) for the single-worker deployment requirement,
+durable reconciliation, supported protocols, input retention, migration and rollback limits.
 
 ## 🚀 Quick Start
 

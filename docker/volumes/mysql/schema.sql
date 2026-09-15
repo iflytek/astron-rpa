@@ -1716,12 +1716,24 @@ CREATE TABLE `openai_executions` (
   `version` int(11) DEFAULT NULL COMMENT '工作流版本号',
   `start_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '开始时间',
   `end_time` datetime DEFAULT NULL COMMENT '结束时间',
+  `protocol` int DEFAULT NULL,
+  `idempotency_key_hash` varchar(64) DEFAULT NULL,
+  `request_hash` varchar(64) DEFAULT NULL,
+  `client_id` varchar(36) DEFAULT NULL,
+  `run_id` varchar(100) DEFAULT NULL,
+  `dispatch_state` varchar(20) DEFAULT NULL,
+  `started_at` datetime DEFAULT NULL,
+  `execution_timeout` int DEFAULT NULL,
+  `cancel_requested` boolean NOT NULL DEFAULT FALSE,
+  `cancel_supported` boolean NOT NULL DEFAULT FALSE,
+  `secret_fields` text,
   PRIMARY KEY (`id`),
   KEY `idx_project_id` (`project_id`),
   KEY `idx_user_id` (`user_id`),
   KEY `idx_status` (`status`),
   KEY `idx_start_time` (`start_time`),
-  CONSTRAINT `openai_executions_ibfk_1` FOREIGN KEY (`project_id`) REFERENCES `openai_workflows` (`project_id`) ON DELETE CASCADE
+  KEY `ix_openai_executions_dispatch_state` (`dispatch_state`),
+  UNIQUE KEY `uq_execution_user_key` (`user_id`, `idempotency_key_hash`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- rpa.openapi_users definition

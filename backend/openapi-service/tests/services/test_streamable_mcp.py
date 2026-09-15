@@ -30,7 +30,7 @@ async def test_published_workflow_is_exposed_as_mcp_tool(monkeypatch):
     assert len(tools) == 1
     assert tools[0].name == "invoice_bot"
     assert tools[0].description == "Process invoices"
-    assert tools[0].inputSchema == {"type": "object"}
+    assert tools[0].inputSchema == {"type": "object", "properties": {}, "required": [], "additionalProperties": False}
 
 
 @pytest.mark.asyncio
@@ -42,7 +42,7 @@ async def test_workflow_lookup_uses_authenticated_user(monkeypatch):
         {"to_dict": lambda self: {"project_id": "robot-1", "status": 1}},
     )()
     workflow_service = type("WorkflowServiceStub", (), {})()
-    workflow_service.get_workflows = AsyncMock(return_value=[workflow])
+    workflow_service.get_external_workflows = AsyncMock(return_value=[workflow])
     db = type("DatabaseSessionStub", (), {})()
     db.close = AsyncMock()
 
@@ -53,7 +53,7 @@ async def test_workflow_lookup_uses_authenticated_user(monkeypatch):
 
     workflows = await tools_config.get_user_workflows("authenticated-user")
 
-    workflow_service.get_workflows.assert_awaited_once_with("authenticated-user")
+    workflow_service.get_external_workflows.assert_awaited_once_with("authenticated-user")
     db.close.assert_awaited_once()
     assert workflows == [{"project_id": "robot-1", "status": 1}]
 
@@ -66,7 +66,7 @@ async def test_unavailable_workflow_returns_safe_error_without_execution(monkeyp
     lookup = AsyncMock(return_value=workflow_ref)
     monkeypatch.setattr(tools_config, "get_project_id_by_name", lookup)
     execute = AsyncMock()
-    monkeypatch.setattr("app.services.execution.ExecutionService.execute_workflow", execute)
+    monkeypatch.setattr("app.services.execution.ExecutionService.execute_authorized_workflow", execute)
 
     result = await tools_config.execute_workflow_by_name("unavailable-tool", "user-1", {})
 
@@ -99,7 +99,7 @@ async def test_execution_without_result_returns_recorded_error(monkeypatch):
         },
     )()
     execute = AsyncMock(return_value=execution)
-    monkeypatch.setattr("app.services.execution.ExecutionService.execute_workflow", execute)
+    monkeypatch.setattr("app.services.execution.ExecutionService.execute_authorized_workflow", execute)
 
     result = await tools_config.execute_workflow_by_name("workflow-tool", "user-1", {"value": 1})
 

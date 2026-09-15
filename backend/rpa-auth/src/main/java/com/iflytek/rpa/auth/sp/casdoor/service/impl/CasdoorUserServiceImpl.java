@@ -92,9 +92,6 @@ public class CasdoorUserServiceImpl implements UserService {
     @Value("${casdoor.redirect-url:}")
     private String redirectUrl;
 
-    @Value("${casdoor.certificate:}")
-    private String certificate;
-
     @Autowired
     private CasdoorGroupExtendService casdoorGroupExtendService;
 
@@ -2262,7 +2259,7 @@ public class CasdoorUserServiceImpl implements UserService {
         //            String accessToken = oAuthTokenResponse.getAccessToken();
         //            String refreshToken = oAuthTokenResponse.getRefreshToken();
         //            String idToken = accessToken;
-        //            // 动态获取系统内置证书，在initDataNewOnly为true时，证书会被篡改
+        //            // 签名证书由部署独立生成；验签需要应用当前绑定的公钥
         //            ApplicationExtend applicationWithKey =
         // applicationExtendService.getApplicationWithKey("app-built-in");
         //            // 使用idToken解析用户信息（这是OIDC的核心：从id_token获取用户身份）

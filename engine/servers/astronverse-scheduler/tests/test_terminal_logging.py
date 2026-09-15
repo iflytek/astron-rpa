@@ -65,6 +65,38 @@ class TerminalLoggingTest(unittest.TestCase):
         assert sent_requests[0]["json"]["osPwd"] == "terminal-secret"
         assert "terminal-secret" not in "\n".join(fake_logger.messages)
 
+    def test_heartbeat_sends_metrics_without_dumping_payload_to_logs(self):
+        fake_logger = _FakeLogger()
+        service = SimpleNamespace(
+            rpa_route_port=13159,
+            terminal_mod=True,
+            executor_mg=SimpleNamespace(status=lambda: True),
+        )
+
+        with (
+            patch.object(terminal, "logger", fake_logger),
+            patch.object(terminal, "terminal_id", "terminal-1"),
+            patch.object(terminal.requests, "post", return_value=_FakeResponse()) as post,
+            patch.object(terminal.Terminal, "get_cpu_percent", return_value=17),
+            patch.object(terminal.Terminal, "get_memory_percent", return_value=28),
+            patch.object(terminal.Terminal, "get_disk_percent", return_value=39),
+        ):
+            result = terminal.Terminal.upload(service)
+
+        assert result == "registered"
+        assert post.call_args.kwargs["json"] == {
+            "terminalId": "terminal-1",
+            "status": "busy",
+            "isDispatch": 1,
+            "cpu": 17,
+            "memory": 28,
+            "disk": 39,
+        }
+        messages = "\n".join(fake_logger.messages)
+        assert "terminal-1" in messages
+        assert "busy" in messages
+        assert all(field not in messages for field in ("cpu", "memory", "disk", "isDispatch"))
+
 
 if __name__ == "__main__":
     unittest.main()

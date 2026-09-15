@@ -15,7 +15,6 @@ import { getExtensionResourcePath } from './extension'
 const startTime = Date.now()
 globalThis.MainWindowLoaded = false
 
-app.commandLine.appendSwitch('ignore-certificate-errors')
 app.commandLine.appendSwitch('disable-web-security')
 app.disableHardwareAcceleration()
 /**

@@ -1,7 +1,4 @@
-import json
-
-import httpx
-from fastapi import APIRouter, Depends, HTTPException, Path, Query, status
+from fastapi import APIRouter, Depends, HTTPException, Path, Query, Request, status
 
 from app.dependencies import (
     get_astron_api_key_service,
@@ -9,7 +6,6 @@ from app.dependencies import (
     get_user_id_from_api_key,
     get_user_id_from_header,
     get_user_id_with_fallback,
-    get_user_service,
     get_workflow_service,
 )
 from app.logger import get_logger
@@ -20,14 +16,26 @@ from app.schemas.workflow import (
     WorkflowBase,
     WorkflowCopyRequest,
 )
+from app.security.api_key import has_api_key_credential
+from app.security.workflow_authorization import WorkflowAccessError, external_execution_dict
 from app.services.api_key import AstronApiKeyService
 from app.services.execution import ExecutionService
-from app.services.user import UserService
 from app.services.workflow import WorkflowService
 
 logger = get_logger(__name__)
 
 router = APIRouter(prefix="/workflows", tags=["workflow"])
+
+
+def _execution_http_error(exc: WorkflowAccessError) -> HTTPException:
+    client_status = {
+        "CLIENT_OFFLINE": status.HTTP_503_SERVICE_UNAVAILABLE,
+        "CLIENT_CAPABILITY_UNCONFIRMED": status.HTTP_503_SERVICE_UNAVAILABLE,
+        "CLIENT_PROTOCOL_UNSUPPORTED": status.HTTP_409_CONFLICT,
+    }.get(exc.code)
+    if client_status is not None:
+        return HTTPException(client_status, detail={"code": exc.code, "message": str(exc)})
+    return HTTPException(404 if exc.code == "WORKFLOW_NOT_FOUND" else 403, str(exc))
 
 
 @router.post(
@@ -72,7 +80,7 @@ async def create_or_update_workflow(
             data={"workflow": workflow_dict, "action": action},
         )
     except Exception as e:
-        logger.error(f"Error creating/updating workflow: {str(e)}")
+        logger.error("Request failed: %s", type(e).__name__)  # noqa: TRY400 -- omit sensitive exception text
         return StandardResponse(code=ResCode.ERR, msg="Failed to create or update workflow", data=None)
 
 
@@ -87,11 +95,15 @@ async def get_workflows(
     pageSize: int = Query(100, ge=1, le=100, description="一页有多少条记录"),
     user_id: str = Depends(get_user_id_with_fallback),
     service: WorkflowService = Depends(get_workflow_service),
+    request: Request = None,
 ):
     """获取工作流列表"""
     try:
         skip = (pageNo - 1) * pageSize
-        workflows = await service.get_workflows(user_id, skip, pageSize)
+        if request is not None and has_api_key_credential(request.scope):
+            workflows = await service.get_external_workflows(user_id, skip, pageSize)
+        else:
+            workflows = await service.get_workflows(user_id, skip, pageSize)
         workflow_dicts = []
         personal_total = 0
         public_total = 0
@@ -113,7 +125,7 @@ async def get_workflows(
             },
         )
     except Exception as e:
-        logger.error(f"Error getting workflows: {str(e)}")
+        logger.error("Request failed: %s", type(e).__name__)  # noqa: TRY400 -- omit sensitive exception text
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Failed to get workflows",
@@ -130,10 +142,14 @@ async def get_workflow(
     project_id: str = Path(..., description="项目ID"),
     user_id: str = Depends(get_user_id_with_fallback),
     service: WorkflowService = Depends(get_workflow_service),
+    request: Request = None,
 ):
     """获取工作流详情"""
     try:
-        workflow = await service.get_workflow(project_id, user_id)
+        if request is not None and has_api_key_credential(request.scope):
+            workflow = await service.get_external_workflow(project_id, user_id, allow_example_alias=True)
+        else:
+            workflow = await service.get_workflow(project_id, user_id)
         if not workflow:
             # 改成成功返回code，前端处理
             return StandardResponse(
@@ -144,7 +160,7 @@ async def get_workflow(
         workflow_dict = workflow.to_dict()
         return StandardResponse(code=ResCode.SUCCESS, msg="", data={"workflow": workflow_dict})
     except Exception as e:
-        logger.error(f"Error getting workflow {project_id}: {str(e)}")
+        logger.error("Request failed: %s", type(e).__name__)  # noqa: TRY400 -- omit sensitive exception text
         return StandardResponse(code=ResCode.SUCCESS, msg="Failed to get workflow", data=None)
 
 
@@ -157,27 +173,11 @@ async def get_workflow(
 async def execute_workflow(
     execution_data: ExecutionCreate,
     user_id: str = Depends(get_user_id_from_api_key),
-    workflow_service: WorkflowService = Depends(get_workflow_service),
     execution_service: ExecutionService = Depends(get_execution_service),
 ):
     """同步执行工作流"""
     try:
-        # 检查工作流是否存在
-        workflow = await workflow_service.get_workflow(execution_data.project_id, user_id)
-        if not workflow:
-            return StandardResponse(
-                code=ResCode.ERR,
-                msg=f"Workflow with project_id {execution_data.project_id} not found",
-                data=None,
-            )
-        execution_data.project_id = workflow.project_id
-        logger.info(f"[execute_workflow] project_id: {execution_data.project_id}")
-        # 使用workflow默认version
-        if not execution_data.version:
-            execution_data.version = workflow.version
-
-        # 执行工作流，设置超时参数
-        execution = await execution_service.execute_workflow(
+        execution = await execution_service.execute_authorized_workflow(
             execution_data=execution_data,
             user_id=user_id,
             wait=True,
@@ -189,12 +189,14 @@ async def execute_workflow(
             return StandardResponse(
                 code=ResCode.SUCCESS,
                 msg="Execution is still in progress, please check status using execution ID",
-                data={"execution": execution.to_dict()},
+                data={"execution": external_execution_dict(execution)},
             )
 
-        return StandardResponse(code=ResCode.SUCCESS, msg="", data={"execution": execution.to_dict()})
+        return StandardResponse(code=ResCode.SUCCESS, msg="", data={"execution": external_execution_dict(execution)})
+    except WorkflowAccessError as exc:
+        raise _execution_http_error(exc) from None
     except Exception as e:
-        logger.error(f"Error executing workflow {execution_data.project_id}: {str(e)}")
+        logger.error("Request failed: %s", type(e).__name__)  # noqa: TRY400 -- omit sensitive exception text
         return StandardResponse(code=ResCode.ERR, msg="Failed to execute workflow", data=None)
 
 
@@ -208,100 +210,11 @@ async def execute_workflow(
 async def execute_workflow_async(
     execution_data: ExecutionCreate,
     user_id: str = Depends(get_user_id_from_api_key),
-    user_service: UserService = Depends(get_user_service),
-    workflow_service: WorkflowService = Depends(get_workflow_service),
     execution_service: ExecutionService = Depends(get_execution_service),
 ):
     """异步执行工作流"""
     try:
-        if execution_data.phone_number:
-            # Agent复制逻辑
-            # 调用外部服务获取user_id
-            user_info = await user_service.get_user_info(execution_data.phone_number)
-            if not user_info:
-                logger.error(f"用户获取API_KEY失败，phone: {execution_data.phone_number}")
-                raise HTTPException(
-                    status_code=status.HTTP_400_BAD_REQUEST,
-                    detail="用户获取API_KEY失败",
-                )
-
-            # 复制到 sub_user_id
-            sub_user_id = user_info.get("user_id")
-
-            # 调用外部服务进行复制
-            async with httpx.AsyncClient(timeout=30.0) as client:
-                response = await client.post(
-                    "http://robot-service:8004/api/robot/astron-agent/copy-robot",
-                    json={
-                        "robotId": str(execution_data.project_id),
-                        "version": execution_data.version,
-                        "targetPhone": execution_data.phone_number,
-                    },
-                    headers={"X-API-Key": "opensource666!"},
-                )
-                if response.status_code == 200:
-                    result = response.json().get("data")
-                    logger.info("Workflow copy completed with status %s", response.status_code)
-                    if not result:
-                        return StandardResponse(
-                            code=ResCode.ERR,
-                            msg=response.json().get("message"),
-                            data=None,
-                        )
-                else:
-                    logger.error("Failed to copy workflow: HTTP %s", response.status_code)
-                    return StandardResponse(code=ResCode.ERR, msg="请求后端拷贝工作流接口失败", data=None)
-
-            workflow_data = WorkflowBase(
-                project_id=result.get("robotId"),
-                version=result.get("version"),
-                name=result.get("name", ""),
-                english_name=result.get("english_name", ""),
-                description=result.get("description", ""),
-                status=result.get("status", 1),
-                parameters=json.dumps(result.get("parameters", []), ensure_ascii=False),
-            )
-
-            # 先检查是否已存在相同 project_id 的工作流
-            existing_workflow = await workflow_service.get_workflow(workflow_data.project_id)
-
-            if existing_workflow:
-                # 如果存在，检查是否属于当前用户
-                if existing_workflow.user_id != sub_user_id:
-                    return StandardResponse(
-                        code=ResCode.ERR,
-                        msg=f"Project ID '{workflow_data.project_id}' already exists and belongs to another user",
-                        data=None,
-                    )
-
-                workflow = await workflow_service.update_workflow(workflow_data, sub_user_id)
-            else:
-                # 创建新工作流
-                workflow = await workflow_service.create_workflow(workflow_data, sub_user_id)
-
-            user_id = sub_user_id
-            execution_data.project_id = workflow.project_id
-            # 复制的不指定version，指定了下发到执行器运行时会报错
-            execution_data.version = None
-
-        else:
-            # 检查工作流是否存在
-            workflow = await workflow_service.get_workflow(execution_data.project_id, user_id)
-            if not workflow:
-                return StandardResponse(
-                    code=ResCode.ERR,
-                    msg=f"Workflow with project_id {execution_data.project_id} not found",
-                    data=None,
-                )
-
-            if not execution_data.version:
-                execution_data.version = workflow.version
-
-            execution_data.project_id = workflow.project_id
-            logger.info(f"[execute_workflow_async] project_id: {execution_data.project_id}")
-
-        # 执行工作流，不等待结果
-        execution = await execution_service.execute_workflow(
+        execution = await execution_service.execute_authorized_workflow(
             execution_data=execution_data,
             user_id=user_id,
             wait=False,
@@ -309,8 +222,10 @@ async def execute_workflow_async(
         )
 
         return StandardResponse(code=ResCode.SUCCESS, msg="", data={"executionId": execution.id})
+    except WorkflowAccessError as exc:
+        raise _execution_http_error(exc) from None
     except Exception as e:
-        logger.error(f"Error executing workflow async {execution_data.project_id}: {str(e)}")
+        logger.error("Request failed: %s", type(e).__name__)  # noqa: TRY400 -- omit sensitive exception text
         return StandardResponse(code=ResCode.ERR, msg="Failed to execute workflow asynchronously", data=None)
 
 
@@ -402,7 +317,7 @@ async def get_astron_workflows(
             code=ResCode.SUCCESS, msg="获取成功", data={"total": len(total_workflows), "records": total_workflows}
         )
     except Exception as e:
-        logger.error(f"Error getting Astron workflows: {str(e)}")
+        logger.error("Request failed: %s", type(e).__name__)  # noqa: TRY400 -- omit sensitive exception text
         return StandardResponse(code=ResCode.ERR, msg="Failed to get Astron workflows", data=None)
 
 
@@ -418,28 +333,5 @@ async def copy_workflow(
     user_id: str = Depends(get_user_id_from_api_key),
 ):
     """复制工作流"""
-    try:
-        # 调用外部服务进行复制
-        async with httpx.AsyncClient(timeout=30.0) as client:
-            response = await client.post(
-                "http://robot-service:8004/api/astron-agent/copy-robot",
-                json={
-                    "robotId": str(copy_data.project_id),
-                    "version": copy_data.version,
-                    "targetPhone": copy_data.phone_number,
-                },
-            )
-
-            if response.status_code == 200:
-                result = response.json()
-                return StandardResponse(code=ResCode.SUCCESS, msg="工作流复制成功", data=result)
-            else:
-                logger.error("Failed to copy workflow: HTTP %s", response.status_code)
-                return StandardResponse(code=ResCode.ERR, msg=f"复制失败: HTTP {response.status_code}", data=None)
-
-    except httpx.RequestError as e:
-        logger.error(f"Request error copying workflow: {str(e)}")
-        return StandardResponse(code=ResCode.ERR, msg="网络请求失败", data=None)
-    except Exception as e:
-        logger.error(f"Error copying workflow: {str(e)}")
-        return StandardResponse(code=ResCode.ERR, msg="复制工作流失败", data=None)
+    # Copying to a phone number is delegated execution without a verified grant.
+    raise HTTPException(403, "Cross-user workflow copying is not authorized by an API key")

@@ -8,14 +8,16 @@ dependencies = [
     "aiomysql>=0.2.0",
     "bcrypt>=4.3.0",
     "cryptography>=45.0.2",
-    "fastapi[standard]>=0.115.12",
+    "fastapi[standard]==0.135.1",
     "greenlet>=3.2.2",
     "pydantic-settings>=2.9.1",
+    "pydantic==2.12.5",
+    "jsonschema==4.26.0",
     "python-dotenv>=1.1.0",
     "redis[hiredis]>=6.1.0",
     "sqlalchemy>=2.0.41",
     "pytz",
-    "mcp",
+    "mcp==1.26.0",
     "rpawebsocket"
 ]
 
@@ -29,7 +31,7 @@ dev = [
 ]
 
 [tool.uv.sources]
-rpawebsocket = {path = "./app/utils/rpawebsocket-1.0.6-py3-none-any.whl"}
+rpawebsocket = {path = "./app/utils/rpawebsocket-1.0.7-py3-none-any.whl"}
 
 [tool.pytest.ini_options]
 asyncio_default_fixture_loop_scope = "function"

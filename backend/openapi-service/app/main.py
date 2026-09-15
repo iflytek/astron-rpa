@@ -1,9 +1,12 @@
+import asyncio
 import os
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
 
 import uvicorn
 from fastapi import FastAPI
+from fastapi.exceptions import RequestValidationError
+from fastapi.responses import JSONResponse
 
 from app.dependencies import get_ws_service
 from app.internal import admin
@@ -16,6 +19,7 @@ from app.routers.streamable_mcp import (
     session_manager,
     tools_config,
 )
+from app.services.execution_management import recover_executions
 
 logger = get_logger(__name__)
 
@@ -35,10 +39,13 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
 
     # 使用 async with 管理 session_manager 的生命周期
     async with session_manager.run():
+        recovery = asyncio.create_task(recover_executions(), name="execution-recovery")
         logger.info("Application started with StreamableHTTP session manager!")
         try:
             yield
         finally:
+            recovery.cancel()
+            await asyncio.gather(recovery, return_exceptions=True)
             logger.info("Application shutting down...")
 
             # 清理 tools_config 连接
@@ -62,6 +69,20 @@ app.include_router(websocket.router)
 app.mount("/mcp", handle_streamable_http)  # APISIX增加路由，解决307重定向问题
 
 app.add_middleware(RequestTracingMiddleware)
+
+
+@app.exception_handler(RequestValidationError)
+async def safe_request_validation_error(request, exc):
+    # FastAPI otherwise includes rejected inputs in errors (including API keys,
+    # passwords and workflow arguments). Keep locations/types for diagnostics.
+    return JSONResponse(
+        status_code=422,
+        content={
+            "detail": [
+                {"loc": error["loc"], "type": error["type"], "msg": "Invalid request value"} for error in exc.errors()
+            ]
+        },
+    )
 
 
 @app.get("/")

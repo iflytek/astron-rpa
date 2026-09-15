@@ -549,6 +549,7 @@ dependencies = [
     { name = "astronverse-browser-plugin" },
     { name = "astronverse-websocket-server" },
     { name = "fastapi" },
+    { name = "httpx" },
     { name = "importlib-metadata" },
     { name = "keyring" },
     { name = "openpyxl" },
@@ -562,6 +563,7 @@ dependencies = [
     { name = "uvicorn" },
     { name = "watchdog" },
     { name = "websocket-client" },
+    { name = "websockets" },
     { name = "websockify" },
 ]
 
@@ -571,6 +573,7 @@ requires-dist = [
     { name = "astronverse-browser-plugin", editable = "shared/astronverse-browser-plugin" },
     { name = "astronverse-websocket-server", editable = "shared/astronverse-websocket-server" },
     { name = "fastapi" },
+    { name = "httpx", specifier = ">=0.28,<1" },
     { name = "importlib-metadata" },
     { name = "keyring" },
     { name = "openpyxl" },
@@ -584,7 +587,14 @@ requires-dist = [
     { name = "uvicorn" },
     { name = "watchdog" },
     { name = "websocket-client" },
+    { name = "websockets", specifier = ">=15,<16" },
     { name = "websockify" },
+]
+
+[package.metadata.requires-dev]
+dev = [
+    { name = "cryptography", specifier = ">=42" },
+    { name = "pytest", specifier = ">=8.4.1" },
 ]
 
 [[package]]
