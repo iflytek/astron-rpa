@@ -471,6 +471,9 @@ export class AstronRpa implements INodeType {
               params: jsonObject(this.getNodeParameter("params", i, {})),
               idempotencyKey: key,
               profileRevision: String(profile.revision),
+              ...(profile.capabilityClass === "json-data"
+                ? { capabilityClass: "json-data" as const }
+                : {}),
               ...(deadline ? { executionTimeout: deadline } : {}),
             };
             const fingerprint = hash(args);

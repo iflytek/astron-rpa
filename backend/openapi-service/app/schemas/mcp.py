@@ -15,6 +15,8 @@ WORKFLOW_PROPERTIES = {
     "description": {"type": "string"},
     "version": VERSION,
     "admission": {"type": "object"},
+    "capabilityClass": {"type": ["string", "null"]},
+    "capabilities": {"type": ["array", "null"], "items": {"type": "string"}},
 }
 WORKFLOW_SCHEMA = object_schema(WORKFLOW_PROPERTIES, list(WORKFLOW_PROPERTIES))
 EXECUTION_PROPERTIES = {
@@ -96,6 +98,7 @@ CONTROL_TOOLS = {
                     "params": {"type": "object"},
                     "idempotencyKey": {"type": "string", "minLength": 1, "maxLength": 200},
                     "executionTimeout": {"type": "integer", "minimum": 1, "maximum": 86400},
+                    "capabilityClass": {"enum": ["json-data"]},
                     "profileRevision": {"type": "string", "minLength": 1, "maxLength": 100},
                 },
                 ["projectId"],

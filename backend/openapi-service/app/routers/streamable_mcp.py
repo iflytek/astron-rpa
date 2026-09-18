@@ -83,6 +83,7 @@ async def dispatch_tool(user_id, name, arguments, request_id=None, session=None)
                         arguments.get("idempotencyKey"),
                         arguments.get("executionTimeout"),
                         arguments.get("profileRevision"),
+                        arguments.get("capabilityClass"),
                     )
                 elif name == "astron_execution_cancel":
                     payload = await service.cancel_execution(arguments["executionId"], user_id)

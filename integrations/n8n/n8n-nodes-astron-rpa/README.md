@@ -7,7 +7,8 @@ Control published AstronRPA workflows through authenticated HTTPS MCP: discover 
 - This development package provides the common execution framework for individually approved workflows with `supportScope: controlled-validation`. An approved workflow does not establish support for an entire RPA capability family.
 - The verified host configuration is self-hosted n8n `2.36.9`, Node.js `24+`, one OpenAPI connection owner and one Windows client matching the repository, with managed client protocol `1`. The package declares `n8n-workflow >=2.36.4 <3`; other host versions, queue mode, multiple replicas or terminals, n8n Cloud and older clients are not covered by this validation.
 - OpenAPI must provide integration contract `1`, profile schema `1` and MCP `2025-11-25`. All node business operations use MCP with the existing API key authentication.
-- Inputs and outputs use JSON. File/binary transfer and runtime object adaptation are unsupported. A declaration describes a workflow; it does not add an adapter for its capabilities.
+- The first classified capability is `json-data`: its declaration must include `capabilityClass: "json-data"` and `capabilities: ["json-data"]`, and must explicitly declare no file transfer or GUI requirement. A declaration describes a workflow; it does not add an adapter for its capabilities.
+- Inputs and outputs use bounded JSON. File/binary transfer, runtime object adaptation, desktop/UI work and arbitrary local paths are unsupported in this capability. The current limits are 1 MiB encoded JSON, depth 12, 200 object properties, 1,000 array items and 100,000 characters per string. The server profile is authoritative; the node rejects a mismatched limit contract.
 
 The package requires Node.js `>=24`. The [official n8n `2.36.9` Dockerfile](https://github.com/n8n-io/n8n/blob/n8n%402.36.9/docker/images/n8n/Dockerfile) pins its runtime base to Node.js `24.18.1`, which meets this requirement. Before installation, check the Node version **inside your n8n container**, for example with `docker exec YOUR_N8N_CONTAINER node --version`; the host machine's Node version does not determine the container runtime. Older images with Node.js 20 or 22 do not meet this package's requirement.
 
@@ -72,6 +73,12 @@ EXECUTIONS_DATA_PRUNE_MAX_COUNT=10000
 ```
 
 `EXECUTIONS_DATA_MAX_AGE` is measured in hours. Pruning eligible finished executions limits retention; it is not immediate secret redaction and does not remove copies in backups. Keep waiting checkpoints available until their executions are resolved, since durable recovery needs the saved request and execution identity. See [n8n execution-data configuration](https://docs.n8n.io/hosting/configuration/environment-variables/executions/).
+
+### JSON data workflow boundary
+
+Use **Get Workflow** before execution and verify `profile.capabilityClass` is `json-data`, `profile.admission.allowed` is `true`, and the returned `inputSchema` matches the data being sent. JSON values preserve `0`, `false`, `null`, arrays and nested objects. Unknown fields, non-finite numbers, runtime objects, file values and values over the published limits are rejected before dispatch.
+
+The result remains one JSON value under `result`; arrays are not expanded into n8n items. An optional declared `outputSchema` documents the result shape, but it does not enable file, GUI or runtime-object capabilities. Other RPA capability classes are outside this release's node contract.
 
 ## Execution behavior and limits
 

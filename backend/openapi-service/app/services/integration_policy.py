@@ -15,7 +15,15 @@ from app.config import get_settings
 from app.models.workflow import Workflow
 from app.security.workflow_authorization import WorkflowAccessError
 from app.services.execution_management import digest
-from app.services.workflow_schema import workflow_input_schema, workflow_secret_fields
+from app.services.workflow_schema import (
+    JSON_LIMITS,
+    data_output_schema,
+    workflow_input_schema,
+    workflow_secret_fields,
+)
+
+JSON_DATA_CAPABILITY = "json-data"
+JSON_DATA_CLASS = "json-data"
 
 
 class Declaration(BaseModel):
@@ -28,6 +36,7 @@ class Declaration(BaseModel):
     inputSchemaHash: str = Field(pattern=r"^[a-f0-9]{64}$")
     outputSchema: dict | None = None
     capabilities: list[str] = Field(min_length=1)
+    capabilityClass: Literal["json-data"] | None = None
     fileInputs: bool | None = None
     fileOutputs: bool | None = None
     requiresGui: bool | None = None
@@ -103,6 +112,7 @@ def workflow_profile(workflow: Workflow, user_id: str) -> dict:
         "revisionLabel": None,
         "outputSchema": None,
         "capabilities": None,
+        "capabilityClass": None,
         "fileInputs": None,
         "fileOutputs": None,
         "requiresGui": None,
@@ -113,13 +123,28 @@ def workflow_profile(workflow: Workflow, user_id: str) -> dict:
         "executionType": "unknown",
         "exclusiveTerminal": None,
         "supportScope": None,
+        "jsonLimits": None,
     }
     if declaration:
         public.update(declaration.model_dump(exclude={"userId", "projectId", "version", "allowed", "inputSchemaHash"}))
+        output_schema_invalid = False
+        if declaration.capabilityClass == JSON_DATA_CLASS and declaration.outputSchema is not None:
+            try:
+                public["outputSchema"] = data_output_schema(declaration.outputSchema)
+            except WorkflowAccessError:
+                output_schema_invalid = True
+                public["outputSchema"] = None
         public["revisionLabel"] = declaration.revision
         # Bind every declaration change, even if an administrator forgets to
         # increment its human-readable label.
-        public["revision"] = digest(declaration.model_dump())
+        revision_data = declaration.model_dump()
+        if declaration.capabilityClass is None:
+            # Preserve existing framework revisions when this optional field is absent.
+            revision_data.pop("capabilityClass")
+        else:
+            revision_data["jsonLimits"] = JSON_LIMITS
+            revision_data["dataContractVersion"] = 1
+        public["revision"] = digest(revision_data)
         unknown = (
             any(
                 public[k] is None
@@ -136,16 +161,30 @@ def workflow_profile(workflow: Workflow, user_id: str) -> dict:
             or declaration.risk == "unknown"
             or declaration.executionType == "unknown"
         )
-        if declaration.inputSchemaHash != digest(schema):
+        category_invalid = (JSON_DATA_CAPABILITY in declaration.capabilities) != (
+            declaration.capabilityClass == JSON_DATA_CLASS
+        )
+        category_unsupported = declaration.capabilityClass == JSON_DATA_CLASS and (
+            declaration.fileInputs or declaration.fileOutputs or declaration.requiresGui
+        )
+        if output_schema_invalid:
+            reason = "OUTPUT_SCHEMA_UNSUPPORTED"
+        elif declaration.inputSchemaHash != digest(schema):
             reason = "PROFILE_STALE"
         elif unknown:
             reason = "PROFILE_INCOMPLETE"
+        elif category_invalid:
+            reason = "CAPABILITY_DECLARATION_INVALID"
+        elif category_unsupported:
+            reason = "JSON_DATA_UNSUPPORTED"
         elif not declaration.allowed:
             reason = "PROFILE_DENIED"
         elif declaration.fileInputs or declaration.fileOutputs:
             reason = "FILE_TRANSFER_UNSUPPORTED"
         else:
             reason = None
+        if declaration.capabilityClass == JSON_DATA_CLASS:
+            public["jsonLimits"] = JSON_LIMITS.copy()
     return {
         "schemaVersion": 1,
         "projectId": workflow.project_id,
@@ -157,7 +196,7 @@ def workflow_profile(workflow: Workflow, user_id: str) -> dict:
     }
 
 
-def require_admission(workflow: Workflow, user_id: str, revision: str | None = None) -> None:
+def require_admission(workflow: Workflow, user_id: str, revision: str | None = None) -> dict:
     profile = workflow_profile(workflow, user_id)
     if profile["admission"]["enforced"] or revision is not None:
         if not profile["admission"]["allowed"]:
@@ -166,3 +205,5 @@ def require_admission(workflow: Workflow, user_id: str, revision: str | None = N
             )
         if revision is not None and revision != profile["revision"]:
             raise WorkflowAccessError("PROFILE_STALE", "The workflow declaration changed; prepare a new request")
+
+    return profile

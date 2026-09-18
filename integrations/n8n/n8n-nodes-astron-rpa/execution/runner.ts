@@ -32,6 +32,7 @@ export interface Prepared {
     params: IDataObject;
     idempotencyKey: string;
     profileRevision: string;
+    capabilityClass?: "json-data";
     executionTimeout?: number;
   };
   mode: "async" | "wait" | "sync";

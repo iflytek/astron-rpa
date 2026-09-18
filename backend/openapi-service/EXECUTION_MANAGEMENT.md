@@ -100,6 +100,10 @@ explicit `Z`/numeric offset; leap seconds are not accepted. Nullable fields must
 declare null support. Defaults are applied once; caller values are not coerced.
 Managed Client inputs are JSON literals and never enter expression evaluation.
 File/binary values, remote schema references and runtime objects are unsupported.
+The `json-data` capability class additionally bounds each request to 1 MiB of
+UTF-8 JSON, nesting depth 12, 200 object properties, 1,000 array items and
+100,000 characters per string. The node and service reject a value that exceeds
+these limits before dispatch; the server profile is authoritative.
 Legacy Clients without the managed protocol may receive only the original scalar
 inputs; rich JSON and declared secrets require an upgraded, connected Client.
 

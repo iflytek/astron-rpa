@@ -8,6 +8,8 @@ const {
 } = require("../dist/execution/runner");
 const {
   AstronError,
+  checkWorkflow,
+  JSON_LIMITS,
   jsonObject,
   snapshot,
 } = require("../dist/mapping/contracts");
@@ -225,11 +227,64 @@ test("invalid context/identity/state and non-JSON parameters fail closed", () =>
     "{broken",
   ])
     assert.throws(() => jsonObject(value));
+  const cyclic = {};
+  cyclic.self = cyclic;
+  assert.throws(
+    () => jsonObject(cyclic),
+    (error) => error.code === "INVALID_ARGUMENTS",
+  );
   assert.deepEqual(
     jsonObject({ zero: 0, false: false, value: null, arr: [] }),
     { zero: 0, false: false, value: null, arr: [] },
   );
   assert.equal(hash({ b: 2, a: 1 }), hash({ a: 1, b: 2 }));
+});
+test("JSON data limits reject oversized values while preserving JSON scalars", () => {
+  assert.deepEqual(jsonObject({ zero: 0, false: false, value: null }), {
+    zero: 0,
+    false: false,
+    value: null,
+  });
+  for (const value of [
+    { values: Array.from({ length: JSON_LIMITS.maxArrayItems + 1 }, () => 0) },
+    { value: "x".repeat(JSON_LIMITS.maxStringLength + 1) },
+  ])
+    assert.throws(
+      () => jsonObject(value),
+      (error) => error.code === "JSON_LIMIT_EXCEEDED",
+    );
+  const nested = {};
+  let current = nested;
+  for (let index = 0; index <= JSON_LIMITS.maxDepth; index++) {
+    current.next = {};
+    current = current.next;
+  }
+  assert.throws(
+    () => jsonObject(nested),
+    (error) => error.code === "JSON_LIMIT_EXCEEDED",
+  );
+});
+test("json-data workflow profiles must advertise the same bounded contract", () => {
+  const value = {
+    projectId: "p",
+    version: 1,
+    profile: {
+      projectId: "p",
+      version: 1,
+      schemaVersion: 1,
+      admission: { allowed: true },
+      revision: "r1",
+      capabilityClass: "json-data",
+      capabilities: ["json-data"],
+      jsonLimits: { ...JSON_LIMITS },
+    },
+  };
+  assert.equal(checkWorkflow(value, "p", 1).capabilityClass, "json-data");
+  value.profile.jsonLimits.maxDepth++;
+  assert.throws(
+    () => checkWorkflow(value, "p", 1),
+    (error) => error.code === "CAPABILITY_UNSUPPORTED",
+  );
 });
 test("endpoint refuses URL secrets, ambiguous paths, HTTP, query and fragment", () => {
   assert.equal(

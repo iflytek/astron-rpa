@@ -4,7 +4,14 @@ import pytest
 
 from app.models.workflow import Workflow
 from app.security.workflow_authorization import WorkflowAccessError
-from app.services.workflow_schema import bind_arguments, secret_fields, workflow_input_schema
+from app.services.workflow_schema import (
+    JSON_LIMITS,
+    bind_arguments,
+    data_output_schema,
+    secret_fields,
+    validate_json_value,
+    workflow_input_schema,
+)
 
 
 def schema(parameters):
@@ -91,3 +98,53 @@ def test_secret_dictionary_values_do_not_leak_parent_defaults():
     )
     assert secret_fields(contract) == ["credentials"]
     assert "private-default" not in json.dumps(contract)
+
+
+def test_json_data_limits_are_explicit_and_fail_closed():
+    assert JSON_LIMITS == {
+        "maxBytes": 1_048_576,
+        "maxDepth": 12,
+        "maxObjectProperties": 200,
+        "maxArrayItems": 1_000,
+        "maxStringLength": 100_000,
+    }
+    validate_json_value({"value": "ok"}, require_object=True)
+    with pytest.raises(WorkflowAccessError) as error:
+        validate_json_value({"values": [0] * (JSON_LIMITS["maxArrayItems"] + 1)}, require_object=True)
+    assert error.value.code == "JSON_LIMIT_EXCEEDED"
+    with pytest.raises(WorkflowAccessError) as error:
+        validate_json_value({"value": "x" * (JSON_LIMITS["maxStringLength"] + 1)}, require_object=True)
+    assert error.value.code == "JSON_LIMIT_EXCEEDED"
+    nested = value = {}
+    for _ in range(JSON_LIMITS["maxDepth"] + 1):
+        value["next"] = {}
+        value = value["next"]
+    with pytest.raises(WorkflowAccessError) as error:
+        validate_json_value(nested, require_object=True)
+    assert error.value.code == "JSON_LIMIT_EXCEEDED"
+    with pytest.raises(WorkflowAccessError) as error:
+        validate_json_value({"value": float("nan")}, require_object=True)
+    assert error.value.code == "INVALID_ARGUMENTS"
+
+
+def test_output_schema_rejects_defaults_secrets_and_references():
+    output = data_output_schema(
+        {
+            "type": "object",
+            "properties": {"count": {"type": "integer"}},
+            "additionalProperties": False,
+        }
+    )
+    assert output["properties"]["count"]["type"] == "integer"
+    for invalid in [
+        {"type": "object", "properties": {"value": {"type": "string", "default": "x"}}},
+        {"type": "object", "properties": {"value": {"type": "string", "writeOnly": True}}},
+        {"type": "object", "properties": {"value": {"$ref": "https://example.invalid/schema"}}},
+    ]:
+        with pytest.raises(WorkflowAccessError, match="supported JSON schema"):
+            data_output_schema(invalid)
+
+
+def test_output_schema_is_bounded_before_persistence():
+    with pytest.raises(WorkflowAccessError, match="supported JSON schema"):
+        data_output_schema({"type": "string", "description": "x" * 1_048_577})

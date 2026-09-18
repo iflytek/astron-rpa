@@ -212,10 +212,14 @@ Set `INTEGRATION_POLICY_FILE` on OpenAPI to an administrator-owned JSON policy f
 
 An empty policy admits no workflow through the community node. Add the intended user to `enforcedUsers`
 and a reviewed declaration for each approved project/version. Declarations bind the owner, project, version
-and input-schema digest. They describe capabilities, file inputs/outputs, GUI/human requirements, environment,
-side effects, risk, execution type, exclusive-terminal requirements and an optional output schema.
+and input-schema digest. They describe capabilities, an optional capability class, file inputs/outputs,
+GUI/human requirements, environment, side effects, risk, execution type, exclusive-terminal requirements
+and an optional output schema. The `json-data` class requires both `capabilityClass: "json-data"` and
+`capabilities: ["json-data"]`; it rejects file transfer and GUI requirements and exposes bounded JSON
+limits in the workflow profile.
 Unknown values remain distinct from false. The supported declaration scope is `controlled-validation`;
-file-transfer declarations are rejected.
+file-transfer declarations are rejected. The data contract currently limits encoded JSON to 1 MiB, nesting
+depth to 12, object properties to 200, array items to 1,000 and each string to 100,000 characters.
 
 Within the enrolled user scope, fixed MCP, dynamic MCP and REST starts share admission checks; unknown,
 incomplete, stale or denied declarations are rejected. Users outside this scope retain their existing entry

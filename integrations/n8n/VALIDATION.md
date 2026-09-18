@@ -12,6 +12,7 @@
 - 新增服务端[声明与准入策略](../../backend/openapi-service/app/services/integration_policy.py)，由管理员维护声明并绑定工作流版本、输入 Schema 和完整声明摘要。在纳入管理的范围内，固定 MCP、动态 MCP 与 REST 共用准入校验，拒绝未知、失效或不完整的声明。
 - 调整[已受理执行的管理契约](../../backend/openapi-service/app/services/workflow_control.py)：普通重新发布后仍可查询、同键恢复和取消原执行，同时保留所有权、工作流开放状态及鉴权检查。这也改变了既有 REST 行为：详情接口 `GET /executions/{execution_id}` 不再仅因当前发布版本变化而拒绝原执行查询，列表接口 `GET /executions/get` 同样保留符合授权条件的旧版本执行；返回的仍是原执行版本，新执行仍须使用当前发布版本。
 - 增加秘密输入对应的 `resultVisibility`，明确结果被抑制的原因；通过 JSON 错误封装保留 n8n 错误路由中的执行 ID，并为查询和取消增加 UUID 校验。
+- 增加 json-data 能力类别，统一声明、准入、输入限制、输出 Schema 和 MCP 执行契约；文件传输、GUI 要求和运行时对象不属于本次数据能力。
 
 ## 验证环境
 
@@ -34,7 +35,8 @@
 | 检查 | 结果 |
 | --- | --- |
 | OpenAPI 相关回归 | 203 项通过；4 个 SQLite datetime adapter 弃用警告 |
-| 节点测试 | 19 项通过 |
+| 节点测试 | 21 项通过 |
+| JSON 数据输入专项回归 | 已纳入节点测试；覆盖大小、深度、Unicode、对象键、循环引用、能力限制和 MCP 传输 |
 | 节点构建、类型检查、ESLint、Prettier、npm pack | 通过 |
 | 源码包与安装目录 npm audit | 均为 0 个漏洞 |
 | 修改的 Python 文件格式检查 | 通过 |
@@ -67,6 +69,8 @@ PR 审阅修订回归（2026-09-30）：在最新 main 上变基后，OpenAPI �
 | 秘密输入 | 合成秘密未出现在持久化参数、结果或错误中；结果为 null，`resultVisibility=suppressed-for-secret-inputs` |
 | 重复与迟到唤醒 | 伪造回调结果未被接纳，最终结果仍由 MCP 查询，未产生第二次 RPA 执行；并发唤醒的宿主响应为 500／200，迟到唤醒为 409 |
 | 失败恢复与原生重试 | 持久子执行返回业务失败后，n8n 原生 Retry On Fail 未重新执行业务；跨 n8n 执行使用同业务键返回原失败回执，显式新键才产生新执行 |
+| JSON 数据型工作流 | 本地契约回归已通过；服务端与节点执行相同 JSON 限制，成功回执按冻结输出 Schema 校验 |
+| 真实环境 MCP 与 JSON 执行 | 服务器 MySQL、Redis、OpenAPI、OpenResty 均健康；最新节点已安装到本机 n8n，MCP 鉴权与工具发现成功。客户端状态为 ready。普通 JSON 执行和 json-data 声明执行均完成 accepted → running → succeeded，结果保留 count=0、ratio=0，同一业务键重放返回同一执行记录；数据库保存冻结的 outputSchema、limits 和 profile revision。临时声明已回滚。 |
 
 工作流停用、删除、跨用户及 Key 权限边界由授权与隔离自动化覆盖。真实联调使用受控工作流。
 
@@ -83,10 +87,10 @@ PR 审阅修订回归（2026-09-30）：在最新 main 上变基后，OpenAPI �
 验证包为 `n8n-nodes-astron-rpa-0.1.0-dev.1.tgz`，SHA-256：
 
 ```text
-e15d277304977299e927bdbd8bb679ccaa46300d605faa7b891a2cc9802c421e
+A25B5AAF6124C2D925022A58F22C25584563F3DC43168160EE8AF9B5061580E1
 ```
 
-联调结束后，临时测试入口已取消发布，独立测试实例已停止，临时明文凭据和故障注入钩子已清理；n8n 健康检查通过、客户端 ready，无运行中或等待中的 n8n 测试执行。保留一条客户端重启产生的 `unknown` 回执作为故障证据。
+联调结束后，临时 n8n 工作流、明文凭据和临时服务端声明已删除或回滚；n8n 健康检查通过，客户端保持登录并处于 ready 状态，无遗留运行中或等待中的测试执行。
 
 ## 已确认的运行限制
 

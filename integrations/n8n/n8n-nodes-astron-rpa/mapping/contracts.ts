@@ -9,6 +9,14 @@ export class AstronError extends Error {
   }
 }
 
+export const JSON_LIMITS = {
+  maxBytes: 1_048_576,
+  maxDepth: 12,
+  maxObjectProperties: 200,
+  maxArrayItems: 1_000,
+  maxStringLength: 100_000,
+} as const;
+
 export function object(value: unknown): Record<string, unknown> {
   if (!value || typeof value !== "object" || Array.isArray(value))
     throw new AstronError("INVALID_RESPONSE");
@@ -25,11 +33,27 @@ export function jsonObject(value: unknown): IDataObject {
   }
   const record = object(value);
   // JSON inputs only, without implicit stringification or non-finite numbers.
-  const visit = (v: unknown): void => {
-    if (v === null || typeof v === "string" || typeof v === "boolean") return;
-    if (typeof v === "number" && Number.isFinite(v)) return;
+  const ancestors = new WeakSet<object>();
+  const visit = (v: unknown, depth = 0): void => {
+    if (v === null || typeof v === "boolean") return;
+    if (typeof v === "string") {
+      if (Array.from(v).length > JSON_LIMITS.maxStringLength)
+        throw new AstronError("JSON_LIMIT_EXCEEDED");
+      return;
+    }
+    if (
+      typeof v === "number" &&
+      Number.isFinite(v) &&
+      (!Number.isInteger(v) || Number.isSafeInteger(v))
+    )
+      return;
     if (Array.isArray(v)) {
-      v.forEach(visit);
+      if (v.length > JSON_LIMITS.maxArrayItems || depth > JSON_LIMITS.maxDepth)
+        throw new AstronError("JSON_LIMIT_EXCEEDED");
+      if (ancestors.has(v)) throw new AstronError("INVALID_ARGUMENTS");
+      ancestors.add(v);
+      v.forEach((item) => visit(item, depth + 1));
+      ancestors.delete(v);
       return;
     }
     if (
@@ -37,12 +61,27 @@ export function jsonObject(value: unknown): IDataObject {
       typeof v === "object" &&
       Object.getPrototypeOf(v) === Object.prototype
     ) {
-      Object.values(v).forEach(visit);
+      if (
+        Object.keys(v).length > JSON_LIMITS.maxObjectProperties ||
+        depth > JSON_LIMITS.maxDepth
+      )
+        throw new AstronError("JSON_LIMIT_EXCEEDED");
+      if (ancestors.has(v)) throw new AstronError("INVALID_ARGUMENTS");
+      ancestors.add(v);
+      Object.keys(v).forEach((key) => visit(key));
+      Object.values(v).forEach((item) => visit(item, depth + 1));
+      ancestors.delete(v);
       return;
     }
     throw new AstronError("INVALID_ARGUMENTS");
   };
   visit(record);
+  const encoded = JSON.stringify(record);
+  if (
+    encoded === undefined ||
+    new TextEncoder().encode(encoded).length > JSON_LIMITS.maxBytes
+  )
+    throw new AstronError("JSON_LIMIT_EXCEEDED");
   return JSON.parse(JSON.stringify(record)) as IDataObject;
 }
 
@@ -125,6 +164,30 @@ export function checkWorkflow(
     typeof p.revision !== "string"
   ) {
     throw new AstronError("ADMISSION_DENIED");
+  }
+  if (p.capabilityClass === "json-data") {
+    const capabilities = p.capabilities;
+    const limitsValue = p.jsonLimits;
+    if (
+      !Array.isArray(capabilities) ||
+      !capabilities.includes("json-data") ||
+      !limitsValue ||
+      typeof limitsValue !== "object" ||
+      Array.isArray(limitsValue) ||
+      Object.getPrototypeOf(limitsValue) !== Object.prototype
+    ) {
+      throw new AstronError("CAPABILITY_UNSUPPORTED");
+    }
+    const limits = limitsValue as Record<string, unknown>;
+    if (
+      limits.maxBytes !== JSON_LIMITS.maxBytes ||
+      limits.maxDepth !== JSON_LIMITS.maxDepth ||
+      limits.maxObjectProperties !== JSON_LIMITS.maxObjectProperties ||
+      limits.maxArrayItems !== JSON_LIMITS.maxArrayItems ||
+      limits.maxStringLength !== JSON_LIMITS.maxStringLength
+    ) {
+      throw new AstronError("CAPABILITY_UNSUPPORTED");
+    }
   }
   return p;
 }

@@ -72,6 +72,41 @@ def test_declaration_revision_binds_schema_and_every_policy_change(policy):
     assert error.value.code == "PROFILE_STALE"
 
 
+def test_json_data_profile_exposes_limits_and_requires_matching_category(policy):
+    workflow = Workflow(project_id="p", user_id="owner", version=1, parameters="[]")
+    policy(workflow, capabilities=["json-data"], capabilityClass="json-data")
+    profile = workflow_profile(workflow, "owner")
+    assert profile["capabilityClass"] == "json-data"
+    assert profile["capabilities"] == ["json-data"]
+    assert profile["jsonLimits"]["maxBytes"] == 1_048_576
+    assert profile["admission"]["allowed"] is True
+
+    policy(workflow, capabilities=["json-data"])
+    with pytest.raises(WorkflowAccessError) as error:
+        require_admission(workflow, "owner")
+    assert error.value.code == "CAPABILITY_DECLARATION_INVALID"
+
+
+@pytest.mark.parametrize(
+    "change",
+    [
+        {"capabilities": ["json-data"], "capabilityClass": "json-data", "fileInputs": True},
+        {"capabilities": ["json-data"], "capabilityClass": "json-data", "requiresGui": True},
+        {
+            "capabilities": ["json-data"],
+            "capabilityClass": "json-data",
+            "outputSchema": {"type": "object", "properties": {"x": {"$ref": "https://example.invalid"}}},
+        },
+    ],
+)
+def test_json_data_profile_rejects_unsupported_declarations(policy, change):
+    workflow = Workflow(project_id="p", user_id="owner", version=1, parameters="[]")
+    policy(workflow, **change)
+    with pytest.raises(WorkflowAccessError) as error:
+        require_admission(workflow, "owner")
+    assert error.value.code in {"JSON_DATA_UNSUPPORTED", "OUTPUT_SCHEMA_UNSUPPORTED"}
+
+
 def test_corrupt_policy_does_not_revert_to_legacy(tmp_path, monkeypatch):
     path = tmp_path / "invalid.json"
     path.write_text("{broken")
@@ -208,6 +243,45 @@ def test_scoped_denials_are_fail_closed(policy, change, reason):
     with pytest.raises(WorkflowAccessError) as error:
         require_admission(workflow, "owner")
     assert error.value.code == reason
+
+
+@pytest.mark.asyncio
+async def test_json_data_execution_freezes_data_contract_and_rejects_mismatch(database, policy, monkeypatch):
+    monkeypatch.setattr(
+        "app.services.execution.management.capabilities",
+        AsyncMock(return_value={"protocol": 1, "clientId": "client", "supportsCancel": True}),
+    )
+    with Session(database) as db:
+        workflow = db.get(Workflow, "allowed")
+        policy(workflow, capabilities=["json-data"], capabilityClass="json-data")
+        profile = workflow_profile(workflow, "owner")
+        service = ExecutionService(AsyncSessionAdapter(db))
+        # Capture the frozen metadata without spawning a background execution task.
+        service.execute_workflow = AsyncMock()
+
+        await service.execute_authorized_workflow(
+            ExecutionCreate(project_id="allowed", version=2, params={}, capability_class="json-data"),
+            "owner",
+            wait=False,
+        )
+        contract = json.loads(service.execute_workflow.await_args.kwargs["metadata"]["data_contract"])
+        assert contract == {
+            "version": 1,
+            "profileRevision": profile["revision"],
+            "inputSchemaHash": profile["inputSchemaHash"],
+            "outputSchema": None,
+            "limits": profile["jsonLimits"],
+        }
+
+        # A caller may not claim a class the workflow is not admitted for.
+        policy(workflow)
+        with pytest.raises(WorkflowAccessError) as error:
+            await service.execute_authorized_workflow(
+                ExecutionCreate(project_id="allowed", version=2, params={}, capability_class="json-data"),
+                "owner",
+                wait=False,
+            )
+        assert error.value.code == "CAPABILITY_NOT_ALLOWED"
 
 
 @pytest.mark.asyncio

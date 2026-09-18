@@ -13,9 +13,9 @@ from app.schemas.workflow import ExecutionCreate
 from app.security.workflow_authorization import WorkflowAccessError
 from app.services import execution_management as management
 from app.services.execution import ExecutionService
-from app.services.integration_policy import workflow_profile
+from app.services.integration_policy import JSON_DATA_CLASS, workflow_profile
 from app.services.workflow import WorkflowService
-from app.services.workflow_schema import validate_arguments, workflow_input_schema
+from app.services.workflow_schema import JSON_LIMITS, validate_arguments, workflow_input_schema
 
 __all__ = ["WorkflowControlError", "WorkflowControlService", "validate_arguments", "workflow_input_schema"]
 
@@ -33,15 +33,19 @@ class WorkflowControlService:
     @staticmethod
     def _workflow_summary(workflow: Workflow) -> dict:
         try:
-            admission = workflow_profile(workflow, workflow.user_id)["admission"]
+            profile = workflow_profile(workflow, workflow.user_id)
+            admission = profile["admission"]
         except WorkflowControlError as exc:
             admission = {"allowed": False, "reason": exc.code, "enforced": None}
+            profile = {"capabilityClass": None, "capabilities": None}
         return {
             "projectId": workflow.project_id,
             "name": workflow.name,
             "description": workflow.description or "",
             "version": workflow.version,
             "admission": admission,
+            "capabilityClass": profile["capabilityClass"],
+            "capabilities": profile["capabilities"],
         }
 
     async def list_workflows(self, user_id: str, offset: int = 0, limit: int = 100) -> dict:
@@ -76,6 +80,8 @@ class WorkflowControlService:
             "requiredClientProtocol": 1,
             "durableIdempotency": True,
             "operations": ["workflow_list", "workflow_get", "workflow_execute", "execution_get", "execution_cancel"],
+            "capabilityClasses": [JSON_DATA_CLASS],
+            "jsonLimits": JSON_LIMITS.copy(),
             "client": client,
             "limitations": ["single-openapi-owner", "controlled-validation", "secret-inputs-suppress-results"],
         }
@@ -89,6 +95,7 @@ class WorkflowControlService:
         idempotency_key: str | None = None,
         execution_timeout: int | None = None,
         profile_revision: str | None = None,
+        capability_class: str | None = None,
     ) -> dict:
         # Fixed tools use canonical project IDs; legacy alias resolution stays REST-only.
         # A same-key replay must reach the durable receipt before new-release
@@ -102,6 +109,7 @@ class WorkflowControlService:
                 idempotency_key=idempotency_key,
                 execution_timeout=execution_timeout,
                 profile_revision=profile_revision,
+                capability_class=capability_class,
             ),
             user_id,
             wait=False,
