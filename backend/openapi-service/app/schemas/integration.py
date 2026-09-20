@@ -18,6 +18,12 @@ SERVICE_READ_OPERATIONS = {
         {
             "BrowserElement.wait_element",
             "BrowserElement.similar",
+            "BrowserElement.loop_similar",
+            "BrowserElement.create_element",
+            "BrowserElement.get_relative_element",
+            "BrowserElement.element_operation",
+            "BrowserElement.data_batch",
+            "BrowserSoftware.get_current_obj",
             "BrowserElement.element_text",
             "BrowserElement.get_select",
             "BrowserElement.get_checked",
@@ -31,9 +37,18 @@ SERVICE_READ_OPERATIONS = {
         }
     ),
     "service-http-read": frozenset(
-        {"Network.http_request", "Network.get_ftp_list", "Network.get_work_dir"}
+        {
+            "Network.http_request",
+            "Network.get_ftp_list",
+            "Network.get_work_dir",
+            "Network.ftp_create",
+            "Network.ftp_close",
+            "Network.change_working_dir",
+        }
     ),
-    "service-database-read": frozenset({"Database.query_sql"}),
+    "service-database-read": frozenset(
+        {"Database.connect_database", "Database.query_sql", "Database.disconnect_database"}
+    ),
     "service-mail-read": frozenset({"Email.receive_email"}),
     "service-openapi-read": frozenset(),
     "service-shared-read": frozenset({"Enterprise.get_shared_variable"}),

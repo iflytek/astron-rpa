@@ -13,12 +13,14 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.database import AsyncSessionLocal
 from app.logger import get_logger
 from app.models.workflow import Execution, Workflow
+from app.schemas.integration import SERVICE_READ_CLASSES
 from app.schemas.workflow import ExecutionCreate, ExecutionStatus
 from app.security.workflow_authorization import WorkflowAccessError
 from app.services import execution_management as management
 from app.services.integration_policy import require_admission
 from app.services.workflow import WorkflowService
 from app.services.workflow_schema import (
+    JSON_LIMITS,
     bind_arguments,
     validate_json_value,
     workflow_input_schema,
@@ -202,7 +204,13 @@ class ExecutionService:
             return None
 
     async def execute_authorized_workflow(
-        self, execution_data: ExecutionCreate, user_id: str, wait: bool = True, workflow_timeout: int = 36000
+        self,
+        execution_data: ExecutionCreate,
+        user_id: str,
+        wait: bool = True,
+        workflow_timeout: int = 36000,
+        *,
+        transport: str = "rest",
     ) -> Optional[Execution]:
         if execution_data.phone_number is not None or execution_data.exec_position != "EXECUTOR":
             raise WorkflowAccessError(
@@ -241,17 +249,20 @@ class ExecutionService:
         workflow = await WorkflowService(self.db).get_external_workflow(
             execution_data.project_id, user_id, execution_data.version, allow_example_alias=True
         )
-        profile = require_admission(workflow, user_id, execution_data.profile_revision)
+        schema = workflow_input_schema(workflow)
+        params = bind_arguments(execution_data.params or {}, schema)
+        profile = require_admission(
+            workflow, user_id, execution_data.profile_revision, params=params, transport=transport
+        )
         requested_class = execution_data.capability_class
         if requested_class is not None and profile["capabilityClass"] != requested_class:
             raise WorkflowAccessError("CAPABILITY_NOT_ALLOWED", "Workflow is not admitted for the requested capability")
-        schema = workflow_input_schema(workflow)
-        if profile["capabilityClass"] == "json-data":
+        bounded_json = profile["capabilityClass"] in {"json-data", *SERVICE_READ_CLASSES}
+        if bounded_json:
             # Bound the raw request before defaults, then again after binding.
             validate_json_value(execution_data.params or {}, require_object=True)
-        params = bind_arguments(execution_data.params or {}, schema)
         data_contract = None
-        if profile["capabilityClass"] == "json-data":
+        if bounded_json:
             validate_json_value(params, require_object=True)
             data_contract = json.dumps(
                 {
@@ -259,7 +270,7 @@ class ExecutionService:
                     "profileRevision": profile["revision"],
                     "inputSchemaHash": profile["inputSchemaHash"],
                     "outputSchema": profile["outputSchema"],
-                    "limits": profile["jsonLimits"],
+                    "limits": JSON_LIMITS,
                 },
                 allow_nan=False,
             )
@@ -268,7 +279,8 @@ class ExecutionService:
         )
         secrets = workflow_secret_fields(workflow, schema)
         requires_managed = bool(
-            key_hash is not None
+            bounded_json
+            or key_hash is not None
             or execution_data.execution_timeout is not None
             or secrets
             or any(type(value) not in (str, int, float) for value in params.values())

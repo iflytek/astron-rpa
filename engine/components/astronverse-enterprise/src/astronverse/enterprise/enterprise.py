@@ -37,7 +37,7 @@ def http(shot_url: str, params: Optional[dict], data: Optional[dict], meta: str 
     except JSONDecodeError:
         base64_encoded_data = base64.b64encode(response.content).decode("utf-8")
         return base64_encoded_data
-    logger.debug("请求结束 {}:{}".format(shot_url, json_data))
+    logger.debug("请求结束 {}:{}".format(shot_url, response.status_code))
     if json_data.get("code") != "0000" and json_data.get("code") != "000000":
         msg = json_data.get("message", "")
         raise BaseException(SERVER_ERROR_FORMAT.format(msg), "服务器错误{}".format(json_data))
@@ -258,8 +258,9 @@ class Enterprise:
         """
         Get shared variable from remote
         """
-        key = get_remote_var_key()
         value = get_remote_var_value(shared_variable)
+        if not value:
+            return None
 
         sub_var_list = value.get("subVarList", [])
         if not sub_var_list:
@@ -268,7 +269,7 @@ class Enterprise:
         for sub_var in sub_var_list:
             if sub_var["encrypt"]:
                 c = Ciphertext(sub_var.get("varValue"))
-                c.set_key(key)
+                c.set_key(get_remote_var_key())
                 res[sub_var.get("varName")] = c.decrypt()
             else:
                 res[sub_var.get("varName")] = sub_var.get("varValue")

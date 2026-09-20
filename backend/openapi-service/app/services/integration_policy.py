@@ -21,6 +21,7 @@ from app.schemas.integration import (
 )
 from app.security.workflow_authorization import WorkflowAccessError
 from app.services.execution_management import digest
+from app.services.service_read import validate_read_review
 from app.services.workflow_schema import (
     JSON_LIMITS,
     data_output_schema,
@@ -44,6 +45,7 @@ class Declaration(BaseModel):
     capabilities: list[str] = Field(min_length=1)
     capabilityClass: CapabilityClass | None = None
     componentOperations: list[str] | None = None
+    readOnlyReview: dict | None = None
     allowedTransports: list[Literal["mcp", "rest"]] = Field(default_factory=lambda: ["mcp"])
     fileInputs: bool | None = None
     fileOutputs: bool | None = None
@@ -103,7 +105,7 @@ def load_policy() -> Policy:
         raise WorkflowAccessError("INTEGRATION_POLICY_UNAVAILABLE", "Integration policy is unavailable") from None
 
 
-def workflow_profile(workflow: Workflow, user_id: str) -> dict:
+def workflow_profile(workflow: Workflow, user_id: str, params: dict | None = None) -> dict:
     policy = load_policy()
     schema = workflow_input_schema(workflow)
     declaration = next(
@@ -122,6 +124,7 @@ def workflow_profile(workflow: Workflow, user_id: str) -> dict:
         "capabilities": None,
         "capabilityClass": None,
         "componentOperations": None,
+        "readContractVersion": None,
         "allowedTransports": None,
         "fileInputs": None,
         "fileOutputs": None,
@@ -136,7 +139,11 @@ def workflow_profile(workflow: Workflow, user_id: str) -> dict:
         "jsonLimits": None,
     }
     if declaration:
-        public.update(declaration.model_dump(exclude={"userId", "projectId", "version", "allowed", "inputSchemaHash"}))
+        public.update(
+            declaration.model_dump(
+                exclude={"userId", "projectId", "version", "allowed", "inputSchemaHash", "readOnlyReview"}
+            )
+        )
         output_schema_invalid = False
         if (
             declaration.capabilityClass in (JSON_DATA_CLASS, *SERVICE_READ_CLASSES)
@@ -151,6 +158,8 @@ def workflow_profile(workflow: Workflow, user_id: str) -> dict:
         # Bind every declaration change, even if an administrator forgets to
         # increment its human-readable label.
         revision_data = declaration.model_dump()
+        if declaration.readOnlyReview is None:
+            revision_data.pop("readOnlyReview")
         if declaration.capabilityClass is None:
             # Preserve existing framework revisions when this optional field is absent.
             revision_data.pop("capabilityClass")
@@ -174,14 +183,12 @@ def workflow_profile(workflow: Workflow, user_id: str) -> dict:
             or declaration.risk == "unknown"
             or declaration.executionType == "unknown"
         )
-        category_invalid = (
-            (JSON_DATA_CAPABILITY in declaration.capabilities)
-            != (declaration.capabilityClass == JSON_DATA_CLASS)
-            or (
-                declaration.capabilityClass is not None
-                and declaration.capabilityClass in CAPABILITY_CLASSES
-                and declaration.capabilityClass not in declaration.capabilities
-            )
+        category_invalid = (JSON_DATA_CAPABILITY in declaration.capabilities) != (
+            declaration.capabilityClass == JSON_DATA_CLASS
+        ) or (
+            declaration.capabilityClass is not None
+            and declaration.capabilityClass in CAPABILITY_CLASSES
+            and declaration.capabilityClass not in declaration.capabilities
         )
         category_unsupported = declaration.capabilityClass == JSON_DATA_CLASS and (
             declaration.fileInputs or declaration.fileOutputs or declaration.requiresGui
@@ -207,6 +214,13 @@ def workflow_profile(workflow: Workflow, user_id: str) -> dict:
                 for operation in declaration.componentOperations
             )
         )
+        read_review_invalid = False
+        if declaration.capabilityClass in SERVICE_READ_CLASSES:
+            try:
+                validate_read_review(declaration.readOnlyReview, declaration.componentOperations or [], schema, params)
+                public["readContractVersion"] = 1
+            except WorkflowAccessError:
+                read_review_invalid = True
         if output_schema_invalid:
             reason = "OUTPUT_SCHEMA_UNSUPPORTED"
         elif declaration.inputSchemaHash != digest(schema):
@@ -221,6 +235,8 @@ def workflow_profile(workflow: Workflow, user_id: str) -> dict:
             reason = "PROFILE_INCOMPLETE"
         elif service_shape_invalid or service_operations_invalid:
             reason = "CAPABILITY_DECLARATION_INVALID"
+        elif read_review_invalid:
+            reason = "READ_CONSTRAINT_INVALID"
         elif not declaration.allowed:
             reason = "PROFILE_DENIED"
         elif declaration.fileInputs or declaration.fileOutputs:
@@ -240,8 +256,15 @@ def workflow_profile(workflow: Workflow, user_id: str) -> dict:
     }
 
 
-def require_admission(workflow: Workflow, user_id: str, revision: str | None = None) -> dict:
-    profile = workflow_profile(workflow, user_id)
+def require_admission(
+    workflow: Workflow,
+    user_id: str,
+    revision: str | None = None,
+    *,
+    params: dict | None = None,
+    transport: str | None = None,
+) -> dict:
+    profile = workflow_profile(workflow, user_id, params)
     if profile["admission"]["enforced"] or revision is not None:
         if not profile["admission"]["allowed"]:
             raise WorkflowAccessError(
@@ -249,5 +272,10 @@ def require_admission(workflow: Workflow, user_id: str, revision: str | None = N
             )
         if revision is not None and revision != profile["revision"]:
             raise WorkflowAccessError("PROFILE_STALE", "The workflow declaration changed; prepare a new request")
+    if profile["capabilityClass"] in SERVICE_READ_CLASSES:
+        if not profile["admission"]["allowed"]:
+            raise WorkflowAccessError(profile["admission"]["reason"], "Workflow has no valid read admission")
+        if transport is not None and transport not in profile["allowedTransports"]:
+            raise WorkflowAccessError("TRANSPORT_NOT_ALLOWED", "Transport is not admitted for this workflow")
 
     return profile

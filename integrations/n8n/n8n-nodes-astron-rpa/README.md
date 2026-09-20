@@ -80,6 +80,10 @@ Use **Get Workflow** before execution and verify `profile.capabilityClass`, `pro
 
 Select **MCP (Primary)** unless the published declaration explicitly includes `rest` in `allowedTransports` and the operation has a documented REST auxiliary route. REST is never an automatic fallback for an uncertain MCP request.
 
+Read workflows require `readContractVersion: 1` from an administrator-reviewed release. HTTP permits GET/HEAD without upload or save; mail preserves unread state and does not save attachments; browser extraction stays on one page without export; database SQL is fixed and reviewed with read-only credentials. The review is not a sandbox for arbitrary Python or SQL. Connection objects, element handles and generators remain inside the workflow, and results use the shared bounded JSON contract. REST submission, observation and cancellation preserve the server's execution identity, state and result visibility.
+
+Browser reads require the intended active browser tab and the installed AstronRPA extension; reserve the terminal during execution. The SQLite read-only connection option is `connect_info.read_only: true`. MySQL uses the packaged driver; PostgreSQL, SQL Server, Access and Oracle require their corresponding optional database drivers. A successful SQLite test does not establish compatibility with those database deployments.
+
 ### JSON data workflow boundary
 
 Use **Get Workflow** before execution and verify `profile.capabilityClass` is `json-data`, `profile.admission.allowed` is `true`, and the returned `inputSchema` matches the data being sent. JSON values preserve `0`, `false`, `null`, arrays and nested objects. Unknown fields, non-finite numbers, runtime objects, file values and values over the published limits are rejected before dispatch.

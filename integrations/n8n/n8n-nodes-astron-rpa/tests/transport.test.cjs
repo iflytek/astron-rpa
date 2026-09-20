@@ -97,37 +97,130 @@ test("unverified protocol and empty key fail before any network request", () => 
   assert.equal(requests, 0);
 });
 
-test("REST auxiliary execution preserves the MCP execution snapshot shape", async () => {
+const canonical = {
+  executionId: "11111111-1111-4111-8111-111111111111",
+  projectId: "p",
+  version: 1,
+  status: "succeeded",
+  terminal: true,
+  cancelRequested: true,
+  supportsCancel: false,
+  resultVisibility: "json",
+  result: { answer: 42 },
+  error: null,
+  clientId: "client",
+  runId: "run",
+  acceptedAt: null,
+  startedAt: null,
+  finishedAt: null,
+};
+
+test("REST execution, replay, observation and cancellation preserve authoritative snapshots", async () => {
   const calls = [];
-  const rest = new RestConnection(
-    {
-      endpoint: "https://rpa.example.com/api/rpa-openapi/mcp/",
-      apiKey: connection.apiKey,
-      protocol: connection.protocol,
-    },
-    3000,
-    async (url, init) => {
-      calls.push({ url: String(url), init });
-      return new Response(
-        JSON.stringify({ code: "0000", data: { executionId: "rest-id" } }),
-        { status: 202, headers: { "content-type": "application/json" } },
-      );
-    },
-  );
-  const snapshot = await rest.call("astron_workflow_execute", {
+  let reply = canonical;
+  const rest = new RestConnection(connection, 3000, async (url, init) => {
+    calls.push({ url: String(url), method: init.method });
+    return new Response(
+      JSON.stringify({
+        code: "0000",
+        data: { executionId: reply.executionId, snapshot: reply },
+      }),
+    );
+  });
+  const args = {
     projectId: "p",
     version: 1,
     params: {},
     idempotencyKey: "key",
     capabilityClass: "service-http-read",
-  });
-  assert.equal(snapshot.executionId, "rest-id");
-  assert.equal(snapshot.status, "accepted");
-  assert.equal(snapshot.terminal, false);
-  assert.equal(calls.length, 1);
-  assert.equal(
-    calls[0].init.headers.Authorization,
-    `Bearer ${connection.apiKey}`,
+  };
+  assert.deepEqual(await rest.call("astron_workflow_execute", args), canonical);
+  assert.deepEqual(
+    await rest.call("astron_execution_get", canonical),
+    canonical,
   );
-  assert.match(calls[0].url, /\/api\/rpa-openapi\/workflows\/execute-async$/);
+  assert.deepEqual(
+    await rest.call("astron_execution_cancel", canonical),
+    canonical,
+  );
+  for (const change of [
+    { status: "running", terminal: false, supportsCancel: true },
+    {
+      status: "unknown",
+      terminal: false,
+      error: { code: "CLIENT_RESTARTED", message: "unknown" },
+    },
+    {
+      status: "timeout",
+      terminal: true,
+      error: { code: "EXECUTION_TIMEOUT", message: "stopped" },
+    },
+    { result: null, resultVisibility: "suppressed-for-secret-inputs" },
+  ]) {
+    reply = { ...canonical, ...change };
+    assert.deepEqual(await rest.call("astron_execution_get", canonical), reply);
+  }
+  assert.equal(calls[0].method, "POST");
+  assert.match(calls[0].url, /workflows\/execute-async\?contract=1$/);
+  assert.match(calls[2].url, /executions\/[^/]+\/cancel$/);
+});
+
+test("REST refuses a legacy receipt or mismatched execution without inventing state", async () => {
+  for (const data of [
+    { executionId: canonical.executionId },
+    {
+      snapshot: {
+        ...canonical,
+        executionId: "22222222-2222-4222-8222-222222222222",
+      },
+    },
+  ]) {
+    const rest = new RestConnection(
+      connection,
+      1000,
+      async () => new Response(JSON.stringify({ code: "0000", data })),
+    );
+    await assert.rejects(rest.call("astron_execution_get", canonical));
+  }
+});
+
+test("REST integration discovery queries the server instead of claiming client support", async () => {
+  let requests = 0;
+  const integration = {
+    contractVersion: 1,
+    client: { state: "offline", protocol: null, supportsCancel: false },
+  };
+  const rest = new RestConnection(connection, 1000, async (url) => {
+    requests++;
+    assert.match(String(url), /workflows\/integration$/);
+    return new Response(JSON.stringify({ code: "0000", data: integration }));
+  });
+  assert.deepEqual(await rest.call("astron_integration_get", {}), integration);
+  assert.equal(requests, 1);
+});
+
+test("REST preserves safe admission codes without copying remote detail", async () => {
+  for (const code of [
+    "READ_CONSTRAINT_INVALID",
+    "TRANSPORT_NOT_ALLOWED",
+    "EXECUTION_NOT_FOUND",
+  ]) {
+    const rest = new RestConnection(
+      connection,
+      1000,
+      async () =>
+        new Response(
+          JSON.stringify({ detail: { code, message: "synthetic-secret" } }),
+          { status: 403 },
+        ),
+    );
+    await assert.rejects(
+      rest.call("astron_execution_get", canonical),
+      (error) => {
+        assert.equal(error.code, code);
+        assert(!error.message.includes("synthetic-secret"));
+        return true;
+      },
+    );
+  }
 });

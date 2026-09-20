@@ -34,6 +34,9 @@ export function validateBrowserServiceProfile(
   if (
     !Array.isArray(profile.capabilities) ||
     !profile.capabilities.includes(profile.capabilityClass) ||
+    profile.readContractVersion !== 1 ||
+    !Array.isArray(profile.sideEffects) ||
+    profile.sideEffects.length !== 0 ||
     !Array.isArray(profile.componentOperations) ||
     profile.componentOperations.length === 0 ||
     !profile.componentOperations.every(

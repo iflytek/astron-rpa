@@ -1,10 +1,13 @@
-from fastapi import APIRouter, Depends, Path, Query, Response, status
+from typing import Annotated, Literal
+
+from fastapi import APIRouter, Depends, HTTPException, Path, Query, Response, status
 
 from app.dependencies import get_execution_service, get_user_id_from_api_key
 from app.logger import get_logger
 from app.schemas import ResCode, StandardResponse
-from app.security.workflow_authorization import external_execution_dict
+from app.security.workflow_authorization import WorkflowAccessError, external_execution_dict
 from app.services.execution import ExecutionService
+from app.services.workflow_control import WorkflowControlService
 
 logger = get_logger(__name__)
 
@@ -55,6 +58,7 @@ async def get_executions(
 )
 async def get_execution(
     response: Response,
+    contract: Literal["1"] | None = Query(None),
     execution_id: str = Path(..., description="执行记录ID"),
     user_id: str = Depends(get_user_id_from_api_key),
     service: ExecutionService = Depends(get_execution_service),
@@ -63,6 +67,8 @@ async def get_execution(
     try:
         execution = await service.get_authorized_execution(execution_id, user_id)
         if not execution:
+            if contract == "1":
+                raise HTTPException(404, detail={"code": "EXECUTION_NOT_FOUND"})
             response.status_code = status.HTTP_404_NOT_FOUND
             return StandardResponse(
                 code=ResCode.ERR,
@@ -70,7 +76,27 @@ async def get_execution(
                 data=None,
             )
 
-        return StandardResponse(code=ResCode.SUCCESS, msg="", data={"execution": external_execution_dict(execution)})
+        data = {"execution": external_execution_dict(execution)}
+        if contract == "1":
+            data = {"snapshot": WorkflowControlService.execution_result(execution)}
+        return StandardResponse(code=ResCode.SUCCESS, msg="", data=data)
+    except HTTPException:
+        raise
     except Exception as e:
         logger.error("Request failed: %s", type(e).__name__)  # noqa: TRY400 -- omit sensitive exception text
         return StandardResponse(code=ResCode.ERR, msg="Failed to get execution", data=None)
+
+
+@router.post("/{execution_id}/cancel", response_model=StandardResponse)
+async def cancel_execution(
+    execution_id: str,
+    user_id: Annotated[str, Depends(get_user_id_from_api_key)],
+    service: Annotated[ExecutionService, Depends(get_execution_service)],
+):
+    try:
+        execution = await service.request_cancellation(execution_id, user_id)
+        return StandardResponse(
+            code=ResCode.SUCCESS, msg="", data={"snapshot": WorkflowControlService.execution_result(execution)}
+        )
+    except WorkflowAccessError as exc:
+        raise HTTPException(404 if exc.code == "EXECUTION_NOT_FOUND" else 403, detail={"code": exc.code}) from None

@@ -16,6 +16,8 @@ const base = {
   capabilities: ["service-http-read"],
   capabilityClass: "service-http-read",
   componentOperations: ["Network.http_request"],
+  readContractVersion: 1,
+  sideEffects: [],
   allowedTransports: ["mcp", "rest"],
   fileInputs: false,
   fileOutputs: false,
@@ -141,4 +143,17 @@ test("json-data profiles enforce the same bounded contract", () => {
     () => validateCapabilityProfile(profile),
     (error) => error.code === "CAPABILITY_UNSUPPORTED",
   );
+});
+
+test("read capabilities reject unreviewed contracts and declared side effects", () => {
+  for (const change of [
+    { readContractVersion: undefined },
+    { readContractVersion: 2 },
+    { sideEffects: ["write"] },
+  ]) {
+    assert.throws(
+      () => validateCapabilityProfile({ ...base, ...change }),
+      /CAPABILITY_DECLARATION_INVALID/,
+    );
+  }
 });

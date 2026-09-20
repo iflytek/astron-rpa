@@ -1,3 +1,5 @@
+from typing import Annotated, Literal
+
 from fastapi import APIRouter, Depends, HTTPException, Path, Query, Request, status
 
 from app.dependencies import (
@@ -21,13 +23,24 @@ from app.security.workflow_authorization import WorkflowAccessError, external_ex
 from app.services.api_key import AstronApiKeyService
 from app.services.execution import ExecutionService
 from app.services.workflow import WorkflowService
+from app.services.workflow_control import WorkflowControlService
 
 logger = get_logger(__name__)
 
 router = APIRouter(prefix="/workflows", tags=["workflow"])
 
 
-def _execution_http_error(exc: WorkflowAccessError) -> HTTPException:
+@router.get("/integration", response_model=StandardResponse)
+async def get_integration(
+    user_id: Annotated[str, Depends(get_user_id_from_api_key)],
+    execution_service: Annotated[ExecutionService, Depends(get_execution_service)],
+):
+    return StandardResponse(
+        code=ResCode.SUCCESS, msg="", data=await WorkflowControlService(execution_service.db).get_integration(user_id)
+    )
+
+
+def _execution_http_error(exc: WorkflowAccessError, *, contract: bool = False) -> HTTPException:
     client_status = {
         "CLIENT_OFFLINE": status.HTTP_503_SERVICE_UNAVAILABLE,
         "CLIENT_CAPABILITY_UNCONFIRMED": status.HTTP_503_SERVICE_UNAVAILABLE,
@@ -35,7 +48,10 @@ def _execution_http_error(exc: WorkflowAccessError) -> HTTPException:
     }.get(exc.code)
     if client_status is not None:
         return HTTPException(client_status, detail={"code": exc.code, "message": str(exc)})
-    return HTTPException(404 if exc.code == "WORKFLOW_NOT_FOUND" else 403, str(exc))
+    return HTTPException(
+        404 if exc.code == "WORKFLOW_NOT_FOUND" else 403,
+        {"code": exc.code} if contract else str(exc),
+    )
 
 
 @router.post(
@@ -209,6 +225,7 @@ async def execute_workflow(
 )
 async def execute_workflow_async(
     execution_data: ExecutionCreate,
+    contract: Literal["1"] | None = Query(None),
     user_id: str = Depends(get_user_id_from_api_key),
     execution_service: ExecutionService = Depends(get_execution_service),
 ):
@@ -221,9 +238,12 @@ async def execute_workflow_async(
             workflow_timeout=36000,  # 工作流执行超时10小时
         )
 
-        return StandardResponse(code=ResCode.SUCCESS, msg="", data={"executionId": execution.id})
+        data = {"executionId": execution.id}
+        if contract == "1":
+            data["snapshot"] = WorkflowControlService.execution_result(execution)
+        return StandardResponse(code=ResCode.SUCCESS, msg="", data=data)
     except WorkflowAccessError as exc:
-        raise _execution_http_error(exc) from None
+        raise _execution_http_error(exc, contract=contract == "1") from None
     except Exception as e:
         logger.error("Request failed: %s", type(e).__name__)  # noqa: TRY400 -- omit sensitive exception text
         return StandardResponse(code=ResCode.ERR, msg="Failed to execute workflow asynchronously", data=None)

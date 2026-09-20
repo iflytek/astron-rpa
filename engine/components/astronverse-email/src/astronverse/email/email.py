@@ -173,7 +173,7 @@ class Email:
             atomicMg.param("theme_text", required=False, types="Str"),
             atomicMg.param("content_text", required=False, types="Str"),
         ],
-        outputList=[atomicMg.param("mail_list", types="Dict")],
+        outputList=[atomicMg.param("mail_list", types="List")],
     )
     def receive_email(
         mail_server: EmailServerType = EmailServerType.QQ,
@@ -226,75 +226,81 @@ class Email:
         from astronverse.email.core_imap4_receive import EmailImap4Receive
 
         core = EmailImap4Receive()
-        core.login(
-            server=mail_server_dict.get(mail_server.value),
-            port=custom_mail_port,
-            user=user_mail,
-            password=user_password,
-            # use_ssl=True,
-        )
-        core.select(selector=folder_name)
+        try:
+            core.login(
+                server=mail_server_dict.get(mail_server.value),
+                port=custom_mail_port,
+                user=user_mail,
+                password=user_password,
+                # use_ssl=True,
+            )
+            core.select(selector=folder_name, readonly=not mask_as_read_flag)
 
-        searched_mail_ids = core.search(
-            "utf-8",
-            EmailSeenType.ALL.value if not unseen_flag else EmailSeenType.UNSEEN.value,
-        )[1][0].split(b" ")
+            searched_mail_ids = core.search(
+                "utf-8",
+                EmailSeenType.ALL.value if not unseen_flag else EmailSeenType.UNSEEN.value,
+            )[1][0].split(b" ")
 
-        matched_mails = []
-        for num in reversed(searched_mail_ids):
-            if not num or num == b"":
-                continue
-            try:
-                logger.info(f"mail id:{str(num)}")
-                mail_info = core.get_entire_mail_info(num)
-            except Exception as e:
-                logger.info(f"im error：{str(e)}")
-                continue
-            # 判断其id是否符合查询要求
-            if (
-                (not (sender_text or receiver_text or theme_text or content_text))
-                or sender_text
-                and mail_info["from"]
-                and sender_text in " ".join([item for item in mail_info["from"] if item])
-                or receiver_text
-                and mail_info["to"]
-                and receiver_text in " ".join([item for item in mail_info["to"] if item])
-                or theme_text
-                and mail_info["subject"]
-                and theme_text in mail_info["subject"]
-                or content_text
-                and mail_info["body"]
-                and content_text in mail_info["body"]
-            ):
-                logger.info(f"im append：{str(num)}")
-                matched_mails.append((num, mail_info))
-            else:
-                logger.info(f"im continue：{str(num)}")
-                continue
+            matched_mails = []
+            for num in reversed(searched_mail_ids):
+                if not num or num == b"":
+                    continue
+                try:
+                    logger.info(f"mail id:{str(num)}")
+                    mail_info = core.get_entire_mail_info(num)
+                except Exception as e:
+                    logger.info(f"im error：{str(e)}")
+                    continue
+                # 判断其id是否符合查询要求
+                if (
+                    (not (sender_text or receiver_text or theme_text or content_text))
+                    or sender_text
+                    and mail_info["from"]
+                    and sender_text in " ".join([item for item in mail_info["from"] if item])
+                    or receiver_text
+                    and mail_info["to"]
+                    and receiver_text in " ".join([item for item in mail_info["to"] if item])
+                    or theme_text
+                    and mail_info["subject"]
+                    and theme_text in mail_info["subject"]
+                    or content_text
+                    and mail_info["body"]
+                    and content_text in mail_info["body"]
+                ):
+                    logger.info(f"im append：{str(num)}")
+                    matched_mails.append((num, mail_info))
+                else:
+                    logger.info(f"im continue：{str(num)}")
+                    continue
 
-            # 满足最大返回条件即可结束
-        # Use parsed mail time for ordering instead of relying on provider-specific SEARCH order.
-        matched_mails.sort(key=lambda item: item[1].get("time") or "", reverse=True)
-        matched_mails = matched_mails[:max_return_num]
-        logger.info(f"mail id:{[mail_id for mail_id, _ in matched_mails]}")
+                # 满足最大返回条件即可结束
+            # Use parsed mail time for ordering instead of relying on provider-specific SEARCH order.
+            matched_mails.sort(key=lambda item: item[1].get("time") or "", reverse=True)
+            matched_mails = matched_mails[:max_return_num]
+            logger.info(f"mail id:{[mail_id for mail_id, _ in matched_mails]}")
 
-        # 获取邮件详细信息，并存储附件
-        return_mail_res = []
-        from pathlib import Path
+            # 获取邮件详细信息，并存储附件
+            return_mail_res = []
+            from pathlib import Path
 
-        for mail_id, mail_info in matched_mails:
-            # 判断是否需要保存附件
-            if save_attachment_flag:
-                for attachment in mail_info["attachments"]:
-                    if not attachment:
-                        continue
-                    file_path = Path(save_attachment_path) / attachment["name"]
-                    file_path.write_bytes(attachment["data"])
-            # 判断是否需要标注为已读
-            if mask_as_read_flag:
-                core.mask_as_read(mail_id)
-            mail_info["attachments"] = [
-                attachment["name"] for attachment in mail_info["attachments"] if attachment and attachment["name"]
-            ]
-            return_mail_res.append(mail_info)
-        return return_mail_res
+            for mail_id, mail_info in matched_mails:
+                # 判断是否需要保存附件
+                if save_attachment_flag:
+                    for attachment in mail_info["attachments"]:
+                        if not attachment:
+                            continue
+                        file_path = Path(save_attachment_path) / attachment["name"]
+                        file_path.write_bytes(attachment["data"])
+                # 判断是否需要标注为已读
+                if mask_as_read_flag:
+                    core.mask_as_read(mail_id)
+                mail_info["attachments"] = [
+                    attachment["name"] for attachment in mail_info["attachments"] if attachment and attachment["name"]
+                ]
+                # Public results contain JSON arrays, never internal address tuples.
+                mail_info["from"] = list(mail_info["from"])
+                mail_info["to"] = list(mail_info["to"])
+                return_mail_res.append(mail_info)
+            return return_mail_res
+        finally:
+            core.logout()

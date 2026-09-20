@@ -1,5 +1,6 @@
 import platform
 import sys
+from typing import Any
 
 from astronverse.actionlib.atomic import atomicMg
 from astronverse.database import DatabaseType
@@ -22,7 +23,7 @@ class Database:
     @atomicMg.atomic(
         "Database",
         inputList=[
-            atomicMg.param("connect_info", types=dict),  # TODO 確定類型【目前用手動輸入Dict的方式】
+            atomicMg.param("connect_info", types="Dict"),
         ],
         outputList=[atomicMg.param("connect_db_obj", types="Any")],
     )
@@ -32,12 +33,12 @@ class Database:
 
     @staticmethod
     @atomicMg.atomic("Database", inputList=[], outputList=[])
-    def disconnect_database(database_obj: object):
+    def disconnect_database(database_obj: Any):
         DatabaseCore.disconnect(database_obj)
 
     @staticmethod
     @atomicMg.atomic("Database", inputList=[], outputList=[])
-    def execute_sql(database_obj: object, sql: str):
+    def execute_sql(database_obj: Any, sql: str):
         DatabaseCore.execute(database_obj, sql)
 
     @staticmethod
@@ -46,6 +47,6 @@ class Database:
         inputList=[],
         outputList=[atomicMg.param("query_db_result", types="Any")],
     )
-    def query_sql(database_obj: object, sql: str):
-        query_db_result = DatabaseCore.execute(database_obj, sql)
+    def query_sql(database_obj: Any, sql: str):
+        query_db_result = DatabaseCore.query(database_obj, sql)
         return query_db_result

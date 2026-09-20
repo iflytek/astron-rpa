@@ -15,12 +15,14 @@ export interface CapabilityProfile {
   capabilityClass?: CapabilityClass;
   capabilities?: unknown;
   componentOperations?: unknown;
+  readContractVersion?: unknown;
   allowedTransports?: unknown;
   fileInputs?: unknown;
   fileOutputs?: unknown;
   requiresGui?: unknown;
   requiresHuman?: unknown;
   risk?: unknown;
+  sideEffects?: unknown;
   executionType?: unknown;
   jsonLimits?: unknown;
 }

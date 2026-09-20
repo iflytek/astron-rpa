@@ -1,4 +1,4 @@
-import { AstronError, object } from "../mapping/contracts";
+import { AstronError, object, snapshot } from "../mapping/contracts";
 import type { Connection } from "./mcp";
 
 type Fetcher = typeof fetch;
@@ -47,6 +47,22 @@ export class RestConnection {
       throw new AstronError("TRANSPORT_UNCONFIRMED", true);
     });
     if (!response.ok) {
+      // Preserve the shared contract's safe business code, never remote messages.
+      const payload: unknown = await response.json().catch(() => null);
+      const detail =
+        payload && typeof payload === "object" && "detail" in payload
+          ? payload.detail
+          : null;
+      const code =
+        detail && typeof detail === "object" && "code" in detail
+          ? detail.code
+          : null;
+      if (typeof code === "string" && /^[A-Z_]{3,64}$/.test(code))
+        throw new AstronError(
+          code,
+          response.status >= 500 &&
+            !["CLIENT_OFFLINE", "CLIENT_CAPABILITY_UNCONFIRMED"].includes(code),
+        );
       throw new AstronError(
         response.status === 401
           ? "AUTHENTICATION_FAILED"
@@ -75,110 +91,39 @@ export class RestConnection {
     args: Record<string, unknown>,
   ): Promise<Record<string, unknown>> {
     if (name === "astron_integration_get") {
-      return {
-        contractVersion: 1,
-        profileSchemaVersion: 1,
-        requiredClientProtocol: 1,
-        durableIdempotency: true,
-        operations: [
-          "workflow_list",
-          "workflow_get",
-          "workflow_execute",
-          "execution_get",
-          "execution_cancel",
-        ],
-        client: { state: "unknown", protocol: 1, supportsCancel: false },
-      };
+      return object((await this.request("workflows/integration")).data);
     }
     if (name === "astron_workflow_execute") {
-      const response = await this.request("workflows/execute-async", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          project_id: args.projectId,
-          version: args.version,
-          params: args.params ?? {},
-          idempotency_key: args.idempotencyKey,
-          execution_timeout: args.executionTimeout,
-          profile_revision: args.profileRevision,
-          capability_class: args.capabilityClass,
-        }),
+      const response = await this.request(
+        "workflows/execute-async?contract=1",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            project_id: args.projectId,
+            version: args.version,
+            params: args.params ?? {},
+            idempotency_key: args.idempotencyKey,
+            execution_timeout: args.executionTimeout,
+            profile_revision: args.profileRevision,
+            capability_class: args.capabilityClass,
+          }),
+        },
+      );
+      return snapshot(object(response.data).snapshot, {
+        projectId: String(args.projectId),
+        version: Number(args.version),
       });
-      const data = object(response.data);
-      if (typeof data.executionId !== "string")
-        throw new AstronError("INVALID_EXECUTION_RESPONSE", true);
-      return {
-        executionId: data.executionId,
-        projectId: args.projectId,
-        version: args.version,
-        status: "accepted",
-        terminal: false,
-        acceptedAt: null,
-        finishedAt: null,
-        startedAt: null,
-        clientId: null,
-        runId: null,
-        cancelRequested: false,
-        result: null,
-        error: null,
-        supportsCancel: false,
-        resultVisibility: "json",
-      };
     }
-    if (name === "astron_execution_get") {
+    if (name === "astron_execution_get" || name === "astron_execution_cancel") {
+      const executionId = String(args.executionId);
+      const cancelling = name === "astron_execution_cancel";
       const response = await this.request(
-        `executions/${encodeURIComponent(String(args.executionId))}`,
+        `executions/${encodeURIComponent(executionId)}${cancelling ? "/cancel" : "?contract=1"}`,
+        cancelling ? { method: "POST" } : {},
       );
-      const data = object(response.data);
-      const execution = object(data.execution);
-      const statusMap: Record<string, string> = {
-        PENDING: "accepted",
-        RUNNING: "running",
-        COMPLETED: "succeeded",
-        FAILED: "failed",
-        CANCELLED: "cancelled",
-        TIMEOUT: "timeout",
-        UNKNOWN: "unknown",
-      };
-      const status = statusMap[String(execution.status)] ?? "unknown";
-      const terminal = ["succeeded", "failed", "cancelled", "timeout"].includes(
-        status,
-      );
-      return {
-        executionId: String(execution.id),
-        projectId: String(execution.project_id),
-        version: Number(execution.version ?? 1),
-        status,
-        terminal,
-        acceptedAt: null,
-        finishedAt: execution.end_time ?? null,
-        startedAt: execution.start_time ?? null,
-        clientId: null,
-        runId: null,
-        cancelRequested: false,
-        result: execution.result ?? null,
-        error: execution.error
-          ? { code: "EXECUTION_FAILED", message: "Workflow execution failed" }
-          : null,
-        supportsCancel: false,
-        resultVisibility: "json",
-      };
+      return snapshot(object(response.data).snapshot, { executionId });
     }
-    if (name === "astron_workflow_list") {
-      const offset = Number(args.offset ?? 0);
-      const limit = Number(args.limit ?? 100);
-      const response = await this.request(
-        `workflows/get?pageNo=${Math.floor(offset / limit) + 1}&pageSize=${limit}`,
-      );
-      const data = object(response.data);
-      const records = Array.isArray(data.records) ? data.records : [];
-      return {
-        workflows: records.map((record) => object(record)),
-        nextOffset: records.length === limit ? offset + limit : null,
-      };
-    }
-    if (name === "astron_execution_cancel")
-      throw new AstronError("REST_CANCEL_UNSUPPORTED");
     throw new AstronError("REST_OPERATION_UNSUPPORTED");
   }
 

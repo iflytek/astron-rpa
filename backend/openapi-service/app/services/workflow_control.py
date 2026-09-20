@@ -121,6 +121,7 @@ class WorkflowControlService:
             ),
             user_id,
             wait=False,
+            transport="mcp",
         )
         return self.execution_result(execution)
 

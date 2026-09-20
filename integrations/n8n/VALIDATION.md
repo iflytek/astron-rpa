@@ -1,5 +1,7 @@
 # n8n MCP 公共框架验收记录
 
+本文保留公共框架的历史验收记录；浏览器读取与服务连接的本轮结果见文末独立记录（2026-09-20），对应机器可读证据的 `browserServiceValidation` 字段。
+
 本次新增独立的 AstronRPA Community Node，通过 HTTPS MCP 完成工作流读取、执行、查询和取消，并在 OpenAPI 服务中实现工作流声明与准入校验。已完成相关自动化测试，以及真实 n8n、OpenAPI 服务和 Windows 客户端联调；全仓质量检查和运行中设计器发布的组合验证存在未完成项，详见文末。
 
 使用方法见[节点说明](n8n-nodes-astron-rpa/README.md)和[工作流示例](n8n-nodes-astron-rpa/examples/README.md)。执行标识、恢复前后期限、产物校验值及发布时序见[验证证据](validation-evidence.json)。
@@ -126,3 +128,53 @@ A25B5AAF6124C2D925022A58F22C25584563F3DC43168160EE8AF9B5061580E1
 | --- | --- |
 | 全仓 `make check` 通过 | 已使用 GNU Make 4.4.1 在相同依赖的对照快照和本次代码快照中运行，均以 exit 2 停在 `makefiles/typescript.mk:62 check-typescript`：`frontend/` 根目录缺少 `tsconfig.json`，`npx tsc --noEmit` 输出 TypeScript 5.9.3 帮助并失败。另有 `backend-go` 路径探测警告；停止点之后的聚合检查未执行 |
 | 同一次任务运行中完成设计器 UI 发布 | 受控任务在实际发布前已结束，尝试延长任务时遇到窗口定位异常，未完成组合验证。运行中版本元数据变更、完整设计器发布及发布后原执行管理已分别验证，尚无同一次运行中的组合证据 |
+
+## 浏览器读取与服务连接验收（2026-09-20）
+
+本轮在已安装的 `n8n-nodes-astron-rpa@0.1.0-dev.2`、HTTPS OpenAPI 服务及 Windows 客户端之间完成真实联调，再完成本地定向回归。能力模块与 JSON 数据能力平级，复用公共执行框架；MCP 为主通道，REST 由调用方显式选择。本轮不改写上面的历史测试结果。
+
+### 操作覆盖
+
+按当前全部 25 个组件的操作行为核对分类，本类准入清单为 5 个组件、29 个操作，均有真实执行覆盖。完整操作名见 [分类清单](n8n-nodes-astron-rpa/capabilities/shared/catalog.ts)及机器可读证据。
+
+| 组件 | 操作数 | 本轮验证 |
+| --- | --- | --- |
+| browser | 18 | 当前上下文、URL/title/tab、加载等待、元素生成与等待、存在性、文本、属性读取、选择项、选中态、相似元素及遍历、关联元素、表格、单页抓取、Cookie |
+| database | 3 | SQLite 只读连接、固定 SQL 查询、断开；连接对象留在工作流内部 |
+| network | 6 | HTTP GET/HEAD；FTP 建连、目录列表、当前目录、切换会话目录、关闭；无文件传输 |
+| email | 1 | 邮件查询；不保存附件、不标记已读 |
+| enterprise | 1 | 共享变量读取 |
+
+HTTP、数据库、FTP、邮件、共享变量均通过 MCP 和显式 REST 执行；浏览器通过 MCP 执行。HTTP 使用同一业务键跨通道重放时保留同一 executionId/runId。成功执行的 MCP 与 REST 查询快照逐项一致。
+
+### 修复与契约检查
+
+- 服务端校验管理员维护、绑定发布版本及声明 revision 的私有 `readOnlyReview`，再次检查受约束的直接输入绑定；公开 `readContractVersion=1`，不公开固定 SQL 或私有审核参数。动态 SQL、多语句、写入开关、附件落盘、多页抓取及导出不在本类准入范围。
+- REST 使用服务端权威能力声明、受理回执、查询及精准取消快照；保留安全业务错误码，未知执行结果不通过换通道重发解决。服务读取沿用严格 JSON、冻结输出 Schema 与结果限制。
+- 原组件修复包括数据库查询调用、返回连接与游标释放、可选驱动延迟加载、数据库打包及元数据注册，HTTP HEAD 的 JSON 结果、FTP 超时及失败清理，邮件只读提取与连接释放，共享变量明文读取及浏览器读取时的窗口副作用。
+
+### 测试结果与部署一致性
+
+| 检查 | 本轮结果 |
+| --- | --- |
+| OpenAPI 定向回归 | 247 项通过；4 个既有 SQLite datetime adapter 弃用警告 |
+| Community Node | 33 项通过；构建、类型检查、ESLint、Prettier、npm pack 通过 |
+| Engine 定向回归 | 18 项通过；邮件 6 项使用独立进程运行 |
+| 修改涉及的 Python 文件 | 26 个文件格式检查通过；与 HEAD 同环境比较，无新增 Ruff 诊断 |
+| Engine 锁文件 | `uv lock --check --offline --project engine` 通过 |
+| 网关 | Lua 六个路由/身份清除检查、部署环境 Nginx 配置检查通过 |
+| 精准取消与期限 | REST 取消取得真实 `cancelled`；执行期限取得 `timeout`；重复取消旧执行未停止新执行 |
+| 读取副作用与释放 | IMAP 使用 EXAMINE、BODY.PEEK、LOGOUT，未产生 STORE/Seen；FTP、IMAP 连接均归零 |
+| 部署源码与产物 | 8 个 OpenAPI 修改文件、9 个客户端组件源码与本地一致；26 个节点 dist 文件逐字节一致 |
+| 执行退出 | 本轮 29 条 RPA 执行回执均为终态，客户端残留测试执行进程为 0 |
+
+浏览器独立读取执行 `78038fcb-7acc-4ba4-8fcc-f29b70f965b2` 与补充读取执行 `025432a4-750b-4f58-bd61-c58b0d2e75c8` 均通过；最终安装包 REST 烟测执行 `a62da5d7-4319-4926-800b-2bc3d905ad70` 成功。其他成功记录及取消证据见 [validation-evidence.json](validation-evidence.json)。早期浏览器测试曾读取到另一活动页，未作为成功证据；保持受控测试页活动后重新验证通过。
+
+### 清理与支持边界
+
+11 个临时机器人已通过服务接口删除，临时共享变量和 OpenAPI 工作流数据已清理，原服务端声明已恢复；服务端部署文件写入及清理均限于授权的 source 目录。n8n 临时工作流及其 57 条执行记录、11 个测试虚拟环境缓存、导出的临时凭据与测试 TLS 私钥已删除。本轮启动的 n8n、HTTP/FTP/IMAP 模拟服务已停止，原有 n8n 凭据保留；停止前健康检查通过，客户端保持登录且 MCP 报告 ready。服务端和客户端终态回执保留用于审计。
+
+- 只读审核适用于管理员核对过的可信已发布工作流，不能替代 Python 沙箱或通用 SQL 安全解析；远程数据库仍须使用实际只读账号，并对查询结果及资源使用设限。
+- 浏览器实测依赖 Windows、已连接的浏览器插件、所需登录态和指定活动页；测试时独占终端。未实现后台固定 tabId 路由，不保证切换窗口或活动页后的目标保持不变。
+- 数据库真实执行覆盖 SQLite；MySQL 驱动随默认组件安装，但未据此宣称所有数据库真实验证通过。PostgreSQL、SQL Server、Oracle、Access 等可选驱动及 Linux 未实测，DB2 明确未实现；本轮未重建完整客户端 EXE。
+- 本轮未重跑全仓 `make check`，其历史阻塞见上文。本机无 Docker CLI，完整 Docker 网关 shell 测试未运行；上述 Lua 与部署环境检查已完成。历史“同次运行中设计器 UI 发布”组合验证仍单独保留，不计入本类完成结果。

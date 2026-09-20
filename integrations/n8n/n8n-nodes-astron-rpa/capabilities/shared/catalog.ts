@@ -40,6 +40,12 @@ export const COMPONENT_COVERAGE: readonly ComponentCoverage[] = [
     serviceReadOperations: [
       "BrowserElement.wait_element",
       "BrowserElement.similar",
+      "BrowserElement.loop_similar",
+      "BrowserElement.create_element",
+      "BrowserElement.get_relative_element",
+      "BrowserElement.element_operation",
+      "BrowserElement.data_batch",
+      "BrowserSoftware.get_current_obj",
       "BrowserElement.element_text",
       "BrowserElement.get_select",
       "BrowserElement.get_checked",
@@ -51,7 +57,7 @@ export const COMPONENT_COVERAGE: readonly ComponentCoverage[] = [
       "BrowserSoftware.get_current_title",
       "BrowserSoftware.get_current_tab_id",
     ],
-    note: "Read-only browser queries; table export, runtime objects, scripts and interaction belong to other capability groups",
+    note: "Read-only queries and local browser context; generators and element handles stay inside the workflow. Attribute reads and single-page extraction require reviewed switches; export, scripts and page interaction remain outside this group",
   },
   {
     component: "astronverse-cua",
@@ -61,8 +67,12 @@ export const COMPONENT_COVERAGE: readonly ComponentCoverage[] = [
   {
     component: "astronverse-database",
     groups: ["browser-service", "ai-dynamic-risk"],
-    serviceReadOperations: ["Database.query_sql"],
-    note: "Only reviewed read-only SQL enters 4.2; connection lifecycle and writes remain outside it",
+    serviceReadOperations: [
+      "Database.connect_database",
+      "Database.query_sql",
+      "Database.disconnect_database",
+    ],
+    note: "Reviewed fixed SQL with read-only credentials; connect/query/close stay in one workflow, connection objects never cross the JSON boundary",
   },
   {
     component: "astronverse-dataprocess",
@@ -113,6 +123,9 @@ export const COMPONENT_COVERAGE: readonly ComponentCoverage[] = [
       "Network.http_request",
       "Network.get_ftp_list",
       "Network.get_work_dir",
+      "Network.ftp_create",
+      "Network.ftp_close",
+      "Network.change_working_dir",
     ],
     note: "HTTP read methods must not upload/save files; FTP reads are metadata-only, file transfer and writes belong to other capability groups",
   },

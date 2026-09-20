@@ -515,12 +515,6 @@ class BrowserSoftware:
         if not control:
             raise BaseException(BROWSER_OPEN_TIMEOUT, "打开浏览器超时")
 
-        try:
-            # 置顶最大化
-            BrowserCore.browser_top_and_max(control)
-        except Exception as e:
-            pass
-
         browser = Browser()
         browser.browser_type = browser_type
         browser.browser_abs_path = ""

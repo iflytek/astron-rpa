@@ -8,7 +8,7 @@ class FtpCore:
         """
         创建FTP实例
         """
-        ftp_instance = ftplib.FTP()
+        ftp_instance = ftplib.FTP(timeout=30)
         ftp_instance.encoding = "gbk"
         return ftp_instance
 

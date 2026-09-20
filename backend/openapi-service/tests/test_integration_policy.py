@@ -95,6 +95,12 @@ def test_service_read_profile_exposes_component_operations_and_transports(policy
         capabilityClass="service-http-read",
         componentOperations=["Network.http_request"],
         allowedTransports=["mcp", "rest"],
+        readOnlyReview={
+            "version": 1,
+            "boundedResources": True,
+            "readOnlyConnections": True,
+            "operationInputs": {"Network.http_request": {"request_type": "get", "file_path": "", "save_type": "no"}},
+        },
     )
     profile = workflow_profile(workflow, "owner")
     assert profile["admission"]["allowed"] is True
@@ -117,8 +123,14 @@ def test_service_read_profile_rejects_incomplete_or_writing_shape(policy, change
     declaration = {
         "capabilities": ["service-http-read"],
         "capabilityClass": "service-http-read",
-        "componentOperations": ["Network.http_get_request"],
+        "componentOperations": ["Network.http_request"],
         "allowedTransports": ["mcp"],
+        "readOnlyReview": {
+            "version": 1,
+            "boundedResources": True,
+            "readOnlyConnections": True,
+            "operationInputs": {"Network.http_request": {"request_type": "get", "file_path": "", "save_type": "no"}},
+        },
     }
     declaration.update(change)
     policy(workflow, **declaration)

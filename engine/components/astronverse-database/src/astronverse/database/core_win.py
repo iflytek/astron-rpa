@@ -1,9 +1,5 @@
 import sqlite3
 
-import cx_Oracle
-import psycopg2
-import pymysql
-import pyodbc
 from astronverse.database import DatabaseType
 from astronverse.database.core import IDatabaseCore
 
@@ -17,6 +13,8 @@ class DatabaseCore(IDatabaseCore):
     @staticmethod
     def connect(db_info_dict: dict, db_type: DatabaseType = DatabaseType.MySQL):
         if db_type == DatabaseType.MySQL:
+            import pymysql
+
             if db_info_dict.get("PORT", ""):
                 db_info_dict["port"] = int(db_info_dict.get("PORT", 3306))
             db_conn = pymysql.connect(
@@ -28,6 +26,8 @@ class DatabaseCore(IDatabaseCore):
                 charset=db_info_dict.get("charset", "utf8").replace("-", ""),
             )
         elif db_type == DatabaseType.SQLServer:
+            import pyodbc
+
             server = "{},{}".format(db_info_dict.get("host", ""), int(db_info_dict.get("port", 1433)))
             # 连接字符串
             conn_str = (
@@ -40,6 +40,8 @@ class DatabaseCore(IDatabaseCore):
             # 连接数据库
             db_conn = pyodbc.connect(conn_str)
         elif db_type == DatabaseType.Oracle:
+            import cx_Oracle
+
             if db_info_dict.get("service_type", "") == "service":
                 service = db_info_dict.get("service", "")
             else:
@@ -50,6 +52,8 @@ class DatabaseCore(IDatabaseCore):
                 dsn=f"{db_info_dict.get('host', '')}:{int(db_info_dict.get('port', 1521))}/{service}",
             )
         elif db_type == DatabaseType.PostgreSQL:
+            import psycopg2
+
             db_conn = psycopg2.connect(
                 database=db_info_dict.get("database", ""),
                 user=db_info_dict.get("user", ""),
@@ -58,8 +62,15 @@ class DatabaseCore(IDatabaseCore):
                 port=int(db_info_dict.get("port", 5432)),
             )
         elif db_type == DatabaseType.SQLite:
-            db_conn = sqlite3.connect(f"{db_info_dict.get('sqlite_path', '')}")
+            if db_info_dict.get("read_only") is True:
+                from pathlib import Path
+
+                db_conn = sqlite3.connect(Path(db_info_dict["sqlite_path"]).resolve().as_uri() + "?mode=ro", uri=True)
+            else:
+                db_conn = sqlite3.connect(f"{db_info_dict.get('sqlite_path', '')}")
         elif db_type == DatabaseType.Access:
+            import pyodbc
+
             conn_str = (
                 r"DRIVER={Driver do Microsoft Access (*.mdb)};"
                 rf"DBQ={db_info_dict.get('access_path', '')};"
@@ -67,7 +78,7 @@ class DatabaseCore(IDatabaseCore):
             )
             db_conn = pyodbc.connect(conn_str)
         elif db_type == DatabaseType.DB2:
-            pass
+            raise NotImplementedError("DB2 connections are not implemented")
             # db_conn = ibm_db_dbi.connect(
             #     f"PORT={int(db_info_dict.get('port', 50000))};PROTOCOL=TCPIP;",
             #     database=db_info_dict.get("database", ""),
@@ -77,6 +88,8 @@ class DatabaseCore(IDatabaseCore):
             # )
         else:
             raise Exception("找不到该数据库类型!")
+
+        return db_conn
 
     @staticmethod
     def disconnect(db_conn: object):
@@ -91,6 +104,8 @@ class DatabaseCore(IDatabaseCore):
         except:
             db_conn.rollback()
             return False
+        finally:
+            cursor.close()
         return True
 
     @staticmethod
@@ -102,31 +117,34 @@ class DatabaseCore(IDatabaseCore):
         cursor = db_conn.cursor()
         res_list = []
 
-        cursor.execute(sql_str)
-        key_info = cursor.description
-        key_tup = [key[0] for key in key_info]
-
-        result_arr = cursor.fetchall()
-
-        for results in result_arr:
-            new_result = []
-            # 对查询结果的类型进行转换
-            for result in results:
-                if isinstance(result, datetime.datetime):
-                    new_result.append(result.strftime("%Y-%m-%d %H:%M:%S"))
-                elif isinstance(result, datetime.date):
-                    new_result.append(result.strftime("%Y-%m-%d"))
-                elif isinstance(result, Decimal):
-                    # 这个用字符串，用float会造成精度丢失
-                    new_result.append(str(result))
-                else:
-                    new_result.append(result)
-            row_data = dict(zip(key_tup, new_result))
-
-            res_list.append(row_data)
         try:
-            res_list = json.dumps(res_list, ensure_ascii=False)
-        except Exception as e:
-            pass
-        # 若是序列化报错，则返回原数据
-        return res_list
+            cursor.execute(sql_str)
+            key_info = cursor.description
+            key_tup = [key[0] for key in key_info]
+
+            result_arr = cursor.fetchall()
+
+            for results in result_arr:
+                new_result = []
+                # 对查询结果的类型进行转换
+                for result in results:
+                    if isinstance(result, datetime.datetime):
+                        new_result.append(result.strftime("%Y-%m-%d %H:%M:%S"))
+                    elif isinstance(result, datetime.date):
+                        new_result.append(result.strftime("%Y-%m-%d"))
+                    elif isinstance(result, Decimal):
+                        # 这个用字符串，用float会造成精度丢失
+                        new_result.append(str(result))
+                    else:
+                        new_result.append(result)
+                row_data = dict(zip(key_tup, new_result))
+
+                res_list.append(row_data)
+            try:
+                res_list = json.dumps(res_list, ensure_ascii=False)
+            except Exception as e:
+                pass
+            # 若是序列化报错，则返回原数据
+            return res_list
+        finally:
+            cursor.close()
