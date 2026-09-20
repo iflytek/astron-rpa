@@ -3,6 +3,7 @@ const assert = require("node:assert/strict");
 const http = require("node:http");
 const { once } = require("node:events");
 const { McpConnection } = require("../dist/transport/mcp");
+const { RestConnection } = require("../dist/transport/rest");
 
 const connection = {
   endpoint: "https://rpa.example.com/mcp/",
@@ -94,4 +95,39 @@ test("unverified protocol and empty key fail before any network request", () => 
     (error) => error.code === "AUTHENTICATION_FAILED",
   );
   assert.equal(requests, 0);
+});
+
+test("REST auxiliary execution preserves the MCP execution snapshot shape", async () => {
+  const calls = [];
+  const rest = new RestConnection(
+    {
+      endpoint: "https://rpa.example.com/api/rpa-openapi/mcp/",
+      apiKey: connection.apiKey,
+      protocol: connection.protocol,
+    },
+    3000,
+    async (url, init) => {
+      calls.push({ url: String(url), init });
+      return new Response(
+        JSON.stringify({ code: "0000", data: { executionId: "rest-id" } }),
+        { status: 202, headers: { "content-type": "application/json" } },
+      );
+    },
+  );
+  const snapshot = await rest.call("astron_workflow_execute", {
+    projectId: "p",
+    version: 1,
+    params: {},
+    idempotencyKey: "key",
+    capabilityClass: "service-http-read",
+  });
+  assert.equal(snapshot.executionId, "rest-id");
+  assert.equal(snapshot.status, "accepted");
+  assert.equal(snapshot.terminal, false);
+  assert.equal(calls.length, 1);
+  assert.equal(
+    calls[0].init.headers.Authorization,
+    `Bearer ${connection.apiKey}`,
+  );
+  assert.match(calls[0].url, /\/api\/rpa-openapi\/workflows\/execute-async$/);
 });

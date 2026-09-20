@@ -33,7 +33,7 @@ export function endpoint(raw: string): URL {
 export class McpConnection {
   private client = new Client({
     name: "n8n-nodes-astron-rpa",
-    version: "0.1.0-dev.1",
+    version: "0.1.0-dev.2",
   });
   private transport: StreamableHTTPClientTransport;
   constructor(

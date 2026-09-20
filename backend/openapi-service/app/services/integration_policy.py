@@ -13,6 +13,12 @@ from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from app.config import get_settings
 from app.models.workflow import Workflow
+from app.schemas.integration import (
+    CAPABILITY_CLASSES,
+    SERVICE_READ_CLASSES,
+    SERVICE_READ_OPERATIONS,
+    CapabilityClass,
+)
 from app.security.workflow_authorization import WorkflowAccessError
 from app.services.execution_management import digest
 from app.services.workflow_schema import (
@@ -36,7 +42,9 @@ class Declaration(BaseModel):
     inputSchemaHash: str = Field(pattern=r"^[a-f0-9]{64}$")
     outputSchema: dict | None = None
     capabilities: list[str] = Field(min_length=1)
-    capabilityClass: Literal["json-data"] | None = None
+    capabilityClass: CapabilityClass | None = None
+    componentOperations: list[str] | None = None
+    allowedTransports: list[Literal["mcp", "rest"]] = Field(default_factory=lambda: ["mcp"])
     fileInputs: bool | None = None
     fileOutputs: bool | None = None
     requiresGui: bool | None = None
@@ -113,6 +121,8 @@ def workflow_profile(workflow: Workflow, user_id: str) -> dict:
         "outputSchema": None,
         "capabilities": None,
         "capabilityClass": None,
+        "componentOperations": None,
+        "allowedTransports": None,
         "fileInputs": None,
         "fileOutputs": None,
         "requiresGui": None,
@@ -128,7 +138,10 @@ def workflow_profile(workflow: Workflow, user_id: str) -> dict:
     if declaration:
         public.update(declaration.model_dump(exclude={"userId", "projectId", "version", "allowed", "inputSchemaHash"}))
         output_schema_invalid = False
-        if declaration.capabilityClass == JSON_DATA_CLASS and declaration.outputSchema is not None:
+        if (
+            declaration.capabilityClass in (JSON_DATA_CLASS, *SERVICE_READ_CLASSES)
+            and declaration.outputSchema is not None
+        ):
             try:
                 public["outputSchema"] = data_output_schema(declaration.outputSchema)
             except WorkflowAccessError:
@@ -141,7 +154,7 @@ def workflow_profile(workflow: Workflow, user_id: str) -> dict:
         if declaration.capabilityClass is None:
             # Preserve existing framework revisions when this optional field is absent.
             revision_data.pop("capabilityClass")
-        else:
+        elif declaration.capabilityClass == JSON_DATA_CLASS:
             revision_data["jsonLimits"] = JSON_LIMITS
             revision_data["dataContractVersion"] = 1
         public["revision"] = digest(revision_data)
@@ -161,11 +174,38 @@ def workflow_profile(workflow: Workflow, user_id: str) -> dict:
             or declaration.risk == "unknown"
             or declaration.executionType == "unknown"
         )
-        category_invalid = (JSON_DATA_CAPABILITY in declaration.capabilities) != (
-            declaration.capabilityClass == JSON_DATA_CLASS
+        category_invalid = (
+            (JSON_DATA_CAPABILITY in declaration.capabilities)
+            != (declaration.capabilityClass == JSON_DATA_CLASS)
+            or (
+                declaration.capabilityClass is not None
+                and declaration.capabilityClass in CAPABILITY_CLASSES
+                and declaration.capabilityClass not in declaration.capabilities
+            )
         )
         category_unsupported = declaration.capabilityClass == JSON_DATA_CLASS and (
             declaration.fileInputs or declaration.fileOutputs or declaration.requiresGui
+        )
+        service_incomplete = declaration.capabilityClass in SERVICE_READ_CLASSES and (
+            not declaration.componentOperations
+            or not declaration.allowedTransports
+            or declaration.requiresHuman is not False
+            or declaration.risk == "unknown"
+            or declaration.executionType == "unknown"
+        )
+        service_shape_invalid = declaration.capabilityClass in SERVICE_READ_CLASSES and (
+            declaration.fileInputs
+            or declaration.fileOutputs
+            or (declaration.capabilityClass == "browser-read" and declaration.requiresGui is not True)
+            or (declaration.capabilityClass != "browser-read" and declaration.requiresGui is not False)
+            or bool(declaration.sideEffects)
+        )
+        service_operations_invalid = declaration.capabilityClass in SERVICE_READ_CLASSES and (
+            not declaration.componentOperations
+            or any(
+                operation not in SERVICE_READ_OPERATIONS[declaration.capabilityClass]
+                for operation in declaration.componentOperations
+            )
         )
         if output_schema_invalid:
             reason = "OUTPUT_SCHEMA_UNSUPPORTED"
@@ -177,6 +217,10 @@ def workflow_profile(workflow: Workflow, user_id: str) -> dict:
             reason = "CAPABILITY_DECLARATION_INVALID"
         elif category_unsupported:
             reason = "JSON_DATA_UNSUPPORTED"
+        elif service_incomplete:
+            reason = "PROFILE_INCOMPLETE"
+        elif service_shape_invalid or service_operations_invalid:
+            reason = "CAPABILITY_DECLARATION_INVALID"
         elif not declaration.allowed:
             reason = "PROFILE_DENIED"
         elif declaration.fileInputs or declaration.fileOutputs:
