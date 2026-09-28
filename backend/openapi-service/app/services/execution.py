@@ -13,11 +13,19 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.database import AsyncSessionLocal
 from app.logger import get_logger
 from app.models.workflow import Execution, Workflow
+from app.schemas.integration import SERVICE_READ_CLASSES
 from app.schemas.workflow import ExecutionCreate, ExecutionStatus
 from app.security.workflow_authorization import WorkflowAccessError
 from app.services import execution_management as management
+from app.services.integration_policy import require_admission
 from app.services.workflow import WorkflowService
-from app.services.workflow_schema import bind_arguments, workflow_input_schema, workflow_secret_fields
+from app.services.workflow_schema import (
+    JSON_LIMITS,
+    bind_arguments,
+    validate_json_value,
+    workflow_input_schema,
+    workflow_secret_fields,
+)
 
 logger = get_logger(__name__)
 
@@ -83,10 +91,12 @@ class ExecutionService:
 
     async def get_authorized_execution(self, execution_id: str, user_id: str) -> Optional[Execution]:
         execution = await self.get_execution(execution_id, user_id)
-        if execution is None or execution.version is None:
+        if execution is None or execution.version is None or execution.version < 1:
             return None
         try:
-            await WorkflowService(self.db).get_external_workflow(execution.project_id, user_id, execution.version)
+            # Ordinary publication does not revoke an already accepted execution.
+            # Ownership, deletion and the external-access switch still apply.
+            await WorkflowService(self.db).get_external_workflow(execution.project_id, user_id)
         except WorkflowAccessError:
             return None
         return execution
@@ -135,7 +145,7 @@ class ExecutionService:
                 Workflow.user_id == user_id,
                 Workflow.status == 1,
                 Workflow.version >= 1,
-                Execution.version == Workflow.version,
+                Execution.version >= 1,
             )
         )
         total = (await self.db.execute(select(func.count()).select_from(visible.subquery()))).scalar_one()
@@ -194,7 +204,13 @@ class ExecutionService:
             return None
 
     async def execute_authorized_workflow(
-        self, execution_data: ExecutionCreate, user_id: str, wait: bool = True, workflow_timeout: int = 36000
+        self,
+        execution_data: ExecutionCreate,
+        user_id: str,
+        wait: bool = True,
+        workflow_timeout: int = 36000,
+        *,
+        transport: str = "rest",
     ) -> Optional[Execution]:
         if execution_data.phone_number is not None or execution_data.exec_position != "EXECUTOR":
             raise WorkflowAccessError(
@@ -202,7 +218,13 @@ class ExecutionService:
             )
         key_hash = management.digest(execution_data.idempotency_key) if execution_data.idempotency_key else None
         try:
-            request_hash = management.digest(execution_data.model_dump(exclude={"idempotency_key"}))
+            request = execution_data.model_dump(exclude={"idempotency_key", "profile_revision", "capability_class"})
+            # Keep the digest of pre-framework requests unchanged across upgrades.
+            if execution_data.profile_revision is not None:
+                request["profile_revision"] = execution_data.profile_revision
+            if execution_data.capability_class is not None:
+                request["capability_class"] = execution_data.capability_class
+            request_hash = management.digest(request)
         except (ValueError, TypeError):
             raise WorkflowAccessError("INVALID_ARGUMENTS", "Inputs must be finite JSON values") from None
 
@@ -229,12 +251,36 @@ class ExecutionService:
         )
         schema = workflow_input_schema(workflow)
         params = bind_arguments(execution_data.params or {}, schema)
+        profile = require_admission(
+            workflow, user_id, execution_data.profile_revision, params=params, transport=transport
+        )
+        requested_class = execution_data.capability_class
+        if requested_class is not None and profile["capabilityClass"] != requested_class:
+            raise WorkflowAccessError("CAPABILITY_NOT_ALLOWED", "Workflow is not admitted for the requested capability")
+        bounded_json = profile["capabilityClass"] in {"json-data", *SERVICE_READ_CLASSES}
+        if bounded_json:
+            # Bound the raw request before defaults, then again after binding.
+            validate_json_value(execution_data.params or {}, require_object=True)
+        data_contract = None
+        if bounded_json:
+            validate_json_value(params, require_object=True)
+            data_contract = json.dumps(
+                {
+                    "version": 1,
+                    "profileRevision": profile["revision"],
+                    "inputSchemaHash": profile["inputSchemaHash"],
+                    "outputSchema": profile["outputSchema"],
+                    "limits": JSON_LIMITS,
+                },
+                allow_nan=False,
+            )
         authorized = execution_data.model_copy(
             update={"project_id": workflow.project_id, "version": workflow.version, "params": params}
         )
         secrets = workflow_secret_fields(workflow, schema)
         requires_managed = bool(
-            key_hash is not None
+            bounded_json
+            or key_hash is not None
             or execution_data.execution_timeout is not None
             or secrets
             or any(type(value) not in (str, int, float) for value in params.values())
@@ -249,6 +295,7 @@ class ExecutionService:
             "request_hash": request_hash,
             "execution_timeout": execution_data.execution_timeout,
             "secret_fields": json.dumps(secrets) if secrets else None,
+            "data_contract": data_contract,
         }
         if capability:
             metadata.update(

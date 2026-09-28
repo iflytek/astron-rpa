@@ -6,11 +6,13 @@ must save `executionId` and use it to query or cancel the original execution.
 
 ## Tools and states
 
-The fixed tools are `astron_workflow_list`, `astron_workflow_get`,
+The read-only `astron_integration_get` reports the integration contract and Client
+readiness. The workflow control tools are `astron_workflow_list`, `astron_workflow_get`,
 `astron_workflow_execute`, `astron_execution_get` and `astron_execution_cancel`.
 Execute accepts `projectId`, optional `version`, `params`, `idempotencyKey` and
-`executionTimeout` (1–86400 seconds). REST uses the corresponding snake_case
-fields. Existing dynamic tools retain their synchronous result envelope.
+`executionTimeout` (1–86400 seconds), plus optional `profileRevision` to bind the
+request to a declaration. REST uses the corresponding snake_case fields.
+Existing dynamic tools retain their synchronous result envelope.
 
 | State | Evidence |
 | --- | --- |
@@ -22,13 +24,14 @@ fields. Existing dynamic tools retain their synchronous result envelope.
 | `unknown` | Observation is incomplete; the process may still be running |
 
 Confirmed terminal states are immutable. Responses include the published version,
-Client/run association, UTC accepted/started/finished timestamps, result and safe
-error. Historical records without the managed Client protocol retain their old
-capability limitations; a legacy database cancellation is reported as `unknown`.
+Client/run association, UTC accepted/started/finished timestamps, result, result
+visibility and safe error. Historical records without the managed Client protocol
+retain their old capability limitations; a legacy database cancellation is reported as `unknown`.
 
-`cancelRequested=true` records intent, not completion. Cancel rechecks ownership
-and current resource/version authorization. The command targets the bound Client
-and run, never the user's next task or `stop_current`. Completion racing with
+`cancelRequested=true` records intent, not completion. Cancel rechecks execution
+ownership, current workflow ownership and external-access authorization. Ordinary
+republication preserves management of accepted executions. The command targets
+the bound Client and run, never the user's next task or `stop_current`. Completion racing with
 cancel keeps a confirmed success. Unsupported Clients reject cancellation rather
 than changing the record to cancelled.
 
@@ -97,6 +100,10 @@ explicit `Z`/numeric offset; leap seconds are not accepted. Nullable fields must
 declare null support. Defaults are applied once; caller values are not coerced.
 Managed Client inputs are JSON literals and never enter expression evaluation.
 File/binary values, remote schema references and runtime objects are unsupported.
+The `json-data` capability class additionally bounds each request to 1 MiB of
+UTF-8 JSON, nesting depth 12, 200 object properties, 1,000 array items and
+100,000 characters per string. The node and service reject a value that exceeds
+these limits before dispatch; the server profile is authoritative.
 Legacy Clients without the managed protocol may receive only the original scalar
 inputs; rich JSON and declared secrets require an upgraded, connected Client.
 
@@ -168,4 +175,5 @@ platforms must use a protocol revision supported by their actual MCP client.
 Domain, certificates, private keys and ports remain deployer configuration. See
 [`docker/HTTPS_DEPLOYMENT.md`](../../docker/HTTPS_DEPLOYMENT.md) and
 [`EXTERNAL_INTEGRATION_SECURITY.md`](EXTERNAL_INTEGRATION_SECURITY.md).
-The independent Community Node and complete Client installer are stage 4 work.
+The [AstronRPA community node](../../integrations/n8n/n8n-nodes-astron-rpa/README.md)
+provides the n8n adapter for these contracts.

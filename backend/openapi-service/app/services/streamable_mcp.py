@@ -140,6 +140,7 @@ class ToolsConfig:
                     user_id=user_id,
                     wait=True,  # 这里等待结果，用同步方法
                     workflow_timeout=600,
+                    transport="mcp",
                 )
 
                 message = execution.get_result_as_dict()

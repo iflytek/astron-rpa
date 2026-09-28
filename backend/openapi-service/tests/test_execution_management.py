@@ -76,6 +76,10 @@ async def test_concurrent_duplicate_survives_new_sessions_and_reauthorizes(store
         assert len(db.execute(select(Execution)).scalars().all()) == 1
         db.get(Workflow, "project").version = 2
         db.commit()
+    assert (await accept()).id == first.id
+    with Session(engine) as db:
+        db.get(Workflow, "project").status = 0
+        db.commit()
     with pytest.raises(WorkflowAccessError):
         await accept()
     await asyncio.gather(*list(_execution_tasks))
@@ -190,6 +194,35 @@ async def test_timeout_requires_stop_receipt_and_secret_inputs_are_not_public(st
         assert snapshot["terminal"]
         assert snapshot["status"] == "timeout"
         assert "private-value" not in record.parameters
+    await asyncio.gather(*list(_execution_tasks))
+
+
+@pytest.mark.asyncio
+async def test_json_data_result_contract_rejects_schema_mismatch_without_persisting_data(store):
+    _, factory = store
+    execution_id = await accepted(factory)
+    async with factory() as db:
+        service = ExecutionService(db)
+        record = await service.get_execution_internal(execution_id)
+        record.data_contract = json.dumps(
+            {
+                "version": 1,
+                "limits": {
+                    "maxBytes": 1_048_576,
+                    "maxDepth": 12,
+                    "maxObjectProperties": 200,
+                    "maxArrayItems": 1_000,
+                    "maxStringLength": 100_000,
+                },
+                "outputSchema": {"type": "object", "required": ["value"]},
+            }
+        )
+        await db.commit()
+        assert await management.apply_receipt(service, record, receipt(record, "succeeded", result={"other": 1}))
+        assert record.status == "FAILED"
+        assert record.error == "UNSUPPORTED_RESULT"
+        assert json.loads(record.result) == {"code": "5001", "data": None}
+
     await asyncio.gather(*list(_execution_tasks))
 
 

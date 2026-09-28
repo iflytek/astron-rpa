@@ -66,7 +66,9 @@ async def dispatch_tool(user_id, name, arguments, request_id=None, session=None)
             validate_arguments(arguments, CONTROL_TOOLS[name].inputSchema)
             async with AsyncSessionLocal() as db:
                 service = WorkflowControlService(db)
-                if name == "astron_workflow_list":
+                if name == "astron_integration_get":
+                    payload = await service.get_integration(user_id)
+                elif name == "astron_workflow_list":
                     payload = await service.list_workflows(
                         user_id, arguments.get("offset", 0), arguments.get("limit", 100)
                     )
@@ -80,6 +82,8 @@ async def dispatch_tool(user_id, name, arguments, request_id=None, session=None)
                         arguments.get("version"),
                         arguments.get("idempotencyKey"),
                         arguments.get("executionTimeout"),
+                        arguments.get("profileRevision"),
+                        arguments.get("capabilityClass"),
                     )
                 elif name == "astron_execution_cancel":
                     payload = await service.cancel_execution(arguments["executionId"], user_id)

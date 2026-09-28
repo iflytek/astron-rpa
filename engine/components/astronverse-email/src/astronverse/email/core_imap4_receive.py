@@ -120,7 +120,7 @@ class EmailImap4Receive:
     """
 
     def __init__(self):
-        self.mail_handler: IMAP4_SSL
+        self.mail_handler: IMAP4_SSL | None = None
 
     def login(self, server, port: int, user, password):
         """登录邮箱服务器"""
@@ -152,7 +152,15 @@ class EmailImap4Receive:
         """
         return self.mail_handler.list()
 
-    def select(self, selector):
+    def logout(self):
+        """Release the session without CLOSE, which may expunge deleted mail."""
+        if self.mail_handler is not None:
+            try:
+                self.mail_handler.logout()
+            finally:
+                self.mail_handler = None
+
+    def select(self, selector, readonly=False):
         """
         选择收件箱（如“INBOX”，如果不知道可以调用showFolders）。
         若 selector 包含非 ASCII 字符（如中文），自动编码为 IMAP 修改版 UTF-7。
@@ -164,7 +172,7 @@ class EmailImap4Receive:
             logger.info(f"selecting folder: {selector!r} -> encoded: {encoded_selector}")
         else:
             encoded_selector = selector
-        result = self.mail_handler.select(encoded_selector)
+        result = self.mail_handler.select(encoded_selector, readonly=readonly)
         logger.info(f"select result: {result}")
         return result
 
@@ -191,7 +199,7 @@ class EmailImap4Receive:
         :param num:
         :return: msg
         """
-        data = self.mail_handler.fetch(num, "RFC822")
+        data = self.mail_handler.fetch(num, "(BODY.PEEK[])")
         if data[0] == "OK" and data[1] and data[1][0] and len(data[1][0]) > 1:
             decoded = decode_data(data[1][0][1])
             if decoded is not None:

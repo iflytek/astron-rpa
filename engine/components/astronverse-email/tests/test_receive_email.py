@@ -3,6 +3,8 @@ import sys
 from enum import Enum
 from types import ModuleType, SimpleNamespace
 
+import pytest
+
 
 class _AtomicFormType(Enum):
     CONTENTPASTE = "contentpaste"
@@ -53,13 +55,19 @@ def _install_email_module_stubs():
 
 
 _install_email_module_stubs()
-from astronverse.email import EmailServerType
-from astronverse.email import core_imap4_receive
+from astronverse.email import EmailServerType, core_imap4_receive
 
 Email = importlib.import_module("astronverse.email.email").Email
 
 
 class FakeEmailImap4Receive:
+    instances = []
+
+    def __init__(self):
+        self.instances.append(self)
+        self.logged_out = False
+        self.masked_mail_id = None
+
     def login(self, server, port, user, password):
         self.login_args = {
             "server": server,
@@ -68,8 +76,12 @@ class FakeEmailImap4Receive:
             "password": password,
         }
 
-    def select(self, selector):
+    def select(self, selector, readonly=False):
         self.selected_folder = selector
+        self.readonly = readonly
+
+    def logout(self):
+        self.logged_out = True
 
     def search(self, charset="utf-8", *criteria):
         return "OK", [b"1 2 3 4"]
@@ -108,3 +120,29 @@ def test_receive_email_returns_latest_messages_first(monkeypatch):
     )
 
     assert [item["subject"] for item in result] == ["subject-1", "subject-3"]
+    assert result[0]["from"] == ["sender", "sender@example.com"]
+    assert result[0]["to"] == ["receiver", "receiver@example.com"]
+    core = FakeEmailImap4Receive.instances[-1]
+    assert core.readonly is True
+    assert core.logged_out is True
+    assert core.masked_mail_id is None
+
+
+def test_mark_read_remains_explicit_and_session_is_released(monkeypatch):
+    monkeypatch.setattr(core_imap4_receive, "EmailImap4Receive", FakeEmailImap4Receive)
+    Email.receive_email(mask_as_read_flag=True, max_return_num=1)
+    core = FakeEmailImap4Receive.instances[-1]
+    assert core.readonly is False
+    assert core.masked_mail_id == b"1"
+    assert core.logged_out is True
+
+
+def test_search_failure_still_releases_session(monkeypatch):
+    def fail(*args):
+        raise RuntimeError("search failed")
+
+    monkeypatch.setattr(core_imap4_receive, "EmailImap4Receive", FakeEmailImap4Receive)
+    monkeypatch.setattr(FakeEmailImap4Receive, "search", fail)
+    with pytest.raises(RuntimeError):
+        Email.receive_email()
+    assert FakeEmailImap4Receive.instances[-1].logged_out is True

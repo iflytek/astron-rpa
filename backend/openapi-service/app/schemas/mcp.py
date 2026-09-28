@@ -2,6 +2,8 @@
 
 from mcp import types
 
+from app.schemas.integration import CAPABILITY_CLASSES
+
 
 def object_schema(properties: dict, required: list[str]) -> dict:
     return {"type": "object", "properties": properties, "required": required, "additionalProperties": False}
@@ -14,6 +16,14 @@ WORKFLOW_PROPERTIES = {
     "name": {"type": "string"},
     "description": {"type": "string"},
     "version": VERSION,
+    "admission": {"type": "object"},
+    "capabilityClass": {"type": ["string", "null"]},
+    "capabilities": {"type": ["array", "null"], "items": {"type": "string"}},
+    "componentOperations": {"type": ["array", "null"], "items": {"type": "string"}},
+    "allowedTransports": {
+        "type": ["array", "null"],
+        "items": {"enum": ["mcp", "rest"]},
+    },
 }
 WORKFLOW_SCHEMA = object_schema(WORKFLOW_PROPERTIES, list(WORKFLOW_PROPERTIES))
 EXECUTION_PROPERTIES = {
@@ -36,12 +46,20 @@ EXECUTION_PROPERTIES = {
         ]
     },
     "supportsCancel": {"type": "boolean"},
+    "resultVisibility": {"enum": ["json", "suppressed-for-secret-inputs"]},
 }
 EXECUTION_SCHEMA = object_schema(EXECUTION_PROPERTIES, list(EXECUTION_PROPERTIES))
 
 CONTROL_TOOLS = {
     tool.name: tool
     for tool in (
+        types.Tool(
+            name="astron_integration_get",
+            description="Read integration contract and Client readiness without starting an execution.",
+            inputSchema=object_schema({}, []),
+            outputSchema={"type": "object"},
+            annotations=types.ToolAnnotations(readOnlyHint=True, openWorldHint=False),
+        ),
         types.Tool(
             name="astron_workflow_list",
             description="List workflows enabled for the authenticated user. Use projectId for stable references.",
@@ -63,8 +81,13 @@ CONTROL_TOOLS = {
             description="Get an authorized workflow's published version and supported JSON input schema.",
             inputSchema=object_schema({"projectId": PROJECT_ID}, ["projectId"]),
             outputSchema=object_schema(
-                {**WORKFLOW_PROPERTIES, "inputSchema": {"type": "object"}, "supportsCancel": {"type": "boolean"}},
-                [*WORKFLOW_PROPERTIES, "inputSchema", "supportsCancel"],
+                {
+                    **WORKFLOW_PROPERTIES,
+                    "inputSchema": {"type": "object"},
+                    "supportsCancel": {"type": "boolean"},
+                    "profile": {"type": "object"},
+                },
+                [*WORKFLOW_PROPERTIES, "inputSchema", "supportsCancel", "profile"],
             ),
             annotations=types.ToolAnnotations(readOnlyHint=True, openWorldHint=False),
         ),
@@ -82,6 +105,8 @@ CONTROL_TOOLS = {
                     "params": {"type": "object"},
                     "idempotencyKey": {"type": "string", "minLength": 1, "maxLength": 200},
                     "executionTimeout": {"type": "integer", "minimum": 1, "maximum": 86400},
+                    "capabilityClass": {"enum": list(CAPABILITY_CLASSES)},
+                    "profileRevision": {"type": "string", "minLength": 1, "maxLength": 100},
                 },
                 ["projectId"],
             ),
@@ -101,7 +126,7 @@ CONTROL_TOOLS = {
         types.Tool(
             name="astron_execution_get",
             description=(
-                "Get an execution's status and result under the current user's workflow/version authorization. "
+                "Get an accepted execution under current ownership and external-access authorization. "
                 "A successful query can report a failed workflow. Unknown does not mean the client stopped."
             ),
             inputSchema=object_schema(

@@ -306,9 +306,10 @@ async def test_discovery_detail_and_execution_visibility_align(security_db):
     async with rest_client() as client:
         headers = {"Authorization": "Bearer owner-key"}
         listed = await client.get("/executions/get", headers=headers)
-        assert listed.json()["data"]["total"] == 1
-        assert [e["id"] for e in listed.json()["data"]["executions"]] == ["allowed"]
-        for execution in ["foreign", "disabled", "unpublished", "old-release", "missing"]:
+        assert listed.json()["data"]["total"] == 2
+        assert {e["id"] for e in listed.json()["data"]["executions"]} == {"allowed", "old-release"}
+        assert (await client.get("/executions/old-release", headers=headers)).status_code == 200
+        for execution in ["foreign", "disabled", "unpublished", "missing"]:
             result = await client.get("/executions/" + execution, headers=headers)
             assert result.status_code == 404
             assert result.json()["data"] is None
@@ -326,11 +327,14 @@ async def test_current_permissions_apply_to_rest_and_mcp_results(security_db, ch
             workflow.version = 3
         session.commit()
     async with factory() as db:
-        with pytest.raises(WorkflowAccessError, match="Execution not found"):
-            await WorkflowControlService(db).get_execution("allowed", "owner")
+        if change == "revoke-access":
+            with pytest.raises(WorkflowAccessError, match="Execution not found"):
+                await WorkflowControlService(db).get_execution("allowed", "owner")
+        else:
+            assert (await WorkflowControlService(db).get_execution("allowed", "owner"))["version"] == 2
     async with rest_client() as client:
         result = await client.get("/executions/allowed", headers={"Authorization": "Bearer owner-key"})
-    assert result.status_code == 404
+    assert result.status_code == (404 if change == "revoke-access" else 200)
 
 
 @pytest.mark.asyncio

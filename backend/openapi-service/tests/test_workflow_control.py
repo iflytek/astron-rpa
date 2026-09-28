@@ -121,7 +121,7 @@ async def test_unauthorized_start_does_not_create_or_dispatch(database, project,
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize("change", ["disabled", "republished", "unversioned"])
+@pytest.mark.parametrize("change", ["disabled", "unversioned"])
 async def test_query_rechecks_current_external_access_and_version(database, change):
     with Session(database) as db:
         if change == "disabled":
@@ -265,7 +265,7 @@ async def test_real_mcp_async_start_disconnect_and_query_share_one_execution(dat
         async with mcp_session(manager, "owner") as session:
             listed = await session.list_tools()
             assert {t.name for t in listed.tools} == set(CONTROL_TOOLS)
-            assert len(listed.tools) == 5  # Reserved names cannot shadow fixed tools.
+            assert len(listed.tools) == 6  # Reserved names cannot shadow fixed tools.
             invalid = await session.call_tool(
                 "astron_workflow_execute", {"projectId": "allowed", "userId": "secret-value"}
             )

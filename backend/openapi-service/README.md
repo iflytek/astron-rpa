@@ -161,15 +161,17 @@ These tools share the REST execution core and do not depend on workflow names, n
 
 | Tool | Input | Output |
 | --- | --- | --- |
-| `astron_workflow_list` | Optional `offset`, `limit` (1–100) | Authorized workflows and `nextOffset` |
-| `astron_workflow_get` | `projectId` | Published version, `inputSchema`, actual Client cancellation capability |
-| `astron_workflow_execute` | `projectId`, optional `params`, `version`, `idempotencyKey`, `executionTimeout` | Immediate execution snapshot including `executionId` |
+| `astron_integration_get` | None | Integration contract, supported operations and Client readiness; does not start work |
+| `astron_workflow_list` | Optional `offset`, `limit` (1–100) | Authorized workflows, admission summaries and `nextOffset` |
+| `astron_workflow_get` | `projectId` | Published version, `inputSchema`, declaration profile and actual Client cancellation capability |
+| `astron_workflow_execute` | `projectId`, optional `params`, `version`, `idempotencyKey`, `executionTimeout`, `profileRevision` | Immediate execution snapshot including `executionId` |
 | `astron_execution_get` | `executionId` | Execution state, result, or a safe error summary |
 | `astron_execution_cancel` | `executionId` | Cancellation intent or an already confirmed terminal state |
 
 Project IDs are strings. Starts require the authenticated user's current external-access release.
-Omitting `version` selects that release. Queries recheck ownership and current workflow/version authorization;
-disabling external access or changing the authorized release makes older executions unavailable through this entry point.
+Omitting `version` selects that release. Queries recheck execution ownership, current workflow ownership and external
+access. Ordinary republication preserves management of accepted executions; disabling external access, deleting
+the workflow or revoking the API key denies access.
 Control tool names are reserved; colliding dynamic workflows remain callable by project ID. Other dynamic tools retain
 their synchronous behavior.
 
@@ -179,7 +181,8 @@ unsupported parameter metadata are rejected. Tools advertise input and output JS
 Successful calls provide both `structuredContent` and equivalent JSON text. Tool errors use `isError=true` with
 `error.code/message`, without echoing arguments or internal exceptions.
 
-Managed snapshots include Client/run identity, UTC accepted/started/finished times and cancellation intent.
+Managed snapshots include Client/run identity, UTC accepted/started/finished times, cancellation intent and
+`resultVisibility`, which identifies results suppressed for secret inputs.
 States are `accepted`, `running`, `succeeded`, `failed`, `cancelled`, `timeout`, or `unknown`.
 Cancellation and execution timeout require actual stop confirmation; observation loss remains nonterminal `unknown`.
 Legacy Clients/records retain their capability limitations and cannot confirm a managed cancellation.
@@ -189,6 +192,67 @@ across retries and restarts. Calls without that key must not automatically retry
 uncertain MCP start by issuing a new REST start. Poll the original ID; caller wait expiry does not stop it.
 See [execution management](EXECUTION_MANAGEMENT.md) for the single-worker deployment requirement,
 durable reconciliation, supported protocols, input retention, migration and rollback limits.
+
+#### Integration admission
+
+The [AstronRPA community node](../../integrations/n8n/n8n-nodes-astron-rpa/README.md) uses these MCP tools.
+Set `INTEGRATION_POLICY_FILE` on OpenAPI to an administrator-owned JSON policy file. Its models are defined in
+[`app/services/integration_policy.py`](app/services/integration_policy.py). The empty policy is:
+
+```json
+{ "schemaVersion": 1, "enforcedUsers": [], "declarations": [] }
+```
+
+An empty policy admits no workflow through the community node. Add the intended user to `enforcedUsers`
+and a reviewed declaration for each approved project/version. Declarations bind the owner, project, version
+and input-schema digest. They describe capabilities, an optional capability class, file inputs/outputs,
+GUI/human requirements, environment, side effects, risk, execution type, exclusive-terminal requirements
+and an optional output schema. The `json-data` class requires both `capabilityClass: "json-data"` and
+`capabilities: ["json-data"]`; it rejects file transfer and GUI requirements and exposes bounded JSON
+limits in the workflow profile.
+
+Browser and service read classes additionally require `componentOperations`,
+`allowedTransports`, no declared business side effects, and a private `readOnlyReview`:
+
+```json
+{
+  "version": 1,
+  "boundedResources": true,
+  "readOnlyConnections": true,
+  "operationInputs": {
+    "Network.http_request": { "request_type": "get", "file_path": "", "save_type": "no" }
+  }
+}
+```
+
+The administrator must check the published workflow's actual operations and fixed arguments.
+Use an array of argument objects when the same operation occurs several times; operations
+without guarded switches still require `{}` entries. A direct input binding such as
+`{"parameter":"method"}` requires a schema enum containing only permitted values and is
+checked again at execution. SQL must be fixed, reviewed read SQL using read-only database
+credentials; dynamic SQL is not admitted. This is a trusted release review, not a sandbox
+or a general SQL firewall. Connection handles, element objects and iterators stay inside
+the workflow; public results must satisfy the frozen JSON schema and limits.
+
+HTTP is limited to GET/HEAD without upload or save; mail disables attachment saving and
+mark-as-read; browser extraction is single-page without file/data-table export. The public
+profile exposes `readContractVersion: 1`, not private SQL or review arguments. Review changes
+invalidate the profile revision. MCP remains primary. An explicitly admitted REST execution
+uses `?contract=1` for submission/query and `POST /executions/{id}/cancel`; these return the
+same authorized snapshot as MCP. Deploy the matching gateway Lua policy for these routes.
+
+Unknown values remain distinct from false. The supported declaration scope is `controlled-validation`;
+file-transfer declarations are rejected. The data contract currently limits encoded JSON to 1 MiB, nesting
+depth to 12, object properties to 200, array items to 1,000 and each string to 100,000 characters.
+
+Within the enrolled user scope, fixed MCP, dynamic MCP and REST starts share admission checks; unknown,
+incomplete, stale or denied declarations are rejected. Users outside this scope retain their existing entry
+points but have no community-node admission. A malformed configured file rejects new starts instead of
+silently disabling policy enforcement.
+
+The public revision is a digest of the complete declaration. Changing any declaration content changes that
+revision even when its human label is unchanged. `profileRevision` binds a prepared request to it.
+Same-key recovery returns an authorized existing receipt without requiring a new declaration for that execution.
 
 ## 🚀 Quick Start
 

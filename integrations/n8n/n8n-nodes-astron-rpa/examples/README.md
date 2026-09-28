@@ -1,0 +1,3 @@
+Import `execute-and-query.json`, choose your own credentials on both nodes and replace the project/version/business key with an approved release. Query returns the current state; it does not imply completion. For node-owned durable completion, set the Execute node's mode to **Wait**; no external Wait loop is required. Use **Cancel Execution** with the exact returned ID when cancellation is intended.
+
+These are configuration examples, not admitted RPA test fixtures. They contain no deployment endpoints or credential values. On native error output, parse the safe JSON envelope in `$json.error`, for example `JSON.parse($json.error).executionId`.

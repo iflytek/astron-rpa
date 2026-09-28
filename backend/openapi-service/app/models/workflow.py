@@ -1,6 +1,7 @@
 import json
 
 from sqlalchemy import Boolean, Column, DateTime, Integer, String, Text, UniqueConstraint, func
+from sqlalchemy.dialects.mysql import MEDIUMTEXT
 
 from app.database import Base
 
@@ -16,7 +17,7 @@ class Workflow(Base):
     description = Column(String(500), nullable=True)
     version = Column(Integer, nullable=False, default=1)
     status = Column(Integer, default=1, nullable=False)
-    parameters = Column(Text, nullable=True)  # 存储JSON字符串格式的参数
+    parameters = Column(Text().with_variant(MEDIUMTEXT(), "mysql"), nullable=True)  # 存储JSON字符串格式的参数
     user_id = Column(String(50), nullable=False, index=True)
     example_project_id = Column(String(100), nullable=True)  # 示例用户账号下的project_id，用于执行时映射
     created_at = Column(DateTime, default=func.now(), nullable=False)
@@ -73,8 +74,8 @@ class Execution(Base):
     id = Column(String(36), primary_key=True, index=True)  # UUID格式
     project_id = Column(String(100), nullable=False, index=True)
     status = Column(String(20), default="PENDING", nullable=False)
-    parameters = Column(Text, nullable=True)
-    result = Column(Text, nullable=True)
+    parameters = Column(Text().with_variant(MEDIUMTEXT(), "mysql"), nullable=True)
+    result = Column(Text().with_variant(MEDIUMTEXT(), "mysql"), nullable=True)
     error = Column(Text, nullable=True)
     user_id = Column(String(50), nullable=False, index=True)
     exec_position = Column(String(50), default="EXECUTOR", nullable=False)  # 执行位置
@@ -94,6 +95,7 @@ class Execution(Base):
     cancel_requested = Column(Boolean, nullable=False, default=False, server_default="0")
     cancel_supported = Column(Boolean, nullable=False, default=False, server_default="0")
     secret_fields = Column(Text, nullable=True)
+    data_contract = Column(Text().with_variant(MEDIUMTEXT(), "mysql"), nullable=True)
 
     def to_dict(self):
         """将Execution对象转换为可序列化的字典"""

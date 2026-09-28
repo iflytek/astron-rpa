@@ -9,12 +9,14 @@ from datetime import UTC
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.workflow import Execution, Workflow
+from app.schemas.integration import CAPABILITY_CLASSES
 from app.schemas.workflow import ExecutionCreate
 from app.security.workflow_authorization import WorkflowAccessError
 from app.services import execution_management as management
 from app.services.execution import ExecutionService
+from app.services.integration_policy import workflow_profile
 from app.services.workflow import WorkflowService
-from app.services.workflow_schema import validate_arguments, workflow_input_schema
+from app.services.workflow_schema import JSON_LIMITS, validate_arguments, workflow_input_schema
 
 __all__ = ["WorkflowControlError", "WorkflowControlService", "validate_arguments", "workflow_input_schema"]
 
@@ -31,11 +33,27 @@ class WorkflowControlService:
 
     @staticmethod
     def _workflow_summary(workflow: Workflow) -> dict:
+        try:
+            profile = workflow_profile(workflow, workflow.user_id)
+            admission = profile["admission"]
+        except WorkflowControlError as exc:
+            admission = {"allowed": False, "reason": exc.code, "enforced": None}
+            profile = {
+                "capabilityClass": None,
+                "capabilities": None,
+                "componentOperations": None,
+                "allowedTransports": None,
+            }
         return {
             "projectId": workflow.project_id,
             "name": workflow.name,
             "description": workflow.description or "",
             "version": workflow.version,
+            "admission": admission,
+            "capabilityClass": profile["capabilityClass"],
+            "capabilities": profile["capabilities"],
+            "componentOperations": profile["componentOperations"],
+            "allowedTransports": profile["allowedTransports"],
         }
 
     async def list_workflows(self, user_id: str, offset: int = 0, limit: int = 100) -> dict:
@@ -52,6 +70,28 @@ class WorkflowControlService:
             **self._workflow_summary(workflow),
             "inputSchema": workflow_input_schema(workflow),
             "supportsCancel": bool(capability and capability.get("supportsCancel")),
+            "profile": workflow_profile(workflow, user_id),
+        }
+
+    async def get_integration(self, user_id: str) -> dict:
+        client = {"state": "unsupported", "protocol": None, "supportsCancel": False}
+        try:
+            capability = await management.capabilities(user_id, required=True)
+            if capability:
+                client = {"state": "ready", "protocol": 1, "supportsCancel": capability.get("supportsCancel") is True}
+        except WorkflowControlError as exc:
+            client["state"] = "offline" if exc.code == "CLIENT_OFFLINE" else "unconfirmed"
+        return {
+            "contractVersion": 1,
+            "serviceVersion": "1.0.0+public-framework.1",
+            "profileSchemaVersion": 1,
+            "requiredClientProtocol": 1,
+            "durableIdempotency": True,
+            "operations": ["workflow_list", "workflow_get", "workflow_execute", "execution_get", "execution_cancel"],
+            "capabilityClasses": list(CAPABILITY_CLASSES),
+            "jsonLimits": JSON_LIMITS.copy(),
+            "client": client,
+            "limitations": ["single-openapi-owner", "controlled-validation", "secret-inputs-suppress-results"],
         }
 
     async def execute_workflow(
@@ -62,9 +102,13 @@ class WorkflowControlService:
         version: int | None = None,
         idempotency_key: str | None = None,
         execution_timeout: int | None = None,
+        profile_revision: str | None = None,
+        capability_class: str | None = None,
     ) -> dict:
         # Fixed tools use canonical project IDs; legacy alias resolution stays REST-only.
-        await self._authorized_workflow(project_id, user_id, version)
+        # A same-key replay must reach the durable receipt before new-release
+        # admission. Still reject the legacy example-project alias here.
+        await self._authorized_workflow(project_id, user_id, None if idempotency_key else version)
         execution = await self.executions.execute_authorized_workflow(
             ExecutionCreate(
                 project_id=project_id,
@@ -72,9 +116,12 @@ class WorkflowControlService:
                 params=params,
                 idempotency_key=idempotency_key,
                 execution_timeout=execution_timeout,
+                profile_revision=profile_revision,
+                capability_class=capability_class,
             ),
             user_id,
             wait=False,
+            transport="mcp",
         )
         return self.execution_result(execution)
 
@@ -152,4 +199,5 @@ class WorkflowControlService:
             "result": result,
             "error": error,
             "supportsCancel": bool(execution.protocol == 1 and execution.cancel_supported and not terminal),
+            "resultVisibility": "suppressed-for-secret-inputs" if execution.secret_fields else "json",
         }

@@ -19,6 +19,10 @@ yarn-error.log*
 
 # Python
 __pycache__/
+.ruff_cache/
+.pytest_cache/
+.venv/
+/venvs/
 *.py[cod]
 *$py.class
 build/
@@ -93,6 +97,7 @@ ehthumbs.db
 # Logs
 *.log
 logs/
+/log/
 
 # Runtime data
 pids
