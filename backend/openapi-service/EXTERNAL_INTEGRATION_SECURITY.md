@@ -43,8 +43,8 @@ contract. Supplying tenant/user IDs in request data does not establish a grant.
 | --- | --- | --- |
 | Fixed MCP list/get | API key | Owner, external access enabled, valid published version; fixed tools require exact projectId |
 | Dynamic MCP discovery/call | API key | Same owner/open-release policy; startup rechecks the version resolved during discovery |
-| Fixed MCP / REST start | API key | Authorized project/current version before record creation or dispatch; executor only; no delegated phone identity |
-| MCP execution get / REST execution list/get | API key | Execution owner and current workflow owner, enabled external access and matching published version |
+| Fixed MCP / REST start | API key | Authorized project/current version and enrolled-scope admission before record creation or dispatch; executor only; no delegated phone identity |
+| MCP execution get/cancel / REST execution list/get | API key | Execution owner and current workflow owner, enabled external access and a valid accepted execution version |
 | REST workflow list/get with API key | API key | Current owner's open, published workflows; legacy example alias may resolve only to that owner's authorized copy |
 | Key create/list/revoke, workflow upsert, Astron credential management | Authenticated desktop session through the private gateway | Current user; API keys cannot mint keys or grant external workflow access |
 | `/workflows/stop-current` | API key | Targets the authenticated user's client only; no caller-selected target identity |
@@ -52,10 +52,11 @@ contract. Supplying tenant/user IDs in request data does not establish a grant.
 | `/health/local-check` | API key | Compares a diagnostic client identity; the supplied comparison value does not authorize access |
 | `/users/register`, `/users/get-key`, cross-user copy/delegated start | Disabled | Historical shared tokens/phone lookups do not prove a delegation grant |
 
-A republish or external-access revocation hides earlier execution records from
-these external entry points, including REST list counts. It does not stop an
-already accepted task. Missing and invisible resources have equivalent denial
-behavior. REST start uses 404 for unavailable projects and 403 for a disallowed
+Ordinary republication preserves access to already accepted execution records.
+External-access revocation, workflow deletion or ownership changes deny access,
+including through REST list counts; API key revocation denies requests. These
+changes do not stop an already accepted task. Missing and invisible resources
+have equivalent denial behavior. REST start uses 404 for unavailable projects and 403 for a disallowed
 version or execution mode. Execution detail uses 404. Workflow detail preserves
 its existing response envelope with no data for an unavailable resource. MCP
 tool denials use `isError`/safe business errors, not HTTP authorization statuses.
@@ -66,24 +67,24 @@ release to that owner's keys. Reading workflow metadata is not the same as
 executing a workflow that happens to perform read-only business work. MCP tool
 annotations and n8n node filtering do not constrain server-side authorization.
 
-## Capability templates for subsequent stages
+## Workflow capability boundaries
 
-| Capability | Required approval before formal platform support |
+| Capability | Integration requirement |
 | --- | --- |
 | Metadata read | Authenticated owner and allowed workflow; no execution as a connection test |
 | Read-only business workflow | Explicitly enabled release, controlled inputs and external credentials |
-| External write | Separate reviewed workflow/identity and no automatic start retries until idempotency exists |
+| External write | Separate reviewed workflow/identity; recover uncertain starts with the original stable business key |
 | Files / Office | Authorized file handles, access limits and lifetime policy; no arbitrary local paths |
 | Desktop / UI | Authorized executor, session readiness and real stop confirmation |
 | AI automatic invocation | Allowed tools/inputs and independent authorization; model output is not a grant |
 | High-risk/irreversible work | Reviewed allowlist and human approval or prohibition of automatic invocation |
 
 These are admission requirements, not newly implemented per-key capability
-scopes. Existing explicitly published workflows retain their capabilities under
-the current owner/release policy. The stable MCP input slice still rejects file,
-password and complex runtime inputs. No new capability family or platform plugin
-is enabled by this security change. Operators must publish only workflows they
-intend to allow the integration identity to execute.
+scopes. Administrator-owned declarations apply additional admission checks to
+enrolled users across fixed MCP, dynamic MCP and REST. Supported JSON and declared
+secret inputs follow the [execution management contract](EXECUTION_MANAGEMENT.md);
+file and runtime objects remain unsupported. Operators must publish only workflows
+they intend to allow the integration identity to execute.
 
 ## Key lifecycle and migration
 
@@ -115,35 +116,32 @@ Compatibility changes to review before deployment:
   editor execution or another user's phone. Unknown top-level execution fields
   are rejected; use `params` for business inputs.
 - Legacy shared-token phone key provisioning and cross-user copy return denials.
-  Use authenticated key management; delegated execution requires a future,
-  verified permission model, not an opt-out flag.
-- Existing external callers needing old-version results must obtain them before
-  changing the authorized release or revoking access. Retaining an execution ID
-  does not guarantee authorization to read it indefinitely.
+  Use authenticated key management; delegated execution is unsupported.
+- Existing external callers retain access to accepted executions after ordinary
+  republication. Revoking access still denies reads and cancellation; retaining
+  an execution ID does not establish authorization.
 - Legacy user provisioning may have stored plaintext `default_api_key` values in
   historical user records. This change blocks that public provisioning path; it
   does not rewrite existing database rows or backups. Inventory affected keys,
   rotate/revoke them, and remove obsolete plaintext copies under the deployment's
   data-retention policy. No automatic destructive data migration is performed.
 
-There is no schema migration in this stage. New scopes, automatic expiration,
-shared-tenant authorization and delegated identities require their own server
-model, migration and tests before being advertised.
+Per-key scopes, automatic expiration, shared-tenant authorization and delegated
+identities are not provided by this contract.
 
-## n8n Credentials design (implementation in stage 4)
+## n8n Credentials
 
 | Field | Contract |
 | --- | --- |
 | MCP Endpoint | Full deployment-supplied HTTPS URL including its configured path; do not guess or discard path segments |
 | API Key | Secret credential field; standard Bearer header, never query data |
-| Protocol | The currently validated Streamable HTTP mode; no automatic protocol upgrade/fallback |
-| REST Base URL | Explicit optional auxiliary address; do not derive it by replacing parts of the MCP URL |
+| Protocol | MCP `2025-11-25` over Streamable HTTP; no automatic protocol upgrade/fallback |
 
 Use normal certificate-chain/hostname validation. Loopback/tunnel transport is
-only a development test environment, not a Community Node requirement. Native
-n8n MCP Client with `httpBearerAuth` validates this transport now; the independent
-AstronRPA Credentials UI/package is implemented under `integrations/n8n/` in
-stage 4. Do not add an empty package or n8n SDK dependency to the Python service.
+only a development test environment, not a Community Node requirement. The
+[AstronRPA community node](../../integrations/n8n/n8n-nodes-astron-rpa/README.md)
+provides the Credentials UI and uses MCP for all business operations. Its n8n SDK
+dependency is confined to the independent node package.
 
 Connection testing may initialize MCP, discover tools and perform an authorized
 read. It must not call execute/stop, use REST fallback starts, or auto-retry a
@@ -203,7 +201,7 @@ bundled `rpawebsocket` 1.0.7 listener; it preserves the existing wire protocol
 and does not implement persistent execution recovery after a service restart.
 
 Unit/ASGI tests and isolated OpenResty tests do not constitute production TLS
-acceptance. Stage 2 exit additionally requires trusted HTTPS/WSS with the actual
+acceptance. Deployment validation requires trusted HTTPS/WSS with the actual
 deployment domain, wrong/expired certificate rejection, real n8n/desktop success,
 business failure, offline/busy and timeout/same-ID continuation, redaction checks
 and certificate replacement/recovery. Record unavailable conditions as untested.
@@ -213,5 +211,5 @@ error data. Legitimate workflow results may contain business secrets: restrict
 history access, retention and exports. Managed execution extends this security
 contract with durable idempotency, reconciliation and confirmed cancellation;
 see [execution management](EXECUTION_MANAGEMENT.md). Cancellation uses the same
-ownership and current resource/version checks. Legacy Clients retain
-`supportsCancel=false`; revoking a Key still does not cancel running work.
+execution ownership and current workflow ownership/external-access checks. Legacy
+Clients retain `supportsCancel=false`; revoking a Key still does not cancel running work.

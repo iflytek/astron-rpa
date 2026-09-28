@@ -1,0 +1,216 @@
+{
+  "scope": "n8n MCP community node public framework; controlled single-instance validation",
+  "clientSupport": {
+    "supportedClient": "Repository-matched Windows client verified by source comparison and integration tests",
+    "desktopVersion": "1.1.8.0",
+    "requiredClientProtocol": 1,
+    "rejectsInsufficientCapabilities": true,
+    "silentFallback": false
+  },
+  "quality": {
+    "openapiTestsPassed": 203,
+    "nodeTestsPassed": 19,
+    "nodeBuildTypecheckLintFormat": "passed",
+    "makeVersion": "4.4.1",
+    "makeCheckCurrentExit": 2,
+    "makeCheckStoppingTarget": "makefiles/typescript.mk:62 check-typescript: frontend root has no tsconfig.json",
+    "makeCheckFullPass": false,
+    "makeCheckReferenceExit": 2,
+    "makeCheckComparison": "Unmodified source and changed source checked in independent snapshots with the same dependencies"
+  },
+  "cleanInstall": {
+    "case": "clean tarball installation and process restart",
+    "nodeAndCredentialsLoaded": true,
+    "executionIds": [
+      1,
+      2
+    ],
+    "statuses": [
+      "success",
+      "success"
+    ],
+    "workflowCounts": [
+      4,
+      4
+    ],
+    "mode": "n8n public CLI with fresh user-data directory; no source links"
+  },
+  "consistency": {
+    "openapiFiles": 44,
+    "openapiMismatches": [],
+    "installedDistFiles": 14,
+    "installedDistMismatches": [],
+    "tarballFiles": 17,
+    "installedTarballMismatches": [],
+    "tarballSha256": "e15d277304977299e927bdbd8bb679ccaa46300d605faa7b891a2cc9802c421e",
+    "client": [
+      {
+        "component": "scheduler",
+        "files": 64,
+        "mismatches": []
+      },
+      {
+        "component": "executor",
+        "files": 31,
+        "mismatches": []
+      }
+    ]
+  },
+  "clientReceipts": [
+    {
+      "case": "concurrent",
+      "executionId": "3248e5df-98a6-4288-8662-26c14b653062",
+      "receipts": 1,
+      "runId": "2100159487900938240",
+      "status": "succeeded"
+    },
+    {
+      "case": "failed",
+      "executionId": "2b29fe13-1194-491b-8cb2-529c0f8ac310",
+      "receipts": 1,
+      "runId": "2100159590371979264",
+      "status": "failed"
+    },
+    {
+      "case": "newFailed",
+      "executionId": "cf2e6a61-acb0-4caa-827a-6726e274578b",
+      "receipts": 1,
+      "runId": "2100159666326630400",
+      "status": "failed"
+    },
+    {
+      "case": "preid",
+      "executionId": "1ea82841-ceb3-427a-8455-a48036530dc6",
+      "receipts": 1,
+      "runId": "2100160185287864320",
+      "status": "succeeded"
+    }
+  ],
+  "preidRestart": {
+    "n8nParent": "322",
+    "n8nChild": 323,
+    "originalDeadline": 1789552418684,
+    "restoredDeadlines": [
+      1789552418684
+    ],
+    "executions": [
+      {
+        "id": "1ea82841-ceb3-427a-8455-a48036530dc6",
+        "runId": "2100160185287864320",
+        "version": 3,
+        "status": "succeeded",
+        "pairedItem": {
+          "item": 0
+        }
+      }
+    ]
+  },
+  "batchRestart": {
+    "n8nParent": "324",
+    "n8nChild": 325,
+    "originalDeadline": 1789552525642,
+    "restoredDeadlines": [
+      1789552525642
+    ],
+    "executions": [
+      {
+        "id": "7757323d-8ff2-494a-923b-0e26d526ae72",
+        "runId": "2100160592483479552",
+        "version": 1,
+        "status": "succeeded",
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "id": "5fc054c1-2419-4b90-a31e-f3f0eb9e5c48",
+        "runId": "2100160634451685376",
+        "version": 3,
+        "status": "succeeded",
+        "pairedItem": {
+          "item": 1
+        }
+      },
+      {
+        "id": "0e7f2415-99e6-4d03-aa89-9cab4feca39e",
+        "runId": "2100160810352406528",
+        "version": 1,
+        "status": "succeeded",
+        "pairedItem": {
+          "item": 2
+        }
+      }
+    ]
+  },
+  "duplicateWake": {
+    "case": "duplicate and late wake",
+    "child": 329,
+    "parent": "328",
+    "executionId": "f5733986-a63c-42c2-9f3e-b2bdbd192a1c",
+    "deadline": 1789552640973,
+    "duplicateHTTP": [
+      500,
+      200
+    ],
+    "lateHTTP": 409,
+    "status": "succeeded",
+    "resultSource": "MCP"
+  },
+  "clientRestart": {
+    "queryN8n": 332,
+    "sameKeyWaitN8n": 333,
+    "executionId": "eb11d804-723e-4923-9350-41991014e07a",
+    "runId": "2100162066642923520",
+    "status": "unknown",
+    "code": "CLIENT_RESTARTED",
+    "waitError": "WAIT_BUDGET_EXPIRED",
+    "sameIdPreserved": true,
+    "automaticRerun": false
+  },
+  "designerPublication": {
+    "publicVersion": 4,
+    "declaredVersion": 4,
+    "draftAndPublishedContentHash": "9e8ed603ad37ebf22237de616f5d0569ee91f8085ee7ac7677867a21c7a70742",
+    "newReleaseInitiallyDenied": "PROFILE_UNKNOWN",
+    "version4PublishedAtUTC": "2026-09-16T10:01:21Z",
+    "oldExecutionFinishedAtUTC": "2026-09-16T10:00:59Z",
+    "runningDuringUIPublish": false,
+    "oldExecutionId": "4eb78bf3-da73-4223-8ec4-c1b12971687d",
+    "oldQueryCancelReplayN8n": [
+      339,
+      340,
+      341
+    ],
+    "finalSmokeN8n": 343,
+    "finalSmokeExecutionId": "a83cc3db-421e-4a42-81d5-f9164be69a4d",
+    "finalSmokeStatus": "succeeded"
+  },
+  "finalHealth": {
+    "n8nHealth": 200,
+    "clientState": "ready",
+    "testWorkflowsPublished": 0,
+    "testN8nExecutionsPending": 0,
+    "removedTestWebhookHTTP": 404,
+    "expectedUnknownClientReceipts": 1,
+    "expectedUnknownExecutionId": "eb11d804-723e-4923-9350-41991014e07a"
+  },
+  "cleanup": {
+    "testWebhooksUnpublished": true,
+    "isolatedN8nStopped": true,
+    "isolatedN8nDatabaseAndEncryptionConfigRemoved": true,
+    "plaintextTemporaryCredentialsRemoved": true,
+    "executionEvidencePreserved": true,
+    "realSecretsFoundInChangedRepositoryFiles": 0,
+    "n8nRestartedWithoutFaultHook": true
+  },
+  "incompleteChecks": [
+    {
+      "item": "entire make check succeeds",
+      "reason": "The unmodified source and changed source have the same frontend root TypeScript configuration failure; aggregate checks after the stopping target were not executed."
+    },
+    {
+      "item": "in-flight execution combined with full desktop UI publication",
+      "reason": "The controlled execution finished before publication; a desktop window targeting failure prevented completing the combined scenario. Running metadata changes and full UI publication were verified separately."
+    }
+  ]
+}

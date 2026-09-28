@@ -2,6 +2,7 @@
 
 import copy
 import json
+import math
 import re
 from datetime import datetime
 
@@ -11,6 +12,17 @@ from jsonschema.exceptions import SchemaError, ValidationError
 from app.security.workflow_authorization import WorkflowAccessError
 
 FORMATS = FormatChecker()
+
+# The data-workflow contract is deliberately bounded before values reach MCP,
+# n8n history or the desktop client. Keep these values in one place so the
+# server and node can expose and test the same limits.
+JSON_LIMITS = {
+    "maxBytes": 1_048_576,
+    "maxDepth": 12,
+    "maxObjectProperties": 200,
+    "maxArrayItems": 1_000,
+    "maxStringLength": 100_000,
+}
 
 
 @FORMATS.checks("date-time", raises=ValueError)
@@ -56,23 +68,82 @@ KEYWORDS = {
     "minItems",
     "maxItems",
     "uniqueItems",
+    "minProperties",
+    "maxProperties",
     "items",
     "format",
     "writeOnly",
 }
 
 
+def validate_json_value(value, *, require_object=False, limits=None):
+    """Bound plain JSON before copying, validation, serialization or persistence."""
+    limits = JSON_LIMITS if limits is None else limits
+    invalid = "Arguments do not match the JSON input schema"
+    if require_object and type(value) is not dict:
+        raise WorkflowAccessError("INVALID_ARGUMENTS", invalid)
+    budget = 0
+
+    def visit(current, depth=0):
+        nonlocal budget
+        kind = type(current)
+        if kind in (dict, list) and depth > limits["maxDepth"]:
+            raise WorkflowAccessError("JSON_LIMIT_EXCEEDED", "JSON nesting exceeds the maximum depth")
+        if current is None or kind is bool:
+            budget += len(json.dumps(current))
+        elif kind in (int, float):
+            unsafe_float = kind is float and (
+                not math.isfinite(current) or (current.is_integer() and abs(current) > 9_007_199_254_740_991)
+            )
+            if (kind is int and abs(current) > 9_007_199_254_740_991) or unsafe_float:
+                raise WorkflowAccessError("INVALID_ARGUMENTS", invalid)
+            budget += len(str(current))
+        elif kind is str:
+            # Unicode scalar values match Array.from(string).length in the node.
+            if len(current) > limits["maxStringLength"]:
+                raise WorkflowAccessError("JSON_LIMIT_EXCEEDED", "JSON string exceeds the maximum length")
+            try:
+                budget += len(current.encode("utf-8"))
+            except UnicodeEncodeError:
+                raise WorkflowAccessError("INVALID_ARGUMENTS", invalid) from None
+        elif kind is dict:
+            if len(current) > limits["maxObjectProperties"]:
+                raise WorkflowAccessError("JSON_LIMIT_EXCEEDED", "JSON object has too many properties")
+            budget += 2
+            for key, child in current.items():
+                if type(key) is not str:
+                    raise WorkflowAccessError("INVALID_ARGUMENTS", invalid)
+                visit(key, depth + 1)
+                visit(child, depth + 1)
+        elif kind is list:
+            if len(current) > limits["maxArrayItems"]:
+                raise WorkflowAccessError("JSON_LIMIT_EXCEEDED", "JSON array has too many items")
+            budget += 2
+            for child in current:
+                visit(child, depth + 1)
+        else:
+            raise WorkflowAccessError("INVALID_ARGUMENTS", invalid)
+        if budget > limits["maxBytes"]:
+            raise WorkflowAccessError("JSON_LIMIT_EXCEEDED", "JSON value exceeds the maximum size")
+
+    visit(value)
+    encoded = json.dumps(value, ensure_ascii=False, allow_nan=False, separators=(",", ":"))
+    if len(encoded.encode("utf-8")) > limits["maxBytes"]:
+        raise WorkflowAccessError("JSON_LIMIT_EXCEEDED", "JSON value exceeds the maximum size")
+    return value
+
+
 def validate_arguments(arguments, schema):
     try:
-        json.dumps(arguments, allow_nan=False)
+        validate_json_value(arguments, require_object=True)
         Draft202012Validator.check_schema(schema)
         Draft202012Validator(schema, format_checker=FORMATS).validate(arguments)
-    except (ValueError, TypeError, ValidationError, SchemaError):
+    except (ValueError, TypeError, RecursionError, ValidationError, SchemaError):
         raise WorkflowAccessError("INVALID_ARGUMENTS", "Arguments do not match the tool input schema") from None
 
 
 def _property(source, depth=0):
-    if not isinstance(source, dict) or set(source) - KEYWORDS or depth > 12:
+    if not isinstance(source, dict) or set(source) - KEYWORDS or depth > JSON_LIMITS["maxDepth"]:
         raise ValueError
     prop = copy.deepcopy(source)
     kind = prop.get("type")
@@ -134,7 +205,23 @@ def workflow_input_schema(workflow):
                     prop["writeOnly"] = True
                 if kind == "object":
                     prop["additionalProperties"] = True
-                for keyword in ("enum", "minimum", "maximum", "minLength", "maxLength", "items", "properties"):
+                for keyword in (
+                    "enum",
+                    "minimum",
+                    "maximum",
+                    "exclusiveMinimum",
+                    "exclusiveMaximum",
+                    "minLength",
+                    "maxLength",
+                    "minItems",
+                    "maxItems",
+                    "uniqueItems",
+                    "minProperties",
+                    "maxProperties",
+                    "items",
+                    "properties",
+                    "additionalProperties",
+                ):
                     if keyword in param and not secret:
                         prop[keyword] = copy.deepcopy(param[keyword])
                 default = param.get("varValue")
@@ -153,23 +240,58 @@ def workflow_input_schema(workflow):
         Draft202012Validator.check_schema(schema)
         json.dumps(schema, allow_nan=False)
         return schema
-    except (KeyError, TypeError, ValueError, SchemaError, ValidationError):
+    except (KeyError, TypeError, ValueError, AttributeError, RecursionError, SchemaError, ValidationError):
         raise WorkflowAccessError("UNSUPPORTED_PARAMETERS", "Workflow inputs require a supported JSON schema") from None
 
 
 def bind_arguments(arguments, schema):
-    """Apply declared defaults once, without coercing caller input values."""
-    values = copy.deepcopy(arguments)
-    if isinstance(values, dict):
-        for key, prop in schema.get("properties", {}).items():
-            if key not in values and "default" in prop:
-                values[key] = copy.deepcopy(prop["default"])
-            if key in values:
-                values[key] = bind_arguments(values[key], prop)
-    elif isinstance(values, list) and "items" in schema:
-        values = [bind_arguments(item, schema["items"]) for item in values]
+    """Apply defaults once, validate once, and never coerce input values."""
+
+    def bind(value, prop):
+        if isinstance(value, dict):
+            properties = prop.get("properties", {})
+            extra = prop.get("additionalProperties")
+            for key, child_schema in properties.items():
+                if key not in value and "default" in child_schema:
+                    value[key] = copy.deepcopy(child_schema["default"])
+                if key in value:
+                    value[key] = bind(value[key], child_schema)
+            if isinstance(extra, dict):
+                for key in value.keys() - properties.keys():
+                    value[key] = bind(value[key], extra)
+        elif isinstance(value, list) and "items" in prop:
+            value = [bind(item, prop["items"]) for item in value]
+        return value
+
+    values = bind(copy.deepcopy(arguments), schema)
     validate_arguments(values, schema)
     return values
+
+
+def data_output_schema(source):
+    """Optional JSON result schema, without references, defaults or secret output declarations."""
+    if source is None:
+        return None
+    try:
+        result = _property(source)
+        Draft202012Validator.check_schema(result)
+
+        def check(prop):
+            if "default" in prop or prop.get("writeOnly") or prop.get("format") == "password":
+                raise ValueError
+            for child in prop.get("properties", {}).values():
+                check(child)
+            for key in ("items", "additionalProperties"):
+                if isinstance(prop.get(key), dict):
+                    check(prop[key])
+
+        check(source)
+        encoded = json.dumps(result, ensure_ascii=False, allow_nan=False, separators=(",", ":"))
+        if len(encoded.encode("utf-8")) > JSON_LIMITS["maxBytes"]:
+            raise ValueError
+        return result
+    except (KeyError, TypeError, ValueError, RecursionError, SchemaError, ValidationError):
+        raise WorkflowAccessError("UNSUPPORTED_OUTPUT_SCHEMA", "Output requires a supported JSON schema") from None
 
 
 def secret_fields(schema):

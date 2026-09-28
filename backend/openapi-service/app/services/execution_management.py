@@ -9,10 +9,13 @@ import hashlib
 import json
 from datetime import UTC, datetime
 
+from jsonschema import Draft202012Validator
+from jsonschema.exceptions import SchemaError, ValidationError
 from sqlalchemy import select, update
 
 from app.models.workflow import Execution
 from app.security.workflow_authorization import WorkflowAccessError
+from app.services.workflow_schema import validate_json_value
 
 TERMINAL = ("COMPLETED", "FAILED", "CANCELLED", "TIMEOUT")
 CLIENT_STATES = {
@@ -38,6 +41,32 @@ ERRORS = {
     "DISPATCH_EXPIRED",
     "STOP_UNCONFIRMED",
 }
+
+
+def _validate_data_result(record, value):
+    """Validate a JSON-data result against the frozen execution contract."""
+    if not record.data_contract:
+        return True
+    try:
+        contract = json.loads(record.data_contract)
+        if not isinstance(contract, dict) or contract.get("version") != 1:
+            return False
+        limits = contract.get("limits")
+        validate_json_value(value, limits=limits)
+        schema = contract.get("outputSchema")
+        if schema is not None:
+            Draft202012Validator(schema).validate(value)
+        return True
+    except (
+        KeyError,
+        TypeError,
+        ValueError,
+        RecursionError,
+        json.JSONDecodeError,
+        SchemaError,
+        ValidationError,
+    ):
+        return False
 
 
 def digest(value):
@@ -105,8 +134,16 @@ async def apply_receipt(service, record, receipt):
     if status in ("COMPLETED", "TIMEOUT") and (not run_id or started is None):
         return False
     raw_result = receipt.get("result")
-    json.dumps(raw_result, allow_nan=False)
+    try:
+        json.dumps(raw_result, allow_nan=False)
+    except (TypeError, ValueError, RecursionError):
+        return False
     code = receipt.get("error")
+    if status == "COMPLETED" and not _validate_data_result(record, raw_result):
+        # Do not persist or expose a result that violates the frozen contract.
+        status = "FAILED"
+        code = "UNSUPPORTED_RESULT"
+        raw_result = None
     values = {
         "status": status,
         "run_id": run_id,

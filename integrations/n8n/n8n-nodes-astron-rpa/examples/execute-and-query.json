@@ -1,0 +1,54 @@
+{
+  "name": "AstronRPA async execution",
+  "nodes": [
+    {
+      "id": "start",
+      "name": "Start",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": {}
+    },
+    {
+      "id": "execute",
+      "name": "AstronRPA Execute",
+      "type": "n8n-nodes-astron-rpa.astronRpa",
+      "typeVersion": 1,
+      "position": [240, 0],
+      "parameters": {
+        "operation": "execute",
+        "mode": "async",
+        "projectId": "REPLACE_WITH_APPROVED_PROJECT_ID",
+        "version": 1,
+        "params": "{}",
+        "idempotencyKey": "REPLACE_WITH_STABLE_BUSINESS_KEY",
+        "waitSeconds": 300,
+        "pollSeconds": 5,
+        "requestTimeout": 15,
+        "executionTimeout": 0
+      }
+    },
+    {
+      "id": "query",
+      "name": "AstronRPA Query",
+      "type": "n8n-nodes-astron-rpa.astronRpa",
+      "typeVersion": 1,
+      "position": [480, 0],
+      "parameters": {
+        "operation": "getExecution",
+        "executionId": "={{ $json.executionId }}",
+        "requestTimeout": 15
+      }
+    }
+  ],
+  "connections": {
+    "Start": {
+      "main": [[{ "node": "AstronRPA Execute", "type": "main", "index": 0 }]]
+    },
+    "AstronRPA Execute": {
+      "main": [[{ "node": "AstronRPA Query", "type": "main", "index": 0 }]]
+    }
+  },
+  "settings": { "executionOrder": "v1" },
+  "active": false
+}

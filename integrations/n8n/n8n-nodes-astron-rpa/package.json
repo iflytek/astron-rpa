@@ -1,0 +1,49 @@
+{
+  "name": "n8n-nodes-astron-rpa",
+  "version": "0.1.0-dev.1",
+  "description": "AstronRPA published workflow control through MCP",
+  "license": "Apache-2.0",
+  "keywords": [
+    "n8n-community-node-package"
+  ],
+  "engines": {
+    "node": ">=24"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint .",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "test": "npm run build && node --test tests/*.test.cjs",
+    "prepack": "npm run build"
+  },
+  "n8n": {
+    "n8nNodesApiVersion": 1,
+    "credentials": [
+      "dist/credentials/AstronRpaApi.credentials.js"
+    ],
+    "nodes": [
+      "dist/nodes/AstronRpa/AstronRpa.node.js"
+    ]
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "1.30.0"
+  },
+  "peerDependencies": {
+    "n8n-workflow": ">=2.36.4 <3"
+  },
+  "devDependencies": {
+    "@types/node": "24.10.0",
+    "eslint": "9.39.1",
+    "n8n-workflow": "2.36.4",
+    "prettier": "3.6.2",
+    "typescript": "5.9.3",
+    "typescript-eslint": "8.46.1"
+  }
+}

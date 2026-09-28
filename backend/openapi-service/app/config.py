@@ -19,6 +19,9 @@ class Settings(BaseSettings):
     MCP_ALLOW_QUERY_API_KEY: bool = False
     # Browser origins are denied unless a deployer explicitly allows them.
     MCP_ALLOWED_ORIGINS: str = ""
+    # Trusted deployment file; never supplied by an external caller. Empty keeps
+    # historical callers available, but provides no community-node admission.
+    INTEGRATION_POLICY_FILE: str = ""
 
     model_config = SettingsConfigDict(
         env_file=None,
