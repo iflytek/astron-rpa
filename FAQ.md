@@ -105,6 +105,14 @@ Things to watch out for:
 
 ---
 
+### Q: 🆕 The official website says iFlyRPA has been upgraded to iFly Cowork and older versions will no longer be updated. Does this affect the open-source edition?
+
+**A:** No. The notice applies to the iFlyRPA **SaaS edition**: the SaaS edition has been upgraded to iFly Cowork, the previous SaaS edition will no longer receive feature updates, and login verification codes will be phased out. SaaS users should switch to account-and-password login or move directly to iFly Cowork, and complete the migration **by October 15, 2026**.
+
+**The open-source edition of Astron RPA will continue to be maintained and updated and is not affected by this notice.** It uses your self-hosted server and Casdoor authentication and does not depend on the SaaS login service.
+
+---
+
 ### Q: Do I have to manually build the client?
 
 **A:** ✅ **No!** You can download the msi installer package directly from the [Release version](https://github.com/iflytek/astron-rpa/releases) and install it directly.
@@ -560,6 +568,19 @@ Scheduled tasks run on an APScheduler cron trigger, whose default misfire tolera
 - With multiple scheduled tasks, check whether all of them or only one failed to fire — that quickly separates a scheduler problem from a single-task configuration problem.
 
 **4. When reporting**: attach the logs, a screenshot of the task configuration, and the exact timestamps that fired vs. did not fire.
+
+---
+
+### Q: 🆕 The client login returns 502 or shows `timeout of 20000ms exceeded`?
+
+**A:** These errors usually mean the client cannot reach the server's authentication service (Casdoor). Check in this order:
+
+1. **Is `CASDOOR_EXTERNAL_ENDPOINT` reachable from the client?** The address in `.env` must be a server IP or domain that the client machine can reach. Do not use `127.0.0.1`, `localhost` or an internal container address. See "Why does the software hang on loading?" above for an example.
+2. **Are the services still initializing?** Casdoor and other containers may not be ready right after startup. Wait a moment, then restart the client.
+3. **Are the ports open?** Make sure the firewall or security group allows the external gateway and Casdoor ports (as configured in `CASDOOR_EXTERNAL_ENDPOINT` and the gateway settings).
+4. **Did you upgrade from an HTTP deployment?** The default deployment now exposes the gateway and Casdoor over HTTPS and no longer maps Casdoor's port `8000` to the public network. Replace the old `http://<IP>:8000` address with the new HTTPS address, or explicitly use the `legacy-http` compatibility mode described in the [HTTPS deployment guide](docker/HTTPS_DEPLOYMENT.md).
+
+After changing `.env`, run `docker compose up -d` again so the new settings take effect, and use `docker compose logs -f` to check the Casdoor and gateway containers for errors.
 
 ---
 
