@@ -134,6 +134,14 @@
 
 ---
 
+### Q: 🆕 官网公告星辰 RPA 已升级为星辰 Cowork、老版本不再更新，开源版会受影响吗？
+
+**A:** 不会。该公告针对的是星辰 RPA **SaaS 版本**：SaaS 版本已全新升级为星辰 Cowork，原 SaaS 版本将不再提供功能更新，登录验证码也将逐步停止服务。SaaS 用户请改用账号密码登录，或直接访问星辰 Cowork 使用新版本，并于 **2026 年 10 月 15 日前**完成迁移。
+
+**星辰 RPA 开源版本将继续维护和更新，不受该公告影响。** 开源版使用自行部署的服务端与 Casdoor 认证，不依赖 SaaS 的登录服务。
+
+---
+
 ### Q: 我是否一定需要手动构建客户端？
 
 **A:** ✅ **不需要！** 您可以直接下载 [Release 版本](https://github.com/iflytek/astron-rpa/releases) 的 msi 安装包直接安装。
@@ -617,6 +625,19 @@ C:\Users\{用户名}\AppData\Roaming\astron-rpa\python_core\Lib\site-packages\as
 - 多个计划任务时，先确认是全部不触发还是只有某一个不触发，这能快速区分是调度器问题还是单任务配置问题。
 
 **4. 反馈方式**：附上日志、计划任务的配置截图，以及"哪几次没触发、哪几次正常"的时间点，便于定位。
+
+---
+
+### Q: 🆕 客户端登录报 502，或提示 `timeout of 20000ms exceeded`？
+
+**A:** 这类报错通常说明客户端连不上服务端的认证服务（Casdoor）。请按以下顺序排查：
+
+1. **`CASDOOR_EXTERNAL_ENDPOINT` 是否为客户端可访问的地址**：`.env` 中的地址必须是客户端所在机器能访问到的服务器 IP 或域名，不能填写 `127.0.0.1`、`localhost` 或容器内部地址。配置示例见上文「为什么软件打开卡在加载？」。
+2. **服务是否仍在初始化**：刚启动时 Casdoor 等容器可能尚未就绪，稍等片刻后重启客户端再试。
+3. **端口是否放通**：确认防火墙 / 安全组放通了网关与 Casdoor 的对外端口（端口以 `CASDOOR_EXTERNAL_ENDPOINT` 和网关配置为准）。
+4. **是否从旧版 HTTP 部署升级**：当前默认部署通过 HTTPS 暴露网关和 Casdoor，不再把 Casdoor 的 `8000` 端口直接映射到公网。旧的 `http://<IP>:8000` 地址需要改为新的 HTTPS 地址，或按 [HTTPS 部署说明](docker/HTTPS_DEPLOYMENT.md) 显式使用 `legacy-http` 兼容模式。
+
+修改 `.env` 后需要重新执行 `docker compose up -d` 使配置生效，并用 `docker compose logs -f` 查看 Casdoor 与网关容器是否报错。
 
 ---
 
