@@ -1,5 +1,6 @@
 from functools import lru_cache
 
+from pydantic import Field, SecretStr
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -22,6 +23,11 @@ class Settings(BaseSettings):
 
     AICHAT_BASE_URL: str
     AICHAT_API_KEY: str
+
+    JEV_API_KEY: SecretStr = SecretStr("")
+    JEV_MODEL: str = "jev-latest"
+    JEV_TIMEOUT_SECONDS: float = Field(default=10, gt=0, le=30)
+    JEV_POINTS_COST: int = Field(default=100, gt=0)
 
     CUA_BASE_URL: str
     CUA_API_KEY: str

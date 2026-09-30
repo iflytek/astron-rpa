@@ -1,4 +1,24 @@
 atomic:
+  SemanticAI.choose:
+    title: 语义选择
+    comment: 根据判断说明 @{instruction} 对文本进行分类，输出所选候选或无法判断。
+    icon: single-chat
+    helpManual: ''
+    inputList:
+      - key: instruction
+        title: 判断说明
+        tip: 描述分类标准；无法确定时返回 abstain。
+      - key: text
+        title: 待判断文本
+        tip: 输入文本或引用网页提取的文本变量。
+      - key: options
+        title: 候选列表
+        tip: '引用 List 变量，每项为包含 id 和 label 的字典；id 必须唯一，不能使用 __abstain__。'
+    outputList:
+      - key: semantic_result
+        title: 语义选择结果
+        subTitle: AI生成
+        tip: '字典包含 status、selected_id、confidence；网络或服务错误走节点异常处理。'
   Agent.call_dify:
     title: 调用Dify工作流
     comment: 调用Dify工作流 @{app_token} ，完成您指定的任务。

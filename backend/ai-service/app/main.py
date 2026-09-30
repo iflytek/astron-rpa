@@ -1,6 +1,7 @@
 from contextlib import asynccontextmanager
 
 import uvicorn
+import httpx
 from fastapi import FastAPI
 
 from app.config import get_settings
@@ -10,7 +11,7 @@ from app.logger import get_logger
 from app.middlewares.tracing import RequestTracingMiddleware
 from app.redis_op import close_redis_pool, init_redis_pool
 from app.routers import computer_use, jfbym, ocr, smart_component
-from app.routers.v1 import chat, models
+from app.routers.v1 import chat, decision, models
 
 # Ensure configuration is loaded
 settings = get_settings()
@@ -23,10 +24,12 @@ async def lifespan(app: FastAPI):
     await create_db_and_tables()
     await init_redis_pool()
 
-    yield
-
-    # Cleanup connections
-    await close_redis_pool()
+    try:
+        async with httpx.AsyncClient() as client:
+            app.state.jev_http_client = client
+            yield
+    finally:
+        await close_redis_pool()
 
 
 app = FastAPI(lifespan=lifespan)
@@ -35,6 +38,7 @@ app.include_router(admin.router, prefix="/admin", tags=["admin"])
 
 app.include_router(ocr.router)
 app.include_router(chat.router, prefix="/v1")
+app.include_router(decision.router, prefix="/v1")
 app.include_router(models.router, prefix="/v1")
 app.include_router(jfbym.router)
 app.include_router(smart_component.router)
