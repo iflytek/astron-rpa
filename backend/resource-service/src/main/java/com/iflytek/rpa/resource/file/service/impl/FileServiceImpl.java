@@ -147,6 +147,55 @@ public class FileServiceImpl extends ServiceImpl<FileMapper, File> implements Fi
         return AppResponse.success(fileId);
     }
 
+    @Override
+    public AppResponse<Boolean> deleteFile(String fileId) {
+        File file = baseMapper.getFile(fileId);
+        if (file == null) {
+            // 已删除或从未存在，删除保持幂等
+            return AppResponse.success(true);
+        }
+
+        String filePath = file.getPath();
+        if (StringUtils.isNotBlank(filePath)) {
+            deleteFileFromS3(filePath);
+        }
+
+        // file 实体带 @TableLogic，这里是逻辑删除
+        baseMapper.deleteById(file.getId());
+
+        return AppResponse.success(true);
+    }
+
+    /**
+     * 从S3删除文件
+     *
+     * @param filePath 文件路径
+     */
+    private void deleteFileFromS3(String filePath) {
+        S3Client s3Client = null;
+        try {
+            s3Client = buildS3Client();
+
+            DeleteObjectRequest deleteObjectRequest = DeleteObjectRequest.builder()
+                    .bucket(s3Config.getBucket())
+                    .key(filePath)
+                    .build();
+
+            s3Client.deleteObject(deleteObjectRequest);
+
+        } catch (NoSuchKeyException e) {
+            // 对象已不在S3上，视为删除成功
+        } catch (S3Exception e) {
+            throw new ServiceException(ErrorCodeEnum.E_API_EXCEPTION.getCode(), "S3删除异常: " + e.getMessage());
+        } catch (Exception e) {
+            throw new ServiceException(ErrorCodeEnum.E_EXCEPTION.getCode(), "文件删除异常: " + e.getMessage());
+        } finally {
+            if (s3Client != null) {
+                s3Client.close();
+            }
+        }
+    }
+
     /**
      * 获取文件扩展名
      *
