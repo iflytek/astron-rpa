@@ -192,7 +192,7 @@ docker compose ps
 
 ## 🤝 参与贡献
 
-我们欢迎任何形式的贡献！请查看 [贡献指南](CONTRIBUTING.md)
+我们欢迎任何形式的贡献！请查看 [贡献指南](CONTRIBUTING.zh.md)
 
 ### 开发规范
 - ✅ 遵循现有代码风格
