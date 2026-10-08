@@ -65,6 +65,7 @@ def _validate_data_result(record, value):
         json.JSONDecodeError,
         SchemaError,
         ValidationError,
+        WorkflowAccessError,
     ):
         return False
 
@@ -134,6 +135,9 @@ async def apply_receipt(service, record, receipt):
     if status in ("COMPLETED", "TIMEOUT") and (not run_id or started is None):
         return False
     raw_result = receipt.get("result")
+    if record.data_contract and status in TERMINAL and status != "COMPLETED":
+        # Failure/cancellation receipts have no JSON-data business result.
+        raw_result = None
     try:
         json.dumps(raw_result, allow_nan=False)
     except (TypeError, ValueError, RecursionError):

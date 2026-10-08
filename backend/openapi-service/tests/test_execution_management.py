@@ -14,6 +14,7 @@ from app.security.workflow_authorization import WorkflowAccessError, external_ex
 from app.services import execution_management as management
 from app.services.execution import ExecutionService, _execution_tasks
 from app.services.workflow_control import WorkflowControlService
+from app.services.workflow_schema import JSON_LIMITS
 from tests.test_workflow_control import AsyncSessionAdapter
 
 
@@ -223,6 +224,65 @@ async def test_json_data_result_contract_rejects_schema_mismatch_without_persist
         assert record.error == "UNSUPPORTED_RESULT"
         assert json.loads(record.result) == {"code": "5001", "data": None}
 
+    await asyncio.gather(*list(_execution_tasks))
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("character", ["x", "界"])
+@pytest.mark.parametrize("extra_bytes", [0, 1])
+async def test_json_result_byte_boundary_is_enforced_before_persistence(store, character, extra_bytes):
+    _, factory = store
+    execution_id = await accepted(factory)
+    target = JSON_LIMITS["maxBytes"] + extra_bytes
+    chunk = character * 10_000
+    value = [chunk] * ((target - 50_000) // len(chunk.encode("utf-8"))) + [""]
+    size = len(json.dumps(value, ensure_ascii=False, separators=(",", ":")).encode("utf-8"))
+    value[-1] = "x" * (target - size)
+    assert len(json.dumps(value, ensure_ascii=False, separators=(",", ":")).encode("utf-8")) == target
+    assert all(len(item) <= JSON_LIMITS["maxStringLength"] for item in value)
+    async with factory() as db:
+        service = ExecutionService(db)
+        record = await service.get_execution_internal(execution_id)
+        record.data_contract = json.dumps({"version": 1, "limits": JSON_LIMITS, "outputSchema": {"type": "array"}})
+        await db.commit()
+        assert await management.apply_receipt(service, record, receipt(record, "succeeded", result=value))
+    async with factory() as db:
+        stored = await ExecutionService(db).get_execution_internal(execution_id)
+        assert stored.status == ("FAILED" if extra_bytes else "COMPLETED")
+        assert stored.error == ("UNSUPPORTED_RESULT" if extra_bytes else None)
+        assert json.loads(stored.result)["data"] == (None if extra_bytes else value)
+    await asyncio.gather(*list(_execution_tasks))
+
+
+@pytest.mark.asyncio
+async def test_result_uses_frozen_byte_limit(store):
+    _, factory = store
+    execution_id = await accepted(factory)
+    async with factory() as db:
+        service = ExecutionService(db)
+        record = await service.get_execution_internal(execution_id)
+        record.data_contract = json.dumps({"version": 1, "limits": {**JSON_LIMITS, "maxBytes": 100}})
+        await db.commit()
+        assert await management.apply_receipt(service, record, receipt(record, "succeeded", result="x" * 101))
+        assert record.status == "FAILED"
+        assert json.loads(record.result) == {"code": "5001", "data": None}
+    await asyncio.gather(*list(_execution_tasks))
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("status", ["failed", "cancelled", "timeout"])
+async def test_unsuccessful_json_receipt_does_not_persist_business_payload(store, status):
+    _, factory = store
+    execution_id = await accepted(factory)
+    async with factory() as db:
+        service = ExecutionService(db)
+        record = await service.get_execution_internal(execution_id)
+        record.data_contract = json.dumps({"version": 1, "limits": JSON_LIMITS})
+        await db.commit()
+        value = ["x" * 100_000] * 11
+        assert await management.apply_receipt(service, record, receipt(record, status, result=value))
+        assert record.status == management.CLIENT_STATES[status]
+        assert json.loads(record.result) == {"code": "5001", "data": None}
     await asyncio.gather(*list(_execution_tasks))
 
 

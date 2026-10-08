@@ -31,7 +31,10 @@ export function jsonObject(value: unknown): IDataObject {
       throw new AstronError("INVALID_ARGUMENTS");
     }
   }
-  const record = object(value);
+  return jsonValue(object(value)) as IDataObject;
+}
+
+function jsonValue(value: unknown): unknown {
   // JSON inputs only, without implicit stringification or non-finite numbers.
   const ancestors = new WeakSet<object>();
   const visit = (v: unknown, depth = 0): void => {
@@ -75,14 +78,14 @@ export function jsonObject(value: unknown): IDataObject {
     }
     throw new AstronError("INVALID_ARGUMENTS");
   };
-  visit(record);
-  const encoded = JSON.stringify(record);
+  visit(value);
+  const encoded = JSON.stringify(value);
   if (
     encoded === undefined ||
     new TextEncoder().encode(encoded).length > JSON_LIMITS.maxBytes
   )
     throw new AstronError("JSON_LIMIT_EXCEEDED");
-  return JSON.parse(JSON.stringify(record)) as IDataObject;
+  return JSON.parse(encoded);
 }
 
 export interface Snapshot extends IDataObject {
@@ -123,7 +126,13 @@ export function snapshot(
   ) {
     throw new AstronError("EXECUTION_TARGET_MISMATCH", true);
   }
-  return jsonObject(v) as Snapshot;
+  // The server bounds the business result, not its execution metadata envelope.
+  // Keep both bounded without reducing the result's byte or nesting allowance.
+  const { result, ...metadata } = v;
+  const normalized = jsonObject(metadata);
+  if ("result" in v)
+    normalized.result = jsonValue(result) as IDataObject[string];
+  return normalized as Snapshot;
 }
 
 export function checkIntegration(value: unknown): Record<string, unknown> {

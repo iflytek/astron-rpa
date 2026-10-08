@@ -264,6 +264,70 @@ test("JSON data limits reject oversized values while preserving JSON scalars", (
     (error) => error.code === "JSON_LIMIT_EXCEEDED",
   );
 });
+for (const character of ["x", "界"]) {
+  test(`execution result byte limit excludes metadata (${character})`, () => {
+    const chunk = character.repeat(10_000);
+    const value = {
+      items: Array.from(
+        {
+          length: Math.floor(
+            (JSON_LIMITS.maxBytes - 50_000) / Buffer.byteLength(chunk),
+          ),
+        },
+        () => chunk,
+      ).concat(""),
+    };
+    const padding =
+      JSON_LIMITS.maxBytes - Buffer.byteLength(JSON.stringify(value));
+    value.items[value.items.length - 1] = "x".repeat(padding);
+    const response = receipt("succeeded", { result: value });
+    assert.equal(
+      Buffer.byteLength(JSON.stringify(value)),
+      JSON_LIMITS.maxBytes,
+    );
+    assert(Buffer.byteLength(JSON.stringify(response)) > JSON_LIMITS.maxBytes);
+    assert.deepEqual(snapshot(response).result, value);
+    value.items[value.items.length - 1] += "x";
+    assert.throws(
+      () => snapshot(response),
+      (error) => error.code === "JSON_LIMIT_EXCEEDED",
+    );
+  });
+}
+test("result nesting and properties are bounded independently from metadata", () => {
+  const result = {};
+  let current = result;
+  for (let index = 0; index < JSON_LIMITS.maxDepth; index++) {
+    current.next = {};
+    current = current.next;
+  }
+  assert.deepEqual(snapshot(receipt("succeeded", { result })).result, result);
+  current.next = {};
+  assert.throws(
+    () => snapshot(receipt("succeeded", { result })),
+    (error) => error.code === "JSON_LIMIT_EXCEEDED",
+  );
+  const properties = Object.fromEntries(
+    Array.from({ length: JSON_LIMITS.maxObjectProperties }, (_, i) => [
+      i,
+      null,
+    ]),
+  );
+  assert.deepEqual(
+    snapshot(receipt("succeeded", { result: properties })).result,
+    properties,
+  );
+  properties.extra = null;
+  assert.throws(
+    () => snapshot(receipt("succeeded", { result: properties })),
+    (error) => error.code === "JSON_LIMIT_EXCEEDED",
+  );
+  for (const value of [0, false, null, "", [0, false, null]])
+    assert.deepEqual(
+      snapshot(receipt("succeeded", { result: value })).result,
+      value,
+    );
+});
 test("json-data workflow profiles must advertise the same bounded contract", () => {
   const value = {
     projectId: "p",

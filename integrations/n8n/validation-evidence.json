@@ -212,5 +212,272 @@
       "item": "in-flight execution combined with full desktop UI publication",
       "reason": "The controlled execution finished before publication; a desktop window targeting failure prevented completing the combined scenario. Running metadata changes and full UI publication were verified separately."
     }
-  ]
+  ],
+  "jsonContractReview": {
+    "date": "2026-10-08",
+    "branch": "data-driven_flows",
+    "rebaseBase": "ea33dd5bfc599c208838763514db2bfca8d096b8",
+    "rebasedHead": "f957e50a",
+    "fixesCommitted": false,
+    "pushed": false,
+    "environment": {
+      "n8n": "2.40.7",
+      "n8nWorkflow": "2.40.1",
+      "node": "24.18.0",
+      "communityNode": "0.1.0-dev.1",
+      "client": "existing installed Windows client",
+      "clientProtocol": 1,
+      "transport": "HTTPS MCP"
+    },
+    "quality": {
+      "openapiTestsPassed": 244,
+      "nodeTestsPassed": 24,
+      "openapiExistingWarnings": 4,
+      "nodeBuildTypecheckLint": "passed",
+      "changedPythonRuffAndFormat": "passed",
+      "changedNodeFilesDefaultPrettier": "passed",
+      "fullNodePackagePrettierWithAutoEndOfLine": "passed",
+      "defaultFullPackagePrettierLimitation": "Existing CRLF files under core.autocrlf=true require line-ending-aware checking",
+      "diffCheck": "passed"
+    },
+    "migration": {
+      "missingMigrationStartupExit": 3,
+      "missingColumnDiagnostic": true,
+      "migrationPreservesExistingRowsIncludingEmoji": true,
+      "oldTableDefault": "utf8mb3",
+      "freshAndMigratedDefinitionsEqual": true,
+      "migratedAndFreshStartupChecksPassed": true,
+      "columns": [
+        {
+          "TABLE_NAME": "openai_executions",
+          "COLUMN_NAME": "data_contract",
+          "DATA_TYPE": "mediumtext",
+          "IS_NULLABLE": "YES",
+          "COLUMN_COMMENT": "受理时冻结的JSON数据契约",
+          "CHARACTER_SET_NAME": "utf8mb4",
+          "COLLATION_NAME": "utf8mb4_0900_ai_ci"
+        },
+        {
+          "TABLE_NAME": "openai_executions",
+          "COLUMN_NAME": "parameters",
+          "DATA_TYPE": "mediumtext",
+          "IS_NULLABLE": "YES",
+          "COLUMN_COMMENT": "执行参数（JSON格式）",
+          "CHARACTER_SET_NAME": "utf8mb4",
+          "COLLATION_NAME": "utf8mb4_0900_ai_ci"
+        },
+        {
+          "TABLE_NAME": "openai_executions",
+          "COLUMN_NAME": "result",
+          "DATA_TYPE": "mediumtext",
+          "IS_NULLABLE": "YES",
+          "COLUMN_COMMENT": "执行结果（JSON格式）",
+          "CHARACTER_SET_NAME": "utf8mb4",
+          "COLLATION_NAME": "utf8mb4_0900_ai_ci"
+        },
+        {
+          "TABLE_NAME": "openai_workflows",
+          "COLUMN_NAME": "parameters",
+          "DATA_TYPE": "mediumtext",
+          "IS_NULLABLE": "YES",
+          "COLUMN_COMMENT": "存储JSON字符串格式的参数",
+          "CHARACTER_SET_NAME": "utf8mb4",
+          "COLLATION_NAME": "utf8mb4_0900_ai_ci"
+        }
+      ]
+    },
+    "n8nExecutions": {
+      "values": {
+        "http": 200,
+        "n8nExecutionId": 428,
+        "n8nStatus": "success",
+        "elapsedMs": 6311,
+        "status": "succeeded",
+        "executionId": "7997e03f-0944-4511-bd60-654eeab2474a",
+        "runId": "2108013504664465408",
+        "resultBytes": 259,
+        "valuesPreserved": true
+      },
+      "replay": {
+        "http": 200,
+        "n8nExecutionId": 430,
+        "n8nStatus": "success",
+        "elapsedMs": 6104,
+        "status": "succeeded",
+        "executionId": "7997e03f-0944-4511-bd60-654eeab2474a",
+        "runId": "2108013504664465408",
+        "resultBytes": 259,
+        "sameExecution": true
+      },
+      "schema": {
+        "http": 200,
+        "n8nExecutionId": 432,
+        "n8nStatus": "success",
+        "elapsedMs": 6297,
+        "status": "failed",
+        "executionId": "70d2f071-d00b-46f2-87a5-4e72ed5706e7",
+        "runId": "2108013590970658816",
+        "error": {
+          "code": "UNSUPPORTED_RESULT",
+          "message": "Workflow produced an unsupported result"
+        },
+        "resultBytes": 4
+      },
+      "boundary": {
+        "http": 200,
+        "n8nExecutionId": 424,
+        "n8nStatus": "success",
+        "elapsedMs": 37108,
+        "status": "succeeded",
+        "executionId": "ebade7df-c9c5-4aa1-9911-a3c69b340bce",
+        "runId": "2108015481838399488",
+        "resultBytes": 1048576
+      },
+      "oversized": {
+        "http": 200,
+        "n8nExecutionId": 426,
+        "n8nStatus": "success",
+        "elapsedMs": 28763,
+        "status": "failed",
+        "executionId": "11024020-80db-4ac5-8dea-cf2a77a405af",
+        "runId": "2108015636021014528",
+        "error": {
+          "code": "UNSUPPORTED_RESULT",
+          "message": "Workflow produced an unsupported result"
+        },
+        "resultBytes": 4
+      }
+    },
+    "clientReceipts": [
+      {
+        "case": "values",
+        "executionId": "7997e03f-0944-4511-bd60-654eeab2474a",
+        "receipts": 1,
+        "runId": "2108013504664465408",
+        "clientStatus": "succeeded",
+        "businessBytes": 259
+      },
+      {
+        "case": "replay",
+        "executionId": "7997e03f-0944-4511-bd60-654eeab2474a",
+        "receipts": 1,
+        "runId": "2108013504664465408",
+        "clientStatus": "succeeded",
+        "businessBytes": 259
+      },
+      {
+        "case": "schema",
+        "executionId": "70d2f071-d00b-46f2-87a5-4e72ed5706e7",
+        "receipts": 1,
+        "runId": "2108013590970658816",
+        "clientStatus": "succeeded",
+        "businessBytes": 163
+      },
+      {
+        "case": "boundary",
+        "executionId": "ebade7df-c9c5-4aa1-9911-a3c69b340bce",
+        "receipts": 1,
+        "runId": "2108015481838399488",
+        "clientStatus": "succeeded",
+        "businessBytes": 1048576
+      },
+      {
+        "case": "oversized",
+        "executionId": "11024020-80db-4ac5-8dea-cf2a77a405af",
+        "receipts": 1,
+        "runId": "2108015636021014528",
+        "clientStatus": "succeeded",
+        "businessBytes": 1048577
+      }
+    ],
+    "database": {
+      "schemaReady": true,
+      "executions": [
+        {
+          "case": "values",
+          "executionId": "7997e03f-0944-4511-bd60-654eeab2474a",
+          "runId": "2108013504664465408",
+          "status": "COMPLETED",
+          "error": null,
+          "frozenMaxBytes": 1048576,
+          "frozenOutputSchema": true,
+          "persistedBusinessBytes": 259,
+          "nullBusinessPayload": false
+        },
+        {
+          "case": "replay",
+          "executionId": "7997e03f-0944-4511-bd60-654eeab2474a",
+          "runId": "2108013504664465408",
+          "status": "COMPLETED",
+          "error": null,
+          "frozenMaxBytes": 1048576,
+          "frozenOutputSchema": true,
+          "persistedBusinessBytes": 259,
+          "nullBusinessPayload": false
+        },
+        {
+          "case": "schema",
+          "executionId": "70d2f071-d00b-46f2-87a5-4e72ed5706e7",
+          "runId": "2108013590970658816",
+          "status": "FAILED",
+          "error": "UNSUPPORTED_RESULT",
+          "frozenMaxBytes": 1048576,
+          "frozenOutputSchema": true,
+          "persistedBusinessBytes": 4,
+          "nullBusinessPayload": true
+        },
+        {
+          "case": "boundary",
+          "executionId": "ebade7df-c9c5-4aa1-9911-a3c69b340bce",
+          "runId": "2108015481838399488",
+          "status": "COMPLETED",
+          "error": null,
+          "frozenMaxBytes": 1048576,
+          "frozenOutputSchema": true,
+          "persistedBusinessBytes": 1048576,
+          "nullBusinessPayload": false
+        },
+        {
+          "case": "oversized",
+          "executionId": "11024020-80db-4ac5-8dea-cf2a77a405af",
+          "runId": "2108015636021014528",
+          "status": "FAILED",
+          "error": "UNSUPPORTED_RESULT",
+          "frozenMaxBytes": 1048576,
+          "frozenOutputSchema": true,
+          "persistedBusinessBytes": 4,
+          "nullBusinessPayload": true
+        }
+      ],
+      "testNonterminalCount": 0
+    },
+    "consistency": {
+      "server": {
+        "deployedFiles": 49,
+        "mismatches": []
+      },
+      "nodePackage": {
+        "tarballFiles": 17,
+        "installedMismatches": [],
+        "tarballSha256": "b6cbb9570dde69c20235c4026737fda824183f016ada6e2db4a996a4e088070a"
+      }
+    },
+    "cleanup": {
+      "temporaryMySqlDatabasesRemoved": true,
+      "temporaryRobotsRemoved": true,
+      "testWorkflowsRemaining": 0,
+      "originalPolicyRestored": true,
+      "serverTemporaryFilesRemoved": true,
+      "temporaryN8nWorkflowRemoved": true,
+      "temporaryN8nExecutionRecordsRemoved": 22,
+      "n8nStopped": true,
+      "originalN8nCredentialRetained": true,
+      "temporaryPlaintextCredentialRemoved": true,
+      "temporaryClientRuntimeDirectoriesRemoved": true,
+      "clientReady": true,
+      "clientExecutorRunning": false,
+      "testNonterminalExecutions": 0,
+      "executionAuditHistoryRetained": true
+    }
+  }
 }

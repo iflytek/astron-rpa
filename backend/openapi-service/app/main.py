@@ -20,6 +20,7 @@ from app.routers.streamable_mcp import (
     tools_config,
 )
 from app.services.execution_management import recover_executions
+from app.services.schema_readiness import check_execution_schema
 
 logger = get_logger(__name__)
 
@@ -27,15 +28,16 @@ logger = get_logger(__name__)
 @asynccontextmanager
 async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     """Context manager for application lifespan."""
-    # Initialize connections
-    # await create_db_and_tables()
+    # ORM queries select all mapped columns, including for non-JSON workflows.
+    # Check before WebSocket ownership or background execution recovery starts.
+    await check_execution_schema()
 
     await init_redis_pool()
 
     # 初始化 WsManagerService 单例实例
     worker_id = os.getpid()
     await get_ws_service()
-    logger.info(f"WsManagerService singleton initialized for worker {worker_id}")
+    logger.info("WsManagerService singleton initialized for worker %s", worker_id)
 
     # 使用 async with 管理 session_manager 的生命周期
     async with session_manager.run():
@@ -53,7 +55,7 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
             logger.info("Tools config connections cleaned up")
 
             await close_redis_pool()
-            logger.info(f"Worker {worker_id} shutting down")
+            logger.info("Worker %s shutting down", worker_id)
 
 
 app = FastAPI(title="RPA OpenAPI", version="1.2.0", lifespan=lifespan)

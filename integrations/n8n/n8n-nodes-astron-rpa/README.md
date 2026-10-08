@@ -80,6 +80,8 @@ Use **Get Workflow** before execution and verify `profile.capabilityClass` is `j
 
 The result remains one JSON value under `result`; arrays are not expanded into n8n items. An optional declared `outputSchema` documents the result shape, but it does not enable file, GUI or runtime-object capabilities. Other RPA capability classes are outside this release's node contract.
 
+For JSON-data executions, the service freezes the output schema and JSON limits at acceptance and checks successful results before persistence. A result over the byte limit or outside the schema becomes `failed / UNSUPPORTED_RESULT`, with no business payload stored. The byte limit measures the compact UTF-8 encoding of the business result; execution IDs, status and other envelope fields do not consume its allowance. The node validates result values separately from that metadata, so an exact 1 MiB result remains readable.
+
 ## Execution behavior and limits
 
 ### Idempotency and retries

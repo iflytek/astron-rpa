@@ -104,6 +104,14 @@ The `json-data` capability class additionally bounds each request to 1 MiB of
 UTF-8 JSON, nesting depth 12, 200 object properties, 1,000 array items and
 100,000 characters per string. The node and service reject a value that exceeds
 these limits before dispatch; the server profile is authoritative.
+For executions with a frozen JSON-data contract, the same limits (including the
+1 MiB byte bound) are checked on successful result values before persistence,
+followed by the frozen output schema. The byte count is the compact UTF-8 JSON
+value, not the database envelope or its escaped representation. An oversized or
+schema-invalid result becomes `FAILED / UNSUPPORTED_RESULT`; only the failure
+envelope with `data: null` is stored. Failed/cancelled/timed-out JSON-data receipts
+also store no business result. Legacy executions without `data_contract` retain
+their existing result behavior; this limit is not retroactively applied to them.
 Legacy Clients without the managed protocol may receive only the original scalar
 inputs; rich JSON and declared secrets require an upgraded, connected Client.
 
@@ -158,12 +166,36 @@ platforms must use a protocol revision supported by their actual MCP client.
 
 1. Stop new external starts and verify Client idleness. Back up the deployment
    database, OpenAPI source/image and Client runtime under your own project paths.
-2. Stop OpenAPI. For an existing database, apply
-   `migrations/001_execution_management.sql` once in the RPA database. It adds
-   nullable legacy-compatible columns, the user/key unique constraint, and removes
-   cascading workflow deletion. New installs use `docker/volumes/mysql/schema.sql`.
-3. Upgrade Scheduler and Executor together, then OpenAPI. Preserve runtime
-   cookies, execution journals and Engine terminal receipts. Verify HTTPS/WSS,
+2. Stop OpenAPI. Apply the following migrations **in order**, once each, in the
+   existing RPA database. Inspect the deployed schema first and skip only migrations
+   already fully applied; these scripts are not safe to run twice.
+
+   - `migrations/001_execution_management.sql` adds nullable legacy-compatible
+     execution columns, the user/key unique constraint, and removes cascading
+     workflow deletion.
+   - `migrations/002_json_data_contract.sql` widens `openai_workflows.parameters`
+     and `openai_executions.parameters/result` to `MEDIUMTEXT`, preserving their
+     comments, and adds nullable `openai_executions.data_contract` with its comment.
+     All four JSON columns explicitly use `utf8mb4`, including on older tables
+     whose default is `utf8mb3`; otherwise `MODIFY` can also reset their character
+     set and reject valid Unicode inputs such as emoji.
+     It is required even when no JSON-data workflow is enabled: ORM execution
+     queries select this column for every execution. Upgrading the image alone
+     does not migrate an existing database.
+
+   MySQL DDL commits implicitly. If an earlier attempt partially applied a script,
+   inspect `SHOW FULL COLUMNS` (including type, collation and comment) and complete
+   only the missing alterations while the service remains stopped.
+   Do not drop/recreate the tables or replay the full
+   fresh-install schema over existing data. New installs use
+   `docker/volumes/mysql/schema.sql`, which already includes both migrations.
+3. Upgrade Scheduler and Executor together, then OpenAPI. Startup checks the
+   mapped workflow/execution columns and MySQL JSON column capacity and character
+   set before Redis, WebSocket ownership or recovery initializes. Missing columns,
+   insufficient capacity or a non-`utf8mb4` JSON column abort startup with the
+   affected names and migration instructions. The check does not alter the
+   database. Preserve runtime cookies, execution journals and Engine terminal
+   receipts. Verify HTTPS/WSS,
    tool discovery, `supportsCancel` and a disposable workflow before reopening.
 4. To roll back, quiesce starts and reconcile/cancel active managed executions
    first. Keep the expanded schema and retained receipts. An old Server/Client
