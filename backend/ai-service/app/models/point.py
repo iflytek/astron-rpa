@@ -104,10 +104,9 @@ def calculate_expiration_date(allocation_type, policy=None, reference_date=None,
     if reference_date is None:
         reference_date = datetime.now(target_timezone)
     else:
-        # 确保reference_date有时区信息
-        if reference_date.tzinfo is None:
-            # 假设naive datetime是业务时区的时间
-            reference_date = reference_date.replace(tzinfo=BUSINESS_TIMEZONE)
+        # 拒绝含义不明确的时间，而不是静默假设其所在时区
+        if reference_date.tzinfo is None or reference_date.utcoffset() is None:
+            raise ValueError("reference_date must be timezone-aware")
         # 转换到目标时区
         reference_date = reference_date.astimezone(target_timezone)
 
