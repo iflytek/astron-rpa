@@ -53,6 +53,7 @@
         SELECT *
         FROM shared_var
         WHERE deleted = 0 and status = 1
+        and tenant_id = #{tenantId}
         <if test="ids != null and ids.size() > 0">
             and (id IN
             <foreach collection="ids" item="id" open="(" close=")" separator=",">
