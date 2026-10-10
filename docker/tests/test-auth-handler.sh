@@ -67,6 +67,15 @@ http {
                 ngx.say(ngx.req.get_headers()["user_id"] or "missing")
             }
         }
+
+        location /api/rpa-ai-service/v1/decision/ {
+            rewrite ^/api/rpa-ai-service/(.*)$ /$1 break;
+            access_by_lua_file /usr/local/openresty/nginx/lua/decision_auth.lua;
+            content_by_lua_block {
+                local h = ngx.req.get_headers()
+                ngx.say((h["user_id"] or "missing") .. ":" .. (h["x-user-id"] or "missing"))
+            }
+        }
     }
 }
 EOF
@@ -152,4 +161,24 @@ assert_openapi workflows/execute 200 '^missing:missing$' --header 'Authorization
 assert_openapi workflows/get 200 '^missing:missing$' --header 'X-API-Key: arbitrary'
 assert_openapi workflows/get 200 '^user-123:missing$' --header 'Token: valid-token'
 assert_openapi 'api-keys/get?key=arbitrary' 401 'Session authentication required'
+
+assert_decision() {
+    expected_status="$1"
+    expected_body="$2"
+    shift 2
+    response_file="$TEST_ROOT/decision-response"
+    status=$(curl --silent --output "$response_file" --write-out '%{http_code}' \
+        --header 'user_id: attacker' --header 'X-User-Id: attacker' \
+        "$@" "http://127.0.0.1:$GATEWAY_PORT/api/rpa-ai-service/v1/decision/choice")
+    if [ "$status" != "$expected_status" ] || ! grep -q "$expected_body" "$response_file"; then
+        echo "unexpected semantic choice auth result: $status" >&2
+        cat "$response_file" >&2
+        exit 1
+    fi
+}
+assert_decision 401 'Session authentication required' --header 'Authorization: Bearer arbitrary'
+assert_decision 401 'Session authentication required' --header 'X-API-Key: arbitrary'
+assert_decision 200 '^user-123:missing$' --header 'Token: valid-token'
+assert_decision 200 '^user-123:missing$' --cookie 'SESSION=valid-token'
+assert_decision 401 'invalid or expired' --header 'Token: null-token'
 echo 'OpenResty authentication and OpenAPI identity boundary tests passed.'

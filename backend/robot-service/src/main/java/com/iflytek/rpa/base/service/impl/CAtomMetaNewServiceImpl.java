@@ -4,7 +4,9 @@ import com.alibaba.druid.util.StringUtils;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.iflytek.rpa.base.dao.CAtomMetaNewDao;
 import com.iflytek.rpa.base.entity.AtomCommon;
 import com.iflytek.rpa.base.entity.AtomicTree;
@@ -34,6 +36,9 @@ public class CAtomMetaNewServiceImpl extends ServiceImpl<CAtomMetaNewDao, CAtomM
 
     @Autowired
     private RpaAuthFeign rpaAuthFeign;
+
+    @Autowired
+    private SemanticChoiceCapabilities semanticChoiceCapabilities;
 
     @Override
     public AppResponse<String> getAtomTree() throws JsonProcessingException {
@@ -74,7 +79,30 @@ public class CAtomMetaNewServiceImpl extends ServiceImpl<CAtomMetaNewDao, CAtomM
             objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
             atomContent = objectMapper.writeValueAsString(atomCommon);
         }
+        if (!semanticChoiceCapabilities.isEnabled()) {
+            ObjectMapper objectMapper = new ObjectMapper();
+            JsonNode common = objectMapper.readTree(atomContent);
+            removeSemanticChoice(common.path("atomicTree"));
+            removeSemanticChoice(common.path("atomicTreeExtend"));
+            atomContent = objectMapper.writeValueAsString(common);
+        }
         return AppResponse.success(atomContent);
+    }
+
+    private void removeSemanticChoice(JsonNode nodes) {
+        if (!nodes.isArray()) {
+            return;
+        }
+        ArrayNode array = (ArrayNode) nodes;
+        for (int i = array.size() - 1; i >= 0; i--) {
+            JsonNode node = array.get(i);
+            removeSemanticChoice(node.path("atomics"));
+            String key = node.path("key").asText();
+            if ("SemanticAI.choose".equals(key)
+                    || ("semantic-ai".equals(key) && node.path("atomics").isEmpty())) {
+                array.remove(i);
+            }
+        }
     }
 
     @Override

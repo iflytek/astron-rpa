@@ -117,3 +117,13 @@ export async function getRemoteFiles(data?: { pageSize?: number, fileName?: stri
   const res = await http.post<ITableResponse<RPA.SharedFileType>>('/api/robot/robot-shared-file/page', data)
   return res.data || { records: [], total: 0 }
 }
+
+// This AI endpoint returns a bare payload rather than the robot service envelope.
+export async function getSemanticChoiceCapabilities(): Promise<unknown> {
+  const response = await http.get('/api/rpa-ai-service/v1/decision/capabilities', undefined, {
+    toast: false,
+    timeout: 5000,
+    transformResponse: [(data: string) => ({ code: '0000', data: JSON.parse(data) })],
+  })
+  return response.data
+}

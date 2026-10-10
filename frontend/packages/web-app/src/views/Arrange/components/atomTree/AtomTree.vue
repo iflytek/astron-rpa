@@ -9,6 +9,7 @@ import { computed, onBeforeMount, ref, shallowRef, useTemplateRef } from 'vue'
 import draggable from 'vuedraggable'
 
 import { getParentNodes } from '@/utils/common'
+import { isSemanticChoiceAvailable } from '@/utils/semanticChoice'
 import { COMPONENT_KEY_PREFIX, isComponentKey } from '@/utils/customComponent'
 
 import { addFavorite, removeFavorite } from '@/api/atom'
@@ -71,7 +72,7 @@ const fullTreeData = computed<AtomTreeNode[]>(() => {
           title: t('myFavorites'),
           icon: 'atom-favorite',
           iconColor: '#F39D09',
-          atomics: processStore.favorite.state,
+          atomics: processStore.favorite.state.filter(item => item.key !== 'SemanticAI.choose' || isSemanticChoiceAvailable(processStore.atomicTreeData)),
         },
         ...processStore.atomicTreeData,
       ]

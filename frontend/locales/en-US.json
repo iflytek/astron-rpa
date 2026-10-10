@@ -1,4 +1,6 @@
 {
+  "semanticChoiceDisabled": "This flow contains an unavailable Semantic Choice node. Ask your administrator to configure: {{reason}}. Saved nodes are unchanged.",
+  "semanticChoiceUnavailable": "Semantic Choice availability could not be checked. Ask your administrator to check the service connection and configuration. Saved nodes are unchanged.",
   "360": "360 Browser",
   "360Description": "Install the 360 browser extension to ensure the normal operation of browser automation components.",
   "360x": "360X Browser",

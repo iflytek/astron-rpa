@@ -16,6 +16,7 @@ class PointTransactionType(enum.Enum):
     MONTHLY_GRANT = "monthly_grant"
     MONTHLY_RESET = "monthly_reset"
     AICHAT_COST = "aichat_cost"
+    SEMANTIC_CHOICE_COST = "semantic_choice_cost"
     XFYUN_COST = "xfyun_cost"
     JFBYM_COST = "jfbym_cost"
     MANUAL_ADD = "manual_add"

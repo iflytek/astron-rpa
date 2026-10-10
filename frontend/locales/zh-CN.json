@@ -1,4 +1,6 @@
 {
+  "semanticChoiceDisabled": "此流程包含未启用的语义选择节点。请联系管理员配置：{{reason}}。已保存的节点保持不变。",
+  "semanticChoiceUnavailable": "无法确认语义选择服务是否可用，请联系管理员检查服务连接与配置。已保存的节点保持不变。",
   "app": "星辰RPA",
   "login": "登录",
   "signUp": "注册账号",

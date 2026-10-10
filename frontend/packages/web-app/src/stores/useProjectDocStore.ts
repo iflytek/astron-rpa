@@ -1,7 +1,12 @@
+import { message } from 'ant-design-vue'
+import i18next from 'i18next'
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 
 import { trackComponentUsageChange } from '@/utils/customComponent'
+import { getSemanticChoiceWarning } from '@/utils/semanticChoice'
+
+import { getSemanticChoiceCapabilities } from '@/api/atom'
 
 import { IncrementalASTParser } from '@/ast/IncrementalASTParser'
 import type { IProjectDocument, ProcessNodeVM } from '@/corobot'
@@ -179,6 +184,13 @@ const useProjectDocStore = defineStore('projectDoc', () => {
     const gNode = processNodeToList(flag ? parser.getAllNodeMap() : new Map(), nodes, ProjectDocument, _processId)
     if (!flag)
       return
+    if (type === 'init') {
+      void getSemanticChoiceWarning(nodes, getSemanticChoiceCapabilities).then((warning) => {
+        if (warning && _processId === processStore.activeProcessId) {
+          message.warning({ key: 'semantic-choice-availability', content: i18next.t(warning.key, { reason: warning.reason }), duration: 10 })
+        }
+      })
+    }
     flowStore.setSimpleFlowUIData(gNode, type === 'init' ? 0 : flowStore.simpleFlowUIData.length, type !== 'init')
     console.log('parser opened', parser)
     flowStore.generateContactMap(flowStore.simpleFlowUIData)

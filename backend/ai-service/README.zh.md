@@ -1,5 +1,9 @@
 # AI Service - 智能服务平台
 
+可选的 **语义选择** 流程节点与 `/v1/decision/choice` 接口复用已配置的 OpenAI 兼容服务，
+在给定候选中分类，支持明确拒答。设置 `SEMANTIC_CHOICE_ENABLED=true` 后启用；
+部署升级与流程示例见[语义选择指南](../../docs/SEMANTIC_CHOICE.md)。
+
 ## 📖 项目介绍
 
 AI Service 是一个基于 FastAPI 构建的综合性智能服务平台，集成了多种 AI 能力和完整的积分管理系统。平台提供了聊天对话、OCR 文字识别、验证码识别等核心功能，并通过积分机制实现服务使用的精细化管理。

@@ -1,5 +1,10 @@
 # AI Service - Intelligent Service Platform
 
+The optional **语义选择** workflow component and `/v1/decision/choice` endpoint
+provide constrained classification using the configured OpenAI-compatible service.
+Enable it with `SEMANTIC_CHOICE_ENABLED=true`; see the
+[setup, upgrade and workflow example](../../docs/SEMANTIC_CHOICE.md).
+
 ## 📖 Project Introduction
 
 AI Service is a comprehensive intelligent service platform built on FastAPI, integrating multiple AI capabilities and a complete points management system. The platform provides core functions including chat conversations, OCR text recognition, captcha recognition, and implements fine-grained service usage management through a points mechanism.
