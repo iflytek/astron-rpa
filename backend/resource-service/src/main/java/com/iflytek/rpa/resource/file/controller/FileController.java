@@ -43,6 +43,21 @@ public class FileController {
     }
 
     /**
+     * 根据文件ID删除文件
+     *
+     * @param fileId 文件ID
+     * @return 删除结果
+     */
+    @DeleteMapping("/delete")
+    public AppResponse<Boolean> deleteFile(@RequestParam("fileId") String fileId) {
+        // 参数校验
+        if (StringUtils.isEmpty(fileId)) throw new ServiceException(ErrorCodeEnum.E_PARAM_LOSE.getCode());
+
+        // 调用Service层处理业务逻辑
+        return fileService.deleteFile(fileId);
+    }
+
+    /**
      * 上传文件
      *
      * @param file 文件对象

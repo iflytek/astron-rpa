@@ -29,4 +29,14 @@ public interface FileService extends IService<File> {
      * @return 文件ID
      */
     AppResponse<String> uploadFile(MultipartFile file) throws IOException;
+
+    /**
+     * 根据文件ID删除文件，同时清理 S3 对象与文件记录
+     *
+     * <p>删除是幂等的：文件已被删除或从未存在时同样返回成功。</p>
+     *
+     * @param fileId 文件ID
+     * @return 删除结果
+     */
+    AppResponse<Boolean> deleteFile(String fileId);
 }
