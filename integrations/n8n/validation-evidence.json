@@ -777,5 +777,348 @@
       "Full make check and same-run designer UI publication remain historical independent incomplete checks",
       "No local Docker CLI; complete Docker gateway shell test not run; direct Lua checks and deployed Nginx configuration check passed"
     ]
+  },
+  "browserServiceRebaseReview": {
+    "date": "2026-10-10",
+    "scope": "Rebase of browser-service onto merged public framework and JSON data contracts; controlled Windows integration regression",
+    "baseCommit": "79f8f6dbe5f7b9a076cc39f6712168ede075e151",
+    "testedCommit": "434b5f4693241c017af577119f22ef037af8850e",
+    "environment": {
+      "n8n": "2.40.7",
+      "nodeJs": "24.18.0",
+      "package": "n8n-nodes-astron-rpa@0.1.0-dev.2",
+      "requiredClientProtocol": 1,
+      "clientState": "ready",
+      "tls": {
+        "deploymentPort": 30998,
+        "verificationPassed": true,
+        "notBeforeDate": "2026-09-14",
+        "notAfterDate": "2026-12-13"
+      }
+    },
+    "liveOperations": {
+      "browser": [
+        "BrowserSoftware.get_current_obj",
+        "BrowserSoftware.wait_web_load",
+        "BrowserSoftware.get_current_url",
+        "BrowserSoftware.get_current_title",
+        "BrowserSoftware.get_current_tab_id",
+        "BrowserElement.create_element",
+        "BrowserElement.element_text",
+        "BrowserElement.element_exist"
+      ],
+      "http": [
+        "Network.http_request"
+      ],
+      "database": [
+        "Database.connect_database",
+        "Database.query_sql",
+        "Database.disconnect_database"
+      ],
+      "ftp": [
+        "Network.ftp_create",
+        "Network.get_work_dir",
+        "Network.get_ftp_list",
+        "Network.change_working_dir",
+        "Network.ftp_close"
+      ],
+      "mail": [
+        "Email.receive_email"
+      ],
+      "shared": [
+        "Enterprise.get_shared_variable"
+      ]
+    },
+    "liveOperationCount": 19,
+    "bothTransportsPerScenario": true,
+    "historicalFullOperationCoverage": "browserServiceValidation (2026-09-20); not rerun in full this round",
+    "successfulExecutions": [
+      {
+        "case": "http:mcp",
+        "n8nExecutionId": 441,
+        "executionId": "75eae7f5-767f-46a0-9664-98b28476192f",
+        "runId": "2108828623187243008",
+        "status": "succeeded"
+      },
+      {
+        "case": "database:mcp",
+        "n8nExecutionId": 443,
+        "executionId": "2cd223c5-a6f0-49f6-a745-dec67149a5e2",
+        "runId": "2108828676912082944",
+        "status": "succeeded"
+      },
+      {
+        "case": "ftp:mcp",
+        "n8nExecutionId": 445,
+        "executionId": "6a77303c-45d8-4ca6-9d6e-5a159f48366e",
+        "runId": "2108828731148627968",
+        "status": "succeeded"
+      },
+      {
+        "case": "mail:mcp",
+        "n8nExecutionId": 447,
+        "executionId": "250ff8ff-1b3d-41cd-9cd5-df497d5615b3",
+        "runId": "2108828782986031104",
+        "status": "succeeded"
+      },
+      {
+        "case": "shared:mcp",
+        "n8nExecutionId": 449,
+        "executionId": "2f8ddcbc-060b-4cc2-a79c-c89e404bbb68",
+        "runId": "2108828837985939456",
+        "status": "succeeded"
+      },
+      {
+        "case": "http:rest",
+        "n8nExecutionId": 451,
+        "executionId": "33817bc3-9a09-402b-a125-05780687a8df",
+        "runId": "2108828997256245248",
+        "status": "succeeded"
+      },
+      {
+        "case": "database:rest",
+        "n8nExecutionId": 453,
+        "executionId": "25b46d99-9305-4c49-a2aa-43ee30c8c94b",
+        "runId": "2108829042063994880",
+        "status": "succeeded"
+      },
+      {
+        "case": "ftp:rest",
+        "n8nExecutionId": 455,
+        "executionId": "cb2f4286-33e7-4df5-bc6d-2cc348b85265",
+        "runId": "2108829086951436288",
+        "status": "succeeded"
+      },
+      {
+        "case": "mail:rest",
+        "n8nExecutionId": 457,
+        "executionId": "1b1b891d-9b8c-4227-8b61-a3a77976b6fc",
+        "runId": "2108829127527133184",
+        "status": "succeeded"
+      },
+      {
+        "case": "shared:rest",
+        "n8nExecutionId": 459,
+        "executionId": "31e6ffe1-6265-4575-b095-1f3e9583b207",
+        "runId": "2108829176382386176",
+        "status": "succeeded"
+      },
+      {
+        "case": "http:rest:replay",
+        "n8nExecutionId": 471,
+        "executionId": "75eae7f5-767f-46a0-9664-98b28476192f",
+        "runId": "2108828623187243008",
+        "status": "succeeded"
+      },
+      {
+        "case": "browser:mcp:2",
+        "n8nExecutionId": 473,
+        "executionId": "8bb14909-51f6-46f3-9811-006219c155b9",
+        "runId": "2108829983869792256",
+        "status": "succeeded"
+      },
+      {
+        "case": "browser:rest:2",
+        "n8nExecutionId": 475,
+        "executionId": "f65324ba-a936-4ac7-bb78-4baa0c5b0975",
+        "runId": "2108830038404132864",
+        "status": "succeeded"
+      }
+    ],
+    "crossTransportIdempotency": {
+      "n8nExecutions": [
+        441,
+        471
+      ],
+      "executionId": "75eae7f5-767f-46a0-9664-98b28476192f",
+      "runId": "2108828623187243008",
+      "sameExecutionAndRun": true
+    },
+    "mcpRestSnapshotsEqual": true,
+    "nodeRejections": [
+      {
+        "case": "undeclared:mcp",
+        "code": "ADMISSION_DENIED"
+      },
+      {
+        "case": "invalid-operation:mcp",
+        "code": "ADMISSION_DENIED"
+      },
+      {
+        "case": "incomplete-review:mcp",
+        "code": "ADMISSION_DENIED"
+      },
+      {
+        "case": "mcp-only:rest",
+        "code": "TRANSPORT_NOT_ALLOWED"
+      }
+    ],
+    "serverRejections": [
+      {
+        "case": "undeclared",
+        "transport": "mcp",
+        "code": "PROFILE_UNKNOWN"
+      },
+      {
+        "case": "undeclared",
+        "transport": "rest",
+        "code": "PROFILE_UNKNOWN"
+      },
+      {
+        "case": "invalid-operation",
+        "transport": "mcp",
+        "code": "CAPABILITY_DECLARATION_INVALID"
+      },
+      {
+        "case": "invalid-operation",
+        "transport": "rest",
+        "code": "CAPABILITY_DECLARATION_INVALID"
+      },
+      {
+        "case": "incomplete-review",
+        "transport": "mcp",
+        "code": "READ_CONSTRAINT_INVALID"
+      },
+      {
+        "case": "incomplete-review",
+        "transport": "rest",
+        "code": "READ_CONSTRAINT_INVALID"
+      },
+      {
+        "case": "mcp-only",
+        "transport": "rest",
+        "code": "TRANSPORT_NOT_ALLOWED"
+      }
+    ],
+    "cancellation": {
+      "cancelledExecutionId": "322dae68-6155-4c97-9e1a-e43c3bf37d97",
+      "status": "cancelled",
+      "newExecutionId": "410a7140-2645-4c45-b57b-356c87d44b2a",
+      "newStatusBeforeRepeatedOldCancellation": "running",
+      "newTerminalStatus": "succeeded"
+    },
+    "readSideEffects": {
+      "imap": [
+        "CAPABILITY",
+        "LOGIN",
+        "ID",
+        "LIST",
+        "EXAMINE INBOX",
+        "SEARCH",
+        "FETCH 1 (BODY.PEEK[])",
+        "LOGOUT",
+        "CAPABILITY",
+        "LOGIN",
+        "ID",
+        "LIST",
+        "EXAMINE INBOX",
+        "SEARCH",
+        "FETCH 1 (BODY.PEEK[])",
+        "LOGOUT"
+      ],
+      "mailSeen": false,
+      "mailConnections": 0,
+      "ftpConnections": 0
+    },
+    "database": {
+      "schemaReady": true,
+      "testTerminalExecutions": 18,
+      "terminalStatusCounts": {
+        "COMPLETED": 15,
+        "FAILED": 1,
+        "CANCELLED": 2
+      },
+      "failedBrowserExecutionId": "714ac60f-5119-4cf4-84fb-08b2031df284",
+      "initialBrowserFailureReason": "Different active Edge window; designated page retested successfully via both transports",
+      "allFrozenOutputSchemasPresent": true,
+      "allFrozenMaxBytes": 1048576,
+      "deniedWorkflowExecutions": 0,
+      "nonterminalExecutions": 0
+    },
+    "quality": {
+      "openapiTestsPassed": 279,
+      "nodeTestsPassed": 36,
+      "engineTestsPassed": 18,
+      "existingSQLiteDatetimeWarnings": 4,
+      "nodeBuildTypecheckLint": "passed",
+      "nodePrettier": "passed with --end-of-line auto; existing Windows CRLF requires this option for full-package check",
+      "pythonChecksAgainstMain": [
+        {
+          "scope": "backend/openapi-service/",
+          "files": 12,
+          "mainDiagnostics": 26,
+          "currentDiagnostics": 17,
+          "newDiagnostics": [],
+          "formatPassed": true
+        },
+        {
+          "scope": "engine/",
+          "files": 16,
+          "mainDiagnostics": 127,
+          "currentDiagnostics": 126,
+          "newDiagnostics": [],
+          "formatPassed": true
+        }
+      ],
+      "fullMakeCheckRerun": false,
+      "fullDockerGatewayShellTestRun": false
+    },
+    "consistency": {
+      "serverFilesMatched": 48,
+      "serverSourceMismatches": [],
+      "clientFilesMatched": 9,
+      "clientSourceMismatches": [],
+      "nodePackageFilesMatched": 29,
+      "nodeTarballSha256": "3e6ec77587b590a8f9b4e4942f5f3114ed0003c677955e91e57b3bb77267bffc",
+      "successfulClientReceiptsMatch": true,
+      "successfulUniqueClientReceipts": 12,
+      "deployedNginxConfigValid": true
+    },
+    "cleanup": {
+      "server": {
+        "originalPolicyRestored": true,
+        "policySha256": "658ab95c77cff9bb37c1575f04378cbf3b2dfdf4a11b9a16e648021322517513",
+        "temporaryWorkflowsRemaining": 0,
+        "sharedFixturesRemoved": true,
+        "nonterminalExecutions": 0,
+        "executionAuditRetained": true
+      },
+      "serverTemporaryArtifactsRemoved": [
+        ".browser-review-20261010",
+        ".browser-review-20261010.tgz"
+      ],
+      "temporaryRobotsRemoved": 11,
+      "n8n": {
+        "testWorkflowRemoved": true,
+        "testExecutionsRemoved": 59,
+        "testWebhooksRemaining": 0,
+        "pendingExecutions": 0,
+        "unrelatedWorkflowsExecutionsWebhooksAndCredentialsPreserved": true,
+        "n8nStopped": true
+      },
+      "local": {
+        "testRuntimeDirectoriesRemoved": 7,
+        "temporaryFilesRemoved": [
+          "credential.json",
+          "mail-key.pem",
+          "mail-cert.pem"
+        ],
+        "testPortsClosed": [
+          18766,
+          18767,
+          18768,
+          5678
+        ],
+        "clientExecutorRunning": false,
+        "clientExecutionAuditRetained": true,
+        "installedPackageTarballRetained": true
+      }
+    },
+    "limitations": [
+      "Controlled Windows environment, trusted reviewed workflows and SQLite; other database drivers and full client EXE rebuild not validated this round",
+      "Browser reads depend on the active page in the plugin-connected window; no fixed background-tab routing",
+      "Intermittent connection timeouts recovered using the original execution ID or the same idempotency key; TLS verification remained enabled",
+      "Historical independent incomplete checks remain documented in VALIDATION.md"
+    ]
   }
 }
