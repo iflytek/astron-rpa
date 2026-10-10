@@ -30,3 +30,7 @@ cd engine/components/astronverse-browser
 uv run meta.py
 ```
 
+When changing component parameters, update the Python definition and the corresponding `locale/<locale>.json` labels; keep icons and tree paths in `config.yaml`. Regenerate metadata with the commands above and deploy it together with the matching client code. Metadata controls the designer's parameter form; it does not rewrite arguments in saved workflows. Edit and republish affected workflows separately.
+
+For browser parameters, mail read state, attachment saving and database driver setup, see the [FAQ](../FAQ.md).
+

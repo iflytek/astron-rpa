@@ -3,7 +3,7 @@ import sqlite3
 from unittest.mock import Mock
 
 import pytest
-from astronverse.database import DatabaseType
+from astronverse.database import DatabaseType, core_win
 from astronverse.database.core_win import DatabaseCore
 from astronverse.database.database import Database
 
@@ -65,3 +65,49 @@ def test_database_metadata_is_serializable_and_exposes_read_lifecycle():
     assert {"Database.connect_database", "Database.query_sql", "Database.disconnect_database"} <= set(metadata)
     connect = metadata["Database.connect_database"]
     assert next(p for p in connect["inputList"] if p["key"] == "connect_info")["types"] == "Dict"
+
+
+@pytest.mark.parametrize(
+    ("db_type", "module", "package"),
+    [
+        (DatabaseType.SQLServer, "pyodbc", "pyodbc"),
+        (DatabaseType.Access, "pyodbc", "pyodbc"),
+        (DatabaseType.Oracle, "cx_Oracle", "cx_Oracle"),
+        (DatabaseType.PostgreSQL, "psycopg2", "psycopg2-binary"),
+    ],
+)
+def test_optional_driver_failure_explains_which_package_to_install(monkeypatch, db_type, module, package):
+    failure = ModuleNotFoundError(f"No module named '{module}'", name=module)
+    load = Mock(side_effect=failure)
+    monkeypatch.setattr(core_win, "import_module", load)
+    with pytest.raises(RuntimeError, match=f"python -m pip install {package}") as exc:
+        DatabaseCore.connect({"password": "synthetic-secret"}, db_type)
+    load.assert_called_once_with(module)
+    assert module in str(exc.value)
+    assert "synthetic-secret" not in str(exc.value)
+    assert exc.value.__cause__ is failure
+
+
+def test_optional_driver_connection_errors_are_not_reported_as_missing_driver(monkeypatch):
+    driver = Mock()
+    driver.connect.side_effect = ValueError("connection failed")
+    monkeypatch.setattr(core_win, "import_module", Mock(return_value=driver))
+    with pytest.raises(ValueError, match="connection failed"):
+        DatabaseCore.connect({}, DatabaseType.PostgreSQL)
+
+
+def test_driver_binary_load_failure_reports_package_and_native_dependencies(monkeypatch):
+    failure = ImportError("DLL load failed")
+    monkeypatch.setattr(core_win, "import_module", Mock(side_effect=failure))
+    with pytest.raises(RuntimeError, match="python -m pip install pyodbc") as exc:
+        DatabaseCore.connect({}, DatabaseType.SQLServer)
+    assert "ODBC" in str(exc.value)
+    assert exc.value.__cause__ is failure
+
+
+def test_sqlite_does_not_load_optional_database_drivers(monkeypatch):
+    load = Mock(side_effect=AssertionError("unexpected optional driver import"))
+    monkeypatch.setattr(core_win, "import_module", load)
+    connection = DatabaseCore.connect({"sqlite_path": ":memory:"}, DatabaseType.SQLite)
+    DatabaseCore.disconnect(connection)
+    load.assert_not_called()

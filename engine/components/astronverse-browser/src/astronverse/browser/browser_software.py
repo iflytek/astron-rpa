@@ -495,14 +495,23 @@ class BrowserSoftware:
     @staticmethod
     @atomicMg.atomic(
         "BrowserSoftware",
+        inputList=[
+            atomicMg.param(
+                "activate_window",
+                formType=AtomicFormTypeMeta(type=AtomicFormType.CHECKBOX.value),
+                level=AtomicLevel.ADVANCED,
+                required=False,
+            ),
+        ],
         outputList=[
             atomicMg.param("browser_obj", types="Browser"),
         ],
     )
     def get_current_obj(
         browser_type: CommonForBrowserType = CommonForBrowserType.BTChrome,
+        activate_window: bool = True,
     ) -> Browser:
-        """获取当前浏览器对象"""
+        """获取当前浏览器对象；默认置顶并最大化，只读流程应显式关闭 activate_window。"""
 
         control = None
         open_timeout = 10
@@ -514,6 +523,12 @@ class BrowserSoftware:
             open_timeout -= 1
         if not control:
             raise BaseException(BROWSER_OPEN_TIMEOUT, "打开浏览器超时")
+
+        if activate_window:
+            try:
+                BrowserCore.browser_top_and_max(control)
+            except Exception:
+                pass
 
         browser = Browser()
         browser.browser_type = browser_type

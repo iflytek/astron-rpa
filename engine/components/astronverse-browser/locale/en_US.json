@@ -48,6 +48,10 @@
       "browser_type": {
         "title": "Browser Type",
         "tip": "Select the browser type where the browser object is located"
+      },
+      "activate_window": {
+        "title": "Activate and maximize window",
+        "tip": "Enabled by default for compatibility. Disable for read-only workflows to preserve window position and focus."
       }
     },
     "outputList": {

@@ -29,3 +29,7 @@ resources/meta/en_US/tree.json
 cd engine/components/astronverse-browser
 uv run meta.py
 ```
+
+修改组件参数时，应同步更新 Python 定义和对应 `locale/<locale>.json` 中的文本，图标和树路径仍放在 `config.yaml`。使用上述命令重新生成元数据，并部署匹配的客户端代码。元数据决定设计器中的参数表单，不会改写已保存流程中的参数；受影响的流程需单独编辑并重新发布。
+
+浏览器参数、邮件已读状态、附件保存和数据库驱动配置见[常见问题](../FAQ.zh.md)。

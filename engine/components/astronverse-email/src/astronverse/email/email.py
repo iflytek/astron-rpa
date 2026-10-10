@@ -1,11 +1,24 @@
 """email原子能力"""
 
 import copy
+from ntpath import isreserved
+from pathlib import Path, PureWindowsPath
 
 from astronverse.actionlib import AtomicFormType, AtomicFormTypeMeta, AtomicLevel, DynamicsItem
 from astronverse.actionlib.atomic import atomicMg
 from astronverse.baseline.logger.logger import logger
 from astronverse.email import EmailSeenType, EmailServerType
+
+
+def _attachment_path(directory: str, name: str) -> Path:
+    # Attachment names come from the sender, not a trusted local path.
+    if not isinstance(name, str) or name in ("", ".", "..") or PureWindowsPath(name).name != name or isreserved(name):
+        raise ValueError("附件文件名不安全，不能包含路径、保留名称或非法字符")
+    root = Path(directory).resolve()
+    target = root / name
+    if target.is_symlink() or target.resolve().parent != root:
+        raise ValueError("附件保存路径超出指定目录或指向符号链接")
+    return target
 
 
 class Email:
@@ -210,7 +223,7 @@ class Email:
         save_attachment_flag: `bool`, 是否保存附件
         save_attachment_path: `str`, 附件保存路径
         unseen_flag: `str`, 是否仅操作未读邮件
-        mask_as_read_flag: `bool`, 是否将操作过的邮件标记为已读
+        mask_as_read_flag: `bool`, 是否将返回的邮件标记为已读；False 时保持未读，可重复查询到
         """
         # 初始化参数
         if max_return_num == 0:
@@ -281,15 +294,13 @@ class Email:
 
             # 获取邮件详细信息，并存储附件
             return_mail_res = []
-            from pathlib import Path
-
             for mail_id, mail_info in matched_mails:
                 # 判断是否需要保存附件
                 if save_attachment_flag:
                     for attachment in mail_info["attachments"]:
                         if not attachment:
                             continue
-                        file_path = Path(save_attachment_path) / attachment["name"]
+                        file_path = _attachment_path(save_attachment_path, attachment["name"])
                         file_path.write_bytes(attachment["data"])
                 # 判断是否需要标注为已读
                 if mask_as_read_flag:

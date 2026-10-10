@@ -12,6 +12,7 @@ from app.security.workflow_authorization import WorkflowAccessError
 
 # Only arguments which can cross this capability's boundary are described here.
 RULES = {
+    "BrowserSoftware.get_current_obj": {"activate_window": (False,)},
     "Network.http_request": {"request_type": ("get", "head"), "file_path": ("",), "save_type": ("no",)},
     "Email.receive_email": {"save_attachment_flag": (False,), "mask_as_read_flag": (False,)},
     "BrowserElement.get_table": {"to_excel": (False,)},

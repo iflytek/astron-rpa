@@ -242,8 +242,15 @@ or a general SQL firewall. Connection handles, element objects and iterators sta
 the workflow; public results must satisfy the frozen JSON schema and limits.
 
 HTTP is limited to GET/HEAD without upload or save; mail disables attachment saving and
-mark-as-read; browser extraction is single-page without file/data-table export. The public
-profile exposes `readContractVersion: 1`, not private SQL or review arguments. Review changes
+mark-as-read; browser extraction is single-page without file/data-table export.
+Each `BrowserSoftware.get_current_obj` call must explicitly pass `activate_window=False`,
+with `"BrowserSoftware.get_current_obj": {"activate_window": false}` in
+`readOnlyReview.operationInputs`. Omitted or enabled switches are rejected because the
+component defaults to activating and maximizing the browser window. When changing workflow
+arguments, republish the workflow and review that version before updating its declaration;
+editing the policy alone does not change the workflow's behavior.
+
+The public profile exposes `readContractVersion: 1`, not private SQL or review arguments. Review changes
 invalidate the profile revision. MCP remains primary. An explicitly admitted REST execution
 uses `?contract=1` for submission/query and `POST /executions/{id}/cancel`; these return the
 same authorized snapshot as MCP. Deploy the matching gateway Lua policy for these routes.

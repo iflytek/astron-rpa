@@ -1,4 +1,5 @@
 import sqlite3
+from importlib import import_module
 
 from astronverse.database import DatabaseType
 from astronverse.database.core import IDatabaseCore
@@ -7,6 +8,17 @@ from astronverse.database.core import IDatabaseCore
 #     import ibm_db_dbi
 # except Exception as e:
 #     logger.error(f"加载ibm_db_dll出错：{str(e)}")
+
+
+def _load_driver(module: str, package: str, database: str):
+    try:
+        return import_module(module)
+    except ImportError as exc:
+        raise RuntimeError(
+            f"{database} 驱动 {module} 未安装或无法加载。"
+            f"请在执行流程的客户端 Python 环境中安装或修复驱动：python -m pip install {package}。"
+            "若已安装，请检查驱动所需的本机数据库客户端/ODBC 库及 Python 位数是否匹配。"
+        ) from exc
 
 
 class DatabaseCore(IDatabaseCore):
@@ -26,7 +38,7 @@ class DatabaseCore(IDatabaseCore):
                 charset=db_info_dict.get("charset", "utf8").replace("-", ""),
             )
         elif db_type == DatabaseType.SQLServer:
-            import pyodbc
+            pyodbc = _load_driver("pyodbc", "pyodbc", "SQL Server")
 
             server = "{},{}".format(db_info_dict.get("host", ""), int(db_info_dict.get("port", 1433)))
             # 连接字符串
@@ -40,7 +52,7 @@ class DatabaseCore(IDatabaseCore):
             # 连接数据库
             db_conn = pyodbc.connect(conn_str)
         elif db_type == DatabaseType.Oracle:
-            import cx_Oracle
+            cx_Oracle = _load_driver("cx_Oracle", "cx_Oracle", "Oracle")
 
             if db_info_dict.get("service_type", "") == "service":
                 service = db_info_dict.get("service", "")
@@ -52,7 +64,7 @@ class DatabaseCore(IDatabaseCore):
                 dsn=f"{db_info_dict.get('host', '')}:{int(db_info_dict.get('port', 1521))}/{service}",
             )
         elif db_type == DatabaseType.PostgreSQL:
-            import psycopg2
+            psycopg2 = _load_driver("psycopg2", "psycopg2-binary", "PostgreSQL")
 
             db_conn = psycopg2.connect(
                 database=db_info_dict.get("database", ""),
@@ -69,7 +81,7 @@ class DatabaseCore(IDatabaseCore):
             else:
                 db_conn = sqlite3.connect(f"{db_info_dict.get('sqlite_path', '')}")
         elif db_type == DatabaseType.Access:
-            import pyodbc
+            pyodbc = _load_driver("pyodbc", "pyodbc", "Access")
 
             conn_str = (
                 r"DRIVER={Driver do Microsoft Access (*.mdb)};"

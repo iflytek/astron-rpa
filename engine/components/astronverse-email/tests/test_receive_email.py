@@ -146,3 +146,80 @@ def test_search_failure_still_releases_session(monkeypatch):
     with pytest.raises(RuntimeError):
         Email.receive_email()
     assert FakeEmailImap4Receive.instances[-1].logged_out is True
+
+
+def _mock_attachment(monkeypatch, name):
+    original = FakeEmailImap4Receive.get_entire_mail_info
+
+    def get_mail(self, num):
+        mail = original(self, num)
+        mail["attachments"] = [{"name": name, "data": b"attachment content"}]
+        return mail
+
+    monkeypatch.setattr(FakeEmailImap4Receive, "get_entire_mail_info", get_mail)
+    monkeypatch.setattr(core_imap4_receive, "EmailImap4Receive", FakeEmailImap4Receive)
+
+
+@pytest.mark.parametrize(
+    "name",
+    [
+        "../escape.txt",
+        r"..\escape.txt",
+        "/escape.txt",
+        r"C:\escape.txt",
+        "C:escape.txt",
+        r"\\server\share\escape.txt",
+        "file.txt:stream",
+        ".",
+        "..",
+        "",
+        "NUL",
+        "file.txt.",
+        "bad\x00name",
+    ],
+)
+def test_attachment_save_rejects_untrusted_paths_and_releases_session(monkeypatch, tmp_path, name):
+    _mock_attachment(monkeypatch, name)
+    destination = tmp_path / "attachments"
+    destination.mkdir()
+    with pytest.raises(ValueError, match="附件"):
+        Email.receive_email(save_attachment_flag=True, save_attachment_path=str(destination), max_return_num=1)
+    assert list(tmp_path.iterdir()) == [destination]
+    assert list(destination.iterdir()) == []
+    assert FakeEmailImap4Receive.instances[-1].logged_out is True
+
+
+def test_attachment_save_keeps_valid_filename_and_existing_overwrite_behavior(monkeypatch, tmp_path):
+    name = "报告 2026.txt"
+    _mock_attachment(monkeypatch, name)
+    target = tmp_path / name
+    target.write_bytes(b"old content")
+    result = Email.receive_email(save_attachment_flag=True, save_attachment_path=str(tmp_path), max_return_num=1)
+    assert target.read_bytes() == b"attachment content"
+    assert result[0]["attachments"] == [name]
+    assert FakeEmailImap4Receive.instances[-1].logged_out is True
+
+
+def test_read_without_saving_preserves_attachment_names_without_writing(monkeypatch, tmp_path):
+    _mock_attachment(monkeypatch, "../untrusted.txt")
+    result = Email.receive_email(save_attachment_flag=False, save_attachment_path=str(tmp_path), max_return_num=1)
+    assert result[0]["attachments"] == ["../untrusted.txt"]
+    assert list(tmp_path.iterdir()) == []
+    assert FakeEmailImap4Receive.instances[-1].readonly is True
+
+
+def test_attachment_save_rejects_symlink_to_file_outside_directory(monkeypatch, tmp_path):
+    name = "link.txt"
+    _mock_attachment(monkeypatch, name)
+    outside = tmp_path / "outside.txt"
+    outside.write_bytes(b"untouched")
+    destination = tmp_path / "attachments"
+    destination.mkdir()
+    try:
+        (destination / name).symlink_to(outside)
+    except OSError:
+        pytest.skip("Creating symlinks requires Windows developer mode or administrator privileges")
+    with pytest.raises(ValueError, match="附件"):
+        Email.receive_email(save_attachment_flag=True, save_attachment_path=str(destination), max_return_num=1)
+    assert outside.read_bytes() == b"untouched"
+    assert FakeEmailImap4Receive.instances[-1].logged_out is True

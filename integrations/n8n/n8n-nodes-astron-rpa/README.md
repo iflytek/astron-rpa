@@ -82,7 +82,11 @@ Select **MCP (Primary)** unless the published declaration explicitly includes `r
 
 Read workflows require `readContractVersion: 1` from an administrator-reviewed release. HTTP permits GET/HEAD without upload or save; mail preserves unread state and does not save attachments; browser extraction stays on one page without export; database SQL is fixed and reviewed with read-only credentials. The review is not a sandbox for arbitrary Python or SQL. Connection objects, element handles and generators remain inside the workflow, and results use the shared bounded JSON contract. REST submission, observation and cancellation preserve the server's execution identity, state and result visibility.
 
-Browser reads require the intended active browser tab and the installed AstronRPA extension; reserve the terminal during execution. The SQLite read-only connection option is `connect_info.read_only: true`. MySQL uses the packaged driver; PostgreSQL, SQL Server, Access and Oracle require their corresponding optional database drivers. A successful SQLite test does not establish compatibility with those database deployments.
+Configure the published RPA workflow for the capability it declares:
+
+- **Browser:** use the intended active tab with the AstronRPA extension connected, and reserve the terminal during execution. Set `activate_window=False` on every `BrowserSoftware.get_current_obj` call to avoid activating or maximizing a window. Have the administrator include that value in the [read-only admission review](../../../backend/openapi-service/README.md#integration-admission); after changing workflow arguments, republish and update the version-bound review.
+- **Mail:** leave `mask_as_read_flag` and `save_attachment_flag` disabled. An unread-only query can return the same messages on later runs, so handle deduplication in the calling workflow. General mail-component usage and guidance for workflows that consume unread mail are in the [FAQ](../../../FAQ.md#q-why-do-unread-only-mail-queries-return-the-same-messages).
+- **Database:** use read-only credentials and fixed, reviewed SQL. For SQLite, set `connect_info.read_only: true`. MySQL uses the packaged driver; other database types require the [corresponding optional driver](../../../FAQ.md#q-which-drivers-do-database-workflows-need) in the executing client's Python environment. A successful SQLite test does not establish compatibility with those database deployments.
 
 ### JSON data workflow boundary
 

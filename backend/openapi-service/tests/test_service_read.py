@@ -61,6 +61,9 @@ def test_every_supported_operation_has_a_reviewed_admission(policy, capability, 
 @pytest.mark.parametrize(
     ("operation", "argument", "value"),
     [
+        ("BrowserSoftware.get_current_obj", "activate_window", True),
+        ("BrowserSoftware.get_current_obj", "activate_window", 0),
+        ("BrowserSoftware.get_current_obj", "activate_window", "false"),
         ("Network.http_request", "request_type", "post"),
         ("Network.http_request", "file_path", "upload.txt"),
         ("Network.http_request", "save_type", "yes"),
@@ -82,6 +85,30 @@ def test_side_effect_switches_and_dynamic_sql_are_rejected(operation, argument, 
     declaration["operationInputs"][operation][argument] = value
     with pytest.raises(WorkflowAccessError, match="read constraints"):
         validate_read_review(declaration, [operation], {})
+
+
+def test_browser_read_requires_explicit_activation_opt_out():
+    operation = "BrowserSoftware.get_current_obj"
+    declaration = review([operation])
+    declaration["operationInputs"][operation] = {}
+    with pytest.raises(WorkflowAccessError, match="read constraints"):
+        validate_read_review(declaration, [operation], {})
+    declaration["operationInputs"][operation] = {"activate_window": False}
+    validate_read_review(declaration, [operation], {})
+    declaration["operationInputs"][operation] = [{"activate_window": False}, {}]
+    with pytest.raises(WorkflowAccessError, match="read constraints"):
+        validate_read_review(declaration, [operation], {})
+
+
+def test_browser_activation_input_binding_rejects_missing_or_unsafe_value():
+    operation = "BrowserSoftware.get_current_obj"
+    declaration = review([operation])
+    declaration["operationInputs"][operation] = {"activate_window": {"parameter": "activate"}}
+    schema = {"properties": {"activate": {"type": "boolean", "enum": [False]}}}
+    validate_read_review(declaration, [operation], schema, {"activate": False})
+    for params in [{}, {"activate": True}, {"activate": 0}]:
+        with pytest.raises(WorkflowAccessError, match="read constraints"):
+            validate_read_review(declaration, [operation], schema, params)
 
 
 def test_bound_arguments_require_safe_schema_and_actual_values():
