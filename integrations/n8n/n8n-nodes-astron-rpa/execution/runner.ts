@@ -9,6 +9,7 @@ import {
 } from "../mapping/contracts";
 import type { McpConnection } from "../transport/mcp";
 import { safeError } from "../transport/mcp";
+import type { CapabilityClass } from "../capabilities/shared/types";
 
 export function hash(value: unknown): string {
   const canonical = (v: unknown): unknown =>
@@ -32,10 +33,11 @@ export interface Prepared {
     params: IDataObject;
     idempotencyKey: string;
     profileRevision: string;
-    capabilityClass?: "json-data";
+    capabilityClass?: CapabilityClass;
     executionTimeout?: number;
   };
   mode: "async" | "wait" | "sync";
+  transport?: "mcp" | "rest";
   waitSeconds: number;
   pollSeconds: number;
   requestTimeout: number;

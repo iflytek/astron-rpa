@@ -14,7 +14,7 @@ remote_tree_url = os.getenv("REMOTE_TREE_URL", "your remote tree url address in 
 # Define the base directory for components
 base_dir = os.path.dirname(__file__) + "/components"
 # Define any directories to skip
-skipped_verse = ["astronverse-database"]
+skipped_verse = []
 
 folders = os.listdir(base_dir)
 selected_folders = folders.copy()

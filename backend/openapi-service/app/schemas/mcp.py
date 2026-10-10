@@ -2,6 +2,8 @@
 
 from mcp import types
 
+from app.schemas.integration import CAPABILITY_CLASSES
+
 
 def object_schema(properties: dict, required: list[str]) -> dict:
     return {"type": "object", "properties": properties, "required": required, "additionalProperties": False}
@@ -17,6 +19,11 @@ WORKFLOW_PROPERTIES = {
     "admission": {"type": "object"},
     "capabilityClass": {"type": ["string", "null"]},
     "capabilities": {"type": ["array", "null"], "items": {"type": "string"}},
+    "componentOperations": {"type": ["array", "null"], "items": {"type": "string"}},
+    "allowedTransports": {
+        "type": ["array", "null"],
+        "items": {"enum": ["mcp", "rest"]},
+    },
 }
 WORKFLOW_SCHEMA = object_schema(WORKFLOW_PROPERTIES, list(WORKFLOW_PROPERTIES))
 EXECUTION_PROPERTIES = {
@@ -98,7 +105,7 @@ CONTROL_TOOLS = {
                     "params": {"type": "object"},
                     "idempotencyKey": {"type": "string", "minLength": 1, "maxLength": 200},
                     "executionTimeout": {"type": "integer", "minimum": 1, "maximum": 86400},
-                    "capabilityClass": {"enum": ["json-data"]},
+                    "capabilityClass": {"enum": list(CAPABILITY_CLASSES)},
                     "profileRevision": {"type": "string", "minLength": 1, "maxLength": 100},
                 },
                 ["projectId"],

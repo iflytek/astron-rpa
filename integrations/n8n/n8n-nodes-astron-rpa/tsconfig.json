@@ -16,6 +16,7 @@
     "nodes/**/*.ts",
     "transport/**/*.ts",
     "execution/**/*.ts",
-    "mapping/**/*.ts"
+    "mapping/**/*.ts",
+    "capabilities/**/*.ts"
   ]
 }

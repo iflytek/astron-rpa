@@ -34,10 +34,12 @@ This project uses the `meta_json.py` script to automatically build, merge, and u
   ```
 3. Follow the prompts to confirm whether to upload the merged meta configuration to the server.
 
+When changing a component's parameters, update its Python definition and `config.yaml`, then regenerate and upload its metadata alongside deployment of the matching client code. Metadata controls the designer's parameter form; uploading it does not rewrite arguments in saved workflows. Edit and republish affected workflows separately.
+
 ## Workflow
 
 1. **Execute component meta.py**  
-  The script automatically traverses the `components` directory, skips `astronverse-database`, and executes `meta.py` in each component's subdirectory to generate/update the corresponding `meta.json`.
+  The script traverses the selected directories under `components`, applies the `skipped_verse` exclusions (empty by default), and executes each available `meta.py` to generate/update the corresponding `meta.json`.
 
 2. **Merge local meta.json files**  
   It aggregates all component `meta.json` files and creates a temporary file `temp_local.json`.
@@ -56,5 +58,6 @@ This project uses the `meta_json.py` script to automatically build, merge, and u
 - Please ensure that the API URLs in the `.env` file are correct and accessible. You can refer to `.env.example`.
 - The merge logic prioritizes local changes; any content not present in the remote configuration will be added.
 - The upload operation is irreversible. Please confirm with caution.
+- For browser parameters, mail read state, attachment saving and database driver setup, see the [FAQ](../FAQ.md).
 
 If you have any questions, please contact the project maintainer.

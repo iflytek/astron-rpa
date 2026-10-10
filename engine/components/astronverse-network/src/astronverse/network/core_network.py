@@ -90,7 +90,7 @@ class NetworkCore:
             response = requests.head(url, headers=headers, timeout=timeout)
 
             # 返回响应头
-            return response.headers
+            return dict(response.headers)
         except requests.RequestException as e:
             raise Exception(f"Request failed: {e}")
 

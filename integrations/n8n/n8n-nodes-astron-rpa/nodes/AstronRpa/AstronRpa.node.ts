@@ -29,6 +29,12 @@ import {
 } from "../../execution/runner";
 import { runnerWorkflow } from "../../execution/workflow";
 import { scheduleWake } from "../../execution/wake";
+import {
+  allowsTransport,
+  capabilityClass,
+  validateCapabilityProfile,
+} from "../../capabilities/shared/registry";
+import { withRest } from "../../transport/rest";
 
 const executeOnly = { show: { operation: ["execute"] } };
 const readId = { show: { operation: ["getExecution", "cancelExecution"] } };
@@ -115,6 +121,19 @@ const properties: INodeProperties[] = [
       { name: "Wait — Durable", value: "wait" },
       { name: "Sync — Short Wait", value: "sync" },
     ],
+  },
+  {
+    displayName: "Transport",
+    name: "transport",
+    type: "options",
+    default: "mcp",
+    displayOptions: executeOnly,
+    options: [
+      { name: "MCP (Primary)", value: "mcp" },
+      { name: "REST (Auxiliary)", value: "rest" },
+    ],
+    description:
+      "MCP is the primary channel. REST is used only when the published capability explicitly allows it.",
   },
   {
     displayName: "Business Idempotency Key",
@@ -356,20 +375,29 @@ export class AstronRpa implements INodeType {
         const connection = (await this.getCredentials(
           "astronRpaApi",
         )) as unknown as Connection;
+        const transport = requests[state.cursor].transport ?? "mcp";
         let next;
         try {
-          next = await withMcp(
-            connection,
-            requests[state.cursor].requestTimeout * 1000,
-            (client) =>
-              step(
-                state,
-                requests,
-                client,
-                Date.now,
-                Boolean(this.getNodeParameter("_continue", 0)),
-              ),
-          );
+          const run = (client: Parameters<typeof step>[2]) =>
+            step(
+              state,
+              requests,
+              client,
+              Date.now,
+              Boolean(this.getNodeParameter("_continue", 0)),
+            );
+          next =
+            transport === "rest"
+              ? await withRest(
+                  connection,
+                  requests[state.cursor].requestTimeout * 1000,
+                  run,
+                )
+              : await withMcp(
+                  connection,
+                  requests[state.cursor].requestTimeout * 1000,
+                  run,
+                );
         } catch (error) {
           next = await step(
             state,
@@ -457,9 +485,21 @@ export class AstronRpa implements INodeType {
                   projectId,
                   version,
                 );
+            validateCapabilityProfile(profile);
             const mode = String(this.getNodeParameter("mode", i, "async"));
             if (!["async", "wait", "sync"].includes(mode))
               throw new AstronError("INVALID_ARGUMENTS");
+            const declaredCapability = capabilityClass(profile.capabilityClass);
+            const selectedTransport = String(
+              this.getNodeParameter("transport", i, "mcp"),
+            );
+            if (selectedTransport !== "mcp" && selectedTransport !== "rest")
+              throw new AstronError("INVALID_ARGUMENTS");
+            if (
+              selectedTransport === "rest" &&
+              !allowsTransport(profile, "rest")
+            )
+              throw new AstronError("TRANSPORT_NOT_ALLOWED");
             const key =
               String(this.getNodeParameter("idempotencyKey", i, "")).trim() ||
               `n8n:${hash([this.getInstanceId(), this.getExecutionId(), this.getNode().id, this.getWorkflowDataProxy(i).$runIndex, i])}`;
@@ -471,8 +511,10 @@ export class AstronRpa implements INodeType {
               params: jsonObject(this.getNodeParameter("params", i, {})),
               idempotencyKey: key,
               profileRevision: String(profile.revision),
-              ...(profile.capabilityClass === "json-data"
-                ? { capabilityClass: "json-data" as const }
+              ...(declaredCapability
+                ? {
+                    capabilityClass: declaredCapability,
+                  }
                 : {}),
               ...(deadline ? { executionTimeout: deadline } : {}),
             };
@@ -489,6 +531,7 @@ export class AstronRpa implements INodeType {
             requests.push({
               args,
               mode: mode as Prepared["mode"],
+              transport: selectedTransport as Prepared["transport"],
               waitSeconds: Math.min(
                 integer(this, "waitSeconds", i, 1, 86400, 300),
                 mode === "sync" ? 30 : 86400,
