@@ -3,10 +3,10 @@ package com.iflytek.rpa.base.service.impl;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 import com.iflytek.rpa.base.dao.CElementDao;
@@ -15,16 +15,18 @@ import com.iflytek.rpa.base.entity.CElement;
 import com.iflytek.rpa.base.entity.CGroup;
 import com.iflytek.rpa.base.entity.dto.ServerBaseDto;
 import com.iflytek.rpa.common.feign.RpaAuthFeign;
-import com.iflytek.rpa.common.feign.RpaResourceFeign;
 import com.iflytek.rpa.common.feign.entity.User;
 import com.iflytek.rpa.utils.IdWorker;
 import com.iflytek.rpa.utils.response.AppResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.NullSource;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.test.util.ReflectionTestUtils;
 
 /**
- * 覆盖 issue #793 的第一处孤儿场景：图片已上传、元素因重名未入库。
+ * 重名失败不能修改已有元素或客户端提供的图片引用。
  */
 class CElementServiceImplOrphanImageTest {
 
@@ -32,7 +34,6 @@ class CElementServiceImplOrphanImageTest {
     private CElementDao cElementDao;
     private CGroupDao cGroupDao;
     private RpaAuthFeign rpaAuthFeign;
-    private RpaResourceFeign rpaResourceFeign;
 
     @BeforeEach
     void setUp() {
@@ -40,13 +41,11 @@ class CElementServiceImplOrphanImageTest {
         cElementDao = mock(CElementDao.class);
         cGroupDao = mock(CGroupDao.class);
         rpaAuthFeign = mock(RpaAuthFeign.class);
-        rpaResourceFeign = mock(RpaResourceFeign.class);
 
         ReflectionTestUtils.setField(service, "cElementDao", cElementDao);
         ReflectionTestUtils.setField(service, "cGroupDao", cGroupDao);
         ReflectionTestUtils.setField(service, "rpaAuthFeign", rpaAuthFeign);
-        ReflectionTestUtils.setField(service, "rpaResourceFeign", rpaResourceFeign);
-        ReflectionTestUtils.setField(service, "idWorker", new IdWorker());
+        ReflectionTestUtils.setField(service, "idWorker", new IdWorker(0, 0));
 
         User user = new User();
         user.setId("user-1");
@@ -57,30 +56,28 @@ class CElementServiceImplOrphanImageTest {
         when(cGroupDao.getGroupByGroupName(any(CGroup.class))).thenReturn(existingGroup);
     }
 
-    @Test
-    void duplicateNameDeletesTheImageThatWasJustUploaded() throws Exception {
+    @ParameterizedTest
+    @NullSource
+    @ValueSource(strings = {"other-users-image", "shared-image"})
+    void duplicateNameRetriesPreserveExistingImageReferences(String imageId) throws Exception {
+        CElement existingElement = new CElement();
+        existingElement.setImageId("shared-image");
+        existingElement.setParentImageId("shared-parent");
         when(cElementDao.getElementSameName(anyString(), any(), anyString(), anyString(), anyString()))
-                .thenReturn(new CElement());
-        when(rpaResourceFeign.deleteFile(anyString())).thenReturn(AppResponse.success(true));
+                .thenReturn(existingElement);
 
-        AppResponse<?> response = service.createElementByType(dto("image-1"));
+        for (int attempt = 0; attempt < 2; attempt++) {
+            ServerBaseDto request = dto(imageId);
+            AppResponse<?> response = service.createElementByType(request);
 
-        assertThat(response.ok()).isFalse();
-        assertThat(response.getMessage()).isEqualTo("名称重复，请重新命名");
-        verify(rpaResourceFeign).deleteFile(eq("image-1"));
-        verify(cElementDao, never()).insertElement(any(CElement.class));
-    }
-
-    @Test
-    void duplicateNameStillReportsTheRealErrorWhenCleanupFails() throws Exception {
-        when(cElementDao.getElementSameName(anyString(), any(), anyString(), anyString(), anyString()))
-                .thenReturn(new CElement());
-        when(rpaResourceFeign.deleteFile(anyString())).thenThrow(new RuntimeException("resource-service down"));
-
-        AppResponse<?> response = service.createElementByType(dto("image-1"));
-
-        assertThat(response.ok()).isFalse();
-        assertThat(response.getMessage()).isEqualTo("名称重复，请重新命名");
+            assertThat(response.ok()).isFalse();
+            assertThat(response.getMessage()).isEqualTo("名称重复，请重新命名");
+            assertThat(request.getElement().getImageId()).isEqualTo(imageId);
+        }
+        assertThat(existingElement.getImageId()).isEqualTo("shared-image");
+        assertThat(existingElement.getParentImageId()).isEqualTo("shared-parent");
+        verify(cElementDao, times(2)).getElementSameName(anyString(), any(), anyString(), anyString(), anyString());
+        verifyNoMoreInteractions(cElementDao);
     }
 
     @Test
@@ -91,19 +88,7 @@ class CElementServiceImplOrphanImageTest {
         AppResponse<?> response = service.createElementByType(dto("image-1"));
 
         assertThat(response.ok()).isTrue();
-        verify(rpaResourceFeign, never()).deleteFile(anyString());
         verify(cElementDao).insertElement(any(CElement.class));
-    }
-
-    @Test
-    void duplicateNameWithoutAnImageCallsNoDelete() throws Exception {
-        when(cElementDao.getElementSameName(anyString(), any(), anyString(), anyString(), anyString()))
-                .thenReturn(new CElement());
-
-        AppResponse<?> response = service.createElementByType(dto(null));
-
-        assertThat(response.ok()).isFalse();
-        verify(rpaResourceFeign, never()).deleteFile(anyString());
     }
 
     private ServerBaseDto dto(String imageId) {
