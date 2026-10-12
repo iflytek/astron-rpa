@@ -1,5 +1,50 @@
 {
   "scope": "n8n MCP community node public framework; controlled single-instance validation",
+  "ciRegressionReview": {
+    "date": "2026-10-12",
+    "sourceCommit": "a200c867c4c5a705fdd8400ac0ef8c17224cd2be",
+    "workingTreeChanges": "CI workflows, isolated regression runner and validation documentation; not committed or pushed",
+    "localPlatform": "Windows; Python 3.13; Node.js 24.18.0; uv 0.12.1",
+    "workflow": ".github/workflows/integration-regression.yml",
+    "runner": ".github/scripts/run-integration-regression.py",
+    "hostedCiExecuted": false,
+    "hostedCiStatus": "Pending push; local verification does not establish hosted Ubuntu/Windows runner success",
+    "localTests": {
+      "openapi": 284,
+      "engine": {
+        "browser": 5,
+        "database": 12,
+        "email": 22,
+        "network": 4,
+        "enterprise": 2
+      },
+      "engineTotal": 45,
+      "n8n": 36,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "existingSQLiteDatetimeWarnings": 4
+    },
+    "staticChecks": {
+      "workflowActionlint": "passed",
+      "runnerRuffAndFormat": "passed",
+      "n8nBuildTypecheckLintFormat": "passed; Prettier --end-of-line auto",
+      "summaryGateScenarios": ["success", "failure", "cancelled", "unexpected skip", "no relevant changes"]
+    },
+    "npmInstall": "npm ci succeeded with 12 high dependency audit advisories; no dependency or lockfile changes",
+    "testIsolation": "OpenAPI uses locked dependencies in a temporary environment; Engine groups use separate processes, minimal dependencies pinned from engine/uv.lock and importlib collection; email tests retain existing actionlib/logger stubs",
+    "operationCoverage": "29 is the admitted-operation inventory, not the count independently revalidated in this review; historical live evidence is retained separately",
+    "notValidated": [
+      "Live Windows GUI and browser plugin behavior",
+      "Full client EXE build or complete Engine dependency graph",
+      "Remote database drivers and live database connections beyond SQLite",
+      "Other Engine component groups",
+      "Live n8n/server/client integration",
+      "Full repository make check",
+      "GitHub-hosted workflow execution"
+    ],
+    "cleanup": "Test environments, caches and reports use paths outside the repository; no new component lockfiles or production changes"
+  },
   "clientSupport": {
     "supportedClient": "Repository-matched Windows client verified by source comparison and integration tests",
     "desktopVersion": "1.1.8.0",
@@ -529,7 +574,7 @@
       ]
     },
     "admittedOperationCount": 29,
-    "liveOperationCoverage": "All 29 admitted operations executed; browser via MCP; HTTP/SQLite/FTP/mail/shared-variable reads via MCP and explicit REST",
+    "liveOperationCoverage": "Historical 2026-09-20 record reports 29 admitted operations executed; browser via MCP; HTTP/SQLite/FTP/mail/shared-variable reads via MCP and explicit REST. Retained as historical evidence, not independent revalidation of the current code",
     "successfulExecutions": [
       {
         "name": "http",
@@ -831,7 +876,7 @@
     },
     "liveOperationCount": 19,
     "bothTransportsPerScenario": true,
-    "historicalFullOperationCoverage": "browserServiceValidation (2026-09-20); not rerun in full this round",
+    "historicalFullOperationCoverage": "browserServiceValidation (2026-09-20) retains the historical 29-operation record; neither this rebase review nor the CI regression review independently reran all 29 operations",
     "successfulExecutions": [
       {
         "case": "http:mcp",

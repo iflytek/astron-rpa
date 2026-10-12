@@ -1,6 +1,38 @@
 # n8n MCP 公共框架验收记录
 
-本文保留公共框架与各能力的历史验收记录；浏览器读取与服务连接的首次验收见 `browserServiceValidation`，最新变基后的联调与回归见文末记录（2026-10-10）及机器可读证据的 `browserServiceRebaseReview` 字段。
+本文保留公共框架与各能力的历史验收记录。最近一次定向回归及 CI 接入核验见下节（2026-10-12）；历史联调分别见 `browserServiceValidation`（2026-09-20）和 `browserServiceRebaseReview`（2026-10-10），不代表当前代码已再次完成相同的真实环境验证。
+
+## CI 定向回归核验（2026-10-12）
+
+本轮基于 `a200c867` 与未提交的 CI 修改，在本地 Windows、Python 3.13、Node.js 24.18.0 环境执行。检查限于 OpenAPI、五组 Engine 组件及 n8n 节点的定向回归，没有操作部署环境。
+
+[主 CI](../../.github/workflows/main-ci.yml) 在 OpenAPI、n8n 集成、Engine 组件/共享代码/依赖或本回归入口变化时调用 [Integration Regression](../../.github/workflows/integration-regression.yml)。所有组件目录变化都会触发，是因为节点测试核对完整组件目录清单；实际 Engine 测试仍只运行下表五组。新增检查结果纳入主 CI 汇总，应运行却失败、取消或跳过时汇总失败。工作流也支持手动触发，各任务保存 JUnit 报告。
+
+| 检查 | 本地结果与范围 |
+| --- | --- |
+| OpenAPI | 284 项通过，无跳过；覆盖准入与只读约束、执行隔离与生命周期、MCP/REST、JSON 契约、迁移就绪与敏感日志；保留 4 个既有 SQLite datetime adapter 弃用警告 |
+| Engine browser | 5 项通过：默认窗口激活、只读参数关闭激活、异常兼容及组件元数据；窗口操作使用 mock |
+| Engine database | 12 项通过：SQLite 查询与只读连接、游标释放、元数据、可选驱动缺失提示；不连接远程数据库 |
+| Engine email | 22 项通过：只读/标记已读语义、连接释放、附件路径限制、IMAP 指令与文件夹编码；使用测试桩和模拟邮件连接 |
+| Engine network | 4 项通过：本机回环 HTTP GET/HEAD、FTP 超时与失败清理 |
+| Engine enterprise | 2 项通过：明文共享变量读取不请求密钥、变量不存在时返回空值；服务调用使用 mock |
+| n8n | 36 项通过，无跳过；`npm ci`、构建、类型检查、ESLint 和 Prettier 通过；传输测试使用本机回环或 mock，未启动真实 n8n 服务 |
+| CI 静态及门禁核验 | 两个工作流通过 actionlint；运行脚本通过 Ruff 与格式检查；汇总的成功、失败、取消、意外跳过及无相关变更场景已验证 |
+
+[Python 回归入口](../../.github/scripts/run-integration-regression.py) 使用临时环境并固定测试文件。OpenAPI 按项目锁文件安装；Engine 按五组分别启动进程，以 Engine 锁文件中的直接依赖版本构建最小测试环境，不安装完整 GUI/EXE 依赖图，不生成组件锁文件。邮件测试的替身模块不会污染其他组，测试包同名通过独立收集和 `importlib` 模式处理。Engine 本轮共 45 项通过，无跳过；这不等于完整组件打包验证。
+
+从仓库根目录复现（需要 uv 0.12.1；Engine 需 Windows；报告目录请放在仓库外）：
+
+```text
+python .github/scripts/run-integration-regression.py openapi --report-dir <报告目录>
+python .github/scripts/run-integration-regression.py engine --component <browser|database|email|network|enterprise> --report-dir <报告目录>
+```
+
+n8n 在 `integrations/n8n/n8n-nodes-astron-rpa` 执行 `npm ci`、`npm run typecheck`、`npm run lint`、`npm run format:check -- --end-of-line auto` 和 `npm test`。CI 使用同样的构建与测试命令，另输出 JUnit。换行参数兼容 Windows checkout 的 CRLF。此次 `npm ci` 输出 12 项 high 依赖审计告警，未改动依赖锁文件或将安装成功表述为安全审计通过。
+
+**覆盖边界：**本轮未实测 Windows GUI/浏览器插件、完整客户端 EXE、远程数据库或真实 n8n/服务器/客户端联调，未覆盖其他 Engine 组，也未重跑全仓 `make check`。准入清单中的 **29 个操作是能力清单数量，不是本次独立复验通过数**。历史联调记录仅保留为历史证据。GitHub 托管 CI 尚未运行（本轮按要求不提交、不推送）；本地同入口通过不能替代推送后 Ubuntu/Windows runner 的检查结果。
+
+## 公共框架历史验收
 
 本次新增独立的 AstronRPA Community Node，通过 HTTPS MCP 完成工作流读取、执行、查询和取消，并在 OpenAPI 服务中实现工作流声明与准入校验。已完成相关自动化测试，以及真实 n8n、OpenAPI 服务和 Windows 客户端联调；全仓质量检查和运行中设计器发布的组合验证存在未完成项，详见文末。
 
@@ -135,7 +167,7 @@ A25B5AAF6124C2D925022A58F22C25584563F3DC43168160EE8AF9B5061580E1
 
 ### 操作覆盖
 
-按当前全部 25 个组件的操作行为核对分类，本类准入清单为 5 个组件、29 个操作，均有真实执行覆盖。完整操作名见 [分类清单](n8n-nodes-astron-rpa/capabilities/shared/catalog.ts)及机器可读证据。
+按当时全部 25 个组件的操作行为核对分类，本类准入清单为 5 个组件、29 个操作。下表与执行标识保留 2026-09-20 的历史覆盖记录，不据此认定当前代码的全部 29 个操作已独立复验。完整操作名见 [分类清单](n8n-nodes-astron-rpa/capabilities/shared/catalog.ts)及机器可读证据。
 
 | 组件 | 操作数 | 本轮验证 |
 | --- | --- | --- |
@@ -190,7 +222,7 @@ HTTP、数据库、FTP、邮件、共享变量均通过 MCP 和显式 REST 执�
 | 本地定向回归 | OpenAPI 279 项、节点 36 项、Engine 相关 18 项通过；后端保留 4 个既有 SQLite datetime 弃用警告 |
 | 静态检查 | TypeScript 构建、类型检查、ESLint 通过；完整节点包 Prettier 使用 `--end-of-line auto` 通过。修改涉及的 Python 文件格式检查通过，与 main 对照无新增 Ruff 诊断，既有诊断仍存在 |
 | 六类真实场景 | 浏览器读取、HTTP GET/HEAD、SQLite 查询、FTP 目录元数据、IMAP 邮件与共享变量读取，均完成 n8n → MCP／显式 REST → 服务端 → 客户端 → 终态回执闭环 |
-| 本轮操作覆盖 | 19 个不同操作：浏览器 8、数据库 3、网络 6、邮件 1、共享变量 1；历史 29 个操作的完整覆盖见 2026-09-20 记录，本轮没有重跑全部 29 个操作 |
+| 本轮操作覆盖 | 19 个不同操作：浏览器 8、数据库 3、网络 6、邮件 1、共享变量 1；2026-09-20 的 29 个操作记录仅为历史证据，本轮没有重跑全部 29 个操作 |
 | 幂等与查询 | HTTP 同键跨 MCP/REST 重放返回相同 executionId/runId；成功执行在两通道的查询快照一致，客户端回执与 n8n 结果一致且无重复执行 |
 | 拒绝边界 | 未声明、非法操作、不完整只读审核在节点及两通道服务端均拒绝；MCP-only 声明使用 REST 返回 `TRANSPORT_NOT_ALLOWED`，拒绝用例无执行记录 |
 | 取消隔离 | 取消取得真实 `cancelled`；新执行处于 running 时重复取消旧 ID，新执行仍正常完成 |

@@ -26,6 +26,7 @@ jobs:
       frontend-changed: ${{ steps.changes.outputs.frontend }}
       backend-changed: ${{ steps.changes.outputs.backend }}
       deployment-changed: ${{ steps.changes.outputs.deployment }}
+      integration-changed: ${{ steps.changes.outputs.integration }}
     steps:
       - uses: actions/checkout@v4
       - uses: dorny/paths-filter@v3
@@ -44,6 +45,17 @@ jobs:
               - 'backend/rpa-auth/src/main/java/com/iflytek/rpa/auth/conf/SessionConfig.java'
               - 'backend/rpa-auth/src/main/resources/application-casdoor.yml'
               - 'backend/rpa-auth/src/test/java/com/iflytek/rpa/auth/conf/SessionConfigTest.java'
+              - '.github/workflows/main-ci.yml'
+            integration:
+              - 'backend/openapi-service/**'
+              - 'integrations/n8n/**'
+              - 'engine/shared/**'
+              # n8n also checks the inventory of all component directories.
+              - 'engine/components/**'
+              - 'engine/pyproject.toml'
+              - 'engine/uv.lock'
+              - '.github/scripts/run-integration-regression.py'
+              - '.github/workflows/integration-regression.yml'
               - '.github/workflows/main-ci.yml'
 
   # Run tests in parallel
@@ -78,13 +90,21 @@ jobs:
         working-directory: backend/rpa-auth
         run: mvn -B -DskipTests=false -Dtest=SessionConfigTest test
 
+  integration-regression:
+    name: Integration Regression
+    uses: ./.github/workflows/integration-regression.yml
+    needs: check-changes
+    if: needs.check-changes.outputs.integration-changed == 'true'
+    permissions:
+      contents: read
+
   # ============================================================================
   # Summary Stage
   # ============================================================================
   summary:
     name: 📊 CI Pipeline Summary
     runs-on: ubuntu-latest
-    needs: [check-changes, style-check, deployment-security-test]
+    needs: [check-changes, style-check, deployment-security-test, integration-regression]
     if: always()
     timeout-minutes: 2
     steps:
@@ -97,11 +117,13 @@ jobs:
           echo "  🎨 Frontend: ${{ needs.check-changes.outputs.frontend-changed }}"
           echo "  ⚙️ Backend: ${{ needs.check-changes.outputs.backend-changed }}"
           echo "  🔒 Deployment: ${{ needs.check-changes.outputs.deployment-changed }}"
+          echo "  🧪 Integration: ${{ needs.check-changes.outputs.integration-changed }}"
           echo ""
           echo "🔍 Job Results:"
           echo "  📋 Change Detection: ${{ needs.check-changes.result }}"
           echo "  ✨ Style Check: ${{ needs.style-check.result }}"
           echo "  🔒 HTTPS Deployment Security Test: ${{ needs.deployment-security-test.result }}"
+          echo "  🧪 Integration Regression: ${{ needs.integration-regression.result }}"
           echo ""
 
           # Determine overall status
@@ -130,6 +152,15 @@ jobs:
             fi
           else
             echo "ℹ️ HTTPS deployment security test skipped (no deployment changes)"
+          fi
+
+          if [[ "${{ needs.check-changes.outputs.integration-changed }}" == "true" ]]; then
+            if [[ "${{ needs.integration-regression.result }}" != "success" ]]; then
+              echo "❌ Integration regression failed, was cancelled, or was unexpectedly skipped"
+              overall_success=false
+            fi
+          else
+            echo "ℹ️ Integration regression skipped (no relevant changes)"
           fi
 
           echo ""
