@@ -72,6 +72,10 @@ class WordDocumentCore(IDocumentCore):
 
     @staticmethod
     def _create_word_application(params: str):
+        if os.environ.get("ASTRON_RPA_MANAGED_FILES") == "1":
+            from astronverse.actionlib.managed_office import create_application
+
+            return create_application(params, "word")
         try:
             word_application = wc.gencache.EnsureDispatch(params)
             return word_application
@@ -101,6 +105,9 @@ class WordDocumentCore(IDocumentCore):
             cls.word_application_instance = cls._create_word_application(application_key)
             if cls.word_application_instance:
                 return cls.word_application_instance
+
+        if os.environ.get("ASTRON_RPA_MANAGED_FILES") == "1":
+            raise RuntimeError("No isolated Office application is available")
 
         # 尝试重建缓存兜底
         try:
@@ -238,6 +245,9 @@ class WordDocumentCore(IDocumentCore):
         """
         Word - 文档操作 - 关闭并保存。如果 save_flag 是 True，需要支持 file_path
         """
+        managed = os.environ.get("ASTRON_RPA_MANAGED_FILES") == "1"
+        if managed and pkill_flag:
+            raise ValueError("Managed file workflows cannot terminate global Office processes")
         if close_range_flag == CloseRangeType.ALL:
             if pkill_flag:
                 try:
@@ -252,6 +262,9 @@ class WordDocumentCore(IDocumentCore):
             cls._save_document(doc, file_path, file_name, save_type, exist_handle_type)
             try:
                 doc.Close(SaveChanges=0)
+                if managed and cls.word_application_instance.Documents.Count == 0:
+                    cls.word_application_instance.Quit()
+                    cls.word_application_instance = None
             except Exception as e:
                 raise e
 

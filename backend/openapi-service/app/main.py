@@ -13,13 +13,14 @@ from app.internal import admin
 from app.logger import get_logger
 from app.middlewares.tracing import RequestTracingMiddleware
 from app.redis import close_redis_pool, init_redis_pool
-from app.routers import api_keys, executions, healthcheck, user, websocket, workflows
+from app.routers import api_keys, executions, files, healthcheck, user, websocket, workflows
 from app.routers.streamable_mcp import (
     handle_streamable_http,
     session_manager,
     tools_config,
 )
 from app.services.execution_management import recover_executions
+from app.services.integration_files import maintain_files
 from app.services.schema_readiness import check_execution_schema
 
 logger = get_logger(__name__)
@@ -42,12 +43,14 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     # 使用 async with 管理 session_manager 的生命周期
     async with session_manager.run():
         recovery = asyncio.create_task(recover_executions(), name="execution-recovery")
+        file_cleanup = asyncio.create_task(maintain_files(), name="integration-file-cleanup")
         logger.info("Application started with StreamableHTTP session manager!")
         try:
             yield
         finally:
             recovery.cancel()
-            await asyncio.gather(recovery, return_exceptions=True)
+            file_cleanup.cancel()
+            await asyncio.gather(recovery, file_cleanup, return_exceptions=True)
             logger.info("Application shutting down...")
 
             # 清理 tools_config 连接
@@ -64,6 +67,7 @@ app.include_router(admin.router, prefix="/admin", tags=["admin"])
 
 app.include_router(workflows.router)
 app.include_router(executions.router)
+app.include_router(files.router)
 app.include_router(api_keys.router)
 app.include_router(healthcheck.router)
 app.include_router(user.router)

@@ -19,6 +19,7 @@ export interface ComponentCoverage {
   component: string;
   groups: readonly CapabilityGroup[];
   serviceReadOperations?: readonly string[];
+  officeFileOperations?: readonly string[];
   note: string;
 }
 
@@ -36,6 +37,20 @@ export const COMPONENT_COVERAGE: readonly ComponentCoverage[] = [
   },
   {
     component: "astronverse-browser",
+    officeFileOperations: [
+      "BrowserElement.create_element",
+      "BrowserElement.data_batch",
+      "BrowserElement.get_table",
+      "BrowserElement.position_screenshot",
+      "BrowserElement.screenshot",
+      "BrowserElement.wait_element",
+      "BrowserSoftware.download_web_file",
+      "BrowserSoftware.get_current_obj",
+      "BrowserSoftware.get_current_url",
+      "BrowserSoftware.screenshot",
+      "BrowserSoftware.upload_web_file",
+      "BrowserSoftware.wait_web_load",
+    ],
     groups: ["browser-service", "office-file", "desktop-ui", "ai-dynamic-risk"],
     serviceReadOperations: [
       "BrowserElement.wait_element",
@@ -86,6 +101,10 @@ export const COMPONENT_COVERAGE: readonly ComponentCoverage[] = [
   },
   {
     component: "astronverse-datatable",
+    officeFileOperations: [
+      "DataTable.export_data_table_to_file",
+      "DataTable.import_data_table_from_file",
+    ],
     groups: ["json-data", "office-file"],
     note: "JSON-only tables remain 4.1; file-backed tables are 4.3",
   },
@@ -96,9 +115,10 @@ export const COMPONENT_COVERAGE: readonly ComponentCoverage[] = [
   },
   {
     component: "astronverse-email",
-    groups: ["browser-service", "ai-dynamic-risk"],
+    officeFileOperations: ["Email.receive_email"],
+    groups: ["browser-service", "office-file", "ai-dynamic-risk"],
     serviceReadOperations: ["Email.receive_email"],
-    note: "Receive is admitted only with attachment-save and mark-as-read disabled; send/write is 4.5",
+    note: "Service reads disable attachment saving and marking as read; managed attachment files require an Office/file review. Sending remains a high-risk operation",
   },
   {
     component: "astronverse-encrypt",
@@ -107,12 +127,50 @@ export const COMPONENT_COVERAGE: readonly ComponentCoverage[] = [
   },
   {
     component: "astronverse-enterprise",
+    officeFileOperations: [
+      "Enterprise.download_from_sharefolder",
+      "Enterprise.upload_to_sharefolder",
+    ],
     groups: ["browser-service", "office-file", "ai-dynamic-risk"],
     serviceReadOperations: ["Enterprise.get_shared_variable"],
     note: "Shared-variable reads are service reads; file operations are 4.3",
   },
   {
     component: "astronverse-excel",
+    officeFileOperations: [
+      "Excel.add_excel_worksheet",
+      "Excel.clear_excel_content",
+      "Excel.close_excel",
+      "Excel.copy_excel_worksheet",
+      "Excel.create_excel",
+      "Excel.create_excel_comment",
+      "Excel.delete_excel_cell",
+      "Excel.delete_excel_comment",
+      "Excel.delete_excel_worksheet",
+      "Excel.design_cell_type",
+      "Excel.edit_excel",
+      "Excel.excel_get_cell_color",
+      "Excel.excel_number_to_text",
+      "Excel.excel_set_col_width",
+      "Excel.excel_set_row_height",
+      "Excel.excel_text_to_number",
+      "Excel.get_excel_col_num",
+      "Excel.get_excel_first_available_col",
+      "Excel.get_excel_first_available_row",
+      "Excel.get_excel_row_num",
+      "Excel.get_excel_worksheet_names",
+      "Excel.insert_excel_row_or_column",
+      "Excel.insert_formula",
+      "Excel.insert_pic",
+      "Excel.loop_excel_content",
+      "Excel.merge_split_excel_cell",
+      "Excel.move_excel_worksheet",
+      "Excel.open_excel",
+      "Excel.read_excel",
+      "Excel.rename_excel_worksheet",
+      "Excel.save_excel",
+      "Excel.search_and_replace_excel_content",
+    ],
     groups: ["office-file"],
     note: "Office runtime and files",
   },
@@ -123,6 +181,14 @@ export const COMPONENT_COVERAGE: readonly ComponentCoverage[] = [
   },
   {
     component: "astronverse-network",
+    officeFileOperations: [
+      "Network.ftp_close",
+      "Network.ftp_create",
+      "Network.ftp_download",
+      "Network.ftp_upload",
+      "Network.http_download",
+      "Network.http_request",
+    ],
     groups: ["browser-service", "office-file", "ai-dynamic-risk"],
     serviceReadOperations: [
       "Network.http_request",
@@ -136,11 +202,29 @@ export const COMPONENT_COVERAGE: readonly ComponentCoverage[] = [
   },
   {
     component: "astronverse-openapi",
+    officeFileOperations: [
+      "OpenApi.business_license",
+      "OpenApi.common_ocr",
+      "OpenApi.id_card",
+      "OpenApi.taxi_ticket",
+      "OpenApi.train_ticket",
+      "OpenApi.vat_invoice",
+    ],
     groups: ["office-file"],
     note: "Every current operation requires image/document paths; external service transport does not lower the file boundary",
   },
   {
     component: "astronverse-pdf",
+    officeFileOperations: [
+      "PDF.convert_img_to_pdf",
+      "PDF.convert_pdf_to_img",
+      "PDF.extract_forms_from_pdf",
+      "PDF.extract_pdf_file",
+      "PDF.get_pages_num",
+      "PDF.get_pdf_images",
+      "PDF.get_pdf_text",
+      "PDF.merge_pdf_files",
+    ],
     groups: ["office-file"],
     note: "Documents and binary files",
   },
@@ -166,6 +250,31 @@ export const COMPONENT_COVERAGE: readonly ComponentCoverage[] = [
   },
   {
     component: "astronverse-system",
+    officeFileOperations: [
+      "Compress.compress",
+      "Compress.uncompress",
+      "File.file_copy",
+      "File.file_create",
+      "File.file_delete",
+      "File.file_exist",
+      "File.file_info",
+      "File.file_move",
+      "File.file_read",
+      "File.file_rename",
+      "File.file_search",
+      "File.file_wait_status",
+      "File.file_write",
+      "File.get_file_encoding_type",
+      "File.get_file_list",
+      "Folder.folder_clear",
+      "Folder.folder_copy",
+      "Folder.folder_create",
+      "Folder.folder_delete",
+      "Folder.folder_exist",
+      "Folder.folder_move",
+      "Folder.folder_rename",
+      "Folder.get_folder_list",
+    ],
     groups: ["office-file", "desktop-ui"],
     note: "Files, processes and desktop state",
   },
@@ -191,6 +300,27 @@ export const COMPONENT_COVERAGE: readonly ComponentCoverage[] = [
   },
   {
     component: "astronverse-word",
+    officeFileOperations: [
+      "Docx.close_docx",
+      "Docx.convert_format",
+      "Docx.create_comment",
+      "Docx.create_docx",
+      "Docx.delete",
+      "Docx.delete_comment",
+      "Docx.get_cursor_position",
+      "Docx.insert_docx",
+      "Docx.insert_hyperlink",
+      "Docx.insert_img",
+      "Docx.insert_sep",
+      "Docx.insert_table",
+      "Docx.move_cursor",
+      "Docx.open_docx",
+      "Docx.read_docx",
+      "Docx.read_table",
+      "Docx.replace",
+      "Docx.save_docx",
+      "Docx.select_text",
+    ],
     groups: ["office-file"],
     note: "Office runtime and documents",
   },
@@ -198,4 +328,8 @@ export const COMPONENT_COVERAGE: readonly ComponentCoverage[] = [
 
 export const BROWSER_SERVICE_COMPONENTS = COMPONENT_COVERAGE.filter((entry) =>
   entry.groups.includes("browser-service"),
+);
+
+export const OFFICE_FILE_OPERATIONS = new Set(
+  COMPONENT_COVERAGE.flatMap((entry) => entry.officeFileOperations ?? []),
 );

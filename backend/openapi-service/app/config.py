@@ -22,6 +22,10 @@ class Settings(BaseSettings):
     # Trusted deployment file; never supplied by an external caller. Empty keeps
     # historical callers available, but provides no community-node admission.
     INTEGRATION_POLICY_FILE: str = ""
+    # Optional persistent binary store; blank keeps file admission disabled.
+    INTEGRATION_FILE_ROOT: str = ""
+    # Public HTTPS /openapi/files/transfer base used only by the bound Client.
+    INTEGRATION_FILE_TRANSFER_URL: str = ""
 
     model_config = SettingsConfigDict(
         env_file=None,

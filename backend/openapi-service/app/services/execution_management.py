@@ -40,6 +40,9 @@ ERRORS = {
     "CANCEL_UNSUPPORTED",
     "DISPATCH_EXPIRED",
     "STOP_UNCONFIRMED",
+    "FILE_TRANSFER_FAILED",
+    "FILE_OUTPUT_INVALID",
+    "OFFICE_UNAVAILABLE",
 }
 
 
@@ -54,6 +57,11 @@ def _validate_data_result(record, value):
         limits = contract.get("limits")
         validate_json_value(value, limits=limits)
         schema = contract.get("outputSchema")
+        if contract.get("fileContract"):
+            from app.services.office_file import validate_file_result
+
+            if not validate_file_result(record, contract["fileContract"], value):
+                return False
         if schema is not None:
             Draft202012Validator(schema).validate(value)
         return True
@@ -183,6 +191,10 @@ async def apply_receipt(service, record, receipt):
     result = await service.db.execute(statement.values(**values))
     await service.db.commit()
     await service.db.refresh(record)
+    if record.status in TERMINAL and record.data_contract and json.loads(record.data_contract).get("fileContract"):
+        from app.services.integration_files import store
+
+        store().revoke(record.id)
     return bool(result.rowcount)
 
 
@@ -202,6 +214,22 @@ async def reconcile(service, record):
         )
         await service.db.commit()
         if claimed.rowcount:
+            # Only the atomic NEW -> SENT claim creates a file bundle. Later
+            # reconcile passes observe SENT and query the existing execution,
+            # so they do not accumulate additional transfer grants.
+            bundle = None
+            contract = json.loads(record.data_contract or "{}")
+            if contract.get("fileContract"):
+                from app.services.office_file import execution_bundle
+
+                try:
+                    bundle = execution_bundle(record, contract["fileContract"])
+                except WorkflowAccessError:
+                    from app.services.integration_files import store
+
+                    store().revoke(record.id)
+                    await service.update_execution_status(record.id, "FAILED", error="FILE_TRANSFER_FAILED")
+                    return
             command.update(
                 action="start",
                 payload={
@@ -211,6 +239,7 @@ async def reconcile(service, record):
                     "executionTimeout": record.execution_timeout,
                     "recordingConfig": record.recording_config,
                     "secretFields": json.loads(record.secret_fields or "[]"),
+                    **({"fileBundle": bundle} if bundle else {}),
                 },
             )
     try:

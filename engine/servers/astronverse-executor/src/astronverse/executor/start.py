@@ -135,6 +135,7 @@ def start():
     parser.add_argument("--run_param", default="", help="运行参数", required=False)
     parser.add_argument("--exec_id", default="", help="启动的执行id", required=False)
     parser.add_argument("--managed_execution", default="n", choices=("y", "n"))
+    parser.add_argument("--managed_files", default="n", choices=("y", "n"))
     parser.add_argument("--managed_secrets", default="n", choices=("y", "n"))
     parser.add_argument("--managed_receipt", default="")
 
@@ -171,6 +172,16 @@ def start():
     Config.debug_mode = args.debug == "y"
     Config.is_custom_component = args.is_custom_component == "y"
     Config.managed_execution = args.managed_execution == "y"
+    if Config.managed_execution and args.managed_files == "y":
+        from pathlib import Path
+
+        os.environ["ASTRON_RPA_MANAGED_FILES"] = "1"
+        os.environ["ASTRON_RPA_MANAGED_FILES_DIRECTORY"] = str(
+            Path(unquote(args.managed_receipt)).with_suffix(".files")
+        )
+    else:
+        os.environ.pop("ASTRON_RPA_MANAGED_FILES", None)
+        os.environ.pop("ASTRON_RPA_MANAGED_FILES_DIRECTORY", None)
     if Config.managed_execution:
         from datetime import datetime
 

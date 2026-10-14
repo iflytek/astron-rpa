@@ -184,7 +184,7 @@ their synchronous behavior.
 
 The stable entry point accepts published JSON strings, finite numbers, booleans, arrays, objects, enums,
 dates, timezone-qualified date-times and declared secret fields. Unknown fields, file/runtime objects and
-unsupported parameter metadata are rejected. Tools advertise input and output JSON Schemas.
+unsupported parameter metadata are rejected. Approved file workflows carry opaque IDs as strings and use separate binary routes. Tools advertise input and output JSON Schemas.
 Successful calls provide both `structuredContent` and equivalent JSON text. Tool errors use `isError=true` with
 `error.code/message`, without echoing arguments or internal exceptions.
 
@@ -256,7 +256,7 @@ uses `?contract=1` for submission/query and `POST /executions/{id}/cancel`; thes
 same authorized snapshot as MCP. Deploy the matching gateway Lua policy for these routes.
 
 Unknown values remain distinct from false. The supported declaration scope is `controlled-validation`;
-file-transfer declarations are rejected. The data contract currently limits encoded JSON to 1 MiB, nesting
+file declarations require the independent `office-file` contract below. The data contract limits encoded JSON to 1 MiB, nesting
 depth to 12, object properties to 200, array items to 1,000 and each string to 100,000 characters.
 
 Within the enrolled user scope, fixed MCP, dynamic MCP and REST starts share admission checks; unknown,
@@ -273,6 +273,77 @@ changed files fail closed with `INTEGRATION_POLICY_UNAVAILABLE`, without reusing
 The public revision is a digest of the complete declaration. Changing any declaration content changes that
 revision even when its human label is unchanged. `profileRevision` binds a prepared request to it.
 Same-key recovery returns an authorized existing receipt without requiring a new declaration for that execution.
+
+#### Office and file workflows
+
+Binary storage is opt-in. Set `INTEGRATION_FILE_ROOT` to an absolute private, persistent directory available
+inside OpenAPI, and `INTEGRATION_FILE_TRANSFER_URL` to its public HTTPS base ending in `/files/transfer`,
+for example `https://rpa.example/api/rpa-openapi/files/transfer`. Mount that directory into the container;
+keep its SQLite manifest and blobs together and outside static/public serving paths. Leaving either
+setting blank prevents file admission. Deploy the matching gateway Lua policy, allow request bodies of
+at least 10 MiB at the proxy, and keep TLS verification enabled. Use the existing single-worker deployment;
+this local store is not distributed object storage.
+
+Declare `capabilityClass: "office-file"`, `capabilities: ["office-file"]`, the actual component operations,
+allowed execution transports, no human interaction, low/medium risk and `exclusiveTerminal: true`.
+Set GUI requirements for Excel, Word and browser operations. Input/output file flags must match the contract:
+
+```json
+{
+  "fileContract": {
+    "version": 1,
+    "limits": { "maxFileBytes": 10485760, "maxFiles": 8, "retentionSeconds": 86400 },
+    "inputs": { "source": [".txt"] },
+    "outputs": { "target": "result.txt" }
+  },
+  "fileReview": {
+    "version": 1,
+    "workspaceOnly": true,
+    "macrosDisabled": true,
+    "externalServicesReviewed": true,
+    "boundedResources": true,
+    "resourcesReleased": true,
+    "operations": ["File.file_read", "File.file_write"]
+  }
+}
+```
+
+The private review's operation list must exactly match `componentOperations`. Review the published code:
+all paths must derive from the supplied workspace, output files must match their declared names, Office
+macros and global close/kill operations must be disabled, resource use bounded, and connections/documents
+released on every exit. Declare `workspace-files` for output writes and `external-file-transfer` for external
+file exchange. Approve external destinations and credentials explicitly. These checks admit trusted releases;
+they do not sandbox arbitrary Python or prevent a malicious approved workflow from accessing the client.
+The public profile exposes `fileContract`, but excludes the private review. The operation inventory in
+`app/schemas/office_file.py` is an admission boundary, not proof every operation has been individually tested.
+
+File parameter names must be ASCII identifiers with string schemas. Inputs contain opaque UUID handles;
+outputs contain `output:<parameterName>`. The service freezes bindings, integrity metadata and output names
+at acceptance. The upgraded client receives execution-bound, expiring read/write grants, prepares private
+paths, uploads outputs before reporting success and removes its workspace after confirmed termination.
+The execution deadline must be 1–3,600 seconds. Secret-input file workflows are rejected. The JSON result is
+`{"data": <workflow result>, "files": {<output parameter>: <metadata>}}`; any `outputSchema` applies to this
+whole object, and the existing JSON limits also apply before persistence.
+Exact file-parameter path echoes from the executor are omitted from `data`; other workspace path
+disclosures are rejected. Use the file metadata in `files` to retrieve binary outputs.
+
+External binary routes use the same owner API-key authentication as workflow control:
+
+| Route | Purpose |
+| --- | --- |
+| `POST /files` | Reserve using `fileName` and an owner-scoped `uploadKey` |
+| `PUT /files/{id}/content` | Upload immutable bytes; identical retries are accepted |
+| `GET /files/{id}` | Read file metadata |
+| `GET /files/{id}/content` | Download authorized bytes |
+| `DELETE /files/{id}` | Delete an owned file with no active grant |
+
+Client-only `GET/PUT /files/transfer/{id}` uses a separate execution-bound bearer grant and requires an active
+execution. Tokens are hashed in the manifest and are not returned in profiles/results. Output downloads and
+reuse as inputs recheck successful parent execution and current workflow authorization. Files expire after
+24 hours; active grants may pin them through the execution/recovery window. Cleanup runs every five minutes.
+The store enforces 10 MiB per file, eight file bindings per execution, 64 records and 100 MiB allocated per
+owner; pending uploads reserve 10 MiB. Grant revocation releases unused output reservations. Server paths,
+client paths and caller-supplied URLs are never file identifiers.
 
 ## 🚀 Quick Start
 

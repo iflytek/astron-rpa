@@ -22,6 +22,7 @@ from app.schemas.integration import (
 from app.security.workflow_authorization import WorkflowAccessError
 from app.services.execution_management import digest
 from app.services.service_read import validate_read_review
+from app.services.office_file import validate_file_review
 from app.services.workflow_schema import (
     JSON_LIMITS,
     data_output_schema,
@@ -46,6 +47,8 @@ class Declaration(BaseModel):
     capabilityClass: CapabilityClass | None = None
     componentOperations: list[str] | None = None
     readOnlyReview: dict | None = None
+    fileContract: dict | None = None
+    fileReview: dict | None = None
     allowedTransports: list[Literal["mcp", "rest"]] = Field(default_factory=lambda: ["mcp"])
     fileInputs: bool | None = None
     fileOutputs: bool | None = None
@@ -125,6 +128,7 @@ def workflow_profile(workflow: Workflow, user_id: str, params: dict | None = Non
         "capabilityClass": None,
         "componentOperations": None,
         "readContractVersion": None,
+        "fileContract": None,
         "allowedTransports": None,
         "fileInputs": None,
         "fileOutputs": None,
@@ -141,12 +145,12 @@ def workflow_profile(workflow: Workflow, user_id: str, params: dict | None = Non
     if declaration:
         public.update(
             declaration.model_dump(
-                exclude={"userId", "projectId", "version", "allowed", "inputSchemaHash", "readOnlyReview"}
+                exclude={"userId", "projectId", "version", "allowed", "inputSchemaHash", "readOnlyReview", "fileReview"}
             )
         )
         output_schema_invalid = False
         if (
-            declaration.capabilityClass in (JSON_DATA_CLASS, *SERVICE_READ_CLASSES)
+            declaration.capabilityClass in (JSON_DATA_CLASS, "office-file", *SERVICE_READ_CLASSES)
             and declaration.outputSchema is not None
         ):
             try:
@@ -158,6 +162,9 @@ def workflow_profile(workflow: Workflow, user_id: str, params: dict | None = Non
         # Bind every declaration change, even if an administrator forgets to
         # increment its human-readable label.
         revision_data = declaration.model_dump()
+        for field in ("fileContract", "fileReview"):
+            if revision_data[field] is None:
+                revision_data.pop(field)
         if declaration.readOnlyReview is None:
             revision_data.pop("readOnlyReview")
         if declaration.capabilityClass is None:
@@ -221,6 +228,12 @@ def workflow_profile(workflow: Workflow, user_id: str, params: dict | None = Non
                 public["readContractVersion"] = 1
             except WorkflowAccessError:
                 read_review_invalid = True
+        file_error = None
+        if declaration.capabilityClass == "office-file":
+            try:
+                validate_file_review(declaration, schema, params)
+            except WorkflowAccessError as error:
+                file_error = error.code
         if output_schema_invalid:
             reason = "OUTPUT_SCHEMA_UNSUPPORTED"
         elif declaration.inputSchemaHash != digest(schema):
@@ -237,13 +250,15 @@ def workflow_profile(workflow: Workflow, user_id: str, params: dict | None = Non
             reason = "CAPABILITY_DECLARATION_INVALID"
         elif read_review_invalid:
             reason = "READ_CONSTRAINT_INVALID"
+        elif file_error:
+            reason = file_error
         elif not declaration.allowed:
             reason = "PROFILE_DENIED"
-        elif declaration.fileInputs or declaration.fileOutputs:
+        elif declaration.capabilityClass != "office-file" and (declaration.fileInputs or declaration.fileOutputs):
             reason = "FILE_TRANSFER_UNSUPPORTED"
         else:
             reason = None
-        if declaration.capabilityClass == JSON_DATA_CLASS:
+        if declaration.capabilityClass in (JSON_DATA_CLASS, "office-file"):
             public["jsonLimits"] = JSON_LIMITS.copy()
     return {
         "schemaVersion": 1,
@@ -272,7 +287,7 @@ def require_admission(
             )
         if revision is not None and revision != profile["revision"]:
             raise WorkflowAccessError("PROFILE_STALE", "The workflow declaration changed; prepare a new request")
-    if profile["capabilityClass"] in SERVICE_READ_CLASSES:
+    if profile["capabilityClass"] in {*SERVICE_READ_CLASSES, "office-file"}:
         if not profile["admission"]["allowed"]:
             raise WorkflowAccessError(profile["admission"]["reason"], "Workflow has no valid read admission")
         if transport is not None and transport not in profile["allowedTransports"]:

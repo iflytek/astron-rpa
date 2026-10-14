@@ -16,6 +16,7 @@ OPENAPI_TESTS = [
     "test_integration_policy.py",
     "test_mcp_auth.py",
     "test_mcp_modern.py",
+    "test_office_file.py",
     "test_schema_readiness.py",
     "test_sensitive_logging.py",
     "test_service_read.py",
@@ -29,10 +30,23 @@ ENGINE_TESTS = {
     "email": ["test_receive_email.py", "test_core_imap4_receive.py"],
     "network": ["test_read.py"],
     "enterprise": ["test_shared_read.py"],
+    "files": ["test_managed_files.py", "test_managed_execution.py"],
+    "excel": ["test_managed_office.py"],
+    "word": ["test_managed_office.py"],
+    "system": ["test_compress_safety.py"],
+    "datatable": ["test_file_export.py"],
 }
 # Only imports needed by these unit tests. Native GUI dependencies, full component
 # packaging and remote database drivers are deliberately outside this test environment.
-ENGINE_DEPENDENCIES = ["python-dateutil", "pycryptodome", "keyring", "loguru", "toml", "pyyaml", "requests"]
+ENGINE_DEPENDENCIES = [
+    "python-dateutil",
+    "pycryptodome",
+    "keyring",
+    "loguru",
+    "toml",
+    "pyyaml",
+    "requests",
+]
 
 
 def run(command, *, cwd, env):
@@ -48,10 +62,14 @@ def main():
     if (args.suite == "engine") != bool(args.component):
         parser.error("--component is required only for the engine suite")
     if args.suite == "engine" and os.name != "nt":
-        parser.error("Engine regression targets the Windows client; use a Windows runner")
+        parser.error(
+            "Engine regression targets the Windows client; use a Windows runner"
+        )
     reports = args.report_dir.resolve()
     reports.mkdir(parents=True, exist_ok=True)
-    with tempfile.TemporaryDirectory(prefix="astron-integration-regression-") as workspace:
+    with tempfile.TemporaryDirectory(
+        prefix="astron-integration-regression-"
+    ) as workspace:
         work = Path(workspace)
         env = os.environ.copy()
         env.update(PYTHONDONTWRITEBYTECODE="1", PYTHONNOUSERSITE="1", PYTHONUTF8="1")
@@ -59,7 +77,12 @@ def main():
         for key in ("VIRTUAL_ENV", "PYTHONPATH", "PYTEST_ADDOPTS", "PYTEST_PLUGINS"):
             env.pop(key, None)
         env["PYTEST_DISABLE_PLUGIN_AUTOLOAD"] = "1"
-        pytest_args = ["-q", "--import-mode=importlib", "-o", f"cache_dir={work / 'pytest-cache'}"]
+        pytest_args = [
+            "-q",
+            "--import-mode=importlib",
+            "-o",
+            f"cache_dir={work / 'pytest-cache'}",
+        ]
         if args.suite == "openapi":
             project = ROOT / "backend/openapi-service"
             env.update(
@@ -72,7 +95,17 @@ def main():
                 INTEGRATION_POLICY_FILE="",
             )
             run(
-                ["uv", "sync", "--locked", "--project", str(project), "--python", "3.13", "--group", "dev"],
+                [
+                    "uv",
+                    "sync",
+                    "--locked",
+                    "--project",
+                    str(project),
+                    "--python",
+                    "3.13",
+                    "--group",
+                    "dev",
+                ],
                 cwd=work,
                 env=env,
             )
@@ -97,6 +130,8 @@ def main():
             )
         else:
             component = ROOT / "engine/components" / f"astronverse-{args.component}"
+            if args.component == "files":
+                component = ROOT / "engine/servers/astronverse-scheduler"
             sources = [
                 component / "src",
                 ROOT / "engine/shared/astronverse-actionlib/src",
@@ -106,11 +141,32 @@ def main():
             if args.component == "browser":
                 sources.append(ROOT / "engine/components/astronverse-software/src")
                 dependencies.extend(["psutil", "pywin32"])
+            if args.component in {"excel", "word", "files"}:
+                dependencies.extend(["psutil", "pywin32"])
+            if args.component == "files":
+                dependencies.extend(["websocket-client", "httpx"])
+            if args.component == "word":
+                dependencies.append("python-docx")
+            if args.component == "system":
+                dependencies.extend(["pyzipper", "py7zr"])
+            if args.component == "datatable":
+                dependencies.append("openpyxl")
             # Reuse the committed Engine versions without resolving its full GUI/EXE graph
             # or generating component-level lockfiles during a test run.
             lock = tomllib.loads((ROOT / "engine/uv.lock").read_text(encoding="utf-8"))
-            versions = {package["name"]: package["version"] for package in lock["package"]}
-            command = ["uv", "run", "--no-project", "--isolated", "--python", "3.13", "--with", "pytest==8.3.5"]
+            versions = {
+                package["name"]: package["version"] for package in lock["package"]
+            }
+            command = [
+                "uv",
+                "run",
+                "--no-project",
+                "--isolated",
+                "--python",
+                "3.13",
+                "--with",
+                "pytest==8.3.5",
+            ]
             for dependency in dependencies:
                 command.extend(["--with", f"{dependency}=={versions[dependency]}"])
             env["PYTHONPATH"] = os.pathsep.join(str(source) for source in sources)
@@ -122,7 +178,10 @@ def main():
                     "pytest",
                     *pytest_args,
                     f"--junitxml={reports / f'engine-{args.component}.xml'}",
-                    *[str(component / "tests" / test) for test in ENGINE_TESTS[args.component]],
+                    *[
+                        str(component / "tests" / test)
+                        for test in ENGINE_TESTS[args.component]
+                    ],
                 ],
                 cwd=work,
                 env=env,

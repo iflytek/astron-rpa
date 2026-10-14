@@ -55,10 +55,12 @@ def json_value(value):
 class ManagedExecution:
     def __init__(self, manager, directory: Path, origin: str):
         self.manager = manager
+        self.origin = origin
         directory.mkdir(parents=True, exist_ok=True, mode=0o700)
         self.path = directory / (hashlib.sha256(origin.encode()).hexdigest() + ".sqlite3")
         self.lock = threading.RLock()
         self.active = {}
+        self.recovering = set()
         with self._db() as db:
             db.execute("CREATE TABLE IF NOT EXISTS identity (id TEXT PRIMARY KEY)")
             db.execute(
@@ -90,44 +92,98 @@ class ManagedExecution:
             db.close()
 
     def _read(self, owner, execution_id):
+        """Read a receipt without holding the lock across file I/O.
+
+        Recovery may upload a completed file result and terminate an owned
+        Office process. Only the journal snapshot and the final compare-and-
+        swap are protected by ``self.lock``; concurrent readers observe the
+        durable ``unknown`` state while one reader performs recovery.
+        """
+        with self.lock:
+            row = self._read_snapshot(owner, execution_id)
+            if not row:
+                return None, None
+            receipt = json.loads(row[1])
+            key = (owner, execution_id)
+            recover = receipt["status"] == "unknown" and receipt.get("runId") and key not in self.recovering
+            if recover:
+                self.recovering.add(key)
+
+        if recover:
+            try:
+                receipt = self._recover_receipt(owner, execution_id, receipt)
+            finally:
+                with self.lock:
+                    self.recovering.discard(key)
+        if receipt["status"] in TERMINAL and receipt.get("fileWorkflow"):
+            self._cleanup_files(owner, execution_id)
+        return row[0], receipt
+
+    def _read_snapshot(self, owner, execution_id):
         with self._db() as db:
-            row = db.execute(
+            return db.execute(
                 "SELECT fingerprint,receipt FROM runs WHERE owner=? AND id=?", (owner, execution_id)
             ).fetchone()
-        if not row:
-            return None, None
-        receipt = json.loads(row[1])
-        if receipt["status"] == "unknown" and receipt.get("runId"):
-            try:
-                recovered = json.loads(self.result_path(owner, execution_id).read_text(encoding="utf-8"))
-                if (
-                    recovered.get("runId") == receipt["runId"]
-                    and recovered.get("status") in TERMINAL
-                    and recovered.get("finishedAt")
-                    and recovered.get("startedAt")
-                    and process_stopped(recovered)
-                ):
-                    receipt.update({key: recovered.get(key) for key in ("status", "result", "error", "finishedAt")})
-                    receipt["startedAt"] = receipt.get("startedAt") or recovered["startedAt"]
-                    receipt["result"] = None if receipt.get("secretResult") else json_value(receipt["result"])
-                    if receipt["status"] == "cancelled" and receipt.get("stopReason") == "timeout":
-                        receipt["status"] = "timeout"
+
+    def _recover_receipt(self, owner, execution_id, receipt):
+        try:
+            recovered = json.loads(self.result_path(owner, execution_id).read_text(encoding="utf-8"))
+            if not (
+                recovered.get("runId") == receipt["runId"]
+                and recovered.get("status") in TERMINAL
+                and recovered.get("finishedAt")
+                and recovered.get("startedAt")
+                and process_stopped(recovered)
+            ):
+                return receipt
+            if receipt.get("fileWorkflow") and recovered["status"] == "succeeded":
+                try:
+                    workspace = self._file_workspace(owner, execution_id)
+                    recovered["result"] = workspace.finish(recovered.get("result"))
+                    workspace.cleanup()
+                except Exception:
+                    recovered.update(status="failed", result=None, error="FILE_TRANSFER_FAILED")
+            receipt.update({key: recovered.get(key) for key in ("status", "result", "error", "finishedAt")})
+            receipt["startedAt"] = receipt.get("startedAt") or recovered["startedAt"]
+            receipt["result"] = None if receipt.get("secretResult") else json_value(receipt["result"])
+            if receipt["status"] == "cancelled" and receipt.get("stopReason") == "timeout":
+                receipt["status"] = "timeout"
+            with self.lock:
+                current = self._read_snapshot(owner, execution_id)
+                if current and json.loads(current[1])["status"] == "unknown":
                     with self._db() as db:
                         db.execute(
                             "UPDATE runs SET receipt=? WHERE owner=? AND id=?",
                             (json.dumps(receipt, allow_nan=False), owner, execution_id),
                         )
-            except (OSError, ValueError, TypeError):
-                pass
-        return row[0], receipt
+            return receipt
+        except (OSError, ValueError, TypeError):
+            return receipt
 
     def result_path(self, owner, execution_id):
         name = hashlib.sha256(json.dumps([owner, execution_id]).encode()).hexdigest()
         return self.path.parent / self.path.stem / (name + ".json")
 
+    def _file_workspace(self, owner, execution_id, bundle=None):
+        from astronverse.scheduler.core.executor.managed_files import FileWorkspace
+
+        return FileWorkspace(self.result_path(owner, execution_id).with_suffix(".files"), self.origin, bundle)
+
+    def _cleanup_files(self, owner, execution_id):
+        from astronverse.scheduler.core.executor.managed_files import FileWorkspace
+
+        directory = self.result_path(owner, execution_id).with_suffix(".files")
+        # Cleanup must not depend on a complete transfer manifest after a crash.
+        try:
+            FileWorkspace.cleanup_directory(directory)
+        except (OSError, ValueError):
+            pass  # A locked file must not invalidate a durable terminal receipt.
+
     def _change(self, owner, execution_id, **changes):
+        _, receipt = self._read(owner, execution_id)
         with self.lock:
-            _, receipt = self._read(owner, execution_id)
+            row = self._read_snapshot(owner, execution_id)
+            receipt = json.loads(row[1]) if row else None
             if receipt is None or receipt["status"] in TERMINAL:
                 return receipt
             receipt.update(changes)
@@ -159,6 +215,7 @@ class ManagedExecution:
                 "protocol": 1,
                 "clientId": self.client_id,
                 "supportsCancel": True,
+                "fileTransferVersion": 1,
                 "busy": self.manager.status() or bool(self.active) or self._unresolved_process(),
             }
         owner, execution_id = command.get("owner"), command.get("executionId")
@@ -172,20 +229,27 @@ class ManagedExecution:
             return {"error": "EXECUTION_TARGET_MISMATCH"}
         if action == "start":
             return self.start(owner, execution_id, command)
-        with self.lock:
-            _, receipt = self._read(owner, execution_id)
-            if receipt is None:
-                return {"error": "EXECUTION_NOT_FOUND", "clientId": self.client_id}
-            if action == "cancel":
+        _, receipt = self._read(owner, execution_id)
+        if receipt is None:
+            return {"error": "EXECUTION_NOT_FOUND", "clientId": self.client_id}
+        if action == "cancel":
+            cancel = False
+            with self.lock:
+                row = self._read_snapshot(owner, execution_id)
+                receipt = json.loads(row[1]) if row else None
+                if receipt is None:
+                    return {"error": "EXECUTION_NOT_FOUND", "clientId": self.client_id}
                 if command.get("runId") != receipt.get("runId"):
                     return {"error": "EXECUTION_TARGET_MISMATCH"}
                 if receipt["status"] not in TERMINAL:
                     if not receipt["supportsCancel"]:
                         return {"error": "CANCEL_UNSUPPORTED"}
-                    receipt = self._change(owner, execution_id, cancelRequested=True)
-            elif action != "get":
-                return {"error": "INVALID_COMMAND"}
-            return receipt
+                    cancel = True
+            if cancel:
+                receipt = self._change(owner, execution_id, cancelRequested=True)
+        elif action != "get":
+            return {"error": "INVALID_COMMAND"}
+        return receipt
 
     def start(self, owner, execution_id, command):
         payload = command.get("payload")
@@ -199,8 +263,10 @@ class ManagedExecution:
                 raise ValueError
         except (ValueError, TypeError):
             return {"error": "INVALID_ARGUMENTS"}
+        self._read(owner, execution_id)
         with self.lock:
-            previous, receipt = self._read(owner, execution_id)
+            row = self._read_snapshot(owner, execution_id)
+            previous, receipt = (row[0], json.loads(row[1])) if row else (None, None)
             if receipt:
                 return receipt if previous == fingerprint else {"error": "IDEMPOTENCY_CONFLICT"}
             receipt = {
@@ -218,6 +284,7 @@ class ManagedExecution:
                 "error": None,
                 "supportsCancel": True,
                 "cancelRequested": False,
+                **({"fileWorkflow": True} if payload.get("fileBundle") else {}),
             }
             if self.active or self.manager.status() or self._unresolved_process():
                 receipt.update(status="failed", error="CLIENT_BUSY", finishedAt=now(), supportsCancel=False)
@@ -233,25 +300,40 @@ class ManagedExecution:
         from astronverse.scheduler.core.executor.executor import ProjectExecPosition
 
         observing = False
+        params = payload.get("params", {})
         try:
-            with self.lock:
-                _, receipt = self._read(owner, execution_id)
-                if receipt["cancelRequested"]:
-                    self._change(owner, execution_id, status="cancelled")  # No process was launched.
-                    return
+            _, receipt = self._read(owner, execution_id)
+            if receipt["cancelRequested"]:
+                self._change(owner, execution_id, status="cancelled")  # No process was launched.
+                return
+
+            if payload.get("fileBundle"):
+                params = self._file_workspace(owner, execution_id, payload["fileBundle"]).prepare(params)
 
             def bind(instance):
                 # ExecutorManager invokes this before starting the exact process.
+                cancelled = False
                 with self.lock:
-                    _, receipt = self._read(owner, execution_id)
+                    row = self._read_snapshot(owner, execution_id)
+                    receipt = json.loads(row[1]) if row else None
                     if receipt["cancelRequested"]:
-                        self._change(owner, execution_id, status="cancelled")
-                        raise RuntimeError("Execution cancelled before process launch")
-                    self.active[(owner, execution_id)] = instance
-                    self._change(owner, execution_id, runId=instance.exec_id)
-                    path = self.result_path(owner, execution_id)
-                    path.parent.mkdir(parents=True, exist_ok=True, mode=0o700)
-                    instance.ins.set_param("managed_receipt", quote(str(path)))
+                        cancelled = True
+                    else:
+                        self.active[(owner, execution_id)] = instance
+                        receipt["runId"] = instance.exec_id
+                        with self._db() as db:
+                            db.execute(
+                                "UPDATE runs SET receipt=? WHERE owner=? AND id=?",
+                                (json.dumps(receipt, allow_nan=False), owner, execution_id),
+                            )
+                        path = self.result_path(owner, execution_id)
+                        path.parent.mkdir(parents=True, exist_ok=True, mode=0o700)
+                        instance.ins.set_param("managed_receipt", quote(str(path)))
+                        if payload.get("fileBundle"):
+                            instance.ins.set_param("managed_files", "y")
+                if cancelled:
+                    self._change(owner, execution_id, status="cancelled")
+                    raise RuntimeError("Execution cancelled before process launch")
 
             def started(instance):
                 nonlocal observing
@@ -281,7 +363,7 @@ class ManagedExecution:
                             "encoding": "json",
                             "secret": key in payload.get("secretFields", []),
                         }
-                        for key, value in payload.get("params", {}).items()
+                        for key, value in params.items()
                     ],
                     allow_nan=False,
                 ),
@@ -294,15 +376,23 @@ class ManagedExecution:
                 self._change(
                     owner, execution_id, status="unknown", error="EXECUTION_START_UNCONFIRMED", supportsCancel=False
                 )
-        except Exception:
+        except Exception as error:
             if not observing:
-                self._change(
-                    owner, execution_id, status="unknown", error="EXECUTION_START_UNCONFIRMED", supportsCancel=False
-                )
+                from astronverse.scheduler.core.executor.managed_files import FileTransferError
+
+                if isinstance(error, FileTransferError):
+                    self._change(owner, execution_id, status="failed", error=error.code)
+                else:
+                    self._change(
+                        owner, execution_id, status="unknown", error="EXECUTION_START_UNCONFIRMED", supportsCancel=False
+                    )
         finally:
             if not observing:
                 with self.lock:
                     self.active.pop((owner, execution_id), None)
+                _, receipt = self._read(owner, execution_id)
+                if payload.get("fileBundle") and receipt["status"] in TERMINAL:
+                    self._cleanup_files(owner, execution_id)
 
     def _observe(self, owner, execution_id, payload, executor):
         from astronverse.scheduler.core.executor.executor import ExecuteStatus
@@ -321,9 +411,22 @@ class ManagedExecution:
                             # A workflow accepting secrets has no public result summary.
                             if payload.get("secretFields"):
                                 result = None
+                            if payload.get("fileBundle"):
+                                workspace = self._file_workspace(owner, execution_id)
+                                result = workspace.finish(result)
+                                workspace.cleanup()
                             self._change(owner, execution_id, status="succeeded", result=result)
-                        except (TypeError, ValueError):
-                            self._change(owner, execution_id, status="failed", error="UNSUPPORTED_RESULT")
+                        except Exception as error:
+                            if not payload.get("fileBundle") and not isinstance(error, (TypeError, ValueError)):
+                                raise
+                            from astronverse.scheduler.core.executor.managed_files import FileTransferError
+
+                            code = (
+                                error.code
+                                if isinstance(error, FileTransferError)
+                                else ("FILE_TRANSFER_FAILED" if payload.get("fileBundle") else "UNSUPPORTED_RESULT")
+                            )
+                            self._change(owner, execution_id, status="failed", error=code)
                     elif stop_reason:
                         self._change(owner, execution_id, status=stop_reason)
                     elif executor.execute_status == ExecuteStatus.CANCEL:
@@ -337,8 +440,7 @@ class ManagedExecution:
                         self._change(owner, execution_id, status="failed", error=code)
                     return
                 if alive and stop_reason is None:
-                    with self.lock:
-                        _, receipt = self._read(owner, execution_id)
+                    _, receipt = self._read(owner, execution_id)
                     if receipt["cancelRequested"] or (deadline is not None and time.time() >= deadline):
                         stop_reason = "cancelled" if receipt["cancelRequested"] else "timeout"
                         stop_at = time.monotonic()
@@ -360,3 +462,5 @@ class ManagedExecution:
         finally:
             with self.lock:
                 self.active.pop((owner, execution_id), None)
+            if payload.get("fileBundle") and not executor.ins.is_alive():
+                self._cleanup_files(owner, execution_id)

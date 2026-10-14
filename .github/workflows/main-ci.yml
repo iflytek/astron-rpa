@@ -50,6 +50,8 @@ jobs:
               - 'backend/openapi-service/**'
               - 'integrations/n8n/**'
               - 'engine/shared/**'
+              - 'engine/servers/astronverse-scheduler/**'
+              - 'engine/servers/astronverse-executor/**'
               # n8n also checks the inventory of all component directories.
               - 'engine/components/**'
               - 'engine/pyproject.toml'

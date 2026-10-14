@@ -132,7 +132,13 @@
       "workflowActionlint": "passed",
       "runnerRuffAndFormat": "passed",
       "n8nBuildTypecheckLintFormat": "passed; Prettier --end-of-line auto",
-      "summaryGateScenarios": ["success", "failure", "cancelled", "unexpected skip", "no relevant changes"]
+      "summaryGateScenarios": [
+        "success",
+        "failure",
+        "cancelled",
+        "unexpected skip",
+        "no relevant changes"
+      ]
     },
     "npmInstall": "npm ci succeeded with 12 high dependency audit advisories; no dependency or lockfile changes",
     "testIsolation": "OpenAPI uses locked dependencies in a temporary environment; Engine groups use separate processes, minimal dependencies pinned from engine/uv.lock and importlib collection; email tests retain existing actionlib/logger stubs",
@@ -1268,5 +1274,445 @@
       "Intermittent connection timeouts recovered using the original execution ID or the same idempotency key; TLS verification remained enabled",
       "Historical independent incomplete checks remain documented in VALIDATION.md"
     ]
+  },
+  "officeFileValidation": {
+    "date": "2026-10-13",
+    "baseCommit": "4e26f0790cdaf65f0249be43ca7a15487cd05fd0",
+    "branch": "feat/office-file-workflows",
+    "workingTreeChanges": "Office/file capability, authorized binary transport, managed client file and Office lifecycle, bounded component fixes and regression coverage; not staged, committed or pushed",
+    "environment": {
+      "n8n": "2.40.7",
+      "nodeJs": "24.18.0",
+      "package": "n8n-nodes-astron-rpa@0.1.0-dev.2",
+      "client": "Existing Windows desktop with repository-matched changed Python sources; no full EXE rebuild",
+      "office": "WPS Office 2023 Professional",
+      "officeProviders": [
+        "Ket.Application",
+        "Kwps.Application"
+      ],
+      "managedProtocol": 1,
+      "fileTransferVersion": 1,
+      "tlsVerificationPassed": true,
+      "tlsNotAfter": "2026-12-13T08:16:50Z"
+    },
+    "architecture": {
+      "peerCapabilityModule": "capabilities/office-file.ts",
+      "workflowControl": "MCP by default; REST execution only when explicitly declared and selected; no automatic cross-transport redispatch",
+      "binaryTransport": "HTTPS REST with authorized opaque handles and execution-bound grants",
+      "newDatabaseMigration": false
+    },
+    "admission": {
+      "components": {
+        "astronverse-excel": 32,
+        "astronverse-word": 19,
+        "astronverse-pdf": 8,
+        "astronverse-system": 23,
+        "astronverse-datatable": 2,
+        "astronverse-browser": 12,
+        "astronverse-network": 6,
+        "astronverse-enterprise": 2,
+        "astronverse-openapi": 6,
+        "astronverse-email": 1
+      },
+      "operationCount": 111,
+      "allOperationsIndependentlyLiveTested": false,
+      "boundary": "Administrator-reviewed, version-bound trusted workflows with declared file and external-service behavior; not an arbitrary-code sandbox"
+    },
+    "fileLimits": {
+      "maxBytesPerFile": 10485760,
+      "maxCombinedInputOutputFiles": 8,
+      "retentionSeconds": 86400,
+      "ownerMaxAllocatedBytes": 104857600,
+      "ownerMaxRecords": 64
+    },
+    "localTests": {
+      "openapi": 317,
+      "engine": {
+        "datatable": 2,
+        "email": 22,
+        "excel": 6,
+        "files": 27,
+        "system": 12,
+        "word": 4
+      },
+      "engineTotal": 73,
+      "n8n": 44,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "existingSQLiteDatetimeWarnings": 4
+    },
+    "staticChecks": {
+      "n8nBuildTypecheckLint": "passed",
+      "n8nPrettier": "passed with --end-of-line auto",
+      "pythonChecksAgainstHead": [
+        {
+          "scope": "backend/openapi-service/",
+          "files": 11,
+          "mainDiagnostics": 7,
+          "currentDiagnostics": 3,
+          "newDiagnostics": [],
+          "formatPassed": true
+        },
+        {
+          "scope": "engine/",
+          "files": 15,
+          "mainDiagnostics": 398,
+          "currentDiagnostics": 383,
+          "newDiagnostics": [],
+          "formatPassed": true
+        }
+      ],
+      "regressionRunnerRuffAndFormat": "passed",
+      "workflowActionlint": "passed",
+      "gitDiffCheck": "passed for tracked and new files"
+    },
+    "ci": {
+      "workflow": ".github/workflows/integration-regression.yml",
+      "runner": ".github/scripts/run-integration-regression.py",
+      "newEngineGroups": [
+        "files",
+        "excel",
+        "word",
+        "system",
+        "datatable"
+      ],
+      "mainCiAddsSchedulerExecutorTriggers": true,
+      "hostedCiExecuted": false,
+      "otherExistingEngineGroupsRerunThisRound": [
+        "email"
+      ]
+    },
+    "liveSuccessfulCases": [
+      {
+        "case": "text",
+        "executionId": "4dfa8d02-a65b-48cd-8f35-e6cfd01a2dd0",
+        "runId": "2109918496526725120",
+        "n8nExecutionId": 572,
+        "status": "succeeded",
+        "downloadVerified": true,
+        "outputs": {
+          "target": {
+            "fileName": "result.txt",
+            "size": 35,
+            "sha256": "211695febd5b81c5ee1fb405df2a65fad5aa6addd4e2fab983f5a5285db9b85b"
+          }
+        }
+      },
+      {
+        "case": "excel",
+        "executionId": "906ac532-b806-47d7-ba32-e332557a7427",
+        "runId": "2109916735002931200",
+        "n8nExecutionId": 536,
+        "status": "succeeded",
+        "downloadVerified": true,
+        "outputs": {
+          "target": {
+            "fileName": "result.xlsx",
+            "size": 9320,
+            "sha256": "e272457de0e01a568b1008667e9c2498b3738853e1a4e0db0f1493f8513e0d1f"
+          }
+        }
+      },
+      {
+        "case": "word",
+        "executionId": "b859d532-257a-40e7-be67-00e8597a81ff",
+        "runId": "2109919817782816768",
+        "n8nExecutionId": 593,
+        "status": "succeeded",
+        "downloadVerified": true,
+        "outputs": {
+          "target": {
+            "fileName": "result.docx",
+            "size": 32317,
+            "sha256": "f564d83875c31b4d63da6d8571bf1ce61c137ac0f31f23e3ad506feec02e354e"
+          }
+        }
+      },
+      {
+        "case": "pdf",
+        "executionId": "759f3d01-6c8c-4e84-a43e-a8e292fd55e0",
+        "runId": "2109914425468153856",
+        "n8nExecutionId": 515,
+        "status": "succeeded",
+        "downloadVerified": true,
+        "outputs": {
+          "target": {
+            "fileName": "result.pdf",
+            "size": 1566,
+            "sha256": "9cdea98cf8d92761210ca7e86ad85d9952443836bf1de470df507843cc6dbdf1"
+          }
+        }
+      },
+      {
+        "case": "datatable",
+        "executionId": "e59117de-f1ac-455a-bb34-ce8ed19debcf",
+        "runId": "2109916677561937920",
+        "n8nExecutionId": 532,
+        "status": "succeeded",
+        "downloadVerified": true,
+        "outputs": {
+          "target": {
+            "fileName": "result.csv",
+            "size": 33,
+            "sha256": "8da2708c80cf393a22922b8c20b1ced62cd10203c38850b430b43edc32fbf25f"
+          }
+        }
+      },
+      {
+        "case": "browserchecked",
+        "executionId": "9fb8187b-d7b4-4266-9996-db2067bca7f6",
+        "runId": "2109918180632719360",
+        "n8nExecutionId": 553,
+        "status": "succeeded",
+        "downloadVerified": true,
+        "outputs": {
+          "target": {
+            "fileName": "result.jpg",
+            "size": 24075,
+            "sha256": "58395613d47ecdd1b1fe9620e60b1dbd2b9d46f85a20cf06481381d3f7b29e66"
+          }
+        }
+      },
+      {
+        "case": "archive",
+        "executionId": "b3b50009-a9a6-4165-af40-828e38b0e64c",
+        "runId": "2109918257178767360",
+        "n8nExecutionId": 557,
+        "status": "succeeded",
+        "downloadVerified": true,
+        "outputs": {
+          "target": {
+            "fileName": "result.txt",
+            "size": 35,
+            "sha256": "211695febd5b81c5ee1fb405df2a65fad5aa6addd4e2fab983f5a5285db9b85b"
+          }
+        }
+      },
+      {
+        "case": "archive7z",
+        "executionId": "e52e879e-aa5b-4a6c-a9ed-c5a2bf74231d",
+        "runId": "2109922526053298176",
+        "n8nExecutionId": 605,
+        "status": "succeeded",
+        "downloadVerified": true,
+        "outputs": {
+          "target": {
+            "fileName": "result.txt",
+            "size": 35,
+            "sha256": "211695febd5b81c5ee1fb405df2a65fad5aa6addd4e2fab983f5a5285db9b85b"
+          }
+        }
+      },
+      {
+        "case": "httpfile",
+        "executionId": "e0de46c4-1b7a-4e69-9eac-70941684087e",
+        "runId": "2109918435147280384",
+        "n8nExecutionId": 568,
+        "status": "succeeded",
+        "downloadVerified": true,
+        "outputs": {
+          "target": {
+            "fileName": "result.txt",
+            "size": 35,
+            "sha256": "211695febd5b81c5ee1fb405df2a65fad5aa6addd4e2fab983f5a5285db9b85b"
+          }
+        }
+      }
+    ],
+    "outputContentChecks": {
+      "text": true,
+      "excelCellUpdated": true,
+      "wordText": true,
+      "pdfPageCount": true,
+      "csvValues": true
+    },
+    "browserScreenshot": "Synthetic fixture page URL checked before capture; downloaded image visually verified",
+    "liveNegativeCases": [
+      {
+        "case": "missing",
+        "executionId": "55649511-b92a-4897-b254-c6530f757211",
+        "runId": "2109914737180438528",
+        "status": "failed",
+        "code": "FILE_OUTPUT_INVALID"
+      },
+      {
+        "case": "oversized",
+        "executionId": "668c4813-fc22-44fa-897e-a44ffc7e1f38",
+        "runId": "2109914799331635200",
+        "status": "failed",
+        "code": "FILE_OUTPUT_INVALID"
+      },
+      {
+        "case": "slow",
+        "executionId": "8ae64a75-b6d3-4ab5-9ea5-195510af68e2",
+        "runId": "2109914858672648192",
+        "status": "timeout",
+        "code": "EXECUTION_TIMEOUT"
+      },
+      {
+        "case": "archivebad",
+        "executionId": "b56e004f-98e1-46a6-a9cf-e9a49b1fd405",
+        "runId": "2109918378209603584",
+        "status": "failed",
+        "code": "EXECUTION_FAILED"
+      }
+    ],
+    "controls": {
+      "checks": [
+        "cross-transport idempotent replay",
+        "same-key changed-input rejection",
+        "authorized output reuse through explicit REST",
+        "active input delete denied",
+        "precise cancellation and repeated cancel",
+        "empty binary roundtrip",
+        "exact 10 MiB upload",
+        "10 MiB plus one rejected by node",
+        "deleted handle denied"
+      ],
+      "explicitRestOutputReuse": {
+        "n8nExecutionId": 579,
+        "executionId": "586b0c30-0bec-4664-a30c-a4c6efdf4966",
+        "runId": "2109918671928324096",
+        "status": "succeeded"
+      },
+      "cancellation": {
+        "executionId": "fd215389-f85c-451d-a775-1d5728d5cbca",
+        "runId": "2109918722385801216",
+        "status": "cancelled"
+      }
+    },
+    "n8nRestart": {
+      "parentExecution": 600,
+      "waitingExecution": 601,
+      "executionId": "120d18d2-1ea0-4766-acf3-289a5b1d99b9",
+      "runId": "2109920928925249536",
+      "sameIdentity": true,
+      "waitingBeforeRestart": true,
+      "terminalStatus": "failed",
+      "terminalCode": "FILE_OUTPUT_INVALID",
+      "expectedFailure": "Fixture intentionally omitted the declared output; recovery observed the original failure without redispatch"
+    },
+    "officeAbruptExit": [
+      {
+        "provider": "Ket.Application",
+        "abruptExecutorExitCleanup": true,
+        "workspaceRemoved": true
+      },
+      {
+        "provider": "Kwps.Application",
+        "abruptExecutorExitCleanup": true,
+        "workspaceRemoved": true
+      }
+    ],
+    "importedExample": {
+      "path": "examples/office-file.json",
+      "n8nExecutionId": 602,
+      "executionId": "eb95d81b-ecc0-4ff6-85e6-4495653ae0a9",
+      "runId": "2109921296224645120",
+      "validBinaryOutput": true,
+      "sha256": "ab0c654be766f0e36f89c948fd2ba7e4f85c8ae8a5efa50cdecfc47505b54627"
+    },
+    "issuesFixedAndRetested": [
+      "Client file-transfer TLS compatibility using verified system SSL context",
+      "Strip only executor-echoed root file parameters while continuing to reject other local path disclosure",
+      "DataTable CSV export produced XLSX bytes; corrected to CSV text and verified content",
+      "Browser fixture enum corrected before successful guarded capture"
+    ],
+    "audit": {
+      "serverTerminalCounts": {
+        "COMPLETED": 17,
+        "FAILED": 10,
+        "TIMEOUT": 1,
+        "CANCELLED": 1
+      },
+      "serverNonterminalExecutions": 0,
+      "activeTransferGrants": 0,
+      "client": {
+        "nonterminalExecutions": 0,
+        "residualExecutorProcesses": 0,
+        "residualWorkspaces": 0,
+        "clientIdle": true
+      },
+      "interpretation": "29 terminal records include early failures and an early COMPLETED CSV execution with invalid file format. Terminal counts are not feature pass counts; successful cases above identify corrected runs."
+    },
+    "consistency": {
+      "serverFilesMatched": 11,
+      "clientFilesMatched": 9,
+      "nodePackageFilesMatched": 36,
+      "packageSha256": "d558ab0cc05b5c060bbb5f685d9b44af9aaac2870305612b4a6b22cd0895f38b",
+      "deployedNginxConfigValid": true,
+      "serverWriteBoundary": "Existing source deployment directory only"
+    },
+    "cleanup": {
+      "server": {
+        "fileHandlesRemoved": 42,
+        "unrelatedFileHandlesPreserved": 0,
+        "testDeclarationsRemoved": 14,
+        "originalPolicyEquivalent": true,
+        "workflowRowsRemoved": 14,
+        "nonterminalExecutions": 0,
+        "executionAuditRetained": true,
+        "featureStorageConfigurationRetained": true
+      },
+      "serverDeploymentArtifacts": {
+        "deploymentArtifactsRemoved": true,
+        "fileConfigurationRetained": true
+      },
+      "fixtures": {
+        "temporaryRobotsRemoved": 14
+      },
+      "n8n": {
+        "testWorkflowsRemoved": 7,
+        "testExecutionsRemoved": 115,
+        "unrelatedDataPreserved": true,
+        "pendingExecutions": 0,
+        "keptRunning": true,
+        "healthStatus": 200
+      },
+      "clientAndLocal": {
+        "testRuntimeDirectoriesRemoved": 14,
+        "temporaryCredentialExportRetainedByUserRequest": true,
+        "temporaryCredentialExportPresent": true,
+        "clientExecutionAuditRetained": true,
+        "installedPackageTarballRetained": true,
+        "fixtureHttpServerStopped": true,
+        "n8nHealthStatus": 200
+      }
+    },
+    "notValidated": [
+      "Independent live execution of all 111 admitted operations",
+      "Microsoft Office providers",
+      "Fresh full client EXE build or full Engine dependency graph",
+      "Commercial OCR/document services, enterprise shared storage and other remote file services",
+      "Other pre-existing Engine groups except email in this round",
+      "Multi-instance/queue-mode production capacity",
+      "Full repository make check",
+      "GitHub-hosted CI execution"
+    ],
+    "reviewFollowup": {
+      "date": "2026-10-13",
+      "scope": "Local review corrections only; no real environment integration",
+      "changes": [
+        "Unmanaged archive checks retain host-valid names and case distinctions",
+        "Managed ZIP extraction bounds actual bytes in addition to metadata",
+        "File recovery transfer and Office cleanup run outside the scheduler state lock",
+        "COM0/LPT0 excluded from Windows reserved-name pattern",
+        "CSV formula export semantics documented"
+      ],
+      "tests": {
+        "systemArchive": "12 passed, 1 skipped for Windows symlink privilege",
+        "schedulerManagedFilesAndRecovery": "28 passed",
+        "openapiOfficeFile": "33 passed",
+        "n8n": "44 passed"
+      },
+      "staticChecks": {
+        "ruffAgainstHead": "no new diagnostics",
+        "ruffFormat": "passed",
+        "typescriptTypecheckLintPrettier": "passed",
+        "gitDiffCheck": "passed"
+      },
+      "integrationRun": "not run by request"
+    }
   }
 }

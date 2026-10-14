@@ -588,7 +588,15 @@ class OpenpyxlWrapper:
         Args:
             file_path (str): The path to save the file.
         """
-        self.save(file_path)
+        extension = os.path.splitext(file_path)[1].lower()
+        if extension == ".csv":
+            with open(file_path, "w", encoding="utf-8-sig", newline="") as stream:
+                csv.writer(stream).writerows(self.sheet.iter_rows(values_only=True))
+        elif extension == ".xlsx":
+            self.save(file_path)
+        else:
+            # openpyxl writes OOXML, never legacy BIFF .xls bytes.
+            raise ValueError("DataTable export supports .xlsx and .csv; use .xlsx instead of .xls")
 
     def get_row_count(self) -> int:
         """

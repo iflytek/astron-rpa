@@ -1,6 +1,7 @@
 import { AstronError, object } from "../../mapping/contracts";
 import { validateBrowserServiceProfile } from "../browser-service";
 import { validateJsonDataProfile } from "../json-data";
+import { validateOfficeFileProfile } from "../office-file";
 import {
   CAPABILITY_CLASSES,
   type CapabilityClass,
@@ -16,6 +17,7 @@ const validators: Record<
   (profile: CapabilityProfile) => void
 > = {
   "json-data": validateJsonDataProfile,
+  "office-file": validateOfficeFileProfile,
   "browser-read": validateBrowserServiceProfile,
   "service-http-read": validateBrowserServiceProfile,
   "service-database-read": validateBrowserServiceProfile,

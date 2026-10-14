@@ -1,4 +1,5 @@
 import concurrent.futures
+import json
 import subprocess
 import sys
 import threading
@@ -88,6 +89,45 @@ def observe(client, request, predicate, timeout=5):
             return receipt
         time.sleep(0.02)
     pytest.fail("Execution did not reach expected state")
+
+
+def test_failed_file_preparation_does_not_launch(client, monkeypatch):
+    from astronverse.scheduler.core.executor.managed_files import FileTransferError
+
+    controller, manager = client
+
+    def prepare(_):
+        raise FileTransferError("OFFICE_UNAVAILABLE")
+
+    monkeypatch.setattr(controller, "_file_workspace", lambda *args: SimpleNamespace(prepare=prepare))
+    request = command(controller)
+    request["payload"]["fileBundle"] = {"version": 1}
+    controller.handle(request)
+    receipt = observe(controller, request, lambda value: value["status"] == "failed")
+    assert receipt["error"] == "OFFICE_UNAVAILABLE"
+    assert manager.instances == []
+
+
+def test_file_result_is_uploaded_before_terminal_success(client, monkeypatch):
+    controller, manager = client
+    calls = []
+
+    def finish(result):
+        calls.append("upload")
+        return {"data": result, "files": {"target": {"fileId": "opaque"}}}
+
+    monkeypatch.setattr(
+        controller,
+        "_file_workspace",
+        lambda *args: SimpleNamespace(prepare=lambda p: p, finish=finish, cleanup=lambda: None),
+    )
+    request = command(controller)
+    request["payload"]["fileBundle"] = {"version": 1}
+    controller.handle(request)
+    receipt = observe(controller, request, lambda value: value["status"] == "succeeded")
+    assert receipt["result"]["data"] == manager.result
+    assert receipt["result"]["files"]["target"]["fileId"] == "opaque"
+    assert calls == ["upload"]
 
 
 def test_simultaneous_duplicate_executes_once_and_preserves_json(client):
@@ -284,3 +324,52 @@ def test_restarted_scheduler_blocks_new_external_run_while_orphan_lives(client, 
     restarted = ManagedExecution(empty_manager, tmp_path, "https://self-hosted.example")
     assert restarted.handle(command(restarted))["error"] == "CLIENT_BUSY"
     assert empty_manager.instances == []
+
+
+def test_file_recovery_does_not_hold_lock_during_transfer(client, tmp_path, monkeypatch):
+    controller, _ = client
+    monkeypatch.setattr(controller, "_run", lambda *_: None)
+    request = command(controller)
+    request["payload"]["fileBundle"] = {"version": 1}
+    controller.handle(request)
+    controller._change("owner", request["executionId"], status="unknown", runId="run-1")
+    path = controller.result_path("owner", request["executionId"])
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(
+        json.dumps(
+            {
+                "runId": "run-1",
+                "status": "succeeded",
+                "result": {"value": 0},
+                "processId": 999999999,
+                "processStarted": 1,
+                "startedAt": "2026-01-01T00:00:00+00:00",
+                "finishedAt": "2026-01-01T00:00:01+00:00",
+            }
+        )
+    )
+    entered, release = threading.Event(), threading.Event()
+
+    class Workspace:
+        def finish(self, result):
+            entered.set()
+            assert release.wait(3)
+            return {"data": result, "files": {}}
+
+        def cleanup(self):
+            pass
+
+    monkeypatch.setattr(controller, "_file_workspace", lambda *_: Workspace())
+    result = {}
+    thread = threading.Thread(
+        target=lambda: result.setdefault("receipt", controller.handle({**request, "action": "get"}))
+    )
+    thread.start()
+    assert entered.wait(3)
+    started = time.monotonic()
+    concurrent = controller.handle({**request, "action": "get"})
+    assert time.monotonic() - started < 0.5
+    assert concurrent["status"] == "unknown"
+    release.set()
+    thread.join(timeout=3)
+    assert result["receipt"]["status"] == "succeeded"

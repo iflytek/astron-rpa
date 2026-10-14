@@ -27,6 +27,56 @@ main 新增 `astronverse-control` 后，当前组件目录为 **26 个**。分�
 
 本轮结构化记录见 [validation-evidence.json](validation-evidence.json) 的 `browserServiceConflictReview`，此前记录保持原日期和适用范围。
 
+## Office 与文件能力验证（2026-10-13）
+
+本轮基于 `feat/office-file-workflows` 的 `4e26f079` 与未提交修改。使用本机 n8n `2.40.7`、Node.js `24.18.0`、tarball 安装的 `n8n-nodes-astron-rpa@0.1.0-dev.2`、现有 HTTPS OpenAPI 服务和同步源码后的 Windows 客户端。TLS 验证通过，证书有效期至 2026-12-13。Office 实测使用 WPS Office 2023 专业版的 `Ket.Application`、`Kwps.Application`。
+
+`capabilities/office-file.ts` 与 JSON 数据、浏览器/服务连接模块平级，复用既有执行、幂等、等待恢复和取消逻辑。MCP 负责工作流控制；REST 负责二进制传输及声明允许的显式辅助执行，不在 MCP 结果未知时切换通道重发。
+
+文件使用授权句柄和执行绑定的临时传输授权，在客户端私有工作目录中处理；限制为单文件 10 MiB、输入输出合计 8 个、保留 24 小时，每个所有者最多 100 MiB / 64 条文件记录。节点使用 n8n Binary Data，不向调用方暴露客户端路径。公共契约沿用已有 `data_contract` 列，无新增数据库迁移。
+
+准入清单覆盖 10 个组件的 111 项操作：Excel 32、Word 19、PDF 8、system 23、datatable 2、browser 12、network 6、enterprise 2、openapi 6、email 1。操作已与 Engine 源码和节点清单核对；**111 是准入清单数量，不是独立实测通过数**。工作流仍须经过管理员审核并绑定发布版本；文件目录约束和操作声明不构成任意 Python 代码沙箱。
+
+### 本地回归与静态检查
+
+| 检查 | 结果与范围 |
+| --- | --- |
+| OpenAPI | 317 项通过，无失败或跳过；覆盖文件授权、配额与生命周期、画像/文件契约、结果校验及原执行框架回归；4 个既有 SQLite datetime adapter 警告 |
+| Engine | files 27、excel 6、word 4、system 12、datatable 2、email 22，合计 73 项通过，无失败或跳过；自动化 Office 测试使用模拟 COM，真实 WPS 验证另列如下 |
+| n8n | 44 项通过；构建、类型检查、ESLint、Prettier（`--end-of-line auto`）通过；覆盖文件操作、Binary 映射、操作清单一致性和既有执行/传输契约 |
+| Python 静态检查 | 变更的后端 11 个、Engine 15 个文件格式通过；相对 HEAD 无新增 Ruff 问题，既有诊断分别从 7 降至 3、398 降至 383；回归入口 Ruff 和格式检查通过 |
+| CI | 两个工作流通过 actionlint；定向入口增加文件执行、Excel、Word、system、datatable 组，主 CI 增加 scheduler/executor 路径触发；GitHub 托管运行尚未执行 |
+
+使用 `.github/scripts/run-integration-regression.py` 的临时环境和仓库外报告执行 Python 回归。Engine 新增组可用 `--component files|excel|word|system|datatable` 分别运行；原有组保留，本轮另重跑了 email，其他组的历史结果不计入本轮 73 项。
+
+合并前 review follow-up 仅进行本地静态与定向回归：普通（非托管）压缩解压保留 POSIX 文件名和大小写区分，托管 ZIP 增加实际写入量限制；恢复路径的文件上传和 Office 清理移出状态锁，并增加并发读取回归。相关 system 压缩测试为 12 项通过、1 项因 Windows 符号链接权限跳过，scheduler 文件/恢复测试为 28 项通过；OpenAPI 文件测试 33 项、n8n 测试 44 项通过。此 follow-up 未进行服务器、客户端或 n8n 真实联调。
+
+### 真实环境验证
+
+| 场景 | 实测结果 |
+| --- | --- |
+| 文件主链路 | n8n 上传 → MCP 执行 → 现有 Windows 客户端 → 输出上传 → n8n Binary 下载通过；覆盖中文文本，以及包含 `0,false,null` 的文本内容 |
+| Excel / Word | WPS Excel 读取 B1=42，修改并下载后 B1=43；WPS Word 读取正文、保存和关闭通过；输出内容已核对 |
+| PDF / DataTable | PDF 页数和文本提取通过；CSV 导入导出通过，实际下载内容为 CSV 文本，值保持一致 |
+| 浏览器文件输出 | 在连接 AstronRPA 插件的 Edge 中先核对合成测试页 URL，再截图并下载；图像已目视核对 |
+| 压缩包 / 网络文件 | ZIP、7z 解压后的文件字节与输入样本一致；HTTP 下载本机回环小文件通过；穿越 ZIP 被拒绝 |
+| 大小与输出边界 | 空文件往返、精确 10 MiB 上传通过；10 MiB + 1 字节输入被节点拒绝；超限输出和缺失输出返回 `FILE_OUTPUT_INVALID`；删除后的句柄被拒绝 |
+| 授权与幂等 | 活跃输入删除返回 `FILE_IN_USE`；MCP/REST 同键重放保持 executionId/runId；同键修改输入被拒绝；成功输出作为新输入经显式 REST 执行通过 |
+| 超时 / 取消 | 2 秒执行期限触发 timeout，确认执行进程退出；精准取消和重复取消通过 |
+| n8n 重启恢复 | 真实等待期间重启 n8n，恢复同一 executionId/runId；取得预期的缺失输出失败终态，没有重新派发 |
+| Office 异常退出 | 两个 WPS provider 分别模拟执行器突然退出，按私有实例 PID 与创建时间清理，工作目录移除通过 |
+| 可导入示例 | 包内 `examples/office-file.json` 实际导入 n8n，完整执行后 Binary 内容及摘要一致 |
+
+联调发现并修复了客户端文件传输 TLS 兼容、执行器回显文件参数路径导致结果被拒绝、DataTable 将 XLSX 字节写入 CSV 文件的问题，修复后相关场景均已重测。浏览器夹具参数错误也已纠正后复测。早期失败以及修复前虽为成功终态但 CSV 格式错误的执行均保留为审计记录，不计作功能通过证据。
+
+### 部署一致性、清理与边界
+
+部署的 11 个服务端文件、9 个客户端源码文件和 n8n 安装包的 36 个文件与本地校验一致；服务器 Nginx 配置检查通过。节点 tarball SHA-256 为 `d558ab0cc05b5c060bbb5f685d9b44af9aaac2870305612b4a6b22cd0895f38b`。服务器写入限于指定源码部署目录，保留文件存储及传输配置。
+
+服务端本轮 29 条执行均已终态，临时传输授权全部撤销；这些记录包含预期失败和修复前失败，不能以成功终态数量代替场景验收。14 个临时机器人及工作流声明、42 个文件句柄、7 个 n8n 工作流、115 条 n8n 父子执行记录和 14 个客户端测试运行目录均已清理；原声明策略恢复，非测试数据保留。临时回环服务、服务器测试包及备份已清理，服务端和客户端执行审计保留。**临时凭据导出副本按用户要求保留，未记为已删除；n8n 原凭据保持不变。** 客户端空闲，无残留执行进程或私有文件工作目录，n8n 保持运行且健康。
+
+本轮未重建完整客户端 EXE，未实测 Microsoft Office、全部 111 项操作、商业 OCR/文档服务、企业共享存储及其他远程文件服务，也未重跑全仓 `make check`。当前结论限于上述自动化与受控真实场景，不作为全平台或生产容量验收。脱敏执行标识、产物摘要、回归结果与清理状态见 [validation-evidence.json](validation-evidence.json) 的 `officeFileValidation`。
+
 ## CI 定向回归核验（2026-10-12）
 
 本轮基于 `a200c867` 与未提交的 CI 修改，在本地 Windows、Python 3.13、Node.js 24.18.0 环境执行。检查限于 OpenAPI、五组 Engine 组件及 n8n 节点的定向回归，没有操作部署环境。

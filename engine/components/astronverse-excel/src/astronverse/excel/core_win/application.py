@@ -1,3 +1,4 @@
+import os
 import time
 import winreg
 from typing import Optional
@@ -35,6 +36,11 @@ def _create_app(params: str, retry: int = 0, retry_delay: float = 0.5):
     """
     创建Excel应用对象，可选重试机制
     """
+    if os.environ.get("ASTRON_RPA_MANAGED_FILES") == "1":
+        from astronverse.actionlib.managed_office import create_application
+
+        return create_application(params, "excel")
+
     max_attempts = retry + 1  # 总尝试次数 = 重试次数 + 1次初始尝试
 
     for attempt in range(max_attempts):
@@ -111,6 +117,8 @@ class Application:
 
         application = None
         keys = _get_key(default_application=default_application)
+        if os.environ.get("ASTRON_RPA_MANAGED_FILES") == "1":
+            prefer_existing = False
 
         if prefer_existing:
             # 如果 prefer_existing=True，先尝试获取已存在的实例
@@ -126,6 +134,8 @@ class Application:
                     break
 
         if not application:
+            if os.environ.get("ASTRON_RPA_MANAGED_FILES") == "1":
+                raise RuntimeError("No isolated Office application is available")
             try:
                 win32com.client.gencache.Rebuild()
                 win32com.client.gencache.EnsureModule("{00020813-0000-0000-C000-000000000046}", 0, 8, 7)
@@ -191,6 +201,8 @@ class Application:
     @staticmethod
     def open_workbook(application, file_path: str, password: str = "", update_links: bool = True) -> ExcelObj:
         """打开工作簿"""
+        if os.environ.get("ASTRON_RPA_MANAGED_FILES") == "1":
+            update_links = False
 
         workbook = application.Workbooks.Open(
             Filename=file_path, UpdateLinks=update_links, Password=password, ReadOnly=False, Format=None
@@ -218,4 +230,7 @@ class Application:
     @staticmethod
     def close_workbook(excel_obj: ExcelObj, save_changes: bool = True):
         workbook = excel_obj.obj
+        application = workbook.Application if os.environ.get("ASTRON_RPA_MANAGED_FILES") == "1" else None
         workbook.Close(SaveChanges=save_changes)
+        if application is not None and application.Workbooks.Count == 0:
+            application.Quit()
