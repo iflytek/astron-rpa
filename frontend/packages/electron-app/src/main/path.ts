@@ -1,6 +1,6 @@
 import path from 'node:path'
 
-import { app } from 'electron'
+import { app, shell } from 'electron'
 
 export const appPath = app.getAppPath()
 export const userDataPath = app.getPath('userData')
@@ -25,19 +25,14 @@ export const extensionBaseUrl =  `rpa://${extensionHost}/`
 export const rendererPath = path.join(__dirname, '../renderer')
 export const windowBaseUrl  = app.isPackaged ? 'rpa://localhost/' : 'http://localhost:1420/'
 
-export function openPath(targetPath: string): Promise<void> {
-  return new Promise((resolve, reject) => {
-    const { exec } = require('node:child_process')
-    const path = require('node:path')
-
-    // 要打开的文件或文件夹路径
-    targetPath = path.resolve(targetPath)
-
-    // 根据操作系统选择命令
-    const openCommand = process.platform === 'win32' ? `start "" "${targetPath}"` : `xdg-open "${targetPath}"`
-
-    exec(openCommand, (error) => {
-      error ? reject(error) : resolve()
-    })
-  })
+export async function openPath(targetPath: string): Promise<void> {
+  // 使用 Electron 内置的 shell.openPath，它通过原生系统 API 打开文件/文件夹，
+  // 不经过任何 shell 解析，因此路径中的 shell 元字符（如 "; "）不会被当作命令执行。
+  // 之前基于 child_process.exec 拼接 shell 命令的实现存在命令注入风险。
+  const path = require('node:path')
+  const resolvedPath = path.resolve(targetPath)
+  const errorMessage = await shell.openPath(resolvedPath)
+  if (errorMessage) {
+    throw new Error(errorMessage)
+  }
 }
