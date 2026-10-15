@@ -124,9 +124,31 @@
 
 ## 👥 客户端相关
 
-### Q: 是否需要安装客户端？
+### Q: 🔄 是否需要安装客户端？为什么启动服务端后浏览器里没有流程设计页面？
 
-**A:** ✅ **需要！** RPA 目前没有 Web 版本，需要客户端运行。
+**A:** ✅ **需要！** 开源版采用服务端-客户端架构，Docker 服务端和 Windows 桌面客户端承担不同职责：
+
+- `docker compose up -d` 启动的是 API 网关、认证、数据库、缓存、对象存储等服务端组件。默认网关是 `http://YOUR_SERVER_ADDRESS:32742`；它的根路径返回 `404 Not Found` 是正常现象，因为这里不托管 RPA 流程设计页面。可以访问 `http://YOUR_SERVER_ADDRESS:32742/health` 检查网关是否存活。
+- `http://YOUR_SERVER_ADDRESS:8000` 是 Casdoor 认证服务，不是 RPA 流程设计器。
+- 流程设计与本地执行需要 Windows 桌面客户端。可以直接下载 [Release 页面](https://github.com/iflytek/astron-rpa/releases)中的 MSI，或按 [`BUILD_GUIDE.zh.md`](./BUILD_GUIDE.zh.md#-客户端部署-本地) 从源码构建。
+- 安装后将客户端安装目录中 `resources/conf.yaml` 的 `remote_addr` 指向服务端网关，然后重启客户端：
+
+  ```yaml
+  remote_addr: http://YOUR_SERVER_ADDRESS:32742/
+  skip_engine_start: false
+  ```
+
+只部署 Docker 服务端不会出现可用于设计流程的浏览器入口。
+
+### Q: 🆕 Casdoor 在开源部署中做什么？可以删除或关闭吗？
+
+**A:** Casdoor 是默认开源部署的登录与身份认证服务。客户端的登录流程、`rpa-auth` 服务以及网关鉴权都按 Casdoor 模式配置，因此在标准部署中它不是可以直接删除的可选容器。
+
+- **正常自建部署：** 保留 Casdoor，并把 `docker/.env` 中的 `CASDOOR_EXTERNAL_ENDPOINT` 设置为客户端浏览器能够访问的地址，例如 `http://192.0.2.10:8000`。远程客户端不要使用 `127.0.0.1` 或 Docker 内部服务名。
+- **不能只注释容器：** 直接删除 `casdoor` 会导致登录或受保护 API 失败；`resources/conf.yaml` 默认也使用 `app_auth_type: casdoor`。
+- **替换认证系统：** 这属于二次开发，需要同时适配后端认证 profile / deployment mode、前端与客户端认证类型、网关路由及服务依赖。仓库中的 `uap` 路径不是面向任意第三方 IdP 的即插即用开关。
+
+如果只是想限制用户注册，请在 Casdoor 中调整应用的注册设置，而不是移除认证服务。
 
 ### Q: 🆕 开源版与企业版 RPA 有区别吗？
 
