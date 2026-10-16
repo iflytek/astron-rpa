@@ -1,0 +1,121 @@
+{
+  "ComputerUse.custom_action_screen": {
+    "title": "自定义AI操作屏幕",
+    "comment": "使用视觉大模型分析屏幕并执行GUI自动化任务：@{instruction}",
+    "inputList": {
+      "instruction": {
+        "title": "用户指令",
+        "tip": "描述要执行的GUI自动化任务，例如\"打开计算器并计算123+456\""
+      },
+      "max_steps": {
+        "title": "最大执行步数",
+        "tip": "任务执行的最大步数限制，防止无限循环"
+      }
+    },
+    "outputList": {
+      "computer_use_res": {
+        "title": "执行结果",
+        "tip": "包含任务执行状态、步数、耗时、截图目录和错误信息的字典"
+      }
+    }
+  },
+  "ComputerUse.extract_data": {
+    "title": "提取屏幕数据",
+    "comment": "使用视觉大模型分析屏幕并提取屏幕数据",
+    "inputList": {
+      "instruction": {
+        "title": "用户指令",
+        "tip": "描述要执行的GUI自动化任务，例如\"帮我从屏幕中提取数据，并返回 JSON 格式。\""
+      },
+      "max_steps": {
+        "title": "最大执行步数",
+        "tip": "任务执行的最大步数限制，防止无限循环"
+      }
+    },
+    "outputList": {
+      "computer_use_res": {
+        "title": "执行结果",
+        "tip": "包含任务执行状态、步数、耗时、截图目录和错误信息的字典"
+      }
+    }
+  },
+  "ComputerUse.fill_form": {
+    "title": "填写表单",
+    "comment": "使用视觉大模型分析屏幕并填写屏幕中表单",
+    "inputList": {
+      "instruction": {
+        "title": "用户指令",
+        "tip": "描述要执行的GUI自动化任务，例如\"帮我将 [数据内容] 填写到屏幕中的表单。数据内容：\""
+      },
+      "max_steps": {
+        "title": "最大执行步数",
+        "tip": "任务执行的最大步数限制，防止无限循环"
+      }
+    },
+    "outputList": {
+      "computer_use_res": {
+        "title": "执行结果",
+        "tip": "包含任务执行状态、步数、耗时、截图目录和错误信息的字典"
+      }
+    }
+  },
+  "ComputerUse.screen_condition": {
+    "title": "IF屏幕满足条件",
+    "comment": "使用视觉大模型判断当前屏幕是否满足条件：@{instruction}",
+    "inputList": {
+      "instruction": {
+        "title": "判断条件",
+        "tip": "描述要判断的屏幕条件，如\"判断谷歌浏览器是否在任务栏中\""
+      },
+      "max_steps": {
+        "title": "最大执行步数",
+        "tip": "任务执行的最大步数限制，防止无限循环，默认1（单次判断）"
+      }
+    }
+  },
+  "ComputerUse.process_captcha": {
+    "title": "处理验证码",
+    "comment": "使用视觉大模型分析屏幕并处理屏幕中验证码",
+    "inputList": {
+      "instruction": {
+        "title": "用户指令",
+        "tip": "描述要执行的GUI自动化任务，例如\"帮我处理并关闭屏幕中的验证码。\""
+      },
+      "max_steps": {
+        "title": "最大执行步数",
+        "tip": "任务执行的最大步数限制，防止无限循环"
+      }
+    },
+    "outputList": {
+      "computer_use_res": {
+        "title": "执行结果",
+        "tip": "包含任务执行状态、步数、耗时、截图目录和错误信息的字典"
+      }
+    }
+  },
+  "ComputerUse.run": {
+    "title": "计算机使用代理",
+    "comment": "使用视觉大模型分析屏幕并执行GUI自动化任务：@{instruction}",
+    "inputList": {
+      "instruction": {
+        "title": "用户指令",
+        "tip": "描述要执行的GUI自动化任务，例如\"打开计算器并计算123+456\""
+      },
+      "max_steps": {
+        "title": "最大执行步数",
+        "tip": "任务执行的最大步数限制，防止无限循环"
+      },
+      "temperature": {
+        "title": "模型温度",
+        "tip": "模型生成时的温度参数，控制输出的随机性，默认0"
+      }
+    },
+    "outputList": {
+      "computer_use_res": {
+        "title": "执行结果",
+        "subTitle": "AI生成",
+        "tip": "包含任务执行状态、步数、耗时、截图目录和错误信息的字典"
+      }
+    }
+  }
+}

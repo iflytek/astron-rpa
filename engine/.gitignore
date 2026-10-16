@@ -8,3 +8,5 @@ build
 python313
 log.txt
 temp_*.json
+astron
+logs

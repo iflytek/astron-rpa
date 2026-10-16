@@ -1,5 +1,4 @@
 import os
-import shlex
 import subprocess
 import sys
 import threading
@@ -7,7 +6,6 @@ import time
 
 import psutil
 from astronverse.scheduler.logger import logger
-from astronverse.scheduler.utils.utils import kill_proc_tree
 
 
 def disable_cmd_quick_edit():
@@ -47,7 +45,7 @@ def async_default_output_callback(msg, error):
 
 
 class SubPopen:
-    def __init__(self, name: str = None, cmd: list = None, params: dict = None):
+    def __init__(self, name: str | None = None, cmd: list | None = None, params: dict | None = None):
         if not params:
             params = {}
         if not cmd:
@@ -111,18 +109,16 @@ class SubPopen:
         stdout_thread.start()
         return
 
-    def run(self, shell: bool = None, log: bool = False, encoding="utf-8", env=None) -> "SubPopen":
+    def run(self, shell: bool | None = None, log: bool = False, encoding="utf-8", env=None) -> "SubPopen":
         disable_cmd_quick_edit()
 
-        # shell 默认值
+        # Start the executable directly. On Windows, shell=True inserts
+        # `cmd.exe /c`, which breaks Ctrl+C propagation and process ownership.
         if shell is None:
-            if sys.platform == "win32":
-                shell = True
-            else:
-                shell = False
+            shell = False
 
         # 参数
-        param_list = [f"--{key}={shlex.quote(str(value))}" for key, value in self.params.items()]
+        param_list = [f"--{key}={value}" for key, value in self.params.items()]
         cmd = self.cmd + param_list
         logger.info(
             "cmd: {} env".format(
@@ -175,8 +171,18 @@ class SubPopen:
     def kill(self):
         if self.proc:
             try:
-                # 如果已经关闭可能报错
-                kill_proc_tree(psutil.Process(self.proc.pid), including_parent=True)
-                self.proc.wait()
-            except Exception as e:
+                process = psutil.Process(self.proc.pid)
+            except psutil.NoSuchProcess:
+                return
+
+            processes = [*process.children(recursive=True), process]
+            for child in reversed(processes):
+                try:
+                    child.kill()
+                except psutil.Error:
+                    pass
+
+            try:
+                psutil.wait_procs(processes, timeout=5)
+            except psutil.Error:
                 pass

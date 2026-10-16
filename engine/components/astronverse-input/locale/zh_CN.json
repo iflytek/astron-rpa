@@ -1,0 +1,242 @@
+{
+  "Gui.mouse_move": {
+    "title": "鼠标移动",
+    "comment": "在(@{window_type})上模拟鼠标移动到(@{position_x}, @{position_y})",
+    "inputList": {
+      "window_type": {
+        "title": "窗口类型",
+        "tip": "整个屏幕：以屏幕左上角为坐标相对位置；激活窗口：以激活窗口左上角为相对坐标位置"
+      },
+      "window_position": {
+        "title": "窗口左上角位置"
+      },
+      "get_mouse_position": {
+        "title": "获取鼠标位置"
+      },
+      "position_x": {
+        "title": "鼠标x位置"
+      },
+      "position_y": {
+        "title": "鼠标y位置"
+      },
+      "move_type": {
+        "title": "鼠标移动方式",
+        "tip": "选择鼠标移动方式"
+      },
+      "move_speed": {
+        "title": "鼠标移动速度"
+      }
+    }
+  },
+  "Gui.keyboard": {
+    "title": "键盘输入",
+    "comment": "通过@{keyboard_type}方式模拟键盘输入@{message}",
+    "inputList": {
+      "keyboard_type": {
+        "title": "输入方式",
+        "tip": "普通输入：windows键盘消息的方式来模拟按键输入；剪切板输入：获取剪切板内容并粘贴输入；按键组合：使用插入键盘符号组合快捷输入；驱动输入：使用驱动来模拟按键输入，一般用于网银密码框输入场景或其它普通输入方式无法输入的场景"
+      },
+      "message": {
+        "title": "输入内容"
+      },
+      "simulate_flag": {
+        "title": "模拟人工输入",
+        "tip": "模拟人工方式操作键盘逐个输入字符，默认为否"
+      },
+      "interval": {
+        "title": "输入间隔",
+        "tip": "设置输入间隔，单位为秒"
+      }
+    }
+  },
+  "Gui.key_input": {
+    "title": "键盘模拟按键",
+    "comment": "使用键盘模拟按键@{keys_str}@{key_model}",
+    "inputList": {
+      "keys_str": {
+        "title": "按键组合",
+        "tip": "设置按键组合"
+      },
+      "key_model": {
+        "title": "按键方式",
+        "tip": "设置按键方式"
+      }
+    }
+  },
+  "Gui.mouse": {
+    "title": "鼠标点击",
+    "comment": "模拟鼠标@{btn_type:左键/右键/中键} @{btn_model:按下/弹起/单击/双击}",
+    "inputList": {
+      "btn_type": {
+        "title": "鼠标按键",
+        "tip": "选择点击鼠标上的键位"
+      },
+      "btn_model": {
+        "title": "点击方式",
+        "tip": "选择操作鼠标的点击方式"
+      },
+      "ctrl_type": {
+        "title": "键盘辅助按键",
+        "tip": "选择键盘辅助按键，默认为无"
+      }
+    }
+  },
+  "Gui.mouse_wheel": {
+    "title": "鼠标滚动",
+    "comment": "模拟鼠标 @{scroll_type} 滚动 @{scroll_px||times}，滚动方向为:@{direction}",
+    "inputList": {
+      "scroll_type": {
+        "title": "滚动方式"
+      },
+      "times": {
+        "title": "自定义次数",
+        "tip": "输入鼠标滚动的次数,默认滚动一次距离为120个网页像素"
+      },
+      "scroll_px": {
+        "title": "自定义像素",
+        "tip": "输入自定义像素，单位为px，一般为0-9999之间的数值"
+      },
+      "direction": {
+        "title": "滚动方向"
+      },
+      "ctrl_type": {
+        "title": "键盘辅助按键",
+        "tip": "选择键盘辅助按键，默认为无"
+      }
+    }
+  },
+  "Gui.mouse_move_new": {
+    "title": "鼠标移动",
+    "comment": "在@{window_type}上模拟鼠标移动到@{position_x}, @{position_y}",
+    "inputList": {
+      "window_type": {
+        "title": "窗口类型",
+        "tip": "整个屏幕：以屏幕左上角为坐标相对位置；激活窗口：以激活窗口左上角为相对坐标位置"
+      },
+      "window_pick": {
+        "title": "窗口拾取",
+        "tip": "选择需要操作的窗口"
+      },
+      "get_mouse_position": {
+        "title": "获取鼠标位置"
+      },
+      "position_x": {
+        "title": "鼠标x位置"
+      },
+      "position_y": {
+        "title": "鼠标y位置"
+      },
+      "move_type": {
+        "title": "鼠标移动方式",
+        "tip": "选择鼠标移动方式"
+      },
+      "move_speed": {
+        "title": "鼠标移动速度"
+      }
+    }
+  },
+  "Gui.mouse_drag": {
+    "title": "鼠标拖拽",
+    "comment": "模拟鼠标从起点位置@{start_pos_x}, @{start_pos_y}拖拽到终点位置@{end_pos_x}, @{end_pos_y}",
+    "inputList": {
+      "start_pos_x": {
+        "title": "鼠标起点x位置"
+      },
+      "start_pos_y": {
+        "title": "鼠标起点y位置"
+      },
+      "end_pos_x": {
+        "title": "鼠标终点x位置"
+      },
+      "end_pos_y": {
+        "title": "鼠标终点y位置"
+      },
+      "btn_type": {
+        "title": "鼠标按键",
+        "tip": "拖拽时按下的鼠标键位"
+      },
+      "move_type": {
+        "title": "移动方式",
+        "tip": "选择鼠标移动方式"
+      },
+      "move_speed": {
+        "title": "移动速度",
+        "tip": "选择鼠标移动速度"
+      },
+      "ctrl_type": {
+        "title": "键盘辅助按键",
+        "tip": "选择鼠标拖拽时的键盘辅助按键，默认为无"
+      }
+    }
+  },
+  "Gui.mouse_position": {
+    "title": "获取鼠标位置",
+    "comment": "获取当前鼠标位置并输出至@{point_x}, @{point_y}",
+    "outputList": {
+      "point_x": {
+        "title": "鼠标x位置"
+      },
+      "point_y": {
+        "title": "鼠标y位置"
+      }
+    }
+  },
+  "options": {
+    "KeyboardType": {
+      "normal": "普通输入",
+      "driver": "驱动输入",
+      "clip": "剪贴板输入",
+      "gblid": "ghost输入"
+    },
+    "Simulate_flag": {
+      "yes": "是",
+      "no": "否"
+    },
+    "KeyModel": {
+      "click": "单击",
+      "down": "按下",
+      "up": "弹起"
+    },
+    "BtnType": {
+      "left": "左键",
+      "middle": "中键",
+      "right": "右键"
+    },
+    "BtnModel": {
+      "click": "单击",
+      "double_click": "双击",
+      "down": "按下",
+      "up": "弹起"
+    },
+    "ControlType": {
+      "none": "无",
+      "ctrl": "ctrl",
+      "alt": "alt",
+      "shift": "shift",
+      "win": "win",
+      "space": "space"
+    },
+    "ScrollType": {
+      "time": "按次数",
+      "px": "按像素"
+    },
+    "Direction": {
+      "up": "向上",
+      "down": "向下"
+    },
+    "WindowType": {
+      "fullscreen": "整个屏幕",
+      "active_window": "激活窗口"
+    },
+    "MoveType": {
+      "linear": "匀速直线移动",
+      "simulation": "模拟人工方式",
+      "teleportation": "瞬时移动"
+    },
+    "Speed": {
+      "slow": "慢速",
+      "normal": "正常",
+      "fast": "快速"
+    }
+  }
+}

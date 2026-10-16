@@ -1,0 +1,184 @@
+{
+  "CV.cv_click": {
+    "title": "Click Image",
+    "comment": "Mouse @{btn_type} @{btn_model} image @{input_data} at @{click_position}",
+    "inputList": {
+      "input_data": {
+        "title": "Target Image",
+        "tip": "Supports selecting from image library or picking an image element"
+      },
+      "btn_type": {
+        "title": "Mouse Button"
+      },
+      "btn_model": {
+        "title": "Click Mode"
+      },
+      "click_position": {
+        "title": "Click Position",
+        "tip": "Select mouse click position"
+      },
+      "specified_position": {
+        "title": "Specified Position"
+      },
+      "horizontal_move": {
+        "title": "Horizontal Offset"
+      },
+      "vertical_move": {
+        "title": "Vertical Offset"
+      },
+      "move_type": {
+        "title": "Mouse Move Mode"
+      },
+      "move_speed": {
+        "title": "Mouse Move Speed"
+      },
+      "wait_time": {
+        "title": "Wait for Image (seconds)",
+        "tip": "Stop waiting after this time, default is 10 seconds"
+      }
+    }
+  },
+  "CV.hover_image": {
+    "title": "Hover Mouse Over Image",
+    "comment": "Hover mouse over image @{input_data} at @{click_position}",
+    "inputList": {
+      "input_data": {
+        "title": "Target Image",
+        "tip": "Supports selecting from image library or picking an image element"
+      },
+      "click_position": {
+        "title": "Hover Position"
+      },
+      "specified_position": {
+        "title": "Specified Position",
+        "tip": "Cut image by 3x3 grid, supports selecting any area; hovering centers on the corresponding area"
+      },
+      "horizontal_move": {
+        "title": "Horizontal Offset"
+      },
+      "vertical_move": {
+        "title": "Vertical Offset"
+      },
+      "move_type": {
+        "title": "Mouse Move Mode"
+      },
+      "move_speed": {
+        "title": "Mouse Move Speed"
+      },
+      "wait_time": {
+        "title": "Wait for Image (seconds)",
+        "tip": "Stop waiting after this time, default is 10 seconds"
+      }
+    }
+  },
+  "CV.is_image_exist": {
+    "title": "IF Image Exists",
+    "comment": "Check if image @{input_data} @{exist_type} on current screen",
+    "inputList": {
+      "input_data": {
+        "title": "Target Image",
+        "tip": "Supports selecting from image library or picking an image element"
+      },
+      "exist_type": {
+        "title": "Check Type",
+        "tip": "Check if image exists or not, execute corresponding code block"
+      },
+      "wait_time": {
+        "title": "Wait for Image (seconds)",
+        "tip": "Stop waiting after this time, default is 10 seconds"
+      }
+    }
+  },
+  "CV.wait_image": {
+    "title": "Wait for Image",
+    "comment": "Wait for image @{input_data} @{wait_type}",
+    "inputList": {
+      "input_data": {
+        "title": "Target Image",
+        "tip": "Supports selecting from image library or picking an image element"
+      },
+      "wait_type": {
+        "title": "Wait Type",
+        "tip": "Wait for image to appear or disappear"
+      },
+      "wait_time": {
+        "title": "Wait Time (seconds)",
+        "tip": "Stop waiting after this time, default is 10 seconds"
+      }
+    },
+    "outputList": {
+      "image_wait_result": {
+        "title": "Wait Result",
+        "tip": "Whether target image appeared/disappeared; true if appeared/disappeared within wait time, otherwise false"
+      }
+    }
+  },
+  "CV.image_input": {
+    "title": "Input to Image Input Box",
+    "comment": "Pick image input box @{input_data} and input @{input_content} using @{input_type}",
+    "inputList": {
+      "input_data": {
+        "title": "Target Image",
+        "tip": "Supports selecting from image library or picking an image element"
+      },
+      "input_type": {
+        "title": "Input Method"
+      },
+      "input_content": {
+        "title": "Input Content"
+      },
+      "simulate_flag": {
+        "title": "Simulate Manual Input"
+      },
+      "interval": {
+        "title": "Input Interval"
+      },
+      "wait_time": {
+        "title": "Wait for Image (seconds)",
+        "tip": "Stop waiting after this time, default is 10 seconds"
+      }
+    }
+  },
+  "options": {
+    "BtnType": {
+      "left": "Left Button",
+      "middle": "Middle Button",
+      "right": "Right Button"
+    },
+    "BtnModel": {
+      "click": "Single Click",
+      "double_click": "Double Click"
+    },
+    "PositionType": {
+      "center": "Center",
+      "random": "Random Position",
+      "specific": "Specified Position"
+    },
+    "MoveType": {
+      "linear": "Linear",
+      "simulation": "Simulate Human",
+      "teleportation": "Instant Move"
+    },
+    "Speed": {
+      "slow": "Slow",
+      "normal": "Normal",
+      "fast": "Fast"
+    },
+    "ExistType": {
+      "exist": "Exists",
+      "not_exist": "Does Not Exist"
+    },
+    "WaitType": {
+      "appear": "Image Appears",
+      "disappear": "Image Disappears"
+    },
+    "InputType": {
+      "text": "Text Input",
+      "clip": "Clipboard Input"
+    },
+    "Simulate_flag": {
+      "yes": "Yes",
+      "no": "No"
+    }
+  }
+}

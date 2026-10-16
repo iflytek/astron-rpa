@@ -1,5 +1,3 @@
-import time
-
 from astronverse.scheduler import ServerLevel
 from astronverse.scheduler.core.schduler.venv import VenvManager
 from astronverse.scheduler.core.server import IServer
@@ -19,7 +17,7 @@ class RpaSchedulerAsyncServer(IServer):
 
     def run(self):
         i = 1
-        while True:
+        while not self.svc.stop_event.is_set():
             try:
                 # 创建空的虚拟环境
                 try:
@@ -40,7 +38,7 @@ class RpaSchedulerAsyncServer(IServer):
                 i += 1
                 if i > 60:
                     i = 0
-                time.sleep(1)
+                self.svc.stop_event.wait(1)
 
 
 class TerminalAsyncServer(IServer):
@@ -49,7 +47,7 @@ class TerminalAsyncServer(IServer):
 
     def run(self):
         i = 1
-        while True:
+        while not self.svc.stop_event.is_set():
             try:
                 if i % 10 == 0:
                     # 创建空的虚拟环境
@@ -63,7 +61,7 @@ class TerminalAsyncServer(IServer):
                 i += 1
                 if i > 60:
                     i = 0
-                time.sleep(1)
+                self.svc.stop_event.wait(1)
 
 
 class CheckPickProcessAliveServer(IServer):
@@ -76,7 +74,7 @@ class CheckPickProcessAliveServer(IServer):
         )
 
     def run(self):
-        while True:
+        while not self.svc.stop_event.is_set():
             try:
                 if self.svc.picker.start:
                     if self.svc.picker.vision_picker:
@@ -91,7 +89,7 @@ class CheckPickProcessAliveServer(IServer):
             except Exception as e:
                 logger.exception("check_pick_process error: {}".format(e))
             finally:
-                time.sleep(1)
+                self.svc.stop_event.wait(1)
 
 
 class CheckStartPidExitsServer(IServer):
@@ -104,4 +102,4 @@ class CheckStartPidExitsServer(IServer):
         )
 
     def run(self):
-        Process.pid_exist_check()
+        Process.pid_exist_check(self.svc.stop_event)

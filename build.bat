@@ -270,15 +270,15 @@ if errorlevel 1 (
 echo Batch installation successful
 
 @REM ===========================================
-@REM Run meta_json.py to generate temp.json
+@REM Run build_meta.py to generate meta and tree
 @REM ===========================================
-@REM echo Running meta_json.py to generate temp.json...
-@REM %PYTHON_CORE_DIR%\python.exe %ENGINE_DIR%\meta_json.py
-@REM if errorlevel 1 (
-@REM     echo meta_json.py execution failed
-@REM     exit /b 1
-@REM )
-@REM echo meta_json.py executed successfully
+echo Running build_meta.py to generate meta and tree...
+%PYTHON_CORE_DIR%\python.exe %ENGINE_DIR%\scripts\build_meta.py
+if errorlevel 1 (
+    echo build_meta.py execution failed
+    exit /b 1
+)
+echo build_meta.py executed successfully
 
 REM ============================================
 REM 4.4. Package and Release
@@ -298,18 +298,20 @@ echo Python_core directory compressed successfully, file saved to: %SCRIPT_DIR%\
 REM ---- 生成 SHA-256 校验文件（与 7z 同级） ----
 set "HASH_FILE=%SCRIPT_DIR%\%ARCHIVE_DIST_DIR%\python_core.7z.sha256.txt"
 
-for /f "skip=1 delims=" %%H in (
-    'certutil -hashfile "%SCRIPT_DIR%\%ARCHIVE_DIST_DIR%\python_core.7z" SHA256'
-) do (
-    echo %%H> "%HASH_FILE%"
-    goto :hashDone
+if not exist "%SCRIPT_DIR%\%ARCHIVE_DIST_DIR%\python_core.7z" (
+    echo Archive file not found: %SCRIPT_DIR%\%ARCHIVE_DIST_DIR%\python_core.7z
+    exit /b 1
 )
-:hashDone
 
-if errorlevel 1 (
+if exist "%HASH_FILE%" del /f /q "%HASH_FILE%"
+set "HASH_VALUE="
+for /f "skip=1 tokens=*" %%H in ('certutil -hashfile "%SCRIPT_DIR%\%ARCHIVE_DIST_DIR%\python_core.7z" SHA256 2^>nul') do if not defined HASH_VALUE set "HASH_VALUE=%%H"
+
+if not defined HASH_VALUE (
     echo SHA-256 generation failed
     exit /b 1
 )
+> "%HASH_FILE%" echo %HASH_VALUE%
 echo Hash file generated: %HASH_FILE%
 
 echo.

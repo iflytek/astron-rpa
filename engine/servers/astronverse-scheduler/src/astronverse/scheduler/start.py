@@ -1,9 +1,7 @@
-import argparse
-import time
 import traceback
 from pathlib import Path
+
 import uvicorn
-from astronverse.scheduler.logger import logger
 from astronverse.baseline.config.config import load_config
 from astronverse.scheduler.apis import route
 from astronverse.scheduler.config import Config
@@ -21,6 +19,7 @@ from astronverse.scheduler.core.servers.core_server import (
 )
 from astronverse.scheduler.core.setup.setup import Process
 from astronverse.scheduler.core.svc import get_svc
+from astronverse.scheduler.logger import logger
 from astronverse.scheduler.utils.utils import check_port
 from fastapi import FastAPI
 
@@ -30,6 +29,7 @@ route.handler(app)
 
 
 def start(args):
+    server_mg = None
     try:
         # 2. 读取配置，并解析到上下文
         conf_path = Path(args.conf.strip('"').replace("\\\\", "\\")).resolve()
@@ -59,8 +59,10 @@ def start(args):
         server_mg.run()
 
         # 5. 等待本地网关加载完成，并注册服务
-        while check_port(port=svc.rpa_route_port):  # 等待本地路由加载完成
-            time.sleep(0.1)
+        while check_port(port=svc.rpa_route_port) and not server_mg.stop_event.wait(0.1):
+            pass
+        if server_mg.stop_event.is_set():
+            return
         svc.route_server_is_start = True
         svc.register_server()
 
@@ -68,10 +70,15 @@ def start(args):
 
         # 7. 启动服务
         uvicorn.run(
-            app="astronverse.scheduler.start:app",
+            app=app,
             host="0.0.0.0",
             port=svc.scheduler_port,
+            ws="websockets-sansio",
+            timeout_graceful_shutdown=5,
             workers=1,
         )
     except Exception as e:
         logger.error("astronverse.scheduler error: {} traceback: {}".format(e, traceback.format_exc()))
+    finally:
+        if server_mg:
+            server_mg.stop()

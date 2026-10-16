@@ -4,30 +4,31 @@ import http from './http'
 
 // 根据id和version获取原子能力的具体信息
 export async function getAbilityInfo(atomList: { key: string, version: string }[]): Promise<string[]> {
-  const res = await http.post<any[]>('/api/robot/atom-new/list', { keys: atomList.map(i => i.key) })
+  const res = await http.post<any[]>('/core/meta/list', { keys: atomList.map(i => i.key) })
   const data = res.data || []
   return data.map((atom: any) => atom.atomContent)
 }
 
 // 获取原子能力左侧菜单数据
 export async function getAtomsMeta(): Promise<RPA.AtomMetaData> {
-  const res = await http.post('/api/robot/atom-new/tree')
+  const res = await http.post('/core/meta/tree')
   return JSON.parse(res.data)
 }
 
 // 获取扩展组件左侧菜单数据
 export async function getModuleMeta(): Promise<RPA.AtomTreeNode[]> {
-  const res = await http.post('/api/robot/atom-new/tree')
+  const res = await http.post('/core/meta/tree')
   const data = JSON.parse(res.data)
   return data.atomicTreeExtend ?? []
 }
 
-export function getTreeByParentKey(parentKey: string) {
-  return http.post('/api/robot/atom/getListByParentKey', null, { params: { parentKey } })
+export function getTreeByParentKey(_parentKey: string) {
+  // The local Engine no longer exposes the legacy parent-key tree endpoint.
+  return Promise.resolve({ data: [] as string[] })
 }
 
 export async function getNewAtomDesc(key: string): Promise<{ data: string }> {
-  const res = await http.post<any[]>('/api/robot/atom-new/list', { keys: [key] })
+  const res = await http.post<any[]>('/core/meta/list', { keys: [key] })
   const atom = res.data && res.data.length > 0 ? res.data[0] : {}
   const { atomContent = '{}' } = atom as any
   return { data: atomContent }

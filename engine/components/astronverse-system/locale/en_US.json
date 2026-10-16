@@ -1,0 +1,1104 @@
+{
+  "System.copy_clip": {
+    "title": "Copy to Clipboard",
+    "comment": "Copy @{content_type} @{message||file_path||folder_path} to clipboard",
+    "inputList": {
+      "content_type": {
+        "title": "Copy Type",
+        "tip": "Select the content type to copy to clipboard"
+      },
+      "message": {
+        "title": "Text Content to Copy",
+        "tip": "Enter the text content"
+      },
+      "file_path": {
+        "title": "File Path to Copy",
+        "tip": "Enter or select the file to copy"
+      },
+      "folder_path": {
+        "title": "Folder Path to Copy",
+        "tip": "Enter or select the folder to copy"
+      }
+    }
+  },
+  "System.clear_clip": {
+    "title": "Clear Clipboard",
+    "comment": "Clear the content of the clipboard"
+  },
+  "System.paste_clip": {
+    "title": "Get Clipboard",
+    "comment": "Get @{content_type} from clipboard and save to variable @{output_content}",
+    "inputList": {
+      "content_type": {
+        "title": "Get Type",
+        "tip": "Select the content type to get from clipboard"
+      },
+      "dst_path": {
+        "title": "Save Path",
+        "tip": "Enter or select the save path"
+      },
+      "state_type": {
+        "title": "When Save Path Does Not Exist",
+        "tip": "Set the action when the save path does not exist"
+      },
+      "dst_file_name": {
+        "title": "File Save Name",
+        "tip": "Enter the file name to save, no extension needed; uses original file name if empty"
+      },
+      "dst_folder_name": {
+        "title": "Folder Save Name",
+        "tip": "Enter the folder name to save; uses original folder name if empty"
+      }
+    },
+    "outputList": {
+      "output_content": {
+        "title": "Output Clipboard Content to Variable",
+        "tip": "Text content is output as a string variable; file/folder is output as path information"
+      }
+    }
+  },
+  "System.compress": {
+    "title": "Compress",
+    "comment": "Compress @{file_type} to specified directory @{compress_dir} and save archive path to @{compress_path}",
+    "inputList": {
+      "file_type": {
+        "title": "Compression Method",
+        "tip": "Select compress file / folder / files and folders"
+      },
+      "file_path": {
+        "title": "File to Compress",
+        "tip": "Select or enter the file path to compress"
+      },
+      "folder_path": {
+        "title": "Folder to Compress",
+        "tip": "Select or enter the folder path to compress"
+      },
+      "compress_dir": {
+        "title": "Target Path",
+        "tip": "Save target compressed file path"
+      },
+      "state_type": {
+        "title": "When Target Path Does Not Exist",
+        "tip": "Select the action when the target path does not exist"
+      },
+      "compress_name": {
+        "title": "Archive Name",
+        "tip": "Specify the archive name; defaults to the first compressed file name if empty"
+      },
+      "pwd": {
+        "title": "Compression Password",
+        "tip": "Set a decompression password for the archive"
+      },
+      "save_type": {
+        "title": "Keep Source File After Compression"
+      }
+    },
+    "outputList": {
+      "compress_path": {
+        "title": "Output Compressed Archive Path"
+      }
+    }
+  },
+  "System.uncompress": {
+    "title": "Decompress",
+    "comment": "Decompress archive @{source_path} to specified directory @{target_path} and output decompressed file path @{uncompress_path}",
+    "inputList": {
+      "source_path": {
+        "title": "Archive Path",
+        "tip": "Select or enter the archive path"
+      },
+      "target_path": {
+        "title": "Target Extraction Directory",
+        "tip": "Select or enter the path to save extracted files"
+      },
+      "status_type": {
+        "title": "When Target Directory Does Not Exist",
+        "tip": "Select the action when the target directory does not exist; default is to create it"
+      },
+      "pwd": {
+        "title": "Extraction Password"
+      },
+      "save_type": {
+        "title": "Keep Source File After Extraction",
+        "tip": "Action on source file after extraction; default is to keep"
+      }
+    },
+    "outputList": {
+      "uncompress_path": {
+        "title": "Output Extracted File Path"
+      }
+    }
+  },
+  "File.file_exist": {
+    "title": "IF File Exists",
+    "comment": "Check if file @{file_path} exists, execute the following if it does",
+    "inputList": {
+      "file_path": {
+        "title": "File Path",
+        "tip": "Enter or select the file path"
+      },
+      "exist_type": {
+        "title": "Check Type",
+        "tip": "Select the check type"
+      }
+    }
+  },
+  "File.file_create": {
+    "title": "Create File",
+    "comment": "Create file @{file_name} in specified directory @{dst_path} and save the created file path to @{new_file_path}",
+    "inputList": {
+      "dst_path": {
+        "title": "Specified Directory",
+        "tip": "Enter or select the specified folder directory"
+      },
+      "file_name": {
+        "title": "File Name",
+        "tip": "Enter the file name with extension"
+      },
+      "exist_options": {
+        "title": "When File Exists",
+        "tip": "Select the action when the created file already exists; Create Copy: appends a number to the file name, e.g. a(1).txt; Overwrite: deletes and recreates; Skip: returns the existing file path"
+      }
+    },
+    "outputList": {
+      "new_file_path": {
+        "title": "Created File Path",
+        "tip": "Output the created file path saved to a variable, data type is string"
+      }
+    }
+  },
+  "File.file_delete": {
+    "title": "Delete File",
+    "comment": "Delete file @{file_path} and output result to variable @{delete_file_result}",
+    "inputList": {
+      "file_path": {
+        "title": "File to Delete",
+        "tip": "Select or enter the file path to delete"
+      },
+      "delete_options": {
+        "title": "Delete Operation",
+        "tip": "Select to permanently delete or move to recycle bin"
+      }
+    },
+    "outputList": {
+      "delete_file_result": {
+        "title": "Output Delete Result to",
+        "tip": "Save the file deletion result to a variable, data type is boolean"
+      }
+    }
+  },
+  "File.file_copy": {
+    "title": "Copy File",
+    "comment": "Copy file @{file_path} to specified directory @{target_path} and save copied file path @{copy_file_path}",
+    "inputList": {
+      "file_path": {
+        "title": "File to Copy",
+        "tip": "Select or enter the file path to copy"
+      },
+      "target_path": {
+        "title": "Specified Directory",
+        "tip": "Select or enter the target directory"
+      },
+      "state_type": {
+        "title": "When Directory Does Not Exist",
+        "tip": "Set the action when the specified directory does not exist"
+      },
+      "file_name": {
+        "title": "Copied File Name",
+        "tip": "Specify the copied file name without extension; uses original file name if empty"
+      },
+      "copy_options": {
+        "title": "When File Exists",
+        "tip": "Select action when file already exists in target directory; Create Copy: appends a number; Overwrite: deletes and recreates; Skip: returns existing path"
+      }
+    },
+    "outputList": {
+      "copy_file_path": {
+        "title": "Copied File Path",
+        "tip": "Output the copied file path saved to a variable, data type is string"
+      }
+    }
+  },
+  "File.file_write": {
+    "title": "Write File",
+    "comment": "Write content @{msg} to file @{file_path} and save the written file path @{write_file_path}",
+    "inputList": {
+      "file_path": {
+        "title": "File Path",
+        "tip": "Select or enter the file path; supported types: \".txt\", \".docx\", \".md\", \".py\", \".json\", \".csv\""
+      },
+      "file_option": {
+        "title": "When File Does Not Exist",
+        "tip": "Select the action when the file does not exist"
+      },
+      "msg": {
+        "title": "Write Content",
+        "tip": "Enter the content to write"
+      },
+      "write_type": {
+        "title": "Write Mode",
+        "tip": "Specify the write mode"
+      },
+      "encode_type": {
+        "title": "Encoding Mode",
+        "tip": "Select the encoding mode for write content; auto-detects file encoding if default"
+      }
+    },
+    "outputList": {
+      "write_file_path": {
+        "title": "File Path",
+        "tip": "Output the written file path to a variable, data type is string"
+      }
+    }
+  },
+  "File.get_file_encoding_type": {
+    "title": "Get File Encoding Type",
+    "comment": "Get the encoding type of file @{file_path} and save to variable @{file_encoding_type}",
+    "inputList": {
+      "file_path": {
+        "title": "File Path",
+        "tip": "Select or enter the file path to get encoding type"
+      }
+    },
+    "outputList": {
+      "file_encoding_type": {
+        "title": "File Encoding Type",
+        "tip": "Output the file encoding type to a variable, data type is string"
+      }
+    }
+  },
+  "File.file_read": {
+    "title": "Read File",
+    "comment": "Read content from file @{file_path} using @{read_type} mode and save to variable @{read_file_content}",
+    "inputList": {
+      "file_path": {
+        "title": "File Path to Read",
+        "tip": "Select or enter the file path to read; supported types: \".txt\", \".docx\", \".md\", \".py\", \".json\", \".csv\""
+      },
+      "read_type": {
+        "title": "Read Mode",
+        "tip": "Select read mode: Read All — reads all content; Read by Line — reads line by line; Binary — reads as binary"
+      },
+      "encode_type": {
+        "title": "Encoding Mode",
+        "tip": "Select the encoding mode for read content; auto-detects file encoding if default"
+      }
+    },
+    "outputList": {
+      "read_file_content": {
+        "title": "Read Content to",
+        "tip": "Output read content to a variable, data type is string"
+      }
+    }
+  },
+  "File.file_move": {
+    "title": "Move File",
+    "comment": "Move file @{file_path} to specified directory @{target_folder} and save moved file path @{move_file_path}",
+    "inputList": {
+      "file_path": {
+        "title": "File Path to Move",
+        "tip": "Select or enter the file path to move"
+      },
+      "target_folder": {
+        "title": "Specified Directory",
+        "tip": "Select or enter the target directory; auto-created if not exists"
+      },
+      "state_type": {
+        "title": "When Directory Does Not Exist",
+        "tip": "Set the action when the specified directory does not exist"
+      },
+      "file_name": {
+        "title": "Moved File Name",
+        "tip": "Enter the moved file name (no extension); uses original file name if empty"
+      },
+      "exist_options": {
+        "title": "When File Exists",
+        "tip": "Select action when file exists (overwrite, skip, create copy)"
+      }
+    },
+    "outputList": {
+      "move_file_path": {
+        "title": "Moved File Path",
+        "tip": "Output the moved file path to a variable, data type is string"
+      }
+    }
+  },
+  "File.file_rename": {
+    "title": "Rename File",
+    "comment": "Rename file @{file_path} to @{new_name} and save the renamed file path @{rename_file_path}",
+    "inputList": {
+      "file_path": {
+        "title": "File Path to Rename",
+        "tip": "Select or enter the file path to rename"
+      },
+      "new_name": {
+        "title": "New File Name",
+        "tip": "Enter the new file name (no extension)"
+      },
+      "exist_options": {
+        "title": "When File Exists",
+        "tip": "Select action when file exists (overwrite, skip, create copy)"
+      }
+    },
+    "outputList": {
+      "rename_file_path": {
+        "title": "Renamed File Path",
+        "tip": "Output the renamed file path to a variable, data type is string"
+      }
+    }
+  },
+  "File.file_search": {
+    "title": "Search File",
+    "comment": "Search for files with name containing @{search_pattern} in directory @{folder_path} and save matching file paths to variable @{find_file_result}",
+    "inputList": {
+      "folder_path": {
+        "title": "Directory to Search",
+        "tip": "Select or enter the directory to search"
+      },
+      "find_type": {
+        "title": "Search Method",
+        "tip": "Specify search method: exact match requires full file name; fuzzy match is case-sensitive; regex uses regular expression"
+      },
+      "search_pattern": {
+        "title": "Search File Name",
+        "tip": "Enter the search content"
+      },
+      "traverse_subfolder": {
+        "title": "Traverse Subfolders",
+        "tip": "Select whether to traverse subfolders"
+      }
+    },
+    "outputList": {
+      "find_file_result": {
+        "title": "Save Search Result to",
+        "tip": "Output matching file path list saved to a variable, data type is list"
+      }
+    }
+  },
+  "File.file_wait_status": {
+    "title": "Wait for File",
+    "comment": "Wait until file @{file_path} status is @{status_type} before proceeding, save wait result to @{wait_file_result}",
+    "inputList": {
+      "file_path": {
+        "title": "File Path",
+        "tip": "Select or enter the file path"
+      },
+      "status_type": {
+        "title": "Wait Status",
+        "tip": "Select the file status to wait for"
+      },
+      "wait_time": {
+        "title": "Timeout",
+        "tip": "Set the wait timeout in seconds"
+      }
+    },
+    "outputList": {
+      "wait_file_result": {
+        "title": "Save Wait Result to",
+        "tip": "Output the wait result to a variable, data type is boolean"
+      }
+    }
+  },
+  "File.file_info": {
+    "title": "Get File Info",
+    "comment": "Get @{info_type} information of specified file @{file_path} and save file info to variable @{file_info}",
+    "inputList": {
+      "file_path": {
+        "title": "File Path",
+        "tip": "Select or enter the file path"
+      },
+      "info_type": {
+        "title": "Info Type to Get",
+        "tip": "Specify the type of information to get"
+      }
+    },
+    "outputList": {
+      "file_info": {
+        "title": "File Info Is",
+        "tip": "Output file info to a variable; dict when getting all info, string for others"
+      }
+    }
+  },
+  "File.get_file_list": {
+    "title": "Get File List",
+    "comment": "Get file list in specified directory @{folder_path} and save file list to variable @{file_list}",
+    "inputList": {
+      "folder_path": {
+        "title": "File Directory",
+        "tip": "Select or enter the file directory path"
+      },
+      "traverse_subfolder": {
+        "title": "Traverse Subdirectories",
+        "tip": "Select whether to traverse subdirectories"
+      },
+      "tempfile_include": {
+        "title": "Include Temporary Files",
+        "tip": "Select whether to include temporary files, e.g. files starting with ~, ~$ or ending with .tmp"
+      },
+      "output_type": {
+        "title": "Output Method",
+        "tip": "Set the output method"
+      },
+      "excel_path": {
+        "title": "Excel Save Directory",
+        "tip": "Select or enter the Excel save directory"
+      },
+      "state_type": {
+        "title": "When Directory Does Not Exist",
+        "tip": "Select the action when the Excel save directory does not exist"
+      },
+      "excel_name": {
+        "title": "Excel File Name",
+        "tip": "Enter the Excel file name without extension; default extension is .xlsx"
+      },
+      "sort_method": {
+        "title": "Sort Method",
+        "tip": "Specify the sort method"
+      },
+      "sort_type": {
+        "title": "Sort Order",
+        "tip": "Specify the sort order"
+      }
+    },
+    "outputList": {
+      "file_list": {
+        "title": "Get File List As",
+        "tip": "Output the file list to a variable, data type is list"
+      }
+    }
+  },
+  "Folder.folder_exist": {
+    "title": "IF Folder Exists",
+    "comment": "Check if folder @{folder_path} @{exist_type}, execute the following if it does",
+    "inputList": {
+      "folder_path": {
+        "title": "Folder Path",
+        "tip": "Select or enter the folder path"
+      },
+      "exist_type": {
+        "title": "Check Type",
+        "tip": "Set the check type"
+      }
+    }
+  },
+  "Folder.folder_open": {
+    "title": "Open Folder",
+    "comment": "Open specified folder @{folder_path}",
+    "inputList": {
+      "folder_path": {
+        "title": "Folder Path",
+        "tip": "Select or enter the folder path"
+      }
+    }
+  },
+  "Folder.folder_create": {
+    "title": "Create Folder",
+    "comment": "Create folder @{folder_name} in specified directory @{target_path} and save new folder path to variable @{new_folder_path}",
+    "inputList": {
+      "target_path": {
+        "title": "Specified Directory",
+        "tip": "Select or enter the folder creation path; auto-created if path does not exist"
+      },
+      "folder_name": {
+        "title": "Folder Name",
+        "tip": "Enter the folder name to create"
+      },
+      "exist_options": {
+        "title": "When Folder Exists",
+        "tip": "Select action when folder already exists; Create Copy: appends a number; Overwrite: deletes and recreates; Skip: returns existing path"
+      }
+    },
+    "outputList": {
+      "new_folder_path": {
+        "title": "Created Folder Path",
+        "tip": "Save the created folder path to output variable, data type is string"
+      }
+    }
+  },
+  "Folder.folder_delete": {
+    "title": "Delete Folder",
+    "comment": "Delete folder @{folder_path} and output result to variable @{delete_folder_result}",
+    "inputList": {
+      "folder_path": {
+        "title": "Folder Path",
+        "tip": "Select or enter the folder path"
+      },
+      "delete_options": {
+        "title": "Delete Operation",
+        "tip": "Select to permanently delete or move to recycle bin"
+      }
+    },
+    "outputList": {
+      "delete_folder_result": {
+        "title": "Delete Folder Result",
+        "tip": "Save the delete folder result to output variable, data type is boolean"
+      }
+    }
+  },
+  "Folder.folder_copy": {
+    "title": "Copy Folder",
+    "comment": "Copy folder @{source_path} to specified directory @{target_path} and save copied folder path to variable @{copy_folder_path}",
+    "inputList": {
+      "source_path": {
+        "title": "Folder Path",
+        "tip": "Select or enter the folder path to copy"
+      },
+      "target_path": {
+        "title": "Specified Directory",
+        "tip": "Select or enter the target folder path"
+      },
+      "state_type": {
+        "title": "When Directory Does Not Exist",
+        "tip": "Set the action when the specified directory does not exist"
+      },
+      "folder_name": {
+        "title": "Folder Name",
+        "tip": "Default is empty, uses source folder name"
+      },
+      "exist_options": {
+        "title": "When Folder Exists",
+        "tip": "Select action when folder exists; Create Copy: appends a number; Overwrite: deletes existing; Skip: returns existing path"
+      }
+    },
+    "outputList": {
+      "copy_folder_path": {
+        "title": "Copied Folder Path",
+        "tip": "Save the copied folder path to output variable, data type is string"
+      }
+    }
+  },
+  "Folder.folder_move": {
+    "title": "Move Folder",
+    "comment": "Move folder @{folder_path} to specified directory @{target_folder} and save moved folder path to variable @{move_folder_path}",
+    "inputList": {
+      "folder_path": {
+        "title": "Folder Path",
+        "tip": "Select or enter the folder path to move"
+      },
+      "target_folder": {
+        "title": "Specified Directory",
+        "tip": "Select or enter the target folder path"
+      },
+      "state_type": {
+        "title": "When Directory Does Not Exist",
+        "tip": "Set the action when the specified directory does not exist"
+      },
+      "folder_name": {
+        "title": "Folder Name",
+        "tip": "Default is empty, uses original folder name"
+      },
+      "exist_options": {
+        "title": "When Folder Exists",
+        "tip": "Select action when folder exists; Create Copy: appends a number; Overwrite: deletes existing; Skip: returns existing path"
+      }
+    },
+    "outputList": {
+      "move_folder_path": {
+        "title": "Moved Folder Path",
+        "tip": "Save the moved folder path to output variable, data type is string"
+      }
+    }
+  },
+  "Folder.folder_rename": {
+    "title": "Rename Folder",
+    "comment": "Rename folder @{folder_path} to @{new_name} and save renamed folder path to variable @{rename_folder_path}",
+    "inputList": {
+      "folder_path": {
+        "title": "Folder Path",
+        "tip": "Select or enter the folder path to rename"
+      },
+      "new_name": {
+        "title": "New Folder Name",
+        "tip": "Enter the new folder name"
+      },
+      "exist_options": {
+        "title": "When Folder Exists",
+        "tip": "Select action when folder exists; Create Copy: appends a number; Overwrite: deletes existing; Skip: returns existing path"
+      }
+    },
+    "outputList": {
+      "rename_folder_path": {
+        "title": "Renamed Folder Path",
+        "tip": "Save the renamed folder path to output variable, data type is string"
+      }
+    }
+  },
+  "Folder.folder_clear": {
+    "title": "Clear Folder",
+    "comment": "Clear folder @{folder_path} and save clear result to variable @{clear_folder_result}",
+    "inputList": {
+      "folder_path": {
+        "title": "Folder Path",
+        "tip": "Select or enter the folder to clear"
+      }
+    },
+    "outputList": {
+      "clear_folder_result": {
+        "title": "Clear Operation Result",
+        "tip": "Save the clear result to output variable, data type is boolean"
+      }
+    }
+  },
+  "Folder.get_folder_list": {
+    "title": "Get Folder List",
+    "comment": "Get folder list in specified directory @{folder_path} and save folder list to variable @{folder_list}",
+    "inputList": {
+      "folder_path": {
+        "title": "Folder Directory",
+        "tip": "Select or enter the folder directory path"
+      },
+      "traverse_subfolder": {
+        "title": "Traverse Subdirectories",
+        "tip": "Select whether to traverse subdirectories"
+      },
+      "output_type": {
+        "title": "Output Type",
+        "tip": "Select the output type for the folder list"
+      },
+      "excel_path": {
+        "title": "Excel Save Directory",
+        "tip": "Select or enter the Excel save directory"
+      },
+      "state_type": {
+        "title": "When Directory Does Not Exist",
+        "tip": "Select the action when the Excel save directory does not exist"
+      },
+      "excel_name": {
+        "title": "Excel File Name",
+        "tip": "Enter the Excel file name without extension; default extension is .xlsx"
+      },
+      "sort_method": {
+        "title": "Sort Method",
+        "tip": "Select the sort method"
+      },
+      "sort_type": {
+        "title": "Sort Order",
+        "tip": "Specify the sort order"
+      }
+    },
+    "outputList": {
+      "folder_list": {
+        "title": "Folder List",
+        "tip": "Save the obtained folder list to output variable, data type is list"
+      }
+    }
+  },
+  "System.run_command": {
+    "title": "Run or Open",
+    "comment": "Run or open @{command} and save execution result to output variable @{process_out}",
+    "inputList": {
+      "command": {
+        "title": "Command or Executable",
+        "tip": "Enter a cmd command or executable .exe file"
+      },
+      "cmd_type": {
+        "title": "Run Mode",
+        "tip": "Select the command execution mode"
+      },
+      "run_type": {
+        "title": "After Command Executes",
+        "tip": "Select whether to continue executing or wait for completion"
+      },
+      "params": {
+        "title": "Parameters",
+        "tip": "Parameters required for program execution"
+      },
+      "work_dir": {
+        "title": "Working Directory",
+        "tip": "Working directory for the executed command"
+      },
+      "wait_time": {
+        "title": "Wait No Longer Than",
+        "tip": "Specify the command execution wait time; default 60 seconds"
+      }
+    },
+    "outputList": {
+      "process_out": {
+        "title": "Save Execution Result to",
+        "tip": "Output the cmd command execution result saved to a variable, data type is boolean"
+      }
+    }
+  },
+  "System.get_pid": {
+    "title": "Get Process PID",
+    "comment": "Get the PID of process matching @{process_name} and save to output variable @{match_proces_pid}",
+    "inputList": {
+      "process_name": {
+        "title": "Content to Match",
+        "tip": "Enter the process content to match; exact match mode requires full process name, case-sensitive"
+      },
+      "search_type": {
+        "title": "Match Method",
+        "tip": "Select the match method"
+      },
+      "pid_type": {
+        "title": "Get Content",
+        "tip": "Specify the content to get from matching process PID"
+      }
+    },
+    "outputList": {
+      "match_proces_pid": {
+        "title": "Output Matching Process PID to",
+        "tip": "Output as list when getting all matching PIDs, as integer when getting single PID"
+      }
+    }
+  },
+  "System.terminate_process": {
+    "title": "Terminate Process",
+    "comment": "Terminate process specified by @{termination_type} and save execution result to output variable @{termination_process}",
+    "inputList": {
+      "termination_type": {
+        "title": "Termination Method",
+        "tip": "Specify termination method: by process PID or process name"
+      },
+      "pid": {
+        "title": "Process PID",
+        "tip": "The PID of the process to terminate"
+      },
+      "process_name": {
+        "title": "Process Name",
+        "tip": "The name of the process to terminate"
+      },
+      "time_out": {
+        "title": "Timeout",
+        "tip": "Specify the timeout in seconds"
+      }
+    },
+    "outputList": {
+      "termination_process": {
+        "title": "Save Execution Result to",
+        "tip": "Output execution result saved to a variable, data type is boolean"
+      }
+    }
+  },
+  "System.screen_shot": {
+    "title": "Screenshot",
+    "comment": "Take screenshot using @{screen_type} mode and save to @{png_path}, output image save path @{screenshot_path}",
+    "inputList": {
+      "png_path": {
+        "title": "Image Save Path",
+        "tip": "Enter or select the file save path for the screenshot"
+      },
+      "state_type": {
+        "title": "When Path Does Not Exist",
+        "tip": "Select the action when the image save folder does not exist"
+      },
+      "png_name": {
+        "title": "Image Save Name",
+        "tip": "Enter the screenshot file name without extension"
+      },
+      "screen_type": {
+        "title": "Screenshot Area",
+        "tip": "Specify the screenshot area"
+      },
+      "top_left_x": {
+        "title": "Top-Left X Coordinate",
+        "tip": "Enter the top-left X coordinate of the screenshot rectangle in pixels"
+      },
+      "top_left_y": {
+        "title": "Top-Left Y Coordinate",
+        "tip": "Enter the top-left Y coordinate of the screenshot rectangle in pixels"
+      },
+      "bottom_right_x": {
+        "title": "Bottom-Right X Coordinate",
+        "tip": "Enter the bottom-right X coordinate of the screenshot rectangle in pixels"
+      },
+      "bottom_right_y": {
+        "title": "Bottom-Right Y Coordinate",
+        "tip": "Enter the bottom-right Y coordinate of the screenshot rectangle in pixels"
+      }
+    },
+    "outputList": {
+      "screenshot_path": {
+        "title": "Screenshot Save Path"
+      }
+    }
+  },
+  "System.printer": {
+    "title": "Print with Printer",
+    "comment": "Use printer @{printer_name} to print specified file @{file_path||folder_path} and save execution result to output variable @{printer_status}",
+    "inputList": {
+      "file_type": {
+        "title": "Print Target",
+        "tip": "Specify the print target; supports Word, Excel, PDF, image files, or batch printing from a folder"
+      },
+      "doc_app_type": {
+        "title": "Word Application",
+        "tip": "Application selected to open Word document"
+      },
+      "xls_app_type": {
+        "title": "Excel Application",
+        "tip": "Application selected to open Excel document"
+      },
+      "batch_print": {
+        "title": "Print Mode",
+        "tip": "Set print mode; batch printing only supports files directly in the folder"
+      },
+      "file_path": {
+        "title": "File Path to Print",
+        "tip": "Select or enter the file path to print"
+      },
+      "folder_path": {
+        "title": "Folder Directory to Print",
+        "tip": "Select or enter the folder directory to print; only supports files directly in the folder"
+      },
+      "printer_type": {
+        "title": "Print Settings",
+        "tip": "Set print related parameters"
+      },
+      "printer_name": {
+        "title": "Printer Name",
+        "tip": "Enter the printer name; uses default printer if empty"
+      },
+      "paper_size": {
+        "title": "Paper Size",
+        "tip": "Specify the print paper size"
+      },
+      "page_weight": {
+        "title": "Paper Width",
+        "tip": "Enter the print paper width"
+      },
+      "page_height": {
+        "title": "Paper Height",
+        "tip": "Enter the print paper height"
+      },
+      "print_num": {
+        "title": "Number of Copies",
+        "tip": "Enter the number of copies to print; default is 1"
+      },
+      "orientation_type": {
+        "title": "Print Orientation",
+        "tip": "Select print orientation: landscape or portrait"
+      },
+      "scale": {
+        "title": "Scale (%)",
+        "tip": "Default 100%, enter the scale percentage"
+      },
+      "margin_type": {
+        "title": "Margin (mm)"
+      },
+      "left_margin": {
+        "title": "Left Margin"
+      },
+      "top_margin": {
+        "title": "Top Margin"
+      },
+      "right_margin": {
+        "title": "Right Margin"
+      },
+      "bottom_margin": {
+        "title": "Bottom Margin"
+      },
+      "page": {
+        "title": "Page Range",
+        "tip": "e.g. 1,3-5 means print page 1 and pages 3 to 5; leave empty to print all pages"
+      }
+    },
+    "outputList": {
+      "printer_status": {
+        "title": "Print Result",
+        "tip": "Save the print result to output variable, data type is boolean"
+      }
+    }
+  },
+  "System.screen_lock": {
+    "title": "Screen Lock",
+    "comment": "Lock the system screen and output the result to variable @{screen_lock_result}",
+    "outputList": {
+      "screen_lock_result": {
+        "title": "Screen Lock Result",
+        "tip": "Output the screen lock result to a variable, data type is boolean"
+      }
+    }
+  },
+  "System.screen_unlock": {
+    "title": "Screen Unlock",
+    "comment": "Unlock the system screen using username @{user_name} and @{pwd_type} @{password_text||password_rsa}, then output the result to variable @{screen_unlock_result}",
+    "inputList": {
+      "user_name": {
+        "title": "Username",
+        "tip": "Username for unlocking the screen"
+      },
+      "pwd_type": {
+        "title": "Unlock Type",
+        "tip": "Unlock type for the screen"
+      },
+      "password_text": {
+        "title": "Password",
+        "tip": "Password for unlocking the screen"
+      },
+      "password_rsa": {
+        "title": "Key",
+        "tip": "Key for unlocking the screen"
+      }
+    },
+    "outputList": {
+      "screen_unlock_result": {
+        "title": "Execution Result",
+        "tip": "Output the screen unlock result to a variable, data type is boolean"
+      }
+    }
+  },
+  "options": {
+    "ContentType": {
+      "msg": "Text Content",
+      "html": "HTML Text Content",
+      "file": "File",
+      "folder": "Folder"
+    },
+    "StateType": {
+      "create": "Create",
+      "error": "Raise Error"
+    },
+    "FileFolderType": {
+      "file": "File",
+      "folder": "Folder",
+      "both": "Files and Folders"
+    },
+    "SaveType": {
+      "delete": "Delete",
+      "save": "Keep"
+    },
+    "ExistType": {
+      "exist": "Exists",
+      "not_exist": "Does Not Exist"
+    },
+    "OptionType": {
+      "overwrite": "Overwrite",
+      "skip": "Skip",
+      "generate": "Create Copy"
+    },
+    "DeleteType": {
+      "delete": "Permanently Delete",
+      "trash": "Move to Recycle Bin"
+    },
+    "WriteType": {
+      "overwrite": "Overwrite",
+      "append": "Append"
+    },
+    "EncodeType": {
+      "default": "Default",
+      "ansi": "ansi",
+      "utf-8": "utf-8",
+      "utf-16": "utf-16",
+      "utf-16 be": "utf-16 be",
+      "gbk": "gbk",
+      "gb2312": "gb2312",
+      "gb18030": "gb18030"
+    },
+    "ReadType": {
+      "all": "Read All Content",
+      "list": "Read by Line into List",
+      "byte": "Read as Binary"
+    },
+    "SearchType": {
+      "exact": "Exact Match",
+      "fuzzy": "Fuzzy Match",
+      "regex": "Regex Match"
+    },
+    "TraverseType": {
+      "yes": "Traverse Subdirectories",
+      "no": "Do Not Traverse Subdirectories"
+    },
+    "StatusType": {
+      "created": "Created",
+      "deleted": "Deleted"
+    },
+    "InfoType": {
+      "all": "All Info",
+      "abs_path": "Absolute Path",
+      "root": "Root Directory",
+      "directory": "File Directory",
+      "size": "File Size (bytes)",
+      "name_ext": "File Name",
+      "name": "File Name Only",
+      "extension": "File Extension",
+      "c_time": "File Creation Time",
+      "m_time": "File Modification Time"
+    },
+    "Bool": {
+      "True": "Yes",
+      "False": "No"
+    },
+    "OutputType": {
+      "list": "List Output",
+      "excel": "Save to Spreadsheet"
+    },
+    "SortMethod": {
+      "none": "None",
+      "ctime": "Sort by Creation Time",
+      "mtime": "Sort by Modification Time"
+    },
+    "SortType": {
+      "ascending": "Ascending",
+      "descending": "Descending"
+    },
+    "CmdType": {
+      "normal": "Run",
+      "admin": "Run as Administrator"
+    },
+    "RunType": {
+      "continue": "Continue to Next Instruction",
+      "complete": "Wait for Instruction to Complete"
+    },
+    "PidType": {
+      "all": "Get All",
+      "one": "Get One"
+    },
+    "TerminationType": {
+      "pid": "Process PID",
+      "name": "Process Name"
+    },
+    "ScreenType": {
+      "full": "Full Screen",
+      "region": "Selected Area"
+    },
+    "PwdType": {
+      "rsa": "Key",
+      "password": "Password"
+    },
+    "FileType": {
+      "picture": "Image",
+      "word": "Word Document",
+      "pdf": "PDF Document",
+      "excel": "Excel Document"
+    },
+    "DocAppType": {
+      "Word": "Word",
+      "WPS": "WPS",
+      "Default": "Default Application"
+    },
+    "XlsAppType": {
+      "Excel": "Excel",
+      "WPS": "WPS",
+      "Default": "Default Application"
+    },
+    "BatchType": {
+      "batch": "Batch Print",
+      "single": "Single Print"
+    },
+    "PrinterType": {
+      "custom": "Custom",
+      "default": "Default"
+    },
+    "PaperType": {
+      "A3": "A3",
+      "A4": "A4",
+      "LA4": "LA4",
+      "A5": "A5",
+      "B4": "B4",
+      "B5": "B5",
+      "C_SHEET": "C_SHEET",
+      "D_SHEET": "D_SHEET",
+      "CUSTOM": "Default"
+    },
+    "OrientationType": {
+      "horizontal": "Landscape",
+      "vertical": "Portrait"
+    },
+    "MarginType": {
+      "custom": "Custom",
+      "default": "Default"
+    }
+  }
+}

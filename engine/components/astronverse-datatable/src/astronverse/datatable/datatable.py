@@ -46,7 +46,7 @@ from astronverse.datatable.utils import (
 try:
     _xlsx_file_path = os.path.abspath(os.path.join(sys.exec_prefix, "../astron/data_table.xlsx"))
     _head_file_path = os.path.abspath(os.path.join(sys.exec_prefix, "../astron/data_table_head.xlsx"))
-    logger.info(f"DataTable xlsx file path: {_xlsx_file_path}")
+    # logger.info(f"DataTable xlsx file path: {_xlsx_file_path}")
     ensure_xlsx_file(_xlsx_file_path)
     ensure_xlsx_file(_head_file_path)
 

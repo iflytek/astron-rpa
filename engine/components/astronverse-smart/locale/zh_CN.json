@@ -1,0 +1,16 @@
+{
+  "Smart.run_code": {
+    "title": "执行代码",
+    "comment": "AI生成Python脚本",
+    "inputList": {
+      "smart_component": {
+        "title": "代码[无效，动态生成]"
+      }
+    },
+    "outputList": {
+      "smart_result": {
+        "title": "返回值[无效，动态生成]"
+      }
+    }
+  }
+}

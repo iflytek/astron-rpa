@@ -1,0 +1,48 @@
+{
+  "Enterprise.upload_to_sharefolder": {
+    "title": "Upload File to Shared Folder",
+    "comment": "Upload @{file_path} to shared folder, return upload result @{upload_result}",
+    "inputList": {
+      "file_path": {
+        "title": "Upload File Path"
+      }
+    },
+    "outputList": {
+      "upload_result": {
+        "title": "Upload File Result"
+      }
+    }
+  },
+  "Enterprise.download_from_sharefolder": {
+    "title": "Download File from Shared Folder",
+    "comment": "Download @{file_path} from shared folder to @{save_folder}, return download result @{download_result}",
+    "inputList": {
+      "file_path": {
+        "title": "Shared Folder File"
+      },
+      "save_folder": {
+        "title": "File Save Path"
+      }
+    },
+    "outputList": {
+      "download_result": {
+        "title": "Download Result"
+      }
+    }
+  },
+  "Enterprise.get_shared_variable": {
+    "title": "Get Shared Variable",
+    "comment": "Get shared variable @{shared_variable} and assign to variable @{variable_data}",
+    "inputList": {
+      "shared_variable": {
+        "title": "Shared Variable Name",
+        "tip": "Select the required shared variable"
+      }
+    },
+    "outputList": {
+      "variable_data": {
+        "title": "Save Shared Variable To"
+      }
+    }
+  }
+}

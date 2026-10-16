@@ -5,3 +5,6 @@ dist/
 *.egg-info/
 build/
 secure
+resources
+meta.json
+tree.json

@@ -1,3 +1,4 @@
+import fs from 'node:fs'
 import path from 'node:path'
 
 import { app } from 'electron'
@@ -12,7 +13,9 @@ export const resourcePath = app.isPackaged ? path.join(appPath, '../') : path.jo
 export const appWorkPath = app.isPackaged ? userDataPath : path.join(appPath, 'data')
 export const pythonCore = path.join(appWorkPath, 'python_core')
 export const pythonExe = path.join(pythonCore, 'python.exe')
-export const confPath = path.join(resourcePath, 'conf.yaml')
+const devConfCandidates = ['conf.local.yaml', 'conf.dev.yaml']
+const devConf = !app.isPackaged ? devConfCandidates.find(file => fs.existsSync(path.join(resourcePath, file))) : undefined
+export const confPath = path.join(resourcePath, devConf ?? 'conf.yaml')
 export const d7zrPath = path.join(resourcePath, '7zr.exe')
 // 插件目录
 export const extensionPath = [

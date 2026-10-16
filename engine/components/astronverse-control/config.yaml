@@ -1,0 +1,55 @@
+atomic:
+  Code.If:
+    icon: if-condition
+    path:
+    - /atomicTree/code/if
+  Code.ElseIf:
+    icon: else-if-condition
+    path:
+    - /atomicTree/code/if
+  Code.Else:
+    icon: else-condition
+    path:
+    - /atomicTree/code/if
+  Code.While:
+    icon: while-loop
+    path:
+    - /atomicTree/code/for
+  Code.ForList:
+    icon: list-for-loop
+    path:
+    - /atomicTree/code/for
+  Code.ForDict:
+    icon: dictionary-for-loop
+    path:
+    - /atomicTree/code/for
+  Code.ForStep:
+    icon: count-for-loop
+    path:
+    - /atomicTree/code/for
+  Code.Break:
+    icon: break-loop
+    path:
+    - /atomicTree/code/for
+  Code.Continue:
+    icon: continue-next-loop
+    path:
+    - /atomicTree/code/for
+  Code.Return:
+    icon: break-loop
+    path:
+    - /atomicTree/code/for
+  Code.Try:
+    icon: try-exception
+    path:
+    - /atomicTree/code/error
+  Code.Catch:
+    icon: catch-exception
+    hidden: true # 无需单独展示在树配置列表
+  Code.Finally:
+    icon: finally-exception
+    path:
+    - /atomicTree/code/error
+  Code.Group:
+    icon: group-start
+    hidden: true # 无需单独展示在树配置列表

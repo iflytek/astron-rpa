@@ -1,0 +1,323 @@
+{
+  "VerifyCode.picture_code": {
+    "title": "General Alphanumeric CAPTCHA",
+    "comment": "Recognize CAPTCHA @{picture_pick} in the browser and return the result @{code_result}",
+    "inputList": {
+      "browser_obj": {
+        "title": "Browser Object",
+        "tip": "Browser handle or browser object variable (required, used to locate CAPTCHA element on page)"
+      },
+      "picture_pick": {
+        "title": "Pick CAPTCHA Object"
+      },
+      "code_type": {
+        "title": "CAPTCHA Type"
+      },
+      "input_flag": {
+        "title": "Fill Input Box"
+      },
+      "input_box": {
+        "title": "Input Box Object"
+      }
+    },
+    "outputList": {
+      "code_result": {
+        "title": "Recognition Result",
+        "tip": "Returns recognized text (string); a list of strings for batch or multiple results"
+      }
+    }
+  },
+  "VerifyCode.slider_code": {
+    "title": "General Slider CAPTCHA",
+    "comment": "On the slider CAPTCHA with background @{picture_pick}, drag slider @{slider_pick} to the specified position, drag distance is @{drag_distance}",
+    "inputList": {
+      "browser_obj": {
+        "title": "Browser Object",
+        "tip": "Browser handle or browser object variable (used to locate slider and background image)"
+      },
+      "picture_pick": {
+        "title": "Background Image Object"
+      },
+      "slider_pick": {
+        "title": "Pick Slider Object"
+      },
+      "unmatched_flag": {
+        "title": "Variable Speed CAPTCHA"
+      },
+      "move_pic_pick": {
+        "title": "Pick Moving Image Object"
+      },
+      "mini_step": {
+        "title": "Fine Adjustment Step (px)",
+        "tip": "Minimum pixel step for fine drag adjustment, integer, unit px"
+      },
+      "offset": {
+        "title": "Offset (px)",
+        "tip": "Set offset based on actual situation"
+      }
+    },
+    "outputList": {
+      "drag_distance": {
+        "title": "Move Distance",
+        "tip": "Returns the calculated drag distance (integer pixels), can be used directly for drag action"
+      }
+    }
+  },
+  "VerifyCode.click_code": {
+    "title": "General Click CAPTCHA",
+    "comment": "Click at the corresponding position on the click CAPTCHA with background @{picture_pick}",
+    "inputList": {
+      "browser_obj": {
+        "title": "Browser Object"
+      },
+      "picture_pick": {
+        "title": "Click Image Object",
+        "tip": "Background image to recognize; keep as close as possible to the displayed example, avoid extra white or black borders"
+      },
+      "hint_position": {
+        "title": "Hint Position",
+        "tip": "Position of the hint text relative to the image to recognize; select Top if the hint is above the image"
+      }
+    },
+    "outputList": {
+      "click_positions": {
+        "title": "Click Positions",
+        "tip": "Coordinate position info of elements to click"
+      }
+    }
+  },
+  "VerifyCode.ali_slider_code": {
+    "title": "Alibaba Slider CAPTCHA",
+    "comment": "Recognize Alibaba slider CAPTCHA, based on background image @{background_pic_pick} and hint text @{hint_text_pick}, calculate the distance @{drag_distance} that slider @{slider_pick} needs to move",
+    "inputList": {
+      "browser_obj": {
+        "title": "Browser Object",
+        "tip": "Browser handle or browser object variable (required, used to locate CAPTCHA elements)"
+      },
+      "hint_text_pick": {
+        "title": "Hint Object",
+        "tip": "CAPTCHA hint text"
+      },
+      "refresh_pick": {
+        "title": "Refresh Object",
+        "tip": "Refresh button element"
+      },
+      "slider_pick": {
+        "title": "Slider Object",
+        "tip": "Slider element to drag"
+      },
+      "background_pic_pick": {
+        "title": "Background Image Object",
+        "tip": "Background image to recognize; keep as close as possible to the displayed example, avoid extra white or black borders"
+      }
+    },
+    "outputList": {
+      "drag_distance": {
+        "title": "Move Distance",
+        "tip": "Pixel distance from slider to the correct gap in the verification image"
+      }
+    }
+  },
+  "VerifyCode.text_click_code": {
+    "title": "General Text Click CAPTCHA",
+    "comment": "Recognize text in background image @{picture_pick}, click in sequence, then click confirm button @{confirm_button_pick}, return click positions @{click_positions}",
+    "inputList": {
+      "browser_obj": {
+        "title": "Browser Object",
+        "tip": "Browser handle or browser object variable (required, used to locate CAPTCHA elements)"
+      },
+      "picture_pick": {
+        "title": "Click Background Image Object",
+        "tip": "Background image to recognize for clicking"
+      },
+      "confirm_button_pick": {
+        "title": "Confirm Button Object"
+      }
+    },
+    "outputList": {
+      "click_positions": {
+        "title": "Click Positions",
+        "tip": "Coordinate position info of text to click"
+      }
+    }
+  },
+  "VerifyCode.spatial_reasoning_click_code": {
+    "title": "Spatial Reasoning Click CAPTCHA (Same Object)",
+    "comment": "Recognize objects in background image @{picture_pick} matching spatial reasoning conditions (same shape, color, size, etc.), click in sequence, then click confirm button @{confirm_button_pick}, return click positions @{click_positions}",
+    "inputList": {
+      "browser_obj": {
+        "title": "Browser Object"
+      },
+      "picture_pick": {
+        "title": "Click Image Object",
+        "tip": "Background image to recognize for clicking"
+      },
+      "confirm_button_pick": {
+        "title": "Confirm Button Object"
+      }
+    },
+    "outputList": {
+      "click_positions": {
+        "title": "Click Positions",
+        "tip": "Coordinate position info of elements to click"
+      }
+    }
+  },
+  "VerifyCode.tencent_grid_click_code": {
+    "title": "Tencent Six-Grid CAPTCHA",
+    "comment": "Recognize Tencent six-grid CAPTCHA, click matching icons in background image @{background_img_obj} based on hint @{prompt_obj}, then click confirm button @{confirm_button_obj}, return click positions @{click_positions}",
+    "inputList": {
+      "browser_obj": {
+        "title": "Browser Object"
+      },
+      "prompt_obj": {
+        "title": "Hint Object",
+        "tip": "CAPTCHA hint text"
+      },
+      "background_img_obj": {
+        "title": "Background Image Object",
+        "tip": "Background image to recognize"
+      },
+      "confirm_button_obj": {
+        "title": "Confirm Button Object"
+      }
+    },
+    "outputList": {
+      "click_positions": {
+        "title": "Click Positions",
+        "tip": "Coordinate position info of elements to click"
+      }
+    }
+  },
+  "VerifyCode.rotate_slider_code": {
+    "title": "General Rotation CAPTCHA",
+    "comment": "Recognize rotation CAPTCHA, drag slider @{slider_obj} on slider bar @{slide_bar_obj} to rotate image @{rotate_picture_obj} to the correct angle",
+    "inputList": {
+      "browser_obj": {
+        "title": "Browser Object",
+        "tip": "Browser handle or browser object variable (required, used to locate CAPTCHA elements)"
+      },
+      "rotate_picture_obj": {
+        "title": "Rotate Image Object",
+        "tip": "Image to rotate"
+      },
+      "slider_obj": {
+        "title": "Slider Object",
+        "tip": "Slider element to drag"
+      },
+      "slide_bar_obj": {
+        "title": "Slider Bar Object",
+        "tip": "Please upload the complete slider bar element (used to calculate draggable distance)"
+      },
+      "max_rotate_angle": {
+        "title": "Max Rotation Angle",
+        "tip": "The rotation angle of the image when the slider is dragged to the end"
+      }
+    }
+  },
+  "VerifyCode.double_ring_rotate_code": {
+    "title": "General Double Ring Rotation CAPTCHA",
+    "comment": "Recognize double ring rotation CAPTCHA, drag slider @{slider_obj} on slider bar @{slide_bar_obj} to rotate inner circle image @{inner_circle_image_obj} to align with outer ring image @{out_ring_image_obj}",
+    "inputList": {
+      "browser_obj": {
+        "title": "Browser Object"
+      },
+      "out_ring_image_obj": {
+        "title": "Outer Ring Image Object"
+      },
+      "inner_circle_image_obj": {
+        "title": "Inner Circle Image Object"
+      },
+      "slider_obj": {
+        "title": "Slider Object",
+        "tip": "Slider element to drag"
+      },
+      "slide_bar_obj": {
+        "title": "Slider Bar Object",
+        "tip": "Please upload the complete slider bar element"
+      },
+      "max_rotate_angle": {
+        "title": "Max Image Rotation Angle",
+        "tip": "The rotation angle of the inner circle when the slider is dragged to the end"
+      }
+    }
+  },
+  "VerifyCode.trajectory_slider_code": {
+    "title": "General Trajectory CAPTCHA",
+    "comment": "Recognize trajectory CAPTCHA for background image @{background_img_obj}, drag slider by simulating human trajectory",
+    "inputList": {
+      "browser_obj": {
+        "title": "Browser Object"
+      },
+      "background_img_obj": {
+        "title": "Background Image Object",
+        "tip": "Trajectory background image to recognize"
+      }
+    }
+  },
+  "VerifyCode.numeric_calculation_code": {
+    "title": "General Numeric Calculation CAPTCHA",
+    "comment": "Recognize the math expression in CAPTCHA image @{captcha_img_obj}, calculation result is @{calculation_result}",
+    "inputList": {
+      "browser_obj": {
+        "title": "Browser Object"
+      },
+      "captcha_img_obj": {
+        "title": "CAPTCHA Image Object"
+      },
+      "need_input": {
+        "title": "Fill Input Box"
+      },
+      "input_box_obj": {
+        "title": "Input Box Object"
+      }
+    },
+    "outputList": {
+      "calculation_result": {
+        "title": "Calculation Result"
+      }
+    }
+  },
+  "VerifyCode.chinese_calculation_code": {
+    "title": "General Chinese Calculation CAPTCHA",
+    "comment": "Recognize the Chinese math expression in CAPTCHA image @{captcha_img_obj}, calculation result is @{calculation_result}",
+    "inputList": {
+      "browser_obj": {
+        "title": "Browser Object"
+      },
+      "captcha_img_obj": {
+        "title": "CAPTCHA Image Object"
+      },
+      "need_input": {
+        "title": "Fill Input Box"
+      },
+      "input_box_obj": {
+        "title": "Input Box Object"
+      }
+    },
+    "outputList": {
+      "calculation_result": {
+        "title": "Calculation Result"
+      }
+    }
+  },
+  "options": {
+    "PictureCodeType": {
+      "10110": "General Alphanumeric CAPTCHA 1-4 digits",
+      "10111": "General Alphanumeric CAPTCHA 5-8 digits",
+      "10211": "General Alphanumeric CAPTCHA (Special)"
+    },
+    "Bool": {
+      "True": "Yes",
+      "False": "No"
+    },
+    "HintPosition": {
+      "bottom": "Bottom",
+      "top": "Top"
+    },
+    "MaxRotateAngle": {
+      "360": 360,
+      "180": 180
+    }
+  }
+}

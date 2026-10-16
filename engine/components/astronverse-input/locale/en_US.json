@@ -1,0 +1,242 @@
+{
+  "Gui.mouse_move": {
+    "title": "Mouse Move",
+    "comment": "Simulate mouse move to (@{position_x}, @{position_y}) on (@{window_type})",
+    "inputList": {
+      "window_type": {
+        "title": "Window Type",
+        "tip": "Full Screen: coordinates relative to the top-left corner of the screen; Active Window: coordinates relative to the top-left corner of the active window"
+      },
+      "window_position": {
+        "title": "Top-Left Window Position"
+      },
+      "get_mouse_position": {
+        "title": "Get Mouse Position"
+      },
+      "position_x": {
+        "title": "Mouse X Position"
+      },
+      "position_y": {
+        "title": "Mouse Y Position"
+      },
+      "move_type": {
+        "title": "Mouse Move Type",
+        "tip": "Select the mouse movement type"
+      },
+      "move_speed": {
+        "title": "Mouse Move Speed"
+      }
+    }
+  },
+  "Gui.keyboard": {
+    "title": "Keyboard Input",
+    "comment": "Simulate keyboard input of @{message} using @{keyboard_type} method",
+    "inputList": {
+      "keyboard_type": {
+        "title": "Input Method",
+        "tip": "Normal Input: simulates keystrokes using Windows keyboard messages; Clipboard Input: pastes clipboard content; Key Combination: uses keyboard symbol combinations for shortcut input; Driver Input: uses a driver to simulate keystrokes, suitable for online banking password fields or other scenarios where normal input fails"
+      },
+      "message": {
+        "title": "Input Content"
+      },
+      "simulate_flag": {
+        "title": "Simulate Human Input",
+        "tip": "Simulates human typing by inputting characters one by one. Default is No"
+      },
+      "interval": {
+        "title": "Input Interval",
+        "tip": "Set the input interval in seconds"
+      }
+    }
+  },
+  "Gui.key_input": {
+    "title": "Keyboard Key Simulation",
+    "comment": "Simulate keyboard key @{keys_str} with @{key_model} action",
+    "inputList": {
+      "keys_str": {
+        "title": "Key Combination",
+        "tip": "Set the key combination"
+      },
+      "key_model": {
+        "title": "Key Action",
+        "tip": "Set the key action"
+      }
+    }
+  },
+  "Gui.mouse": {
+    "title": "Mouse Click",
+    "comment": "Simulate mouse @{btn_type:Left/Right/Middle} @{btn_model:Press/Release/Click/Double-Click}",
+    "inputList": {
+      "btn_type": {
+        "title": "Mouse Button",
+        "tip": "Select the mouse button to click"
+      },
+      "btn_model": {
+        "title": "Click Type",
+        "tip": "Select the mouse click type"
+      },
+      "ctrl_type": {
+        "title": "Keyboard Modifier",
+        "tip": "Select keyboard modifier key. Default is None"
+      }
+    }
+  },
+  "Gui.mouse_wheel": {
+    "title": "Mouse Scroll",
+    "comment": "Simulate mouse @{scroll_type} scroll by @{scroll_px||times}, direction: @{direction}",
+    "inputList": {
+      "scroll_type": {
+        "title": "Scroll Method"
+      },
+      "times": {
+        "title": "Custom Times",
+        "tip": "Enter the number of scroll clicks. Each click scrolls 120 pixels by default"
+      },
+      "scroll_px": {
+        "title": "Custom Pixels",
+        "tip": "Enter custom pixel value in px, typically between 0 and 9999"
+      },
+      "direction": {
+        "title": "Scroll Direction"
+      },
+      "ctrl_type": {
+        "title": "Keyboard Modifier",
+        "tip": "Select keyboard modifier key. Default is None"
+      }
+    }
+  },
+  "Gui.mouse_move_new": {
+    "title": "Mouse Move",
+    "comment": "Simulate mouse move to @{position_x}, @{position_y} on @{window_type}",
+    "inputList": {
+      "window_type": {
+        "title": "Window Type",
+        "tip": "Full Screen: coordinates relative to top-left corner of screen; Active Window: coordinates relative to top-left corner of active window"
+      },
+      "window_pick": {
+        "title": "Window Picker",
+        "tip": "Select the window to operate on"
+      },
+      "get_mouse_position": {
+        "title": "Get Mouse Position"
+      },
+      "position_x": {
+        "title": "Mouse X Position"
+      },
+      "position_y": {
+        "title": "Mouse Y Position"
+      },
+      "move_type": {
+        "title": "Mouse Move Type",
+        "tip": "Select the mouse movement type"
+      },
+      "move_speed": {
+        "title": "Mouse Move Speed"
+      }
+    }
+  },
+  "Gui.mouse_drag": {
+    "title": "Mouse Drag",
+    "comment": "Simulate mouse drag from start position @{start_pos_x}, @{start_pos_y} to end position @{end_pos_x}, @{end_pos_y}",
+    "inputList": {
+      "start_pos_x": {
+        "title": "Start X Position"
+      },
+      "start_pos_y": {
+        "title": "Start Y Position"
+      },
+      "end_pos_x": {
+        "title": "End X Position"
+      },
+      "end_pos_y": {
+        "title": "End Y Position"
+      },
+      "btn_type": {
+        "title": "Mouse Button",
+        "tip": "Mouse button held during drag"
+      },
+      "move_type": {
+        "title": "Move Type",
+        "tip": "Select mouse movement type"
+      },
+      "move_speed": {
+        "title": "Move Speed",
+        "tip": "Select mouse movement speed"
+      },
+      "ctrl_type": {
+        "title": "Keyboard Modifier",
+        "tip": "Select keyboard modifier key during drag. Default is None"
+      }
+    }
+  },
+  "Gui.mouse_position": {
+    "title": "Get Mouse Position",
+    "comment": "Get the current mouse position and output to @{point_x}, @{point_y}",
+    "outputList": {
+      "point_x": {
+        "title": "Mouse X Position"
+      },
+      "point_y": {
+        "title": "Mouse Y Position"
+      }
+    }
+  },
+  "options": {
+    "KeyboardType": {
+      "normal": "Normal Input",
+      "driver": "Driver Input",
+      "clip": "Clipboard Input",
+      "gblid": "Ghost Input"
+    },
+    "Simulate_flag": {
+      "yes": "Yes",
+      "no": "No"
+    },
+    "KeyModel": {
+      "click": "Click",
+      "down": "Press",
+      "up": "Release"
+    },
+    "BtnType": {
+      "left": "Left Button",
+      "middle": "Middle Button",
+      "right": "Right Button"
+    },
+    "BtnModel": {
+      "click": "Single Click",
+      "double_click": "Double Click",
+      "down": "Press",
+      "up": "Release"
+    },
+    "ControlType": {
+      "none": "None",
+      "ctrl": "ctrl",
+      "alt": "alt",
+      "shift": "shift",
+      "win": "win",
+      "space": "space"
+    },
+    "ScrollType": {
+      "time": "By Times",
+      "px": "By Pixels"
+    },
+    "Direction": {
+      "up": "Up",
+      "down": "Down"
+    },
+    "WindowType": {
+      "fullscreen": "Full Screen",
+      "active_window": "Active Window"
+    },
+    "MoveType": {
+      "linear": "Linear Movement",
+      "simulation": "Simulate Human",
+      "teleportation": "Instant Move"
+    },
+    "Speed": {
+      "slow": "Slow",
+      "normal": "Normal",
+      "fast": "Fast"
+    }
+  }
+}

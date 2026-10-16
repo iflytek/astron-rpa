@@ -2,7 +2,6 @@ import locale
 import os
 import subprocess
 import sys
-import time
 
 import psutil
 from astronverse.scheduler.logger import logger
@@ -56,7 +55,7 @@ class Process:
             pass
 
         # 判读所有的进程是否合理
-        all_process = list()
+        all_process = []
         for pid in all_process_ids:
             try:
                 # 忽略自己
@@ -87,15 +86,15 @@ class Process:
             return proc
 
     @staticmethod
-    def pid_exist_check():
+    def pid_exist_check(stop_event=None):
         # 一开始就启动获取root进程号，往往不是rpa进程号，这里异步3秒获取
-        time.sleep(3)
+        if stop_event and stop_event.wait(3):
+            return
         self = psutil.Process(os.getpid())
         root = Process.get_root_process(self)
         root_id = root.pid
         root_name = root.name()
-        while True:
-            time.sleep(1)
+        while not stop_event or not stop_event.wait(1):
             try:
                 if not psutil.pid_exists(root_id) or psutil.Process(root_id).name() != root_name:
                     logger.info("pid_exist_check kill process...")

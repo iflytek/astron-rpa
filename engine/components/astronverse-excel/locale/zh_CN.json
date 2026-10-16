@@ -1,0 +1,1393 @@
+{
+  "Excel.open_excel": {
+    "title": "打开Excel",
+    "comment": "打开路径为 @{file_path} 的Excel，返回Excel对象 @{open_excel_obj}",
+    "inputList": {
+      "file_path": {
+        "title": "文件路径",
+        "tip": "输入文件路径"
+      },
+      "default_application": {
+        "title": "默认打开程序",
+        "tip": "选择默认打开程序，可选Excel或WPS"
+      },
+      "visible_flag": {
+        "title": "是否可视化"
+      },
+      "password": {
+        "title": "密码",
+        "tip": "打开文件时要求输入"
+      },
+      "update_links": {
+        "title": "自动更新外部链接"
+      },
+      "write_res_password": {
+        "title": "修改密码",
+        "tip": "打开后修改时要求输入"
+      }
+    },
+    "outputList": {
+      "open_excel_obj": {
+        "title": "打开的Excel对象"
+      }
+    }
+  },
+  "Excel.get_excel": {
+    "title": "获取已打开的Excel对象",
+    "comment": "获取文件名为 @{file_name} 的Excel对象，返回Excel对象 @{get_excel_obj}",
+    "inputList": {
+      "file_name": {
+        "title": "文件名",
+        "tip": "输入文件名，不需要输入前序打开Excel的变量"
+      }
+    },
+    "outputList": {
+      "get_excel_obj": {
+        "title": "获取的Excel对象"
+      }
+    }
+  },
+  "Excel.create_excel": {
+    "title": "创建Excel",
+    "comment": "在路径为 @{file_path} 下创建文件名为 @{file_name} 的Excel，返回Excel对象 @{create_excel_obj}",
+    "inputList": {
+      "file_path": {
+        "title": "保存文件夹路径"
+      },
+      "file_name": {
+        "title": "保存文件名",
+        "tip": "输入文件名"
+      },
+      "default_application": {
+        "title": "默认创建程序",
+        "tip": "选择默认创建程序，可选Excel或WPS"
+      },
+      "visible_flag": {
+        "title": "是否可视化"
+      },
+      "exist_handle_type": {
+        "title": "文件名存在处理方式",
+        "tip": "选择文件存在处理方式，可选覆盖、重命名、取消保存"
+      },
+      "password": {
+        "title": "文件打开密码"
+      }
+    },
+    "outputList": {
+      "create_excel_obj": {
+        "title": "创建的Excel对象"
+      },
+      "excel_path": {
+        "title": "创建的Excel路径"
+      }
+    }
+  },
+  "Excel.save_excel": {
+    "title": "保存Excel",
+    "comment": "保存Excel对象 @{excel} ，保存方式为 @{save_type}",
+    "inputList": {
+      "excel": {
+        "title": "Excel对象",
+        "tip": "输入Excel对象"
+      },
+      "save_type": {
+        "title": "保存类型",
+        "tip": "选择保存类型，可选保存或另存为"
+      },
+      "file_path": {
+        "title": "文件路径",
+        "tip": "输入文件路径"
+      },
+      "file_name": {
+        "title": "文件名",
+        "tip": "输入文件名"
+      },
+      "exist_handle_type": {
+        "title": "文件名存在处理方式",
+        "tip": "选择文件存在处理方式，可选覆盖、重命名、取消保存"
+      },
+      "close_flag": {
+        "title": "是否关闭文件",
+        "tip": "选择保存后是否关闭文件，可选关闭或不关闭"
+      }
+    }
+  },
+  "Excel.close_excel": {
+    "title": "关闭Excel",
+    "comment": "关闭 @{close_range_flag}，当前Excel对象 @{excel}，保存类型为 @{save_type_one||save_type_all}",
+    "inputList": {
+      "close_range_flag": {
+        "title": "关闭文档范围",
+        "tip": "选择关闭文档的范围，如关闭当前文档或关闭所有文档"
+      },
+      "excel": {
+        "title": "Excel对象",
+        "tip": "输入Excel对象"
+      },
+      "save_type_one": {
+        "title": "保存类型",
+        "tip": "选择保存类型，可选保存，另存为或不保存"
+      },
+      "save_type_all": {
+        "title": "保存类型",
+        "tip": "选择保存类型，可选保存或不保存"
+      },
+      "file_path": {
+        "title": "文件路径",
+        "tip": "输入文件路径"
+      },
+      "file_name": {
+        "title": "文件名",
+        "tip": "输入文件名"
+      },
+      "exist_handle_type": {
+        "title": "文件名存在处理方式",
+        "tip": "选择文件存在处理方式，可选覆盖、重命名、取消保存"
+      },
+      "pkill_flag": {
+        "title": "是否关闭进程",
+        "tip": "选择是否关闭进程，可选关闭或不关闭"
+      }
+    }
+  },
+  "Excel.edit_excel": {
+    "title": "写入Excel",
+    "comment": "编辑Excel对象 @{excel} ，写入内容 @{value}",
+    "inputList": {
+      "excel": {
+        "title": "Excel对象",
+        "tip": "输入Excel对象"
+      },
+      "edit_range": {
+        "title": "编辑范围",
+        "tip": "选择编辑范围，可选行、列、区域"
+      },
+      "sheet_name": {
+        "title": "工作表名",
+        "tip": "输入需编辑的工作表名称，如'Sheet1'，为空默认使用Excel中的第一个工作表对象"
+      },
+      "start_col": {
+        "title": "起始列",
+        "tip": "输入要编辑的起始列位置，支持字母(如'A')或数字(如1)格式"
+      },
+      "start_row": {
+        "title": "起始行",
+        "tip": "输入要编辑的起始行号，从1开始计数，当选择列(COLUMN)时可不填，当选择行(ROW)或区域(AREA)时必填"
+      },
+      "value": {
+        "title": "写入内容",
+        "tip": "修改的内容以列表方式输入，当选择行或列时输入列表如[1,2,3]，表示在指定行依次写入1,2,3；当选择区域时输入列表如[[1,1],[2,2]]，表示在指定区域按行写入数据"
+      },
+      "edit_type": {
+        "title": "写入方式",
+        "tip": "选择写入类型，可选覆盖或追加"
+      }
+    }
+  },
+  "Excel.read_excel": {
+    "title": "读取Excel内容",
+    "comment": "读取Excel对象 @{excel} 中工作表 @{sheet_name} 的Excel内容",
+    "inputList": {
+      "excel": {
+        "title": "Excel对象",
+        "tip": "输入Excel对象"
+      },
+      "sheet_name": {
+        "title": "工作表名",
+        "tip": "输入需编辑的工作表名称，如'Sheet1'，为空默认使用Excel中的第一个工作表对象"
+      },
+      "read_range": {
+        "title": "读取范围",
+        "tip": "选择读取范围，可选单元格、行、列、区域、已编辑区域"
+      },
+      "start_col": {
+        "title": "起始列",
+        "tip": "输入起始列"
+      },
+      "end_col": {
+        "title": "结束列",
+        "tip": "输入结束列"
+      },
+      "cell": {
+        "title": "单元格",
+        "tip": "输入待读取单元格，如A1"
+      },
+      "row": {
+        "title": "行",
+        "tip": "输入整数代表行号，从1开始"
+      },
+      "column": {
+        "title": "列",
+        "tip": "输入列名，支持输入字符A或者整数1"
+      },
+      "start_row": {
+        "title": "起始行",
+        "tip": "输入整数代表行号，从1开始"
+      },
+      "end_row": {
+        "title": "结束行",
+        "tip": "输入整数代表行号，-n代表倒数第n行"
+      },
+      "read_display": {
+        "title": "读取单元格显示内容",
+        "tip": "选择是否读取单元格显示的内容，可选是或否"
+      },
+      "trim_spaces": {
+        "title": "去除空格",
+        "tip": "选择是否去除空格，可选是或否"
+      },
+      "replace_none": {
+        "title": "替换空值",
+        "tip": "选择是否将空值（None）替换为空字符串，可选是或否"
+      }
+    },
+    "outputList": {
+      "read_excel_contents": {
+        "title": "读取的Excel内容",
+        "tip": "读取的Excel内容以列表方式返回"
+      }
+    }
+  },
+  "Excel.design_cell_type": {
+    "title": "设置单元格属性",
+    "comment": "设置 @{excel} 中工作表 @{sheet_name} 的单元格格式，字体大小为 @{font_size}，字体名称为 @{font_name}，字体颜色为 @{font_color}，背景颜色 @{bg_color}",
+    "inputList": {
+      "excel": {
+        "title": "Excel对象"
+      },
+      "sheet_name": {
+        "title": "工作表名称",
+        "tip": "输入需编辑的工作表名称，如'Sheet1'，为空默认使用Excel中的第一个工作表对象"
+      },
+      "design_type": {
+        "title": "设置范围",
+        "tip": "选择设置范围，可选单元格、行、列、区域"
+      },
+      "cell_position": {
+        "title": "单元格位置",
+        "tip": "输入单元格位置，如A1"
+      },
+      "range_position": {
+        "title": "范围位置",
+        "tip": "输入单元格范围，如A1:B2"
+      },
+      "col": {
+        "title": "列",
+        "tip": "输入列名，支持输入字符A或者整数1"
+      },
+      "row": {
+        "title": "行",
+        "tip": "输入整数代表行号，从1开始"
+      },
+      "col_width": {
+        "title": "列宽"
+      },
+      "bg_color": {
+        "title": "背景颜色"
+      },
+      "font_color": {
+        "title": "字体颜色"
+      },
+      "font_type": {
+        "title": "字体类型"
+      },
+      "font_name": {
+        "title": "字体名称"
+      },
+      "font_size": {
+        "title": "字体大小"
+      },
+      "numberformat": {
+        "title": "数字格式"
+      },
+      "numberformat_other": {
+        "title": "自定义数字格式"
+      },
+      "horizontal_align": {
+        "title": "水平对齐"
+      },
+      "vertical_align": {
+        "title": "垂直对齐"
+      },
+      "wrap_text": {
+        "title": "自动换行"
+      },
+      "auto_row_height": {
+        "title": "自动行高"
+      },
+      "auto_column_width": {
+        "title": "自动列宽"
+      }
+    }
+  },
+  "Excel.copy_excel": {
+    "title": "复制Excel单元格",
+    "comment": "复制Excel对象 @{excel} 中工作表 @{sheet_name} 的单元格，返回复制内容的字符串格式 @{copy_excel_contents}",
+    "inputList": {
+      "excel": {
+        "title": "Excel对象"
+      },
+      "sheet_name": {
+        "title": "工作表名",
+        "tip": "输入需编辑的工作表名称，如'Sheet1'，为空默认使用Excel中的第一个工作表对象"
+      },
+      "copy_range_type": {
+        "title": "复制范围"
+      },
+      "cell_position": {
+        "title": "单元格位置",
+        "tip": "填写单元格位置，如A1"
+      },
+      "row": {
+        "title": "行",
+        "tip": "输入整数代表行号，从1开始"
+      },
+      "col": {
+        "title": "列",
+        "tip": "输入列名，支持输入字符A或者整数1"
+      },
+      "range_position": {
+        "title": "单元格范围",
+        "tip": "填写单元格范围，如A1:B2"
+      }
+    },
+    "outputList": {
+      "copy_excel_contents": {
+        "title": "Excel复制内容"
+      }
+    }
+  },
+  "Excel.paste_excel": {
+    "title": "粘贴Excel单元格",
+    "comment": "向Excel对象 @{excel} 中工作表 @{sheet_name} 粘贴单元格",
+    "inputList": {
+      "excel": {
+        "title": "Excel对象"
+      },
+      "sheet_name": {
+        "title": "工作表名",
+        "tip": "输入需编辑的工作表名称，如'Sheet1'，为空默认使用Excel中的第一个工作表对象"
+      },
+      "paste_type": {
+        "title": "粘贴类型"
+      },
+      "start_location": {
+        "title": "起始位置",
+        "tip": "输入起始单元格位置，如A1"
+      },
+      "skip_blanks": {
+        "title": "是否跳过空白行"
+      },
+      "transpose": {
+        "title": "是否转置"
+      }
+    }
+  },
+  "Excel.delete_excel_cell": {
+    "title": "删除Excel单元格",
+    "comment": "删除Excel对象 @{excel} 中工作表 @{sheet_name} 的单元格",
+    "inputList": {
+      "excel": {
+        "title": "Excel对象"
+      },
+      "sheet_name": {
+        "title": "工作表名",
+        "tip": "输入需编辑的工作表名称，如'Sheet1'，为空默认使用Excel中的第一个工作表对象"
+      },
+      "delete_range_excel": {
+        "title": "删除范围"
+      },
+      "coordinate": {
+        "title": "单元格位置",
+        "tip": "输入单元格位置，如A1"
+      },
+      "row": {
+        "title": "行",
+        "tip": "输入整数代表行号，从1开始"
+      },
+      "col": {
+        "title": "列",
+        "tip": "输入列名，支持输入字符A或者整数1"
+      },
+      "data_region": {
+        "title": "单元格范围",
+        "tip": "输入单元格范围，如A1:B2"
+      },
+      "direction": {
+        "title": "剩余数据填充方向"
+      }
+    }
+  },
+  "Excel.clear_excel_content": {
+    "title": "清除Excel区域内容",
+    "comment": "清除Excel对象 @{excel} 中工作表 @{sheet_name} 的单元格内容",
+    "inputList": {
+      "excel": {
+        "title": "Excel对象"
+      },
+      "sheet_name": {
+        "title": "工作表名",
+        "tip": "输入需编辑的工作表名称，如'Sheet1'，为空默认使用Excel中的第一个工作表对象"
+      },
+      "select_type": {
+        "title": "区域选择",
+        "tip": "选择需要删除的区域内容"
+      },
+      "cell_location": {
+        "title": "单元格位置",
+        "tip": "输入单元格位置，如A1"
+      },
+      "row": {
+        "title": "行",
+        "tip": "输入整数代表行号，从1开始"
+      },
+      "col": {
+        "title": "列",
+        "tip": "输入列名，支持输入字符A或者整数1"
+      },
+      "data_range": {
+        "title": "单元格范围",
+        "tip": "输入连续的单元格范围，如A1:B2"
+      },
+      "clear_type": {
+        "title": "清除类型"
+      }
+    }
+  },
+  "Excel.insert_excel_row_or_column": {
+    "title": "插入Excel行或列",
+    "comment": "向Excel对象 @{excel} 中工作表 @{sheet_name} 插入行或列",
+    "inputList": {
+      "excel": {
+        "title": "Excel对象"
+      },
+      "sheet_name": {
+        "title": "工作表名",
+        "tip": "输入需编辑的工作表名称，如'Sheet1'，为空默认使用Excel中的第一个工作表对象"
+      },
+      "insert_type": {
+        "title": "插入类型"
+      },
+      "row": {
+        "title": "行",
+        "tip": "输入整数代表行号，从1开始"
+      },
+      "row_direction": {
+        "title": "插入行方向"
+      },
+      "col": {
+        "title": "列",
+        "tip": "输入列名，支持输入字符A或者整数1"
+      },
+      "col_direction": {
+        "title": "插入列方向"
+      },
+      "blank_rows": {
+        "title": "是否只插入空行/空列"
+      },
+      "insert_num": {
+        "title": "插入行数"
+      },
+      "insert_content": {
+        "title": "插入内容",
+        "tip": "插入单行或多行时，插入内容需为多维列表，字符需使用单引号''，例：插入1行，写入内容：[[123,24,32]]，插入2行，写入内容：[[123,123],['aaa']]，则实际写入excel内容为：第一行：123  123；第二行：aaa；写入内容：[[123,123],'aaa']，则实际写入excel内容为：第一行：123  123；第二行：a a a；如果插入的行或列超过数据长度，多余的单元格将保持为空"
+      }
+    }
+  },
+  "Excel.get_excel_row_num": {
+    "title": "获取Excel行数",
+    "comment": "获取Excel对象 @{excel} 中工作表 @{sheet_name} 的行数，返回行数 @{excel_row_num}",
+    "inputList": {
+      "excel": {
+        "title": "Excel对象"
+      },
+      "sheet_name": {
+        "title": "工作表名",
+        "tip": "输入需编辑的工作表名称，如'Sheet1'，为空默认使用Excel中的第一个工作表对象"
+      },
+      "get_col_type": {
+        "title": "获取类型"
+      },
+      "col": {
+        "title": "列",
+        "tip": "输入列名，支持输入字符A或者整数1"
+      }
+    },
+    "outputList": {
+      "excel_row_num": {
+        "title": "Excel行数"
+      }
+    }
+  },
+  "Excel.get_excel_col_num": {
+    "title": "获取Excel列数",
+    "comment": "获取Excel对象 @{excel} 中工作表 @{sheet_name} 的列数，返回列数 @{excel_col_num}",
+    "inputList": {
+      "excel": {
+        "title": "Excel对象"
+      },
+      "sheet_name": {
+        "title": "工作表名",
+        "tip": "输入需编辑的工作表名称，如'Sheet1'，为空默认使用Excel中的第一个工作表对象"
+      },
+      "get_row_type": {
+        "title": "获取类型"
+      },
+      "row": {
+        "title": "行",
+        "tip": "输入整数代表行号，从1开始"
+      },
+      "output_type": {
+        "title": "输出格式"
+      }
+    },
+    "outputList": {
+      "excel_col_num": {
+        "title": "Excel列数"
+      }
+    }
+  },
+  "Excel.get_excel_first_available_row": {
+    "title": "获取Excel第一个可用行",
+    "comment": "获取Excel对象 @{excel} 中工作表 @{sheet_name} 的第一个可用行，返回可用行 @{get_first_available_row}",
+    "inputList": {
+      "excel": {
+        "title": "Excel对象"
+      },
+      "sheet_name": {
+        "title": "工作表名",
+        "tip": "输入需编辑的工作表名称，如'Sheet1'，为空默认使用Excel中的第一个工作表对象"
+      }
+    },
+    "outputList": {
+      "get_first_available_row": {
+        "title": "第一个可用行"
+      }
+    }
+  },
+  "Excel.get_excel_first_available_col": {
+    "title": "获取Excel第一个可用列",
+    "comment": "获取Excel对象 @{excel} 中工作表 @{sheet_name} 的第一个可用列，返回可用列 @{get_first_available_col}",
+    "inputList": {
+      "excel": {
+        "title": "Excel对象"
+      },
+      "sheet_name": {
+        "title": "工作表名",
+        "tip": "输入需编辑的工作表名称，如'Sheet1'，为空默认使用Excel中的第一个工作表对象"
+      },
+      "output_type": {
+        "title": "输出格式"
+      }
+    },
+    "outputList": {
+      "get_first_available_col": {
+        "title": "第一个可用列"
+      }
+    }
+  },
+  "Excel.loop_excel_content": {
+    "title": "循环Excel内容",
+    "comment": "循环Excel对象 @{excel} 中指定 @{select_type} 的内容，输出循环项位置至 @{key} ，输出循环项至 @{value}",
+    "inputList": {
+      "excel": {
+        "title": "Excel对象"
+      },
+      "sheet_name": {
+        "title": "工作表名",
+        "tip": "输入需编辑的工作表名称，如'Sheet1'，为空默认使用Excel中的第一个工作表对象"
+      },
+      "select_type": {
+        "title": "循环范围"
+      },
+      "start_row": {
+        "title": "起始行",
+        "tip": "输入起始行编号，从1开始"
+      },
+      "end_row": {
+        "title": "结束行",
+        "tip": "输入结束行编号，-n代表倒数第n行"
+      },
+      "start_col": {
+        "title": "起始列",
+        "tip": "输入起始列编号，如A或1"
+      },
+      "end_col": {
+        "title": "结束列",
+        "tip": "输入结束列编号，-n代表倒数第n列"
+      },
+      "real_text": {
+        "title": "是否获取可见值",
+        "tip": "Excel的可见值为打开所见到的值，真实值可能是隐藏的公式等，选择否获取真实值"
+      },
+      "cell_strip": {
+        "title": "是否去除空格",
+        "tip": "是否去除前后空格以及换行符"
+      }
+    },
+    "outputList": {
+      "key": {
+        "title": "循环项位置",
+        "tip": "例如 A, B"
+      },
+      "value": {
+        "title": "循环项",
+        "tip": "例如 [1.0, None]"
+      }
+    }
+  },
+  "Excel.excel_get_cell_color": {
+    "title": "获取Excel单元格颜色",
+    "comment": "获取Excel对象 @{excel} 中工作表 @{sheet_name} 的单元格 @{coordinate} 的颜色，返回颜色 @{get_cell_color}",
+    "inputList": {
+      "excel": {
+        "title": "Excel对象"
+      },
+      "coordinate": {
+        "title": "单元格位置",
+        "tip": "输入单元格位置，如A1"
+      },
+      "sheet_name": {
+        "title": "工作表名",
+        "tip": "输入需编辑的工作表名称，如'Sheet1'，为空默认使用Excel中的第一个工作表对象"
+      }
+    },
+    "outputList": {
+      "get_cell_color": {
+        "title": "单元格颜色"
+      }
+    }
+  },
+  "Excel.merge_split_excel_cell": {
+    "title": "合并或拆分Excel单元格",
+    "comment": "合并或拆分Excel对象 @{excel} 中工作表 @{sheet_name} 的单元格",
+    "inputList": {
+      "excel": {
+        "title": "Excel对象"
+      },
+      "sheet_name": {
+        "title": "工作表名",
+        "tip": "输入需编辑的工作表名称，如'Sheet1'，为空默认使用Excel中的第一个工作表对象"
+      },
+      "job_type": {
+        "title": "合并或拆分类型"
+      },
+      "merge_cell_range": {
+        "title": "合并单元格范围",
+        "tip": "输入需合并的连续单元格范围，如A1:B2"
+      },
+      "split_cell_range": {
+        "title": "拆分单元格范围",
+        "tip": "输入需拆分的连续单元格范围，如A1:B2"
+      }
+    }
+  },
+  "Excel.add_excel_worksheet": {
+    "title": "添加Excel工作表",
+    "comment": "向Excel对象 @{excel} 中添加工作表 @{sheet_name}",
+    "inputList": {
+      "excel": {
+        "title": "Excel对象"
+      },
+      "sheet_name": {
+        "title": "工作表名",
+        "tip": "输入需编辑的工作表名称，如'Sheet1'，为空默认使用Excel中的第一个工作表对象"
+      },
+      "insert_type": {
+        "title": "插入位置"
+      },
+      "relative_sheet_name": {
+        "title": "在...表之前/之后插入",
+        "tip": "输入相对位置相关的工作表名称，如'Sheet1'"
+      }
+    }
+  },
+  "Excel.move_excel_worksheet": {
+    "title": "移动Excel工作表",
+    "comment": "移动Excel对象 @{excel} 中工作表 @{move_sheet} ，移动方式为 @{move_type}",
+    "inputList": {
+      "excel": {
+        "title": "Excel对象"
+      },
+      "move_type": {
+        "title": "移动方式"
+      },
+      "move_sheet": {
+        "title": "要移动的工作表",
+        "tip": "工作表可以填写名称或序号，如'Sheet1'或'1'，序号从1开始"
+      },
+      "move_to_sheet": {
+        "title": "目标工作表",
+        "tip": "工作表可以填写名称或序号，如'Sheet1'或'1'，序号从1开始"
+      }
+    }
+  },
+  "Excel.delete_excel_worksheet": {
+    "title": "删除Excel工作表",
+    "comment": "删除Excel对象 @{excel} 中工作表 @{del_sheet_name}",
+    "inputList": {
+      "excel": {
+        "title": "Excel对象"
+      },
+      "del_sheet_name": {
+        "title": "删除工作表",
+        "tip": "工作表可以填写名称或序号，如'Sheet1'或'1'，序号从1开始"
+      }
+    }
+  },
+  "Excel.rename_excel_worksheet": {
+    "title": "重命名Excel工作表",
+    "comment": "重命名Excel对象 @{excel} 中工作表 @{source_sheet_name} 为 @{new_sheet_name}",
+    "inputList": {
+      "excel": {
+        "title": "Excel对象"
+      },
+      "source_sheet_name": {
+        "title": "原工作表",
+        "tip": "工作表可以填写名称或序号，如'Sheet1'或'1'，序号从1开始"
+      },
+      "new_sheet_name": {
+        "title": "新工作表名",
+        "tip": "工作表可以填写名称或序号，如'Sheet1'或'1'，序号从1开始"
+      }
+    }
+  },
+  "Excel.copy_excel_worksheet": {
+    "title": "复制Excel工作表",
+    "comment": "复制Excel对象 @{excel} 中工作表 @{source_sheet_name} ，复制类型为 @{copy_type}",
+    "inputList": {
+      "excel": {
+        "title": "Excel对象"
+      },
+      "source_sheet_name": {
+        "title": "原工作表",
+        "tip": "工作表可以填写名称或序号，如'Sheet1'或'1'，序号从1开始"
+      },
+      "new_sheet_name": {
+        "title": "新工作表名",
+        "tip": "工作表可以填写名称或序号，如'Sheet1'或'1'，序号从1开始"
+      },
+      "location": {
+        "title": "复制位置"
+      },
+      "copy_type": {
+        "title": "复制类型"
+      },
+      "other_excel_obj": {
+        "title": "其他Excel对象"
+      },
+      "is_cover": {
+        "title": "是否覆盖"
+      }
+    }
+  },
+  "Excel.get_excel_worksheet_names": {
+    "title": "获取Excel工作表名称",
+    "comment": "获取Excel对象 @{excel} 中工作表名称，返回工作表名称列表 @{sheet_names}",
+    "inputList": {
+      "excel": {
+        "title": "Excel对象"
+      },
+      "sheet_range": {
+        "title": "工作表范围"
+      }
+    },
+    "outputList": {
+      "sheet_names": {
+        "title": "工作表名称",
+        "tip": "返回工作表名称列表，如['Sheet1', 'Sheet2']"
+      }
+    }
+  },
+  "Excel.search_and_replace_excel_content": {
+    "title": "查找或替换Excel内容",
+    "comment": "查找或替换Excel对象 @{excel} 中 @{search_range} 范围内 @{find_str} ，返回查找结果 @{search_excel_result}",
+    "inputList": {
+      "excel": {
+        "title": "Excel对象"
+      },
+      "find_str": {
+        "title": "查找内容"
+      },
+      "replace_flag": {
+        "title": "是否替换"
+      },
+      "replace_str": {
+        "title": "替换内容"
+      },
+      "lookup_range_excel": {
+        "title": "查找范围"
+      },
+      "sheet_name": {
+        "title": "工作表名",
+        "tip": "输入需编辑的工作表名称，如'Sheet1'，为空默认使用Excel中的第一个工作表对象"
+      },
+      "search_range": {
+        "title": "工作表内查找范围"
+      },
+      "row": {
+        "title": "行",
+        "tip": "输入整数代表行号，从1开始"
+      },
+      "col": {
+        "title": "列",
+        "tip": "输入列名，支持输入字符A或者整数1"
+      },
+      "start_row": {
+        "title": "起始行"
+      },
+      "end_row": {
+        "title": "结束行"
+      },
+      "start_col": {
+        "title": "起始列",
+        "tip": "输入列名，支持输入字符A或者整数1"
+      },
+      "end_col": {
+        "title": "结束列",
+        "tip": "输入列名，支持输入字符A或者整数1，-n代表倒数第n列"
+      },
+      "exact_match": {
+        "title": "是否精确匹配"
+      },
+      "case_flag": {
+        "title": "是否区分大小写"
+      },
+      "match_range": {
+        "title": "匹配数量"
+      },
+      "output_type": {
+        "title": "输出类型",
+        "tip": "默认返回单元格位置，比如['A1', 'B2']，也可以选择分开返回行列号，比如[['A', 1], ['B', 2]]"
+      }
+    },
+    "outputList": {
+      "search_excel_result": {
+        "title": "查找结果",
+        "tip": "选择单工作表查找是返回单元格位置列表，比如['A1', 'B2']，选择多工作表查找是返回工作表名称和单元格位置列表字典，比如{'Sheet1': ['A1', 'B2'], 'Sheet2': ['C3', 'D4']}"
+      }
+    }
+  },
+  "Excel.insert_pic": {
+    "title": "插入Excel图片",
+    "comment": "向Excel对象 @{excel} 中工作表 @{sheet_name} 插入图片 @{pic_path} ，插入类型为 @{pic_size_type}",
+    "inputList": {
+      "excel": {
+        "title": "Excel对象"
+      },
+      "sheet_name": {
+        "title": "工作表名",
+        "tip": "输入需编辑的工作表名称，如'Sheet1'，为空默认使用Excel中的第一个工作表对象"
+      },
+      "insert_pos": {
+        "title": "插入位置",
+        "tip": "可填写单元格位置，如'A1'；也可填写范围位置，如'A1:B2'"
+      },
+      "pic_path": {
+        "title": "图片路径"
+      },
+      "pic_size_type": {
+        "title": "图片大小控制"
+      },
+      "pic_height": {
+        "title": "图片高度"
+      },
+      "pic_width": {
+        "title": "图片宽度"
+      },
+      "pic_scale": {
+        "title": "图片缩放比例"
+      }
+    }
+  },
+  "Excel.insert_formula": {
+    "title": "插入Excel公式",
+    "comment": "向Excel对象 @{excel} 中工作表 @{sheet_name} 插入公式 @{formula}",
+    "inputList": {
+      "excel": {
+        "title": "Excel对象"
+      },
+      "sheet_name": {
+        "title": "工作表名",
+        "tip": "输入需编辑的工作表名称，如'Sheet1'，为空默认使用Excel中的第一个工作表对象"
+      },
+      "insert_direction": {
+        "title": "公式插入方向"
+      },
+      "col": {
+        "title": "列",
+        "tip": "输入列名，支持输入字符A或者整数1"
+      },
+      "start_row": {
+        "title": "起始行",
+        "tip": "输入整数代表行号，从1开始"
+      },
+      "end_row": {
+        "title": "结束行",
+        "tip": "输入整数代表行号，-n代表倒数第n行"
+      },
+      "row": {
+        "title": "行",
+        "tip": "输入整数代表行号，从1开始"
+      },
+      "start_col": {
+        "title": "起始列",
+        "tip": "输入列名，支持输入字符A或者整数1"
+      },
+      "end_col": {
+        "title": "结束列",
+        "tip": "输入列名，支持输入字符A或者整数1，-n代表倒数第n列"
+      },
+      "formula": {
+        "title": "插入公式"
+      }
+    }
+  },
+  "Excel.create_excel_comment": {
+    "title": "创建Excel批注",
+    "comment": "向Excel对象 @{excel} 中插入批注 @{comment}",
+    "inputList": {
+      "excel": {
+        "title": "Excel对象"
+      },
+      "comment_type": {
+        "title": "批注插入方式",
+        "tip": "可以指定单元格插入，也可以搜索内容插入"
+      },
+      "comment": {
+        "title": "批注内容"
+      },
+      "sheet_name": {
+        "title": "工作表名",
+        "tip": "输入需编辑的工作表名称，如'Sheet1'，为空默认使用Excel中的第一个工作表对象"
+      },
+      "cell_position": {
+        "title": "单元格位置",
+        "tip": "输入单元格位置，如A1"
+      },
+      "comment_range": {
+        "title": "搜索范围"
+      },
+      "find_str": {
+        "title": "搜索内容"
+      },
+      "comment_all": {
+        "title": "是否批注所有匹配内容",
+        "tip": "选择是将会对所有匹配内容进行批注，选择否只会对第一个匹配内容进行批注"
+      }
+    }
+  },
+  "Excel.delete_excel_comment": {
+    "title": "删除Excel批注",
+    "comment": "删除Excel对象 @{excel} 中批注",
+    "inputList": {
+      "excel": {
+        "title": "Excel对象"
+      },
+      "delete_all": {
+        "title": "是否删除所有批注"
+      },
+      "sheet_name": {
+        "title": "工作表名",
+        "tip": "输入需编辑的工作表名称，如'Sheet1'，为空默认使用Excel中的第一个工作表对象"
+      },
+      "cell_position": {
+        "title": "单元格位置",
+        "tip": "输入单元格位置，如A1"
+      }
+    }
+  },
+  "Excel.excel_text_to_number": {
+    "title": "Excel区域文本转数字",
+    "comment": "将Excel对象 @{excel_obj} 中工作表 @{sheet_name} 中的区域文本转化为数字格式",
+    "inputList": {
+      "excel_obj": {
+        "title": "Excel对象"
+      },
+      "sheet_name": {
+        "title": "工作表名",
+        "tip": "输入需编辑的工作表名称，如'Sheet1'，为空默认使用Excel中的第一个工作表对象"
+      },
+      "select_type": {
+        "title": "区域选择"
+      },
+      "cell_position": {
+        "title": "单元格位置",
+        "tip": "输入单元格位置，如A1"
+      },
+      "row": {
+        "title": "行",
+        "tip": "输入整数代表行号，从1开始"
+      },
+      "col": {
+        "title": "列",
+        "tip": "输入列名，支持输入字符A或者整数1"
+      },
+      "range_location": {
+        "title": "单元格范围",
+        "tip": "输入单元格范围，如A1:B2"
+      }
+    }
+  },
+  "Excel.excel_number_to_text": {
+    "title": "Excel区域数字转文本",
+    "comment": "将Excel对象 @{excel_obj} 中工作表 @{sheet_name} 中的区域数字转化为文本格式",
+    "inputList": {
+      "excel_obj": {
+        "title": "Excel对象"
+      },
+      "sheet_name": {
+        "title": "工作表名",
+        "tip": "输入需编辑的工作表名称，如'Sheet1'，为空默认使用Excel中的第一个工作表对象"
+      },
+      "select_type": {
+        "title": "区域选择"
+      },
+      "cell_position": {
+        "title": "单元格位置",
+        "tip": "输入单元格位置，如A1"
+      },
+      "row": {
+        "title": "行",
+        "tip": "输入整数代表行号，从1开始"
+      },
+      "col": {
+        "title": "列",
+        "tip": "输入列名，支持输入字符A或者整数1"
+      },
+      "range_location": {
+        "title": "单元格范围",
+        "tip": "输入单元格范围，如A1:B2"
+      }
+    }
+  },
+  "Excel.excel_set_col_width": {
+    "title": "设置Excel列宽",
+    "comment": "设置Excel对象 @{excel_obj} 工作表 @{sheet_name} 中 @{col} 的列宽",
+    "inputList": {
+      "excel_obj": {
+        "title": "Excel对象"
+      },
+      "sheet_name": {
+        "title": "工作表名",
+        "tip": "输入需编辑的工作表名称，如'Sheet1'，为空默认使用Excel中的第一个工作表对象"
+      },
+      "set_type": {
+        "title": "设置类型"
+      },
+      "col": {
+        "title": "列",
+        "tip": "输入列名，支持输入字符A或者整数1"
+      },
+      "width": {
+        "title": "列宽"
+      }
+    }
+  },
+  "Excel.excel_set_row_height": {
+    "title": "设置Excel行高",
+    "comment": "设置Excel对象 @{excel_obj} 工作表 @{sheet_name} 中 @{row} 的行高",
+    "inputList": {
+      "excel_obj": {
+        "title": "Excel对象"
+      },
+      "sheet_name": {
+        "title": "工作表名",
+        "tip": "输入需编辑的工作表名称，如'Sheet1'，为空默认使用Excel中的第一个工作表对象"
+      },
+      "set_type": {
+        "title": "设置类型"
+      },
+      "row": {
+        "title": "行",
+        "tip": "输入整数代表行号，从1开始"
+      },
+      "height": {
+        "title": "行高"
+      }
+    }
+  },
+  "options": {
+    "ApplicationType": {
+      "Excel": "Office",
+      "WPS": "WPS",
+      "Default": "系统自动选择"
+    },
+    "Bool": {
+      "True": "是",
+      "False": "否"
+    },
+    "FileExistenceType": {
+      "overwrite": "覆盖原有文件",
+      "rename": "创建文件副本",
+      "cancel": "跳过保存操作"
+    },
+    "SaveType": {
+      "save": "保存",
+      "save_as": "另存为",
+      "abort": "不保存"
+    },
+    "CloseRangeType": {
+      "one": "当前文档",
+      "all": "所有文档"
+    },
+    "SaveType_ALL": {
+      "save": "保存",
+      "abort": "不保存"
+    },
+    "EditRangeType": {
+      "row": "行",
+      "column": "列",
+      "area": "区域",
+      "cell": "单元格"
+    },
+    "EditType": {
+      "overwrite": "覆盖",
+      "append": "追加"
+    },
+    "ReadRangeType": {
+      "cell": "单元格",
+      "row": "行",
+      "column": "列",
+      "area": "区域",
+      "all": "已编辑区域"
+    },
+    "FontType": {
+      "no_change": "维持原状",
+      "bold": "粗体",
+      "italic": "斜体",
+      "bold_italic": "粗斜体",
+      "normal": "常规"
+    },
+    "FontNameType": {
+      "维持原状": "维持原状",
+      "黑体": "黑体",
+      "仿宋": "仿宋",
+      "宋体": "宋体",
+      "微软雅黑": "微软雅黑",
+      "微软雅黑 Light": "微软雅黑 Light",
+      "华文中宋": "华文中宋",
+      "华文仿宋": "华文仿宋",
+      "华文宋体": "华文宋体",
+      "华文彩云": "华文彩云",
+      "华文新魏": "华文新魏",
+      "华文楷体": "华文楷体",
+      "华文琥珀": "华文琥珀",
+      "华文细黑": "华文细黑",
+      "华文行楷": "华文行楷",
+      "华文隶书": "华文隶书",
+      "幼圆": "幼圆",
+      "隶书": "隶书",
+      "方正姚体": "方正姚体",
+      "方正舒体": "方正舒体",
+      "新宋体": "新宋体",
+      "微軟正黑體 Light": "微軟正黑體 Light",
+      "微軟正黑體": "微軟正黑體",
+      "細明體_HKSCS-ExtB": "細明體_HKSCS-ExtB",
+      "等线": "等线",
+      "等线 Light": "等线 Light",
+      "楷体": "楷体",
+      "細明置-ExtB": "細明置-ExtB",
+      "新細明置-ExtB": "新細明置-ExtB",
+      "Onyx": "Onyx",
+      "Myanmar Text": "Myanmar Text",
+      "Niagara Engraved": "Niagara Engraved",
+      "Niagara Solid": "Niagara Solid",
+      "Nirmala Ul": "Nirmala Ul",
+      "Nirmala Ul Semilight": "Nirmala Ul Semilight",
+      "OCR A Extended": "OCR A Extended",
+      "Old English Text MT": "Old English Text MT",
+      "Palace Script MT": "Palace Script MT",
+      "Poor Richard": "Poor Richard",
+      "Papyrus": "Papyrus",
+      "Parchment": "Parchment",
+      "Perpetua": "Perpetua",
+      "Perpetua Tilting MT": "Perpetua Tilting MT",
+      "Playbill": "Playbill",
+      "MV Boli": "MV Boli",
+      "Pristina": "Pristina",
+      "Rage Italic": "Rage Italic",
+      "Ravie": "Ravie",
+      "Palatino Linotype": "Palatino Linotype",
+      "MT Extra": "MT Extra",
+      "MS Gothic": "MS Gothic",
+      "MS Reference Specialty": "MS Reference Specialty",
+      "Marlett": "Marlett",
+      "Matura MT Script Capitals": "Matura MT Script Capitals",
+      "Microsoft Himalaya": "Microsoft Himalaya",
+      "Microsoft JhengHei UI": "Microsoft JhengHei UI",
+      "Microsoft JhengHei UI Light": "Microsoft JhengHei UI Light",
+      "Microsoft New Tai Lue": "Microsoft New Tai Lue",
+      "Microsoft PhagsPa": "Microsoft PhagsPa",
+      "Microsoft Sans Serif": "Microsoft Sans Serif",
+      "Microsoft Tai Le": "Microsoft Tai Le",
+      "Microsoft Uighur": "Microsoft Uighur",
+      "Microsoft Yahei Ul": "Microsoft Yahei Ul",
+      "Microsoft YaHei Ul Light": "Microsoft YaHei Ul Light",
+      "Microsoft Yi Baiti": "Microsoft Yi Baiti",
+      "Mistral": "Mistral",
+      "Modern No.20": "Modern No.20",
+      "Mogolian Baiti": "Mogolian Baiti"
+    },
+    "NumberFormatType": {
+      "no_change": "维持原状",
+      "G/通用格式": "常规",
+      "0.00": "数字",
+      "¥#,##0.00": "货币",
+      "_(¥* #,##0.00_);_(¥* (#,##0.00);_(¥* -_0_0_);_(@_)": "_(¥* #,##0.00_);_(¥* (#,##0.00);_(¥* -_0_0_);_(@_)",
+      "yyyy/m/d": "短日期",
+      "yyyy年mm月dd日": "长日期",
+      "h:mm:ss AM/PM": "时间",
+      "0.00%": "百分比",
+      "# ?/?": "分数",
+      "0.00E+00": "科学记数",
+      "@": "@",
+      "other": "自定义"
+    },
+    "HorizontalAlign": {
+      "no_change": "维持原状",
+      "default": "默认常规",
+      "left-aligned": "左对齐",
+      "right-aligned": "右对齐",
+      "center": "居中对齐",
+      "padding": "填充",
+      "aligned_both_sides": "两端对齐",
+      "center_cross_column": "跨列居中",
+      "distributed_align": "分散对齐"
+    },
+    "VerticalAlign": {
+      "no_change": "维持原状",
+      "up": "靠上",
+      "middle": "居中",
+      "down": "靠下",
+      "aligned_both_sides": "两端对齐",
+      "distributed_align": "分散对齐"
+    },
+    "PasteType": {
+      "all": "默认全部粘贴",
+      "value_and_format": "值和数字格式",
+      "format": "仅格式",
+      "exclude_frame": "边框除外",
+      "col_width_only": "仅列宽",
+      "formula_only": "仅公式",
+      "formula_and_format": "公式和数字格式",
+      "paste_value": "粘贴值"
+    },
+    "DeleteCellDirection": {
+      "lower_move_up": "下方单元格上移",
+      "right_move_left": "右侧单元格左移"
+    },
+    "ClearType": {
+      "content": "清除内容",
+      "style": "清除格式",
+      "all": "清除内容和格式"
+    },
+    "EnhancedInsertType": {
+      "row": "指定行号插入",
+      "column": "指定列号插入",
+      "add_rows": "在最后一行后插入",
+      "add_columns": "在最后一列后插入"
+    },
+    "RowDirectionType": {
+      "upper": "向上插入",
+      "lower": "向下插入"
+    },
+    "ColumnDirectionType": {
+      "left": "向左插入",
+      "right": "向右插入"
+    },
+    "ColumnType": {
+      "all": "所有列",
+      "one_column": "单列"
+    },
+    "RowType": {
+      "all": "所有行",
+      "one_row": "单行"
+    },
+    "ColumnOutputType": {
+      "letter": "字母列号",
+      "number": "数字列号"
+    },
+    "SearchRangeType": {
+      "all": "已编辑区域",
+      "row": "行",
+      "column": "列",
+      "area": "区域"
+    },
+    "MergeOrSplitType": {
+      "merge": "合并",
+      "split": "拆分"
+    },
+    "SheetInsertType": {
+      "first": "新表成为第一个工作表",
+      "last": "新表成为最后一个工作表",
+      "before": "新表插入到...表之前",
+      "after": "新表插入到...表之后"
+    },
+    "MoveSheetType": {
+      "move_after": "移动到目标工作表之后",
+      "move_before": "移动到目标工作表之前",
+      "move_to_first": "移动到第一个工作表",
+      "move_to_last": "移动到最后一个工作表"
+    },
+    "CopySheetLocationType": {
+      "before": "复制到当前工作表之前",
+      "after": "复制到当前工作表之后",
+      "first": "复制到第一个工作表",
+      "last": "复制到最后一个工作表"
+    },
+    "CopySheetType": {
+      "current_workbook": "当前工作簿",
+      "other_workbook": "其他工作簿"
+    },
+    "SheetRangeType": {
+      "activated": "当前激活工作表",
+      "all": "所有工作表"
+    },
+    "SearchSheetType": {
+      "all": "全部工作表",
+      "one": "单个工作表"
+    },
+    "MatchCountType": {
+      "all": "所有结果",
+      "first": "第一个结果"
+    },
+    "SearchResultType": {
+      "cell": "返回单元格位置",
+      "col_and_row": "返回列号和行号"
+    },
+    "ImageSizeType": {
+      "scale": "调整缩放比例",
+      "number": "调整高度和宽度数值",
+      "auto": "自动调整大小匹配范围"
+    },
+    "InsertFormulaDirectionType": {
+      "down": "向下插入",
+      "right": "向右插入"
+    },
+    "CreateCommentType": {
+      "position": "按照单元格位置插入",
+      "content": "按照内容搜索插入"
+    },
+    "SetType": {
+      "value": "设置值",
+      "auto": "自动调整"
+    }
+  },
+  "ExcelObj": {
+    "desc": "Excel对象",
+    "template": "Excel对象",
+    "ExcelObj.get_full_name":{
+        "funcDesc": "文件所在位置",
+        "resDesc": "字符串"
+      },
+    "ExcelObj.get_first_free_row": {
+        "funcDesc": "第一个可用行",
+        "resDesc": "整数"
+    },
+    "ExcelObj.get_row_count":{
+      "funcDesc": "可用行的总行数",
+      "resDesc": "整数"
+    }
+  }
+}

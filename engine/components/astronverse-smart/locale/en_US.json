@@ -1,0 +1,16 @@
+{
+  "Smart.run_code": {
+    "title": "Execute Code",
+    "comment": "AI-generated Python script",
+    "inputList": {
+      "smart_component": {
+        "title": "Code [Invalid, dynamically generated]"
+      }
+    },
+    "outputList": {
+      "smart_result": {
+        "title": "Return Value [Invalid, dynamically generated]"
+      }
+    }
+  }
+}

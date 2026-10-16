@@ -1,0 +1,692 @@
+{
+  "SemanticAI.choose": {
+    "title": "语义选择",
+    "comment": "根据判断说明 @{instruction} 对文本进行分类，输出所选候选或无法判断。",
+    "inputList": {
+      "instruction": {
+        "title": "判断说明",
+        "tip": "描述分类标准；无法确定时返回 abstain。"
+      },
+      "text": {
+        "title": "待判断文本",
+        "tip": "输入文本或引用网页提取的文本变量。"
+      },
+      "options": {
+        "title": "候选列表",
+        "tip": "引用 List 变量，每项为包含 id 和 label 的字典；id 必须唯一，不能使用 __abstain__。"
+      }
+    },
+    "outputList": {
+      "semantic_result": {
+        "title": "语义选择结果",
+        "subTitle": "AI生成",
+        "tip": "字典包含 status、selected_id、confidence；网络或服务错误走节点异常处理。"
+      }
+    }
+  },
+  "Agent.call_dify": {
+    "title": "调用Dify工作流",
+    "comment": "调用Dify工作流 @{app_token} ，完成您指定的任务",
+    "inputList": {
+      "user": {
+        "title": "用户名"
+      },
+      "app_token": {
+        "title": "Dify流程密钥",
+        "tip": "Dify流程密钥"
+      },
+      "app_url": {
+        "title": "Dify流程地址",
+        "tip": "Dify流程地址"
+      },
+      "file_flag": {
+        "title": "是否上传文件"
+      },
+      "variable_name": {
+        "title": "变量名"
+      },
+      "variable_value": {
+        "title": "变量值"
+      },
+      "file_path": {
+        "title": "文件路径"
+      },
+      "file_type": {
+        "title": "文件类型"
+      }
+    },
+    "outputList": {
+      "dify_result": {
+        "title": "Dify流程结果输出"
+      }
+    }
+  },
+  "Agent.call_dify_chatflow": {
+    "title": "调用Dify对话流",
+    "comment": "调用Dify对话流 @{app_token} ，完成您指定的任务",
+    "inputList": {
+      "user": {
+        "title": "用户名"
+      },
+      "app_token": {
+        "title": "Dify流程密钥",
+        "tip": "Dify流程密钥"
+      },
+      "app_url": {
+        "title": "Dify流程地址",
+        "tip": "Dify流程地址"
+      },
+      "query": {
+        "title": "用户输入",
+        "tip": "对话式的用户输入"
+      },
+      "file_flag": {
+        "title": "是否上传文件"
+      },
+      "variable_name": {
+        "title": "变量名"
+      },
+      "variable_value": {
+        "title": "变量值"
+      },
+      "file_path": {
+        "title": "文件路径"
+      },
+      "file_type": {
+        "title": "文件类型"
+      }
+    },
+    "outputList": {
+      "dify_result": {
+        "title": "Dify流程结果输出"
+      }
+    }
+  },
+  "Agent.call_xcagent": {
+    "title": "调用星辰Agent流程",
+    "comment": "调用星辰Agent流程 @{flow_id} ，完成您指定的任务",
+    "inputList": {
+      "api_key": {
+        "title": "API Key"
+      },
+      "api_secret": {
+        "title": "API Secret"
+      },
+      "flow_id": {
+        "title": "流程ID"
+      },
+      "input_value": {
+        "title": "工作流默认输入"
+      },
+      "file_flag": {
+        "title": "是否上传文件"
+      },
+      "variable_name": {
+        "title": "变量名"
+      },
+      "variable_value": {
+        "title": "变量值"
+      },
+      "file_path": {
+        "title": "文件路径"
+      }
+    },
+    "outputList": {
+      "xcagent_result": {
+        "title": "星辰Agent返回值"
+      }
+    }
+  },
+  "Agent.call_astron_agent": {
+    "title": "获取并调用星辰Agent流程",
+    "comment": "根据您的配置获取星辰Agent流程，完成您指定的任务。",
+    "inputList": {
+      "astron_workflow": {
+        "title": "星辰Agent流程配置"
+      }
+    },
+    "outputList": {
+      "astron_agent_result": {
+        "title": "星辰Agent返回值"
+      }
+    }
+  },
+  "ChatAI.chat": {
+    "title": "多轮会话",
+    "comment": "大模型将扮演角色，并进行最多 @{max_turns} 轮问答",
+    "inputList": {
+      "is_save": {
+        "title": "保存会话",
+        "tip": "是否在对话结束时保存对话"
+      },
+      "title": {
+        "title": "窗口标题",
+        "tip": "定义对话窗口标题"
+      },
+      "max_turns": {
+        "title": "最大问答次数",
+        "tip": "最大问答次数，完整的Q&A（question & answer）为一次"
+      },
+      "model": {
+        "title": "模型选择",
+        "tip": "可以选择使用的模型"
+      },
+      "custom_model": {
+        "title": "自定义模型ID"
+      }
+    },
+    "outputList": {
+      "chat_res": {
+        "title": "对话聊天记录输出",
+        "tip": "将对话聊天记录输出为变量"
+      }
+    }
+  },
+  "ChatAI.knowledge_chat": {
+    "title": "知识问答",
+    "comment": "大模型将读取位于 @{file_path} 的文件进行知识问答",
+    "inputList": {
+      "file_path": {
+        "title": "文件路径",
+        "tip": "请选择需要进行知识问答的文件路径"
+      },
+      "is_save": {
+        "title": "保存会话",
+        "tip": "是否在对话结束时保存对话"
+      },
+      "max_turns": {
+        "title": "最大问答次数",
+        "tip": "最大问答次数，完整的Q&A（question & answer）为一次"
+      }
+    },
+    "outputList": {
+      "knowledge_chat_res": {
+        "title": "对话聊天记录输出",
+        "tip": "将对话聊天记录输出为变量"
+      }
+    }
+  },
+  "ChatAI.llm_chat": {
+    "title": "AI大语言模型",
+    "comment": "大模型将根据提示词 @{prompt} 进行回答",
+    "inputList": {
+      "model_select": {
+        "title": "模型选择"
+      },
+      "file_path": {
+        "title": "文件路径"
+      },
+      "prompt": {
+        "title": "提示词"
+      }
+    },
+    "outputList": {
+      "AI_Chat_res": {
+        "title": "对话结果输出"
+      }
+    }
+  },
+  "ContractAI.get_factors": {
+    "title": "合同要素提取",
+    "comment": "提取合同 @{contract_content} 中的要素",
+    "inputList": {
+      "contract_type": {
+        "title": "输入合同方式"
+      },
+      "contract_path": {
+        "title": "合同路径"
+      },
+      "contract_content": {
+        "title": "合同文本内容",
+        "tip": "合同内容"
+      },
+      "custom_factors": {
+        "title": "要素"
+      },
+      "contract_validate": {
+        "title": "效果验证"
+      },
+      "model": {
+        "title": "模型ID"
+      }
+    },
+    "outputList": {
+      "factor_result": {
+        "title": "返回要素结果"
+      }
+    }
+  },
+  "DocumentAI.theme_expand": {
+    "title": "主题扩写",
+    "comment": "大模型将根据您给定的主题 @{theme} 和提示词 @{prompt} 进行扩写",
+    "inputList": {
+      "model_select": {
+        "title": "模型选择"
+      },
+      "prompt": {
+        "title": "提示词"
+      },
+      "theme": {
+        "title": "主题"
+      }
+    },
+    "outputList": {
+      "theme_expanded_res": {
+        "title": "主题扩展结果输出"
+      }
+    }
+  },
+  "DocumentAI.sentence_expand": {
+    "title": "段落扩写",
+    "comment": "大模型将根据您给定的段落 @{paragraph_text} 和提示词 @{prompt} 进行扩写",
+    "inputList": {
+      "model_select": {
+        "title": "模型选择"
+      },
+      "prompt": {
+        "title": "提示词"
+      },
+      "paragraph_text": {
+        "title": "段落"
+      }
+    },
+    "outputList": {
+      "sentence_expanded_res": {
+        "title": "段落扩展结果输出"
+      }
+    }
+  },
+  "DocumentAI.sentence_reduce": {
+    "title": "段落缩写",
+    "comment": "大模型将根据您给定的段落 @{paragraph_text} 和提示词 @{prompt} 进行缩写",
+    "inputList": {
+      "model_select": {
+        "title": "模型选择"
+      },
+      "prompt": {
+        "title": "提示词"
+      },
+      "paragraph_text": {
+        "title": "段落"
+      }
+    },
+    "outputList": {
+      "sentence_reduce_res": {
+        "title": "段落缩写结果输出"
+      }
+    }
+  },
+  "DocumentAI.organize_notes": {
+    "title": "自动整理笔记",
+    "comment": "自动整理笔记内容，支持文本和思维导图两种输出形式",
+    "inputList": {
+      "model_select": {
+        "title": "模型选择"
+      },
+      "prompt_text": {
+        "title": "提示词",
+        "tip": "定义文本整理风格、输出结构、重点关注内容等（≤5000字符）"
+      },
+      "prompt_mindmap": {
+        "title": "提示词",
+        "tip": "定义思维导图的整理风格、节点层级、重点关注内容等（≤5000字符）"
+      },
+      "input_mode": {
+        "title": "输入方式"
+      },
+      "document_path": {
+        "title": "文档路径",
+        "tip": "支持.doc/.docx/.ppt/.pptx/.pdf，大小≤100MB"
+      },
+      "note_content": {
+        "title": "笔记内容",
+        "tip": "输入原始笔记内容（≤100000字符）"
+      },
+      "output_type": {
+        "title": "输出类型",
+        "tip": "选择文本形式或思维导图"
+      },
+      "image_output_path": {
+        "title": "图片输出路径",
+        "tip": "思维导图图片保存路径（png格式）"
+      }
+    },
+    "outputList": {
+      "AI_text_organization_res": {
+        "title": "自动整理笔记结果",
+        "tip": "整理后的笔记内容或思维导图路径"
+      }
+    }
+  },
+  "DocumentAI.summarize_document": {
+    "title": "文档总结",
+    "comment": "根据提示词 @{prompt} 对文档内容进行智能总结",
+    "inputList": {
+      "model_select": {
+        "title": "模型选择"
+      },
+      "prompt": {
+        "title": "提示词",
+        "tip": "定义总结要求、重点关注内容等（≤5000字符）"
+      },
+      "input_mode": {
+        "title": "输入方式"
+      },
+      "document_path": {
+        "title": "文档路径",
+        "tip": "支持.doc/.docx/.ppt/.pptx/.pdf，大小≤100MB"
+      },
+      "document_content": {
+        "title": "文档内容",
+        "tip": "输入需要总结的文档内容（≤100000字符）"
+      }
+    },
+    "outputList": {
+      "document_summary_res": {
+        "title": "文档总结结果",
+        "tip": "总结后的文本内容"
+      }
+    }
+  },
+  "DocumentAI.analyze_document": {
+    "title": "文档分析",
+    "comment": "根据提示词 @{prompt} 对文档内容进行深度分析",
+    "inputList": {
+      "model_select": {
+        "title": "模型选择"
+      },
+      "prompt": {
+        "title": "提示词",
+        "tip": "定义分析维度、关注重点等（≤5000字符）"
+      },
+      "input_mode": {
+        "title": "输入方式"
+      },
+      "document_path": {
+        "title": "文档路径",
+        "tip": "支持.doc/.docx/.ppt/.pptx/.pdf，大小≤100MB"
+      },
+      "document_content": {
+        "title": "文档内容",
+        "tip": "输入需要分析的文档内容（≤100000字符）"
+      }
+    },
+    "outputList": {
+      "document_analysis_text": {
+        "title": "文档分析结果",
+        "tip": "分析后的文本内容"
+      }
+    }
+  },
+  "DocumentAI.polish_document": {
+    "title": "文档润色",
+    "comment": "根据提示词 @{prompt} 对文档内容进行润色优化",
+    "inputList": {
+      "model_select": {
+        "title": "模型选择"
+      },
+      "prompt": {
+        "title": "提示词",
+        "tip": "定义润色风格、优化方向等（≤5000字符）"
+      },
+      "input_mode": {
+        "title": "输入方式"
+      },
+      "document_path": {
+        "title": "文档路径",
+        "tip": "支持.doc/.docx/.ppt/.pptx/.pdf，大小≤100MB"
+      },
+      "document_content": {
+        "title": "文档内容",
+        "tip": "输入需要润色的文档内容（≤100000字符）"
+      }
+    },
+    "outputList": {
+      "AI_text_polishing_res": {
+        "title": "文档润色结果",
+        "tip": "润色后的文本内容"
+      }
+    }
+  },
+  "DocumentAI.format_document": {
+    "title": "AI排版",
+    "comment": "对文档进行智能结构化解析与自动排版美化",
+    "inputList": {
+      "input_mode": {
+        "title": "输入方式"
+      },
+      "document_path": {
+        "title": "文档路径",
+        "tip": "支持.doc/.docx/.txt/.json，大小≤100MB"
+      },
+      "document_content": {
+        "title": "文档内容"
+      },
+      "template_select": {
+        "title": "模板选择"
+      },
+      "save_type": {
+        "title": "保存类型"
+      },
+      "output_path": {
+        "title": "文档输出路径",
+        "tip": "选择输出文件夹路径"
+      },
+      "output_filename": {
+        "title": "文档输出文件名",
+        "tip": "输出文件名（不含扩展名）"
+      }
+    }
+  },
+  "ImageAI.generate_image": {
+    "title": "文生图",
+    "comment": "根据提示词 @{prompt} 生成高质量图像",
+    "inputList": {
+      "model_select": {
+        "title": "模型选择"
+      },
+      "prompt": {
+        "title": "提示词",
+        "tip": "定义AI的角色和回答要求。如：扮演IT专家，回答要专业严谨"
+      },
+      "negative_prompt": {
+        "title": "负向提示词",
+        "tip": "排除不希望出现的元素，如模糊、低质量、畸形等（≤5000字符）"
+      },
+      "aspect_ratio": {
+        "title": "图片比例",
+        "tip": "选择生成图像的宽高比"
+      },
+      "image_size": {
+        "title": "图片大小",
+        "tip": "选择图像分辨率"
+      },
+      "image_output_path": {
+        "title": "图片输出路径"
+      },
+      "image_filename": {
+        "title": "图片名称"
+      }
+    }
+  },
+  "ImageAI.understand_image": {
+    "title": "图像理解",
+    "comment": "对图片 @{image_path} 进行深度视觉理解与分析",
+    "inputList": {
+      "model_select": {
+        "title": "模型选择"
+      },
+      "prompt": {
+        "title": "提示词",
+        "tip": "定义AI的角色和回答要求。如：扮演IT专家，回答要专业严谨"
+      },
+      "image_path": {
+        "title": "图片路径",
+        "tip": "支持.jpg/.jpeg/.png，大小≤20MB，最多1张图片"
+      }
+    },
+    "outputList": {
+      "AI_image_analysis_res": {
+        "title": "图像理解输出结果",
+        "tip": "对图片的完整分析描述或回答"
+      }
+    }
+  },
+  "RecruitAI.generate_keywords": {
+    "title": "职位关键词生成",
+    "comment": "根据职位描述 @{job_description} 生成关键词",
+    "inputList": {
+      "job_name": {
+        "title": "职位名称"
+      },
+      "job_description": {
+        "title": "职位描述"
+      },
+      "job_website": {
+        "title": "招聘网站"
+      },
+      "model": {
+        "title": "模型ID"
+      }
+    },
+    "outputList": {
+      "recruit_keywords": {
+        "title": "职位关键词"
+      }
+    }
+  },
+  "RecruitAI.rating_resume": {
+    "title": "简历评分",
+    "comment": "根据简历 @{resume_content} 评分",
+    "inputList": {
+      "job_name": {
+        "title": "职位名称"
+      },
+      "resume_input_type": {
+        "title": "简历输入方式"
+      },
+      "resume_file_path": {
+        "title": "简历文件路径"
+      },
+      "resume_content": {
+        "title": "简历文本内容"
+      },
+      "job_description": {
+        "title": "职位描述"
+      },
+      "rating_system": {
+        "title": "岗位评分体系"
+      },
+      "rating_dimensions": {
+        "title": "岗位评分画像"
+      },
+      "model": {
+        "title": "模型ID"
+      }
+    },
+    "outputList": {
+      "recruit_rating": {
+        "title": "简历匹配结果"
+      }
+    }
+  },
+  "ChatAI.single_turn_chat": {
+    "title": "单轮会话",
+    "comment": "大模型将对你提出的问题： @{query} 进行回答。",
+    "inputList": {
+      "query": {
+        "title": "用户输入",
+        "tip": "用户输入的问题。"
+      },
+      "model": {
+        "title": "模型选择",
+        "tip": "可以选择使用的模型。"
+      },
+      "custom_model": {
+        "title": "自定义模型ID"
+      }
+    },
+    "outputList": {
+      "single_chat_res": {
+        "title": "答案输出",
+        "subTitle": "AI生成",
+        "tip": "将大模型生成的答案输出为变量。"
+      }
+    }
+  },
+  "options": {
+    "Bool": {
+      "True": "是",
+      "False": "否"
+    },
+    "DifyFileTypes": {
+      "document": "文档",
+      "image": "图像",
+      "video": "视频",
+      "audio": "音频",
+      "custom": "其他格式"
+    },
+    "LLMModelTypes": {
+      "xopdeepseekv32": "DeepSeek-V3.2",
+      "xopkimik25": "Kimi-K2.5",
+      "xopkimik2blins": "Kimi-K2-Instruct",
+      "xopqwen35397b": "Qwen-3.5-397B-A17B",
+      "xop3qwen235b": "Qwen3-235B-A22B",
+      "xop3qwen30b2507": "Qwen3-30B-A3B-Instruct-2507",
+      "xminimaxm25": "MiniMax-M2.5",
+      "xminimaxm2": "MiniMax-M2.1",
+      "xopglm5": "GLM-5",
+      "xopglmv47flash": "GLM-4.7-Flash",
+      "custom": "自定义模型"
+    },
+    "InputType": {
+      "file": "文件形式",
+      "text": "文本形式"
+    },
+    "JobWebsitesTypes": {
+      "boss": "BOSS直聘",
+      "liepin": "猎聘",
+      "zhilian": "智联招聘"
+    },
+    "RatingSystemTypes": {
+      "default": "根据岗位描述生成",
+      "custom": "自定义判断标准"
+    },
+    "OutputType": {
+      "text": "文本形式",
+      "mindmap": "思维导图"
+    },
+    "SaveType": {
+      "保存": "保存",
+      "另存为": "另存为"
+    },
+    "TemplateType": {
+      "通用公文": "通用公文",
+      "学术论文": "学术论文",
+      "合同协议": "合同协议"
+    },
+    "LLMMultiModalModelTypes": {
+      "xopqwentti20b": "Qwen-Image-2512",
+      "xskolorss2b6": "Kolors",
+      "xssdxl": "StableDiffusion-XL-Base-1"
+    },
+    "VLLMModelTypes": {
+      "xqwen2d5s32bvl": "QWEN2.5-VL-32B-Instruct",
+      "xop3qwen32bvl": "QWEN3-VL-32B-Instruct",
+      "xopdeepseekocr": "DeepSeek_OCR"
+    },
+    "AspectRatio": {
+      "1:1": "1:1",
+      "3:4": "3:4",
+      "4:3": "4:3",
+      "4:7": "4:7",
+      "7:4": "7:4",
+      "9:16": "9:16",
+      "16:9": "16:9"
+    },
+    "ImageSize": {
+      "1024p": "1024p",
+      "720p": "720p"
+    }
+  }
+}

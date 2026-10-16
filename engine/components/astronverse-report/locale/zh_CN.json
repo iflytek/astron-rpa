@@ -1,0 +1,22 @@
+{
+  "Report.print": {
+    "title": "日志打印",
+    "comment": "将变量 @{msg} 打印",
+    "inputList": {
+      "report_type": {
+        "title": "日志类型"
+      },
+      "msg": {
+        "title": "日志内容",
+        "tip": "打印日志的内容，支持字符串和变量"
+      }
+    }
+  },
+  "options": {
+    "ReportLevelType": {
+      "info": "信息",
+      "warning": "警告",
+      "error": "错误"
+    }
+  }
+}

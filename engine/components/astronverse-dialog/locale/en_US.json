@@ -1,0 +1,273 @@
+{
+  "Dialog.message_box": {
+    "title": "Message Dialog",
+    "comment": "Open a message dialog, configure the message content and title",
+    "inputList": {
+      "box_title": {
+        "title": "Dialog Title",
+        "tip": "Custom title displayed at the top of the dialog. Max 50 characters. If left empty, the default title 'Message Dialog' is used"
+      },
+      "message_type": {
+        "title": "Message Type",
+        "tip": "Select the message type"
+      },
+      "message_content": {
+        "title": "Message Content",
+        "tip": "Custom content displayed in the dialog. Max 120 characters"
+      },
+      "button_type": {
+        "title": "Display Buttons",
+        "tip": "Buttons shown to the user. Only switching is allowed; empty selection is not permitted"
+      },
+      "auto_check": {
+        "title": "Auto-Close on Inactivity"
+      },
+      "wait_time": {
+        "title": "Inactivity Timeout (seconds)",
+        "tip": "Set timeout duration. If no mouse movement is detected within this time, the default button is selected. Default is 60 seconds"
+      },
+      "default_button_c": {
+        "title": "Default Button on Timeout"
+      },
+      "default_button_cn": {
+        "title": "Default Button on Timeout"
+      },
+      "default_button_y": {
+        "title": "Default Button on Timeout"
+      },
+      "default_button_yn": {
+        "title": "Default Button on Timeout"
+      },
+      "preview_button": {
+        "title": "Preview"
+      }
+    },
+    "outputList": {
+      "result_button": {
+        "title": "Save User's Button Selection To"
+      }
+    }
+  },
+  "Dialog.input_box": {
+    "title": "Input Dialog",
+    "comment": "Open an input dialog requiring the user to enter and submit information. Returns the content entered by the user",
+    "inputList": {
+      "box_title": {
+        "title": "Dialog Title",
+        "tip": "Max 50 characters. If left empty, the default title 'Input Dialog' is used"
+      },
+      "input_type": {
+        "title": "Input Field Type"
+      },
+      "input_title": {
+        "title": "Input Field Label"
+      },
+      "default_input_text": {
+        "title": "Default Input Value",
+        "tip": "If filled, the dialog displays this as default placeholder text. Max 120 characters"
+      },
+      "default_input_pwd": {
+        "title": "Default Input Value",
+        "tip": "If filled, the dialog displays this as the default password. Password length must be between 4 and 16 characters"
+      },
+      "preview_button": {
+        "title": "Preview"
+      }
+    },
+    "outputList": {
+      "input_content": {
+        "title": "Save User Input To"
+      }
+    }
+  },
+  "Dialog.select_box": {
+    "title": "Selection Dialog",
+    "comment": "Open a selection dialog. Saves one or more options selected by the user from the list",
+    "inputList": {
+      "box_title": {
+        "title": "Dialog Title"
+      },
+      "select_type": {
+        "title": "Selection Mode"
+      },
+      "options": {
+        "title": "Options"
+      },
+      "options_title": {
+        "title": "Selection Box Label"
+      },
+      "preview_button": {
+        "title": "Preview"
+      }
+    },
+    "outputList": {
+      "select_result": {
+        "title": "Save Selection Result To"
+      }
+    }
+  },
+  "Dialog.select_time_box": {
+    "title": "Date/Time Picker",
+    "comment": "Open a date/time picker. Saves the date or time selected by the user",
+    "inputList": {
+      "box_title": {
+        "title": "Dialog Title"
+      },
+      "time_type": {
+        "title": "Time Type"
+      },
+      "time_format": {
+        "title": "Time Format"
+      },
+      "default_time": {
+        "title": "Default Time"
+      },
+      "default_time_range": {
+        "title": "Default Time"
+      },
+      "input_title": {
+        "title": "Input Field Label"
+      },
+      "preview_button": {
+        "title": "Preview"
+      }
+    },
+    "outputList": {
+      "select_time": {
+        "title": "Save Time Selection Result To"
+      }
+    }
+  },
+  "Dialog.select_file_box": {
+    "title": "File Selection Dialog",
+    "comment": "Open the system file selection dialog. Saves the file/folder path selected by the user",
+    "inputList": {
+      "box_title_file": {
+        "title": "Dialog Title"
+      },
+      "box_title_folder": {
+        "title": "Dialog Title"
+      },
+      "open_type": {
+        "title": "Open Type"
+      },
+      "file_type": {
+        "title": "File Type"
+      },
+      "multiple_choice": {
+        "title": "Allow Multiple Selection"
+      },
+      "select_title": {
+        "title": "Selection Box Label"
+      },
+      "default_path": {
+        "title": "Default Folder",
+        "tip": "When configured, the file selection dialog opens at this folder path by default"
+      },
+      "preview_button": {
+        "title": "Preview"
+      }
+    },
+    "outputList": {
+      "select_file": {
+        "title": "Save File Selection Result To",
+        "tip": "Saves the user's file selection result. Returns empty if the user clicks Cancel"
+      }
+    }
+  },
+  "Dialog.custom_box": {
+    "title": "Custom Dialog",
+    "comment": "Open a custom dialog. Users can design the dialog interface and input controls. Saves user input and button click results",
+    "inputList": {
+      "box_title": {
+        "title": "Dialog Title"
+      },
+      "design_interface": {
+        "title": "Design Dialog Interface",
+        "tip": "Click the button to open the dialog designer"
+      },
+      "auto_check": {
+        "title": "Auto-Close on Inactivity"
+      },
+      "wait_time": {
+        "title": "Inactivity Timeout (seconds)"
+      },
+      "default_button": {
+        "title": "Default Button on Timeout"
+      }
+    },
+    "outputList": {
+      "dialog_result": {
+        "title": "Custom Dialog Result",
+        "tip": "Stores the output of all form controls and the button click result"
+      }
+    }
+  },
+  "options": {
+    "MessageType": {
+      "message": "Information",
+      "warning": "Warning",
+      "question": "Question",
+      "error": "Error"
+    },
+    "ButtonType": {
+      "confirm": "OK",
+      "confirm_cancel": "OK - Cancel",
+      "yes_no": "Yes - No",
+      "yes_no_cancel": "Yes - No - Cancel"
+    },
+    "Bool": {
+      "True": "Yes",
+      "False": "No"
+    },
+    "DefaultButtonC": {
+      "confirm": "OK"
+    },
+    "DefaultButtonCN": {
+      "confirm": "OK",
+      "cancel": "Cancel"
+    },
+    "DefaultButtonY": {
+      "yes": "Yes",
+      "no": "No"
+    },
+    "DefaultButtonYN": {
+      "yes": "Yes",
+      "no": "No",
+      "cancel": "Cancel"
+    },
+    "InputType": {
+      "text": "Text Field",
+      "password": "Password Field"
+    },
+    "SelectType": {
+      "single": "Single Selection",
+      "multi": "Multiple Selection"
+    },
+    "TimeType": {
+      "time": "Single Time",
+      "time_range": "Time Range"
+    },
+    "TimeFormat": {
+      "YYYY-MM-DD": "YYYY-MM-DD",
+      "YYYY-MM-DD HH:mm": "YYYY-MM-DD HH:mm",
+      "YYYY-MM-DD HH:mm:ss": "YYYY-MM-DD HH:mm:ss",
+      "YYYY/MM/DD": "YYYY/MM/DD",
+      "YYYY/MM/DD HH:mm": "YYYY/MM/DD HH:mm",
+      "YYYY/MM/DD HH:mm:ss": "YYYY/MM/DD HH:mm:ss"
+    },
+    "OpenType": {
+      "file": "File",
+      "folder": "Folder"
+    },
+    "FileType": {
+      "*": "All Files",
+      ".xls,.xlsx": "Excel",
+      ".doc,.docx": "Word",
+      ".txt": "Text File",
+      ".png,.jpg,.jpeg,.bmp,.gif": "Image File",
+      ".ppt,.pptx": "PPT File",
+      ".zip,.rar": "Archive File"
+    }
+  }
+}

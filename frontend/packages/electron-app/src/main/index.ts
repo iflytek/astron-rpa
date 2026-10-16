@@ -3,6 +3,7 @@ import path from 'node:path'
 
 import type { W2WType } from '../types'
 
+import { isEngineStartSkipped } from './config'
 import logger from './log'
 import { envJson } from './env'
 import { listenRender } from './event'
@@ -124,6 +125,11 @@ async function ready() {
 }
 
 async function checkProcess() {
+  if (isEngineStartSkipped()) {
+    logger.info('Skipping Engine process check because Engine start is disabled')
+    return
+  }
+
   const isRunning = await checkPythonRpaProcess()
   if (isRunning) {
     logger.warn(`Another python setup is already running.`)
@@ -162,6 +168,11 @@ app.on('before-quit', async (e) => {
   if (isQuitting) return
   e.preventDefault()
   isQuitting = true
+  if (isEngineStartSkipped()) {
+    logger.info('Skipping Engine cleanup because Engine start is disabled')
+    app.exit()
+    return
+  }
   await closeSubProcess()
   app.exit()
 })

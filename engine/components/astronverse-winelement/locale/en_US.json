@@ -1,0 +1,152 @@
+{
+  "WinEle.click_element": {
+    "title": "Click Element (Desktop)",
+    "comment": "Click the picked element @{pick} using mouse @{click_button} @{click_type}",
+    "inputList": {
+      "pick": {
+        "title": "Element Pick"
+      },
+      "click_button": {
+        "title": "Click Button"
+      },
+      "click_type": {
+        "title": "Click Type"
+      },
+      "wait_time": {
+        "title": "Wait for Element"
+      },
+      "horizontals_offset": {
+        "title": "Horizontal Offset"
+      },
+      "verticals_offset": {
+        "title": "Vertical Offset"
+      },
+      "keyboard_input": {
+        "title": "Keyboard Assist Input",
+        "tip": "Press certain keyboard keys while clicking"
+      }
+    }
+  },
+  "WinEle.screenshot_element": {
+    "title": "Screenshot Element (Desktop)",
+    "comment": "Take a screenshot of the picked element @{pick} and save to folder @{file_path}",
+    "inputList": {
+      "pick": {
+        "title": "Element Pick"
+      },
+      "file_path": {
+        "title": "File Save Path"
+      },
+      "file_name": {
+        "title": "File Name"
+      },
+      "exist_type": {
+        "title": "Handle Duplicate File Name"
+      }
+    }
+  },
+  "WinEle.hover_element": {
+    "title": "Hover Mouse Over Element (Desktop)",
+    "comment": "Hover mouse over the picked element @{pick}",
+    "inputList": {
+      "pick": {
+        "title": "Element Pick"
+      },
+      "wait_time": {
+        "title": "Wait for Element"
+      }
+    }
+  },
+  "WinEle.input_text_element": {
+    "title": "Fill Input Box (Desktop)",
+    "comment": "Fill content into input box element @{pick} using @{input_type}",
+    "inputList": {
+      "pick": {
+        "title": "Element Pick"
+      },
+      "input_type": {
+        "title": "Input Type"
+      },
+      "text": {
+        "title": "Input Content"
+      },
+      "credential_text": {
+        "title": "Select Credential"
+      },
+      "clear_first": {
+        "title": "Clear Input Box First"
+      },
+      "wait_time": {
+        "title": "Wait for Element"
+      }
+    }
+  },
+  "WinEle.get_element_text": {
+    "title": "Get Element Text (Desktop)",
+    "comment": "Extract text from element @{pick} and save to @{ele_text}",
+    "inputList": {
+      "pick": {
+        "title": "Element Pick"
+      },
+      "wait_time": {
+        "title": "Wait for Element"
+      }
+    },
+    "outputList": {
+      "ele_text": {
+        "title": "Element Text"
+      }
+    }
+  },
+  "WinEle.similar": {
+    "title": "Get Similar Element List (Desktop)",
+    "comment": "Get elements similar to @{pick} and output the list to @{get_similar_ele}",
+    "inputList": {
+      "pick": {
+        "title": "Similar Element Pick",
+        "tip": "Pick two similar elements at different positions on the desktop"
+      },
+      "wait_time": {
+        "title": "Wait for Element (seconds)",
+        "tip": "Stop waiting after this time"
+      }
+    },
+    "outputList": {
+      "get_similar_ele": {
+        "title": "Element Info"
+      }
+    }
+  },
+  "options": {
+    "MouseClickButton": {
+      "left": "Left Button",
+      "right": "Right Button",
+      "middle": "Middle Button"
+    },
+    "MouseClickType": {
+      "click": "Single Click",
+      "double_click": "Double Click"
+    },
+    "MouseClickKeyboard": {
+      "none": "None",
+      "alt": "Alt Key",
+      "ctrl": "Ctrl Key",
+      "shift": "Shift Key",
+      "win": "Win Key"
+    },
+    "FileExistenceType": {
+      "overwrite": "Overwrite Existing File",
+      "rename": "Create File Copy",
+      "cancel": "Skip Save Operation"
+    },
+    "ElementInputType": {
+      "keyboard": "Keyboard Input",
+      "clipboard": "Clipboard Input",
+      "credential": "Credential Input"
+    },
+    "Bool": {
+      "True": "Yes",
+      "False": "No"
+    }
+  }
+}

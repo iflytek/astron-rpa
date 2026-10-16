@@ -1,0 +1,207 @@
+{
+  "OpenApi.id_card": {
+    "title": "ID Card Recognition",
+    "comment": "ID card recognition, input ID card image file or folder path, output recognition result object",
+    "inputList": {
+      "is_multi": {
+        "title": "Batch Processing",
+        "tip": "Select 'No' for single file processing, 'Yes' to process files in folder sequentially"
+      },
+      "src_file": {
+        "title": "Image File"
+      },
+      "src_dir": {
+        "title": "Image Folder"
+      },
+      "is_save": {
+        "title": "Output Document",
+        "tip": "Select 'No' for single file output, 'Yes' for batch; saved as Excel document by default, cannot be changed"
+      },
+      "dst_file": {
+        "title": "Document Output Path"
+      },
+      "dst_file_name": {
+        "title": "Document Output File Name",
+        "tip": "Select document output file name"
+      }
+    },
+    "outputList": {
+      "id_card": {
+        "title": "ID Card Recognition Result Object",
+        "tip": "Output ID card recognition result"
+      }
+    }
+  },
+  "OpenApi.business_license": {
+    "title": "Business License Recognition",
+    "comment": "Business license recognition, input image file or folder path, output recognition result object",
+    "inputList": {
+      "is_multi": {
+        "title": "Batch Processing",
+        "tip": "Select 'No' for single file processing, 'Yes' to process files in folder sequentially"
+      },
+      "src_file": {
+        "title": "Image File"
+      },
+      "src_dir": {
+        "title": "Image Folder"
+      },
+      "is_save": {
+        "title": "Output Document",
+        "tip": "Select 'No' for single file output, 'Yes' for batch; saved as Excel document by default, cannot be changed"
+      },
+      "dst_file": {
+        "title": "Document Output Path"
+      },
+      "dst_file_name": {
+        "title": "Document Output File Name",
+        "tip": "Select document output file name"
+      }
+    },
+    "outputList": {
+      "business_license": {
+        "title": "Business License Result Object",
+        "tip": "Output business license result object"
+      }
+    }
+  },
+  "OpenApi.vat_invoice": {
+    "title": "VAT Invoice Recognition",
+    "comment": "VAT invoice recognition, input image file or folder path, output recognition result object",
+    "inputList": {
+      "is_multi": {
+        "title": "Batch Processing",
+        "tip": "Select 'No' for single file processing, 'Yes' to process files in folder sequentially"
+      },
+      "src_file": {
+        "title": "Image File"
+      },
+      "src_dir": {
+        "title": "Image Folder"
+      },
+      "is_save": {
+        "title": "Output Document",
+        "tip": "Select 'No' for single file output, 'Yes' for batch; saved as Excel document by default, cannot be changed"
+      },
+      "dst_file": {
+        "title": "Document Output Path"
+      },
+      "dst_file_name": {
+        "title": "Document Output File Name",
+        "tip": "Select document output file name"
+      }
+    },
+    "outputList": {
+      "vat_invoice": {
+        "title": "VAT Invoice Recognition Result Object",
+        "tip": "Output VAT invoice recognition result object"
+      }
+    }
+  },
+  "OpenApi.train_ticket": {
+    "title": "Train Ticket Recognition",
+    "comment": "Train ticket recognition, input image file or folder path, output recognition result object",
+    "inputList": {
+      "is_multi": {
+        "title": "Batch Processing",
+        "tip": "Select 'No' for single file processing, 'Yes' to process files in folder sequentially"
+      },
+      "src_file": {
+        "title": "Image File"
+      },
+      "src_dir": {
+        "title": "Image Folder"
+      },
+      "is_save": {
+        "title": "Output Document",
+        "tip": "Select 'No' for single file output, 'Yes' for batch; saved as Excel document by default, cannot be changed"
+      },
+      "dst_file": {
+        "title": "Document Output Path"
+      },
+      "dst_file_name": {
+        "title": "Document Output File Name",
+        "tip": "Select document output file name"
+      }
+    },
+    "outputList": {
+      "train_ticket": {
+        "title": "Train Ticket Recognition Result Object",
+        "tip": "Train ticket recognition result object"
+      }
+    }
+  },
+  "OpenApi.taxi_ticket": {
+    "title": "Taxi Invoice Recognition",
+    "comment": "Taxi invoice recognition, input image file or folder path, output recognition result object",
+    "inputList": {
+      "is_multi": {
+        "title": "Batch Processing",
+        "tip": "Select 'No' for single file processing, 'Yes' to process files in folder sequentially"
+      },
+      "src_file": {
+        "title": "Image File"
+      },
+      "src_dir": {
+        "title": "Image Folder"
+      },
+      "is_save": {
+        "title": "Output Document",
+        "tip": "Select 'No' for single file output, 'Yes' for batch; saved as Excel document by default, cannot be changed"
+      },
+      "dst_file": {
+        "title": "Document Output Path"
+      },
+      "dst_file_name": {
+        "title": "Document Output File Name",
+        "tip": "Select document output file name"
+      }
+    },
+    "outputList": {
+      "taxi_ticket": {
+        "title": "Taxi Invoice Recognition Result Object",
+        "tip": "Taxi invoice recognition result object"
+      }
+    }
+  },
+  "OpenApi.common_ocr": {
+    "title": "General Text Recognition (OCR)",
+    "comment": "General text recognition, input image file or folder path, output recognition result object",
+    "inputList": {
+      "is_multi": {
+        "title": "Batch Processing",
+        "tip": "Select 'No' for single file processing, 'Yes' to process files in folder sequentially"
+      },
+      "src_file": {
+        "title": "Image File"
+      },
+      "src_dir": {
+        "title": "Image Folder"
+      },
+      "is_save": {
+        "title": "Output Document",
+        "tip": "Select 'No' for single file output, 'Yes' for batch; saved as Excel document by default, cannot be changed"
+      },
+      "dst_file": {
+        "title": "Document Output Path",
+        "tip": "Select document output folder"
+      },
+      "dst_file_name": {
+        "title": "Document Output File Name",
+        "tip": "Select document output file name"
+      }
+    },
+    "outputList": {
+      "common_ocr": {
+        "title": "General OCR Result Object",
+        "tip": "Output general text recognition result object"
+      }
+    }
+  },
+  "options": {
+    "Bool": {
+      "True": "Yes",
+      "False": "No"
+    }
+  }
+}

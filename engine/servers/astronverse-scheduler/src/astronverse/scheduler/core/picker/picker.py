@@ -18,6 +18,12 @@ class Picker:
     def set_start(self, start):
         self.start = start
 
+    def stop(self):
+        self.start = False
+        for process in (self.vision_picker, self.app_picker, self.highlighter):
+            if process:
+                process.kill()
+
     def init(self):
         python_executable = self.svc.config.python_core
 

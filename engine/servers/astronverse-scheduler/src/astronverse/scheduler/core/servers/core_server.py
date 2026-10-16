@@ -53,6 +53,12 @@ class RpaRouteServer(IServer):
         self.run()
         self.svc.register_server()
 
+    def close(self):
+        if self.proc:
+            self.proc.kill()
+        if self.remote_transport:
+            self.remote_transport.close()
+
 
 class RpaBrowserConnectorServer(IServer):
     def __init__(self, svc):
@@ -98,3 +104,7 @@ class RpaBrowserConnectorServer(IServer):
 
         # 再重启
         self.run()
+
+    def close(self):
+        if self.proc:
+            self.proc.kill()

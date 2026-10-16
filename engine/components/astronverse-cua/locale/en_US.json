@@ -1,0 +1,121 @@
+{
+  "ComputerUse.custom_action_screen": {
+    "title": "Custom AI Screen Operation",
+    "comment": "Use vision model to analyze the screen and execute GUI automation task: @{instruction}",
+    "inputList": {
+      "instruction": {
+        "title": "User Instruction",
+        "tip": "Describe the GUI automation task to execute, e.g. \"Open calculator and calculate 123+456\""
+      },
+      "max_steps": {
+        "title": "Max Execution Steps",
+        "tip": "Maximum number of steps for task execution, prevents infinite loops"
+      }
+    },
+    "outputList": {
+      "computer_use_res": {
+        "title": "Execution Result",
+        "tip": "A dict containing task execution status, steps, elapsed time, screenshot directory, and error info"
+      }
+    }
+  },
+  "ComputerUse.extract_data": {
+    "title": "Extract Screen Data",
+    "comment": "Use vision model to analyze the screen and extract data",
+    "inputList": {
+      "instruction": {
+        "title": "User Instruction",
+        "tip": "Describe the GUI automation task to execute, e.g. \"Extract data from the screen and return in JSON format.\""
+      },
+      "max_steps": {
+        "title": "Max Execution Steps",
+        "tip": "Maximum number of steps for task execution, prevents infinite loops"
+      }
+    },
+    "outputList": {
+      "computer_use_res": {
+        "title": "Execution Result",
+        "tip": "A dict containing task execution status, steps, elapsed time, screenshot directory, and error info"
+      }
+    }
+  },
+  "ComputerUse.fill_form": {
+    "title": "Fill Form",
+    "comment": "Use vision model to analyze the screen and fill forms on screen",
+    "inputList": {
+      "instruction": {
+        "title": "User Instruction",
+        "tip": "Describe the GUI automation task to execute, e.g. \"Fill [data content] into the form on screen. Data content:\""
+      },
+      "max_steps": {
+        "title": "Max Execution Steps",
+        "tip": "Maximum number of steps for task execution, prevents infinite loops"
+      }
+    },
+    "outputList": {
+      "computer_use_res": {
+        "title": "Execution Result",
+        "tip": "A dict containing task execution status, steps, elapsed time, screenshot directory, and error info"
+      }
+    }
+  },
+  "ComputerUse.screen_condition": {
+    "title": "IF Screen Meets Condition",
+    "comment": "Use vision model to check if current screen meets condition: @{instruction}",
+    "inputList": {
+      "instruction": {
+        "title": "Condition",
+        "tip": "Describe the screen condition to check, e.g. \"Check if Google Chrome is in the taskbar\""
+      },
+      "max_steps": {
+        "title": "Max Execution Steps",
+        "tip": "Maximum number of steps, prevents infinite loops, default 1 (single check)"
+      }
+    }
+  },
+  "ComputerUse.process_captcha": {
+    "title": "Handle CAPTCHA",
+    "comment": "Use vision model to analyze the screen and handle CAPTCHA on screen",
+    "inputList": {
+      "instruction": {
+        "title": "User Instruction",
+        "tip": "Describe the GUI automation task to execute, e.g. \"Handle and close the CAPTCHA on screen.\""
+      },
+      "max_steps": {
+        "title": "Max Execution Steps",
+        "tip": "Maximum number of steps for task execution, prevents infinite loops"
+      }
+    },
+    "outputList": {
+      "computer_use_res": {
+        "title": "Execution Result",
+        "tip": "A dict containing task execution status, steps, elapsed time, screenshot directory, and error info"
+      }
+    }
+  },
+  "ComputerUse.run": {
+    "title": "Computer Use Agent",
+    "comment": "Use a vision model to analyze the screen and execute GUI automation tasks: @{instruction}",
+    "inputList": {
+      "instruction": {
+        "title": "User Instruction",
+        "tip": "Describe the GUI automation task to execute, e.g. \"Open calculator and calculate 123+456\""
+      },
+      "max_steps": {
+        "title": "Max Execution Steps",
+        "tip": "Maximum number of steps for task execution, prevents infinite loops"
+      },
+      "temperature": {
+        "title": "Model Temperature",
+        "tip": "Controls the randomness of model generation; default is 0"
+      }
+    },
+    "outputList": {
+      "computer_use_res": {
+        "title": "Execution Result",
+        "subTitle": "AI Generated",
+        "tip": "A dict containing task execution status, steps, elapsed time, screenshot directory, and error info"
+      }
+    }
+  }
+}

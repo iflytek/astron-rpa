@@ -1,0 +1,338 @@
+{
+  "PDF.get_pages_num": {
+    "title": "Get PDF Page Count",
+    "comment": "Get the page count @{pdf_pages_num} of the PDF document at @{file_path}",
+    "inputList": {
+      "file_path": {
+        "title": "PDF File Path",
+        "tip": "Enter the PDF file path"
+      },
+      "password": {
+        "title": "PDF Password",
+        "tip": "Enter the PDF file password. Leave empty if no password"
+      }
+    },
+    "outputList": {
+      "pdf_pages_num": {
+        "title": "PDF Page Count",
+        "tip": "Returns the number of pages in the PDF document"
+      }
+    }
+  },
+  "PDF.get_pdf_text": {
+    "title": "Extract PDF Text",
+    "comment": "Extract text from PDF document at @{file_path}, return as string or list @{pdf_text}",
+    "inputList": {
+      "file_path": {
+        "title": "PDF File Path",
+        "tip": "Enter the PDF file path"
+      },
+      "password": {
+        "title": "PDF Password",
+        "tip": "Enter the PDF file password. Leave empty if no password"
+      },
+      "select_range": {
+        "title": "Page Range",
+        "tip": "Select page range: all pages or specific page range"
+      },
+      "page_range": {
+        "title": "Specific Page Range",
+        "tip": "Enter page range in format: 1-3,5,7-9,11 (pages 1 to 3, page 5, pages 7 to 9, page 11)"
+      },
+      "text_save_type": {
+        "title": "Save as File",
+        "tip": "Select whether to save extracted text as a file (Word or text format)"
+      },
+      "save_dir": {
+        "title": "Save File Path",
+        "tip": "Select the folder path to save the file"
+      },
+      "save_file_name": {
+        "title": "Save File Name",
+        "tip": "Enter the save file name. Leave empty to use the default file name"
+      },
+      "exist_handle_type": {
+        "title": "Duplicate File Name Handling",
+        "tip": "Select how to handle existing files: overwrite, create copy, or skip"
+      }
+    },
+    "outputList": {
+      "pdf_text": {
+        "title": "Extracted PDF Text",
+        "tip": "Extracted PDF text returned as a list"
+      }
+    }
+  },
+  "PDF.get_pdf_images": {
+    "title": "Extract PDF Images",
+    "comment": "Extract images from PDF document at @{file_path} and save to folder @{save_dir}",
+    "inputList": {
+      "file_path": {
+        "title": "PDF File Path"
+      },
+      "pwd": {
+        "title": "PDF Password",
+        "tip": "If the PDF file requires a password, enter it here. Otherwise leave empty"
+      },
+      "select_range": {
+        "title": "Page Range",
+        "tip": "Select page range: all pages or specific page range"
+      },
+      "page_range": {
+        "title": "Specific Page Range",
+        "tip": "Enter page range in format: 1-3,5,7-9,11 (pages 1 to 3, page 5, pages 7 to 9, page 11)"
+      },
+      "image_type": {
+        "title": "Image Format",
+        "tip": "Select image format: JPEG, PNG, etc."
+      },
+      "save_dir": {
+        "title": "Save File Path",
+        "tip": "Select the folder path to save the images"
+      },
+      "prefix": {
+        "title": "Image File Name Prefix",
+        "tip": "Enter the image file name prefix. Leave empty to use the original file name prefix"
+      },
+      "exist_handle_type": {
+        "title": "Duplicate File Name Handling",
+        "tip": "Select how to handle existing files: overwrite, create copy, or skip"
+      }
+    }
+  },
+  "PDF.merge_pdf_files": {
+    "title": "Merge PDF Files",
+    "comment": "Merge PDF files into a single PDF file and save to @{pdf_merge_file_path}",
+    "inputList": {
+      "merge_type": {
+        "title": "Merge Method",
+        "tip": "Select merge method: merge by folder or merge by file"
+      },
+      "file_folder_path": {
+        "title": "Merge Folder",
+        "tip": "All PDF files in the folder will be merged"
+      },
+      "files_path": {
+        "title": "Merge Files",
+        "tip": "All selected PDF files will be merged"
+      },
+      "save_dir": {
+        "title": "Save File Path",
+        "tip": "Select the folder path to save the merged file"
+      },
+      "new_file_name": {
+        "title": "Merged File Name",
+        "tip": "Enter the merged file name. Leave empty to use the default file name"
+      },
+      "new_pwd_flag": {
+        "title": "Set Password for New PDF",
+        "tip": "Select whether to set a password for the new PDF"
+      },
+      "new_pwd": {
+        "title": "New PDF Password",
+        "tip": "Enter the password for the new PDF file"
+      },
+      "exist_handle_type": {
+        "title": "Duplicate File Name Handling",
+        "tip": "Select how to handle existing files: overwrite, create copy, or skip"
+      }
+    },
+    "outputList": {
+      "pdf_merge_file_path": {
+        "title": "Merged PDF File Path",
+        "tip": "Path of the merged PDF file"
+      }
+    }
+  },
+  "PDF.extract_pdf_file": {
+    "title": "Extract PDF Pages",
+    "comment": "Extract specific pages from PDF document at @{file_path} and save to @{extract_file_path}",
+    "inputList": {
+      "file_path": {
+        "title": "PDF File Path",
+        "tip": "Select the PDF file path to extract from"
+      },
+      "pwd": {
+        "title": "PDF Password",
+        "tip": "If the PDF file requires a password, enter it here. Otherwise leave empty"
+      },
+      "page_range": {
+        "title": "Specific Page Range",
+        "tip": "Enter page range in format: 1-3,5,7-9,11 (pages 1 to 3, page 5, pages 7 to 9, page 11)"
+      },
+      "save_dir": {
+        "title": "Save File Path",
+        "tip": "Select the folder path to save the extracted file"
+      },
+      "new_file_name": {
+        "title": "New PDF File Name After Extraction",
+        "tip": "Enter the new file name. Leave empty to use the default file name"
+      },
+      "new_pwd_flag": {
+        "title": "Set Password for New PDF",
+        "tip": "Select whether to set a password"
+      },
+      "new_pwd": {
+        "title": "New PDF Password",
+        "tip": "Enter the password for the new PDF file"
+      },
+      "exist_handle_type": {
+        "title": "Duplicate File Name Handling",
+        "tip": "Select how to handle existing files: overwrite, create copy, or skip"
+      }
+    },
+    "outputList": {
+      "extract_file_path": {
+        "title": "Extracted PDF File Path",
+        "tip": "Path of the extracted PDF file"
+      }
+    }
+  },
+  "PDF.extract_forms_from_pdf": {
+    "title": "Extract PDF Tables to Excel",
+    "comment": "Extract tables from PDF document at @{file_path} and save to @{forms_file_path}",
+    "inputList": {
+      "file_path": {
+        "title": "PDF File Path",
+        "tip": "Select the PDF file path to extract tables from"
+      },
+      "pwd": {
+        "title": "PDF Password",
+        "tip": "If the PDF file requires a password, enter it here. Otherwise leave empty"
+      },
+      "select_range": {
+        "title": "Page Range",
+        "tip": "Select page range: all pages or specific page range"
+      },
+      "page_range": {
+        "title": "Specific Page Range",
+        "tip": "Enter page range in format: 1-3,5,7-9,11 (pages 1 to 3, page 5, pages 7 to 9, page 11)"
+      },
+      "combine_flag": {
+        "title": "Merge Multiple Tables",
+        "tip": "When tables span across pages, select whether to merge them into one table. Recommended when headers are the same"
+      },
+      "save_dir": {
+        "title": "Save File Path",
+        "tip": "Select the folder path to save the extracted file"
+      },
+      "new_file_name": {
+        "title": "Table File Name",
+        "tip": "Enter the table file name. Leave empty to use the default file name"
+      },
+      "exist_handle_type": {
+        "title": "Duplicate File Name Handling",
+        "tip": "Select how to handle existing files: overwrite, create copy, or skip"
+      }
+    },
+    "outputList": {
+      "forms_file_path": {
+        "title": "Extracted Excel Path",
+        "tip": "Path of the extracted Excel file"
+      }
+    }
+  },
+  "PDF.convert_pdf_to_img": {
+    "title": "Convert PDF Pages to Images",
+    "comment": "Convert PDF document at @{file_path} to images and save to folder @{save_dir}",
+    "inputList": {
+      "file_path": {
+        "title": "PDF File Path",
+        "tip": "Select the PDF file path to convert"
+      },
+      "pwd": {
+        "title": "PDF Password",
+        "tip": "If the PDF file requires a password, enter it here. Otherwise leave empty"
+      },
+      "image_type": {
+        "title": "Image Format",
+        "tip": "Select image format: JPEG, PNG, etc."
+      },
+      "select_range": {
+        "title": "Page Range",
+        "tip": "Select page range: all pages or specific page range"
+      },
+      "page_range": {
+        "title": "Specific Page Range",
+        "tip": "Enter page range in format: 1-3,5,7-9,11 (pages 1 to 3, page 5, pages 7 to 9, page 11)"
+      },
+      "save_dir": {
+        "title": "Save File Path",
+        "tip": "Select the folder path to save the images"
+      },
+      "prefix": {
+        "title": "Image File Name Prefix",
+        "tip": "Enter the image file name prefix. Leave empty to use the original file name prefix"
+      },
+      "exist_handle_type": {
+        "title": "Duplicate File Name Handling",
+        "tip": "Select how to handle existing files: overwrite, create copy, or skip"
+      }
+    }
+  },
+  "PDF.convert_img_to_pdf": {
+    "title": "Convert Images to PDF",
+    "comment": "Convert images at @{image_files} to a PDF file and save it in the @{save_dir} folder",
+    "inputList": {
+      "image_files": {
+        "title": "Image Files"
+      },
+      "save_dir": {
+        "title": "PDF Save Path"
+      },
+      "new_file_name": {
+        "title": "PDF File Name"
+      },
+      "layout_type": {
+        "title": "PDF Layout"
+      },
+      "new_pwd_flag": {
+        "title": "Set Password"
+      },
+      "new_pwd": {
+        "title": "Password"
+      },
+      "exist_handle_type": {
+        "title": "Duplicate File Name Handling"
+      }
+    },
+    "outputList": {
+      "pdf_file_path": {
+        "title": "PDF File Path"
+      }
+    }
+  },
+  "options": {
+    "SelectRangeType": {
+      "all": "All Pages",
+      "part": "Specific Pages"
+    },
+    "TextSaveType": {
+      "none": "Do Not Save",
+      "word": "Word File",
+      "txt": "Text File",
+      "word_and_txt": "Word File and Text File"
+    },
+    "FileExistenceType": {
+      "overwrite": "Overwrite Existing File",
+      "rename": "Create File Copy",
+      "cancel": "Skip Save Operation"
+    },
+    "PictureType": {
+      "png": "PNG",
+      "jpeg": "JPEG"
+    },
+    "MergeType": {
+      "folder": "Merge by Folder",
+      "file": "Merge by File"
+    },
+    "ImageLayoutType": {
+      "single_page": "One Image per Page",
+      "multiple_pages": "Multiple Images per Page"
+    },
+    "Bool": {
+      "True": "Yes",
+      "False": "No"
+    }
+  }
+}

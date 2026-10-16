@@ -1,0 +1,10 @@
+.idea/
+__pycache__/
+logs/
+dist/
+*.egg-info/
+build/
+secure
+resources
+meta.json
+tree.json

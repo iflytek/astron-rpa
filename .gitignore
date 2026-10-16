@@ -177,3 +177,6 @@ engine/servers/astronverse-executor/astron_extension/*
 .executions/
 .codegraph/
 .pnpm-store/
+
+# Generated component metadata
+resources/meta/*

@@ -1,0 +1,184 @@
+{
+  "CV.cv_click": {
+    "title": "点击图像",
+    "comment": "鼠标 @{btn_type} @{btn_model} 图像 @{input_data} 的 @{click_position}",
+    "inputList": {
+      "input_data": {
+        "title": "目标图像",
+        "tip": "支持从图形库中选择或拾取图像获取图像元素"
+      },
+      "btn_type": {
+        "title": "鼠标按键"
+      },
+      "btn_model": {
+        "title": "点击方式"
+      },
+      "click_position": {
+        "title": "点击位置",
+        "tip": "选择鼠标点击位置"
+      },
+      "specified_position": {
+        "title": "指定位置"
+      },
+      "horizontal_move": {
+        "title": "横向平移"
+      },
+      "vertical_move": {
+        "title": "纵向平移"
+      },
+      "move_type": {
+        "title": "鼠标移动方式"
+      },
+      "move_speed": {
+        "title": "鼠标移动速度"
+      },
+      "wait_time": {
+        "title": "等待图像出现时间(秒)",
+        "tip": "超过该时间停止等待，默认为10秒"
+      }
+    }
+  },
+  "CV.hover_image": {
+    "title": "鼠标悬停在图像上",
+    "comment": "鼠标悬停在图像@{input_data}的@{click_position}",
+    "inputList": {
+      "input_data": {
+        "title": "目标图像",
+        "tip": "支持从图形库中选择或拾取图像获取图像元素"
+      },
+      "click_position": {
+        "title": "悬停位置"
+      },
+      "specified_position": {
+        "title": "指定位置",
+        "tip": "按照九宫格切割图像，支持选择九宫格任意一个区域，选择区域则悬停在目标图像对应区域的中心点位置"
+      },
+      "horizontal_move": {
+        "title": "横向平移"
+      },
+      "vertical_move": {
+        "title": "纵向平移"
+      },
+      "move_type": {
+        "title": "鼠标移动方式"
+      },
+      "move_speed": {
+        "title": "鼠标移动速度"
+      },
+      "wait_time": {
+        "title": "等待图像出现时间(秒)",
+        "tip": "超过该时间停止等待，默认为10秒"
+      }
+    }
+  },
+  "CV.is_image_exist": {
+    "title": "IF图像存在",
+    "comment": "判断图像@{input_data}在当前界面@{exist_type}",
+    "inputList": {
+      "input_data": {
+        "title": "目标图像",
+        "tip": "支持从图形库中选择或拾取图像获取图像元素"
+      },
+      "exist_type": {
+        "title": "判断类型",
+        "tip": "判断图像存在或不存在，分别执行对应代码块内容"
+      },
+      "wait_time": {
+        "title": "等待图像时间(秒)",
+        "tip": "超过该时间停止等待，默认为10秒"
+      }
+    }
+  },
+  "CV.wait_image": {
+    "title": "等待图像",
+    "comment": "等待图像 @{input_data} @{wait_type}",
+    "inputList": {
+      "input_data": {
+        "title": "目标图像",
+        "tip": "支持从图形库中选择或拾取图像获取图像元素"
+      },
+      "wait_type": {
+        "title": "等待类型",
+        "tip": "等待图像出现或消失"
+      },
+      "wait_time": {
+        "title": "等待时间(秒)",
+        "tip": "超过该时间停止等待，默认为10秒"
+      }
+    },
+    "outputList": {
+      "image_wait_result": {
+        "title": "等待结果",
+        "tip": "目标图像是否出现/消失，在等待时间内出现/消失为true，反之为false"
+      }
+    }
+  },
+  "CV.image_input": {
+    "title": "图像输入框输入",
+    "comment": "拾取图像输入框@{input_data}以@{input_type}输入@{input_content}",
+    "inputList": {
+      "input_data": {
+        "title": "目标图像",
+        "tip": "支持从图形库中选择或拾取图像获取图像元素"
+      },
+      "input_type": {
+        "title": "输入方式"
+      },
+      "input_content": {
+        "title": "输入内容"
+      },
+      "simulate_flag": {
+        "title": "模拟人工输入"
+      },
+      "interval": {
+        "title": "输入间隔"
+      },
+      "wait_time": {
+        "title": "等待图像出现时间(秒)",
+        "tip": "超过该时间停止等待，默认为10秒"
+      }
+    }
+  },
+  "options": {
+    "BtnType": {
+      "left": "左键",
+      "middle": "中键",
+      "right": "右键"
+    },
+    "BtnModel": {
+      "click": "单击",
+      "double_click": "双击"
+    },
+    "PositionType": {
+      "center": "中心点",
+      "random": "随机位置",
+      "specific": "指定位置"
+    },
+    "MoveType": {
+      "linear": "匀速直线",
+      "simulation": "模拟人工",
+      "teleportation": "瞬时移动"
+    },
+    "Speed": {
+      "slow": "慢速",
+      "normal": "正常",
+      "fast": "快速"
+    },
+    "ExistType": {
+      "exist": "存在",
+      "not_exist": "不存在"
+    },
+    "WaitType": {
+      "appear": "图像出现",
+      "disappear": "图像消失"
+    },
+    "InputType": {
+      "text": "字符输入",
+      "clip": "剪切板输入"
+    },
+    "Simulate_flag": {
+      "yes": "是",
+      "no": "否"
+    }
+  }
+}

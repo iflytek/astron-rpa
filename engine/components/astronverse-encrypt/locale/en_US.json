@@ -1,0 +1,153 @@
+{
+  "Encrypt.md5_encrypt": {
+    "title": "MD5 Encryption",
+    "comment": "Encrypt string @{source_str} using MD5",
+    "inputList": {
+      "source_str": {
+        "title": "String to Encrypt"
+      },
+      "md5_method": {
+        "title": "Bit Length"
+      },
+      "case_method": {
+        "title": "Case Selection"
+      }
+    },
+    "outputList": {
+      "md5_encrypted_result": {
+        "title": "MD5 Encryption Result"
+      }
+    }
+  },
+  "Encrypt.sha_encrypt": {
+    "title": "SHA Encryption",
+    "comment": "Encrypt string @{source_str} using SHA",
+    "inputList": {
+      "source_str": {
+        "title": "String to Encrypt"
+      },
+      "sha_method": {
+        "title": "SHA Method"
+      },
+      "case_method": {
+        "title": "Case Selection"
+      }
+    },
+    "outputList": {
+      "sha_encrypted_result": {
+        "title": "SHA Encryption Result"
+      }
+    }
+  },
+  "Encrypt.symmetric_encrypt": {
+    "title": "Symmetric Encryption",
+    "comment": "Encrypt string @{source_str} using symmetric encryption",
+    "inputList": {
+      "source_str": {
+        "title": "String to Encrypt"
+      },
+      "password": {
+        "title": "Encryption Key"
+      }
+    },
+    "outputList": {
+      "symmetric_encrypted_result": {
+        "title": "Symmetric Encryption Result"
+      }
+    }
+  },
+  "Encrypt.symmetric_decrypt": {
+    "title": "Symmetric Decryption",
+    "comment": "Decrypt string @{source_str} using symmetric decryption",
+    "inputList": {
+      "source_str": {
+        "title": "String to Decrypt"
+      },
+      "password": {
+        "title": "Decryption Key"
+      }
+    },
+    "outputList": {
+      "symmetric_decrypted_result": {
+        "title": "Symmetric Decryption Result"
+      }
+    }
+  },
+  "Encrypt.base64_encoding": {
+    "title": "Base64 Encoding",
+    "comment": "Read string or image file and encode to Base64 string, return encoded string @{encoded_string}",
+    "inputList": {
+      "encode_type": {
+        "title": "Encoding Type"
+      },
+      "string_data": {
+        "title": "String Data"
+      },
+      "file_path": {
+        "title": "File Path"
+      }
+    },
+    "outputList": {
+      "encoded_string": {
+        "title": "Encoded String"
+      }
+    }
+  },
+  "Encrypt.base64_decoding": {
+    "title": "Base64 Decoding",
+    "comment": "Read Base64 string @{string_data} and decode to string or image file",
+    "inputList": {
+      "decode_type": {
+        "title": "Decoding Type"
+      },
+      "string_data": {
+        "title": "Base64 String"
+      },
+      "file_path": {
+        "title": "Image Save Folder"
+      },
+      "file_name": {
+        "title": "Image File Name"
+      },
+      "exist_handle_type": {
+        "title": "Handle Duplicate File Name",
+        "tip": "Select how to handle existing files: overwrite, create copy, or skip"
+      }
+    },
+    "outputList": {
+      "decoded_string": {
+        "title": "Decoded String / Image Absolute Path"
+      }
+    }
+  },
+  "options": {
+    "MD5bitsType": {
+      "32": "32-bit",
+      "16": "16-bit"
+    },
+    "EncryptCaseType": {
+      "lower": "Lowercase",
+      "upper": "Uppercase"
+    },
+    "SHAType": {
+      "sha1": "sha1",
+      "sha224": "sha224",
+      "sha256": "sha256",
+      "sha384": "sha384",
+      "sha512": "sha512",
+      "sha3_224": "sha3_224",
+      "sha3_256": "sha3_256",
+      "sha3_384": "sha3_384",
+      "sha3_512": "sha3_512"
+    },
+    "Base64CodeType": {
+      "string": "String",
+      "picture": "Image"
+    },
+    "FileExistenceType": {
+      "overwrite": "Overwrite Existing File",
+      "rename": "Create File Copy",
+      "cancel": "Skip Save Operation"
+    }
+  }
+}

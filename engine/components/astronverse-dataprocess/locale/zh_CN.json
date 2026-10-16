@@ -1,0 +1,1060 @@
+{
+  "DataProcess.set_variable_value": {
+    "title": "设置变量值",
+    "comment": "赋值 @{value} 给变量 @{variable_var}",
+    "inputList": {
+      "value": {
+        "title": "变量值",
+        "tip": "输入需要设置的变量值"
+      },
+      "variable_type": {
+        "title": "变量类型",
+        "tip": "选择需要设置的变量类型"
+      }
+    },
+    "outputList": {
+      "variable_var": {
+        "title": "设置后的变量值"
+      }
+    }
+  },
+  "DataConvertProcess.json_convertor": {
+    "title": "JSON字符串互转",
+    "comment": "将输入文本 @{input_data} 从JSON格式转换为字符串或从字符串格式转换为JSON格式，返回转换后的文本 @{json_convert_data}",
+    "inputList": {
+      "input_data": {
+        "title": "输入内容"
+      },
+      "convert_type": {
+        "title": "转换类型"
+      }
+    },
+    "outputList": {
+      "json_convert_data": {
+        "title": "转换结果"
+      }
+    }
+  },
+  "DataConvertProcess.other_to_str": {
+    "title": "其他格式转文本",
+    "comment": "将输入内容 @{input_data}（如数字、列表、字典等）转换为字符串格式，返回转换后的结果 @{other_convert_str}",
+    "inputList": {
+      "input_data": {
+        "title": "输入内容"
+      }
+    },
+    "outputList": {
+      "other_convert_str": {
+        "title": "转换结果",
+        "tip": "返回转换为字符串的结果"
+      }
+    }
+  },
+  "DataConvertProcess.str_to_other": {
+    "title": "文本转其他格式",
+    "comment": "将输入文本（字符串） @{input_data} 转换为其他格式，返回转换后的结果 @{str_convert_other}",
+    "inputList": {
+      "input_data": {
+        "title": "输入内容"
+      },
+      "convert_type": {
+        "title": "转换类型"
+      }
+    },
+    "outputList": {
+      "str_convert_other": {
+        "title": "转换结果"
+      }
+    }
+  },
+  "DictProcess.create_new_dict": {
+    "title": "创建新字典",
+    "comment": "创建一个字典，返回创建的字典 @{created_new_dict_data}",
+    "inputList": {
+      "dict_data": {
+        "title": "字典数据"
+      }
+    },
+    "outputList": {
+      "created_new_dict_data": {
+        "title": "新创建的字典"
+      }
+    }
+  },
+  "DictProcess.set_value_to_dict": {
+    "title": "字典设置值",
+    "comment": "设置字典 @{dict_data} 的键为 @{dict_key} ，值为 @{value} ，返回设置后的字典 @{inserted_dict_data}",
+    "inputList": {
+      "dict_data": {
+        "title": "字典数据"
+      },
+      "dict_key": {
+        "title": "键（key）"
+      },
+      "value": {
+        "title": "值（value）"
+      }
+    },
+    "outputList": {
+      "inserted_dict_data": {
+        "title": "设置后的字典"
+      }
+    }
+  },
+  "DictProcess.delete_value_from_dict": {
+    "title": "字典删除值",
+    "comment": "从字典 @{dict_data} 中删除键为 @{dict_key} 的值，返回删除后的字典 @{deleted_dict_data}",
+    "inputList": {
+      "dict_data": {
+        "title": "字典数据"
+      },
+      "dict_key": {
+        "title": "键（key）"
+      }
+    },
+    "outputList": {
+      "deleted_dict_data": {
+        "title": "删除后的字典"
+      }
+    }
+  },
+  "DictProcess.get_value_from_dict": {
+    "title": "字典获取值",
+    "comment": "获取字典 @{dict_data} 的键为 @{dict_key} 的值 @{get_dict_value}",
+    "inputList": {
+      "dict_data": {
+        "title": "字典数据"
+      },
+      "dict_key": {
+        "title": "键（key）"
+      },
+      "fail_option": {
+        "title": "键不存在时处理方式",
+        "tip": "键不存在时是否抛出异常或返回默认值"
+      },
+      "default_value": {
+        "title": "默认值"
+      }
+    },
+    "outputList": {
+      "get_dict_value": {
+        "title": "字典值"
+      }
+    }
+  },
+  "DictProcess.get_keys_from_dict": {
+    "title": "获取字典所有键",
+    "comment": "获取字典 @{dict_data} 的所有键 @{get_dict_keys}",
+    "inputList": {
+      "dict_data": {
+        "title": "字典数据"
+      }
+    },
+    "outputList": {
+      "get_dict_keys": {
+        "title": "键列表"
+      }
+    }
+  },
+  "DictProcess.get_values_from_dict": {
+    "title": "获取字典所有值",
+    "comment": "获取字典 @{dict_data} 的所有值 @{get_dict_values}",
+    "inputList": {
+      "dict_data": {
+        "title": "字典数据"
+      }
+    },
+    "outputList": {
+      "get_dict_values": {
+        "title": "值列表"
+      }
+    }
+  },
+  "ListProcess.create_new_list": {
+    "title": "创建新列表",
+    "comment": "创建一个 @{list_type} 类型的列表，返回创建的列表 @{created_list_data}",
+    "inputList": {
+      "list_type": {
+        "title": "列表类型",
+        "tip": "请选择要创建的列表类型"
+      },
+      "size": {
+        "title": "列表长度",
+        "tip": "请输入要创建的列表长度"
+      },
+      "value": {
+        "title": "列表初始值",
+        "tip": "请输入列表的初始值"
+      },
+      "custom_list": {
+        "title": "自定义列表",
+        "tip": "自定义列表内容，多个元素用逗号分隔"
+      }
+    },
+    "outputList": {
+      "created_list_data": {
+        "title": "创建的列表",
+        "tip": "返回新创建的列表"
+      }
+    }
+  },
+  "ListProcess.clear_list": {
+    "title": "清空列表",
+    "comment": "清空列表 @{list_data} ，返回清空后的列表 @{cleared_list_data}",
+    "inputList": {
+      "list_data": {
+        "title": "列表数据"
+      }
+    },
+    "outputList": {
+      "cleared_list_data": {
+        "title": "清空后的列表"
+      }
+    }
+  },
+  "ListProcess.insert_value_to_list": {
+    "title": "列表插入值",
+    "comment": "将值 @{value} 插入到列表 @{list_data} 的 @{insert_method} 位置 @{index} ，返回插入后的列表 @{inserted_list_data}",
+    "inputList": {
+      "list_data": {
+        "title": "列表数据"
+      },
+      "value": {
+        "title": "插入值"
+      },
+      "insert_method": {
+        "title": "插入方式",
+        "tip": "请选择插入方式，如追加或指定位置插入"
+      },
+      "index": {
+        "title": "插入位置"
+      }
+    },
+    "outputList": {
+      "inserted_list_data": {
+        "title": "插入后的列表",
+        "tip": "返回插入值后的新列表"
+      }
+    }
+  },
+  "ListProcess.change_value_in_list": {
+    "title": "列表修改值",
+    "comment": "将列表 @{list_data} 的 @{index} 位置的值修改为 @{new_value} ，返回修改后的列表 @{changed_list_data}",
+    "inputList": {
+      "list_data": {
+        "title": "列表数据"
+      },
+      "index": {
+        "title": "位置索引",
+        "tip": "填写需要修改值的位置索引，从0开始，修改第一个值索引为0，修改第二个值索引为1，以此类推"
+      },
+      "new_value": {
+        "title": "新值"
+      }
+    },
+    "outputList": {
+      "changed_list_data": {
+        "title": "修改后的列表"
+      }
+    }
+  },
+  "ListProcess.get_list_position": {
+    "title": "获取值在列表位置",
+    "comment": "获取值 @{value} 在列表 @{list_data} 的位置 @{get_list_position}",
+    "inputList": {
+      "list_data": {
+        "title": "列表数据"
+      },
+      "value": {
+        "title": "值"
+      }
+    },
+    "outputList": {
+      "get_list_position": {
+        "title": "位置索引"
+      }
+    }
+  },
+  "ListProcess.remove_value_from_list": {
+    "title": "列表删除值",
+    "comment": "以 @{del_mode} 方式，从列表 @{list_data} 删除指定的值 @{del_value} 或位置 @{del_pos} 的元素，返回删除后的列表 @{removed_list_data}",
+    "inputList": {
+      "list_data": {
+        "title": "列表数据"
+      },
+      "del_mode": {
+        "title": "删除方式",
+        "tip": "请选择删除方式，如按值删除或按索引删除"
+      },
+      "del_value": {
+        "title": "删除值"
+      },
+      "del_pos": {
+        "title": "删除位置",
+        "tip": "可指定单个或多个位置数据，多个位置索引之间用逗号隔开，如：1,3,5"
+      }
+    },
+    "outputList": {
+      "removed_list_data": {
+        "title": "删除后的列表",
+        "tip": "返回删除元素后的新列表"
+      }
+    }
+  },
+  "ListProcess.sort_list": {
+    "title": "列表排序",
+    "comment": "对列表 @{list_data} 进行 @{sort_method} 排序，返回排序后的列表 @{sorted_list_data}",
+    "inputList": {
+      "list_data": {
+        "title": "列表数据"
+      },
+      "sort_method": {
+        "title": "排序方式"
+      }
+    },
+    "outputList": {
+      "sorted_list_data": {
+        "title": "排序后的列表"
+      }
+    }
+  },
+  "ListProcess.random_shuffle_list": {
+    "title": "列表随机打乱顺序",
+    "comment": "对列表 @{list_data} 进行随机打乱顺序，返回打乱顺序后的列表 @{shuffled_list_data}",
+    "inputList": {
+      "list_data": {
+        "title": "列表数据"
+      }
+    },
+    "outputList": {
+      "shuffled_list_data": {
+        "title": "打乱顺序后的列表"
+      }
+    }
+  },
+  "ListProcess.filter_elements_from_list": {
+    "title": "剔除列表中的多项",
+    "comment": "从列表 @{list_data_1} 中剔除列表 @{list_data_2} 中的元素，返回剔除后的列表 @{filter_list_data}",
+    "inputList": {
+      "list_data_1": {
+        "title": "待处理列表",
+        "tip": "填写需要处理的列表"
+      },
+      "list_data_2": {
+        "title": "剔除元素列表",
+        "tip": "填写需要剔除的元素列表，如果待处理列表中有剔除元素列表中的元素，则剔除"
+      }
+    },
+    "outputList": {
+      "filter_list_data": {
+        "title": "剔除后的列表",
+        "tip": "返回剔除后的列表"
+      }
+    }
+  },
+  "ListProcess.reverse_list": {
+    "title": "列表反转",
+    "comment": "将列表 @{list_data} 反转，返回反转后的列表 @{reversed_list_data}",
+    "inputList": {
+      "list_data": {
+        "title": "列表数据"
+      }
+    },
+    "outputList": {
+      "reversed_list_data": {
+        "title": "反转后的列表"
+      }
+    }
+  },
+  "ListProcess.merge_list": {
+    "title": "列表合并",
+    "comment": "将列表 @{list_data_1} 和列表 @{list_data_2} 合并为一个列表 @{merged_list_data}",
+    "inputList": {
+      "list_data_1": {
+        "title": "第一个列表"
+      },
+      "list_data_2": {
+        "title": "第二个列表"
+      }
+    },
+    "outputList": {
+      "merged_list_data": {
+        "title": "合并后的列表"
+      }
+    }
+  },
+  "ListProcess.get_unique_list": {
+    "title": "列表去重",
+    "comment": "将列表 @{list_data} 去重，返回去重后的列表 @{unique_list_data}",
+    "inputList": {
+      "list_data": {
+        "title": "列表数据"
+      }
+    },
+    "outputList": {
+      "unique_list_data": {
+        "title": "去重后的列表"
+      }
+    }
+  },
+  "ListProcess.get_common_elements_from_list": {
+    "title": "获取两个列表的重复项",
+    "comment": "获取列表 @{list_data_1} 和列表 @{list_data_2} 的重复项，返回重复项列表 @{common_list_data}",
+    "inputList": {
+      "list_data_1": {
+        "title": "第一个列表"
+      },
+      "list_data_2": {
+        "title": "第二个列表"
+      }
+    },
+    "outputList": {
+      "common_list_data": {
+        "title": "重复项列表"
+      }
+    }
+  },
+  "ListProcess.get_value_from_list": {
+    "title": "根据索引获取列表值",
+    "comment": "根据索引 @{index} 获取列表 @{list_data} 的值 @{get_list_value}",
+    "inputList": {
+      "list_data": {
+        "title": "列表数据"
+      },
+      "index": {
+        "title": "索引"
+      }
+    },
+    "outputList": {
+      "get_list_value": {
+        "title": "值"
+      }
+    }
+  },
+  "ListProcess.get_length_of_list": {
+    "title": "获取列表长度",
+    "comment": "获取列表 @{list_data} 的长度 @{get_list_length}",
+    "inputList": {
+      "list_data": {
+        "title": "列表数据"
+      }
+    },
+    "outputList": {
+      "get_list_length": {
+        "title": "长度"
+      }
+    }
+  },
+  "MathProcess.generate_random_number": {
+    "title": "生成随机数",
+    "comment": "生成 @{number_type} 类型 @{size} 个随机数，范围为 @{start} 到 @{end} ，返回生成的随机数 @{generated_random_numbers}",
+    "inputList": {
+      "number_type": {
+        "title": "随机数类型"
+      },
+      "size": {
+        "title": "随机数个数"
+      },
+      "start": {
+        "title": "开始范围"
+      },
+      "end": {
+        "title": "结束范围"
+      }
+    },
+    "outputList": {
+      "generated_random_numbers": {
+        "title": "生成的随机数"
+      }
+    }
+  },
+  "MathProcess.get_rounding_number": {
+    "title": "四舍五入",
+    "comment": "将数字 @{number} 四舍五入 @{precision} 位，返回四舍五入后的数字 @{rounding_number}",
+    "inputList": {
+      "number": {
+        "title": "原有数据"
+      },
+      "precision": {
+        "title": "精度",
+        "tip": "可填写小数位数，如填写2，则四舍五入到小数点后2位；也支持填写负数和0，如填写-2，则四舍五入到小数点前2位"
+      }
+    },
+    "outputList": {
+      "rounding_number": {
+        "title": "四舍五入后的数字"
+      }
+    }
+  },
+  "MathProcess.self_calculation_number": {
+    "title": "自增自减",
+    "comment": "对数字 @{number} 自增或自减 @{add_sub_number} ，返回计算后的结果 @{self_calculation_number}",
+    "inputList": {
+      "number": {
+        "title": "原数据"
+      },
+      "add_sub": {
+        "title": "自增/自减",
+        "tip": "选择是自增还是自减"
+      },
+      "add_sub_number": {
+        "title": "自增或自减的数字"
+      }
+    },
+    "outputList": {
+      "self_calculation_number": {
+        "title": "自增自减后的结果"
+      }
+    }
+  },
+  "MathProcess.get_absolute_number": {
+    "title": "获取绝对值",
+    "comment": "获取数字 @{raw_number} 的绝对值 @{absolute_number}",
+    "inputList": {
+      "raw_number": {
+        "title": "原数据"
+      }
+    },
+    "outputList": {
+      "absolute_number": {
+        "title": "原数据绝对值"
+      }
+    }
+  },
+  "MathProcess.calculate_expression": {
+    "title": "数学计算",
+    "comment": "进行基本的数学计算 @{left}  @{operator}  @{right} ，返回计算结果 @{calculation_number}",
+    "inputList": {
+      "left": {
+        "title": "运算符左侧值"
+      },
+      "operator": {
+        "title": "运算符"
+      },
+      "right": {
+        "title": "运算符右侧值"
+      },
+      "handle_method": {
+        "title": "返回值处理方式"
+      },
+      "precision": {
+        "title": "四舍五入保留位数"
+      }
+    },
+    "outputList": {
+      "calculation_number": {
+        "title": "计算结果"
+      }
+    }
+  },
+  "StringProcess.extract_content_from_string": {
+    "title": "文本提取内容",
+    "comment": "从文本 @{text} 中提取 @{extract_type} 类型的内容",
+    "inputList": {
+      "text": {
+        "title": "原文本",
+        "tip": "输入需要提取内容的文本"
+      },
+      "extract_type": {
+        "title": "提取类型",
+        "tip": "选择需要提取的类型"
+      },
+      "regex_formula": {
+        "title": "正则表达式",
+        "tip": "输入正则表达式，例如[\\u4e00-\\u9fff]用于提取中文，\\d用于提取数字，[a-zA-Z]用于提取英文等"
+      },
+      "first_flag": {
+        "title": "仅提取第一项匹配内容",
+        "tip": "是否仅提取第一项匹配内容"
+      }
+    },
+    "outputList": {
+      "extract_from_string": {
+        "title": "提取内容",
+        "tip": "返回提取的内容"
+      }
+    }
+  },
+  "StringProcess.replace_content_in_string": {
+    "title": "文本替换内容",
+    "comment": "将文本 @{text} 中的 @{replace_type} 类型内容替换为 @{new_value}",
+    "inputList": {
+      "text": {
+        "title": "原文本",
+        "tip": "输入需要替换内容的文本"
+      },
+      "replace_type": {
+        "title": "替换类型",
+        "tip": "选择需要替换的类型"
+      },
+      "replaced_string": {
+        "title": "需要替换的字符串",
+        "tip": "输入需要替换的字符串"
+      },
+      "regex_formula": {
+        "title": "用正则表达式替换",
+        "tip": "输入正则表达式用于替换内容"
+      },
+      "new_value": {
+        "title": "替换为",
+        "tip": "输入新值"
+      },
+      "first_flag": {
+        "title": "仅替换第一项匹配内容",
+        "tip": "是否仅替换第一项匹配内容"
+      },
+      "ignore_case_flag": {
+        "title": "忽略大小写",
+        "tip": "是否忽略大小写"
+      }
+    },
+    "outputList": {
+      "replaced_content_string": {
+        "title": "替换后的文本",
+        "tip": "返回替换后的文本"
+      }
+    }
+  },
+  "StringProcess.merge_list_to_string": {
+    "title": "列表聚合为文本",
+    "comment": "将列表 @{list_data} 中的内容聚合为文本 @{merged_string_from_list}",
+    "inputList": {
+      "list_data": {
+        "title": "列表数据",
+        "tip": "输入需要聚合的列表数据"
+      },
+      "separator": {
+        "title": "分隔符",
+        "tip": "输入分隔符"
+      }
+    },
+    "outputList": {
+      "merged_string_from_list": {
+        "title": "聚合后的文本",
+        "tip": "返回聚合后的文本"
+      }
+    }
+  },
+  "StringProcess.split_string_to_list": {
+    "title": "文本分割为列表",
+    "comment": "将文本 @{string_data} 按 @{separator} 分割为列表 @{split_list_from_string}",
+    "inputList": {
+      "string_data": {
+        "title": "文本数据",
+        "tip": "输入需要分割的文本数据"
+      },
+      "separator": {
+        "title": "分隔符",
+        "tip": "输入分隔符"
+      }
+    },
+    "outputList": {
+      "split_list_from_string": {
+        "title": "分割后的列表",
+        "tip": "返回分割后的列表"
+      }
+    }
+  },
+  "StringProcess.concatenate_string": {
+    "title": "文本合并",
+    "comment": "将 @{string_data_1} 和 @{string_data_2} 合并为 @{concat_string}",
+    "inputList": {
+      "string_data_1": {
+        "title": "第一个文本",
+        "tip": "输入需要合并的第一个文本"
+      },
+      "string_data_2": {
+        "title": "第二个文本",
+        "tip": "输入需要合并的第二个文本"
+      },
+      "concat_type": {
+        "title": "合并类型",
+        "tip": "选择需要合并的类型，可以自定义分隔符"
+      },
+      "separator": {
+        "title": "分隔符",
+        "tip": "输入分隔符"
+      }
+    },
+    "outputList": {
+      "concat_string": {
+        "title": "合并后的文本",
+        "tip": "返回合并后的文本"
+      }
+    }
+  },
+  "StringProcess.fill_string_to_length": {
+    "title": "文本补齐至固定长度",
+    "comment": "将文本 @{string_data} 补齐至 @{total_length} 长度，补齐方式为 @{fill_type}",
+    "inputList": {
+      "string_data": {
+        "title": "文本数据",
+        "tip": "输入需要补齐的文本数据"
+      },
+      "add_str": {
+        "title": "补齐字符"
+      },
+      "total_length": {
+        "title": "总长度",
+        "tip": "输入需要补齐的总长度"
+      },
+      "fill_type": {
+        "title": "补齐方式",
+        "tip": "选择补齐方式，可以选择左补齐、右补齐"
+      }
+    },
+    "outputList": {
+      "complete_string": {
+        "title": "补齐后的文本"
+      }
+    }
+  },
+  "StringProcess.strip_string": {
+    "title": "文本去除两侧空格",
+    "comment": "将文本 @{string_data} 两侧的空格去除 @{stripped_string}",
+    "inputList": {
+      "string_data": {
+        "title": "文本数据"
+      },
+      "strip_method": {
+        "title": "去除方式"
+      }
+    },
+    "outputList": {
+      "stripped_string": {
+        "title": "去除两侧空格后的文本"
+      }
+    }
+  },
+  "StringProcess.cut_string_to_length": {
+    "title": "截取固定长度文本",
+    "comment": "将文本 @{string_data} 截取 @{length} 长度，截取方式为 @{cut_type} ，返回截取后的文本 @{cut_string}",
+    "inputList": {
+      "string_data": {
+        "title": "截取文本"
+      },
+      "length": {
+        "title": "截取长度"
+      },
+      "cut_type": {
+        "title": "截取类型"
+      },
+      "index": {
+        "title": "从第几个字符开始截取"
+      },
+      "find_str": {
+        "title": "需要检索的字符串"
+      }
+    },
+    "outputList": {
+      "cut_string": {
+        "title": "截取后的文本"
+      }
+    }
+  },
+  "StringProcess.change_case_of_string": {
+    "title": "更改文本大小写",
+    "comment": "将文本 @{string_data} 的大小写更改为 @{case_type} ，返回更改后的文本 @{change_case_string}",
+    "inputList": {
+      "string_data": {
+        "title": "文本数据"
+      },
+      "case_type": {
+        "title": "大小写类型"
+      }
+    },
+    "outputList": {
+      "change_case_string": {
+        "title": "更改后的文本"
+      }
+    }
+  },
+  "StringProcess.get_string_length": {
+    "title": "获取文本长度",
+    "comment": "获取文本 @{string_data} 的长度 @{string_length}",
+    "inputList": {
+      "string_data": {
+        "title": "文本数据"
+      }
+    },
+    "outputList": {
+      "string_length": {
+        "title": "文本长度"
+      }
+    }
+  },
+  "TimeProcess.get_current_time": {
+    "title": "获取当前时间",
+    "comment": "获取当前时间，格式为 @{time_format}，返回当前时间对象 @{current_time}",
+    "inputList": {
+      "time_format": {
+        "title": "时间格式"
+      }
+    },
+    "outputList": {
+      "current_time": {
+        "title": "当前时间对象",
+        "tip": "返回值为时间对象，可通过快捷函数或转化原子能力输出字符串形式"
+      }
+    }
+  },
+  "TimeProcess.set_time": {
+    "title": "设置时间",
+    "comment": "设置时间 @{time}，设置方式为 @{change_type}，返回设置后的时间对象 @{set_time}",
+    "inputList": {
+      "time": {
+        "title": "时间对象"
+      },
+      "change_type": {
+        "title": "日期调整方式"
+      },
+      "seconds": {
+        "title": "秒"
+      },
+      "minutes": {
+        "title": "分"
+      },
+      "hours": {
+        "title": "时"
+      },
+      "days": {
+        "title": "天"
+      },
+      "months": {
+        "title": "月"
+      },
+      "years": {
+        "title": "年"
+      }
+    },
+    "outputList": {
+      "set_time": {
+        "title": "设置时间对象"
+      }
+    }
+  },
+  "TimeProcess.time_to_timestamp": {
+    "title": "时间对象转时间戳",
+    "comment": "将时间对象 @{time} 转换为 @{timestamp_unit} 精度的时间戳，返回转换后的时间戳 @{converted_timestamp}",
+    "inputList": {
+      "time": {
+        "title": "时间对象"
+      },
+      "timestamp_unit": {
+        "title": "时间戳精度"
+      }
+    },
+    "outputList": {
+      "converted_timestamp": {
+        "title": "时间戳"
+      }
+    }
+  },
+  "TimeProcess.timestamp_to_time": {
+    "title": "时间戳转时间对象",
+    "comment": "将时间戳 @{timestamp} 转换为时间对象 @{converted_time}",
+    "inputList": {
+      "timestamp": {
+        "title": "时间戳"
+      },
+      "time_zone": {
+        "title": "选择时区"
+      }
+    },
+    "outputList": {
+      "converted_time": {
+        "title": "时间对象"
+      }
+    }
+  },
+  "TimeProcess.get_time_difference": {
+    "title": "获取时间差",
+    "comment": "获取 @{time_1} 和 @{time_2} 之间的时间差，单位为 @{time_unit}，返回时间差 @{time_difference}",
+    "inputList": {
+      "time_1": {
+        "title": "时间对象1"
+      },
+      "time_2": {
+        "title": "时间对象2"
+      },
+      "time_unit": {
+        "title": "时间单位"
+      }
+    },
+    "outputList": {
+      "time_difference": {
+        "title": "时间差"
+      }
+    }
+  },
+  "TimeProcess.format_datetime": {
+    "title": "输出指定格式时间文本",
+    "comment": "将时间对象 @{time} 按照指定格式 @{format_type} 输出文本 @{format_datetime}",
+    "inputList": {
+      "time": {
+        "title": "时间对象"
+      },
+      "format_type": {
+        "title": "时间格式"
+      }
+    },
+    "outputList": {
+      "format_datetime": {
+        "title": "时间文本"
+      }
+    }
+  },
+  "options": {
+    "VariableType": {
+      "str": "字符串",
+      "int": "整数",
+      "float": "浮点数",
+      "bool": "布尔值",
+      "list": "列表",
+      "dict": "字典",
+      "json": "JSON",
+      "tuple": "元组",
+      "other": "其他"
+    },
+    "JSONConvertType": {
+      "json_to_str": "JSON转字符串",
+      "str_to_json": "字符串转JSON"
+    },
+    "StringConvertType": {
+      "str_to_list": "字符串转列表",
+      "str_to_dict": "字符串转字典",
+      "str_to_tuple": "字符串转元组",
+      "str_to_bool": "字符串转布尔值",
+      "str_to_int": "字符串转整数",
+      "str_to_float": "字符串转浮点数"
+    },
+    "NoKeyOptionType": {
+      "raise_error": "抛出异常",
+      "return_default": "返回默认值"
+    },
+    "ListType": {
+      "empty": "空列表",
+      "same_data": "相同元素列表",
+      "user_defined": "用户自定义列表"
+    },
+    "InsertMethodType": {
+      "append": "追加",
+      "index": "指定位置插入"
+    },
+    "DeleteMethodType": {
+      "index": "指定位置删除",
+      "value": "指定值删除"
+    },
+    "SortMethodType": {
+      "asc": "升序",
+      "desc": "降序"
+    },
+    "NumberType": {
+      "integer": "整数",
+      "float": "浮点数"
+    },
+    "AddSubType": {
+      "add": "加",
+      "sub": "减"
+    },
+    "MathOperatorType": {
+      "+": "加",
+      "-": "减",
+      "*": "乘",
+      "/": "除"
+    },
+    "MathRoundType": {
+      "round": "四舍五入",
+      "ceil": "向上取整",
+      "floor": "向下取整",
+      "none": "不做操作"
+    },
+    "ExtractType": {
+      "phone_number": "中国大陆手机号码",
+      "email": "邮箱地址",
+      "url": "网址",
+      "digit": "数字",
+      "id_number": "中国大陆身份证号码",
+      "regex": "正则表达式"
+    },
+    "Bool": {
+      "True": "是",
+      "False": "否"
+    },
+    "ReplaceType": {
+      "string": "字符串",
+      "phone_number": "中国大陆手机号码",
+      "email": "邮箱地址",
+      "url": "网址",
+      "digit": "数字",
+      "id_number": "中国大陆身份证号码",
+      "regex": "正则表达式"
+    },
+    "ConcatStringType": {
+      "none": "不使用分隔符",
+      "linebreak": "换行符",
+      "space": "空格（ ）",
+      "hyphen": "连字符（-）",
+      "underline": "下划线（_）",
+      "other": "自定义"
+    },
+    "FillStringType": {
+      "right": "右补齐",
+      "left": "左补齐"
+    },
+    "StripStringType": {
+      "left": "左侧",
+      "right": "右侧",
+      "both": "两侧"
+    },
+    "CutStringType": {
+      "first": "从第一个字符开始截取",
+      "index": "从指定位置开始截取",
+      "string": "从指定字符串开始截取"
+    },
+    "CaseChangeType": {
+      "upper": "全部大写",
+      "lower": "全部小写",
+      "caps": "首字母大写"
+    },
+    "TimeFormatType": {
+      "%Y-%m-%d": "年-月-日",
+      "%Y-%m-%d %H:%M:%S": "年-月-日 时:分:秒",
+      "%Y-%m-%d %H:%M": "年-月-日 时:分",
+      "%Y/%m/%d": "年/月/日",
+      "%Y/%m/%d %H:%M": "年/月/日 时:分",
+      "%Y/%m/%d %H:%M:%S": "年/月/日 时:分:秒",
+      "%Y%m%d": "年月日",
+      "%H:%M": "时:分",
+      "%H:%M:%S": "时:分:秒",
+      "%w": "一周的第几天",
+      "%j": "一年的第几天",
+      "%W": "一年的第几周",
+      "%Y年%m月%d日": "XXXX年XX月XX日",
+      "%Y年%m月%d日 %H:%M": "XXXX年XX月XX日 XX:XX",
+      "%Y年%m月%d日 %H:%M:%S": "XXXX年XX月XX日 XX:XX:XX"
+    },
+    "TimeChangeType": {
+      "maintain": "保持不变",
+      "add": "增加时间",
+      "sub": "减少时间"
+    },
+    "TimestampUnitType": {
+      "second": "秒",
+      "millisecond": "毫秒",
+      "microsecond": "微秒"
+    },
+    "TimeZoneType": {
+      "UTC": "UTC标准时间",
+      "local": "本地时间"
+    },
+    "TimeUnitType": {
+      "second": "秒",
+      "minute": "分",
+      "hour": "时",
+      "day": "天",
+      "month": "月",
+      "year": "年"
+    }
+  }
+}

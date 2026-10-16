@@ -27,6 +27,27 @@ else:
 
 PDFCore: IPDFCore = PDFCore()
 
+_IMAGE_FILE_SUFFIXES = {".png", ".jpg", ".jpeg", ".bmp", ".gif"}
+
+
+def _resolve_image_files(image_files):
+    """Normalize image inputs and expand directory paths into image files."""
+    image_files = _handle_files_input(image_files)
+    resolved_files = []
+
+    for image_file in image_files:
+        if isinstance(image_file, str) and os.path.isdir(image_file):
+            directory_files = [
+                entry.path
+                for entry in os.scandir(image_file)
+                if entry.is_file() and os.path.splitext(entry.name)[1].lower() in _IMAGE_FILE_SUFFIXES
+            ]
+            resolved_files.extend(sorted(directory_files, key=str.casefold))
+        else:
+            resolved_files.append(image_file)
+
+    return resolved_files
+
 
 # file_type : "file", "folder", "files"
 
@@ -576,8 +597,8 @@ class PDF:
         if not new_pwd_flag:
             new_pwd = ""
 
-        # 处理image_files参数（可能是字符串或列表）
-        image_files = _handle_files_input(image_files)
+        # 处理 image_files 参数，并支持直接传入图片目录。
+        image_files = _resolve_image_files(image_files)
 
         pdf_file_path = PDFCore.images_to_pdf(
             image_files, save_dir, new_file_name, layout_type, new_pwd, exist_handle_type

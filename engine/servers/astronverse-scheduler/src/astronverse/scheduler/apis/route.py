@@ -1,5 +1,6 @@
-from astronverse.scheduler.apis.connector import credential, datatable, executor, picker, terminal, tools, ws
+from astronverse.scheduler.apis import meta
 from astronverse.scheduler.apis.access_control import local_access_guard
+from astronverse.scheduler.apis.connector import credential, datatable, executor, picker, terminal, tools, ws
 from astronverse.scheduler.core.lsp.routes import router as lsp_router
 from astronverse.scheduler.core.svc import get_svc
 from fastapi import Depends, FastAPI
@@ -64,5 +65,13 @@ def handler(app: FastAPI):
         credential.router,
         prefix="/credential",
         tags=["credential"],
+        dependencies=[Depends(get_svc)],
+    )
+
+    # 绑定 meta
+    app.include_router(
+        meta.router,
+        prefix="/meta",
+        tags=["meta"],
         dependencies=[Depends(get_svc)],
     )

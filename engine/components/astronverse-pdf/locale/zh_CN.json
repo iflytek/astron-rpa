@@ -1,0 +1,338 @@
+{
+  "PDF.get_pages_num": {
+    "title": "获取PDF文档页数",
+    "comment": "获取路径为 @{file_path} 的PDF文档页数 @{pdf_pages_num}",
+    "inputList": {
+      "file_path": {
+        "title": "PDF文件路径",
+        "tip": "输入PDF文件路径"
+      },
+      "password": {
+        "title": "PDF文件密码",
+        "tip": "输入PDF文件密码，如果没有密码则留空"
+      }
+    },
+    "outputList": {
+      "pdf_pages_num": {
+        "title": "PDF文档页数",
+        "tip": "返回PDF文档页数"
+      }
+    }
+  },
+  "PDF.get_pdf_text": {
+    "title": "提取PDF文档文本",
+    "comment": "提取路径为 @{file_path} 的PDF文档文本，返回为字符串或列表 @{pdf_text}",
+    "inputList": {
+      "file_path": {
+        "title": "PDF文件路径",
+        "tip": "输入PDF文件路径"
+      },
+      "password": {
+        "title": "PDF文件密码",
+        "tip": "输入PDF文件密码，如果没有密码则留空"
+      },
+      "select_range": {
+        "title": "选择范围",
+        "tip": "选择范围，支持全部页面和指定页面范围"
+      },
+      "page_range": {
+        "title": "指定页面范围",
+        "tip": "输入页面范围，格式为1-3,5,7-9,11，表示从1到3页，5页，7到9页，11页"
+      },
+      "text_save_type": {
+        "title": "是否保存为文件",
+        "tip": "选择是否保存提取的文本为文件，可保存为Word或文本文件格式"
+      },
+      "save_dir": {
+        "title": "保存文件路径",
+        "tip": "选择保存文件的文件夹路径"
+      },
+      "save_file_name": {
+        "title": "保存文件名",
+        "tip": "输入保存文件名，不输入则使用默认文件名"
+      },
+      "exist_handle_type": {
+        "title": "存在同名文件处理方式",
+        "tip": "选择存在文件处理方式，支持覆盖原有文件、创建文件副本、跳过保存操作"
+      }
+    },
+    "outputList": {
+      "pdf_text": {
+        "title": "提取的PDF文档文本",
+        "tip": "提取的PDF文档文本，以列表形式存储返回"
+      }
+    }
+  },
+  "PDF.get_pdf_images": {
+    "title": "提取PDF文档图片",
+    "comment": "提取路径为 @{file_path} 的PDF文档图片，并保存到 @{save_dir} 文件夹",
+    "inputList": {
+      "file_path": {
+        "title": "PDF文件路径"
+      },
+      "pwd": {
+        "title": "PDF文件密码",
+        "tip": "如果PDF文件需要密码，请输入密码，否则留空"
+      },
+      "select_range": {
+        "title": "选择范围",
+        "tip": "选择范围，支持全部页面和指定页面范围"
+      },
+      "page_range": {
+        "title": "指定页面范围",
+        "tip": "输入页面范围，格式为1-3,5,7-9,11，表示从1到3页，5页，7到9页，11页"
+      },
+      "image_type": {
+        "title": "图片格式",
+        "tip": "选择图片格式，支持JPEG、PNG等格式"
+      },
+      "save_dir": {
+        "title": "保存文件路径",
+        "tip": "选择保存文件的文件夹路径"
+      },
+      "prefix": {
+        "title": "图片文件名前缀",
+        "tip": "输入图片文件名前缀，不输入则使用原文件名前缀"
+      },
+      "exist_handle_type": {
+        "title": "存在同名文件处理方式",
+        "tip": "选择存在文件处理方式，支持覆盖原有文件、创建文件副本、跳过保存操作"
+      }
+    }
+  },
+  "PDF.merge_pdf_files": {
+    "title": "合并PDF文件",
+    "comment": "合并PDF文件为一个PDF文件，并保存到 @{pdf_merge_file_path} 路径",
+    "inputList": {
+      "merge_type": {
+        "title": "合并方式",
+        "tip": "选择合并方式，支持按文件夹合并或按文件合并"
+      },
+      "file_folder_path": {
+        "title": "合并文件夹",
+        "tip": "将会合并文件夹中所有的PDF文件"
+      },
+      "files_path": {
+        "title": "合并文件",
+        "tip": "将会合并所选的所有PDF文件"
+      },
+      "save_dir": {
+        "title": "保存文件路径",
+        "tip": "选择保存文件的文件夹路径"
+      },
+      "new_file_name": {
+        "title": "合并文件名",
+        "tip": "输入合并文件名，不输入则使用默认文件名"
+      },
+      "new_pwd_flag": {
+        "title": "是否给新PDF文件设置密码",
+        "tip": "选择是否设置密码"
+      },
+      "new_pwd": {
+        "title": "新PDF文件密码",
+        "tip": "输入新PDF文件密码"
+      },
+      "exist_handle_type": {
+        "title": "存在同名文件处理方式",
+        "tip": "选择存在文件处理方式，支持覆盖原有文件、创建文件副本、跳过保存操作"
+      }
+    },
+    "outputList": {
+      "pdf_merge_file_path": {
+        "title": "合并后的PDF文件路径",
+        "tip": "合并后的PDF文件路径"
+      }
+    }
+  },
+  "PDF.extract_pdf_file": {
+    "title": "抽取PDF指定页",
+    "comment": "抽取路径为 @{file_path} 的PDF文档指定页，并保存到 @{extract_file_path} 文件夹",
+    "inputList": {
+      "file_path": {
+        "title": "PDF文件路径",
+        "tip": "选择需要抽取的PDF文件路径"
+      },
+      "pwd": {
+        "title": "PDF文件密码",
+        "tip": "如果PDF文件需要密码，请输入密码，否则留空"
+      },
+      "page_range": {
+        "title": "指定页面范围",
+        "tip": "输入页面范围，格式为1-3,5,7-9,11，表示从1到3页，5页，7到9页，11页"
+      },
+      "save_dir": {
+        "title": "保存文件路径",
+        "tip": "选择保存文件的文件夹路径"
+      },
+      "new_file_name": {
+        "title": "抽取后新PDF文件名",
+        "tip": "输入新文件名，不输入则使用默认文件名"
+      },
+      "new_pwd_flag": {
+        "title": "是否给新PDF文件设置密码",
+        "tip": "选择是否设置密码"
+      },
+      "new_pwd": {
+        "title": "新PDF文件密码",
+        "tip": "输入新PDF文件密码"
+      },
+      "exist_handle_type": {
+        "title": "存在同名文件处理方式",
+        "tip": "选择存在文件处理方式，支持覆盖原有文件、创建文件副本、跳过保存操作"
+      }
+    },
+    "outputList": {
+      "extract_file_path": {
+        "title": "提取后的PDF文件路径",
+        "tip": "提取后的PDF文件路径"
+      }
+    }
+  },
+  "PDF.extract_forms_from_pdf": {
+    "title": "提取PDF表格到Excel",
+    "comment": "提取路径为 @{file_path} 的PDF文档中的表格，并保存到 @{forms_file_path} 文件夹",
+    "inputList": {
+      "file_path": {
+        "title": "PDF文件路径",
+        "tip": "选择需要提取表格的PDF文件路径"
+      },
+      "pwd": {
+        "title": "PDF文件密码",
+        "tip": "如果PDF文件需要密码，请输入密码，否则留空"
+      },
+      "select_range": {
+        "title": "选择范围",
+        "tip": "选择范围，支持全部页面和指定页面范围"
+      },
+      "page_range": {
+        "title": "指定页面范围",
+        "tip": "输入页面范围，格式为1-3,5,7-9,11，表示从1到3页，5页，7到9页，11页"
+      },
+      "combine_flag": {
+        "title": "是否需要合并多个表格",
+        "tip": "当出现跨页的表格时，可以选择是否合并成一个表格，建议表头相同时选择合并"
+      },
+      "save_dir": {
+        "title": "保存文件路径",
+        "tip": "选择保存文件的文件夹路径"
+      },
+      "new_file_name": {
+        "title": "表格文件名",
+        "tip": "输入表格文件名，不输入则使用默认文件名"
+      },
+      "exist_handle_type": {
+        "title": "存在同名文件处理方式",
+        "tip": "选择存在文件处理方式，支持覆盖原有文件、创建文件副本、跳过保存操作"
+      }
+    },
+    "outputList": {
+      "forms_file_path": {
+        "title": "提取后的Excel路径",
+        "tip": "提取后的Excel路径"
+      }
+    }
+  },
+  "PDF.convert_pdf_to_img": {
+    "title": "PDF页面转图片",
+    "comment": "转换路径为 @{file_path} 的PDF文档为图片，并保存到 @{save_dir} 文件夹",
+    "inputList": {
+      "file_path": {
+        "title": "PDF文件路径",
+        "tip": "选择需要转换的PDF文件路径"
+      },
+      "pwd": {
+        "title": "PDF文件密码",
+        "tip": "如果PDF文件需要密码，请输入密码，否则留空"
+      },
+      "image_type": {
+        "title": "图片格式",
+        "tip": "选择图片格式，支持JPEG、PNG等格式"
+      },
+      "select_range": {
+        "title": "选择范围",
+        "tip": "选择范围，支持全部页面和指定页面范围"
+      },
+      "page_range": {
+        "title": "指定页面范围",
+        "tip": "输入页面范围，格式为1-3,5,7-9,11，表示从1到3页，5页，7到9页，11页"
+      },
+      "save_dir": {
+        "title": "保存文件路径",
+        "tip": "选择保存文件的文件夹路径"
+      },
+      "prefix": {
+        "title": "图片文件名前缀",
+        "tip": "输入图片文件名前缀，不输入则使用原文件名前缀"
+      },
+      "exist_handle_type": {
+        "title": "存在同名文件处理方式",
+        "tip": "选择存在文件处理方式，支持覆盖原有文件、创建文件副本、跳过保存操作"
+      }
+    }
+  },
+  "PDF.convert_img_to_pdf": {
+    "title": "图片转PDF页面",
+    "comment": "转换路径为 @{image_files} 的图片为PDF文件，并保存到 @{save_dir} 文件夹",
+    "inputList": {
+      "image_files": {
+        "title": "图片文件"
+      },
+      "save_dir": {
+        "title": "保存PDF文件路径"
+      },
+      "new_file_name": {
+        "title": "PDF文件名"
+      },
+      "layout_type": {
+        "title": "PDF文件布局"
+      },
+      "new_pwd_flag": {
+        "title": "是否设置密码"
+      },
+      "new_pwd": {
+        "title": "密码"
+      },
+      "exist_handle_type": {
+        "title": "存在同名文件处理方式"
+      }
+    },
+    "outputList": {
+      "pdf_file_path": {
+        "title": "PDF文件路径"
+      }
+    }
+  },
+  "options": {
+    "SelectRangeType": {
+      "all": "所有页面",
+      "part": "指定页面"
+    },
+    "TextSaveType": {
+      "none": "不保存",
+      "word": "Word文件",
+      "txt": "文本文件",
+      "word_and_txt": "Word文件和文本文件"
+    },
+    "FileExistenceType": {
+      "overwrite": "覆盖原有文件",
+      "rename": "创建文件副本",
+      "cancel": "跳过保存操作"
+    },
+    "PictureType": {
+      "png": "PNG",
+      "jpeg": "JPEG"
+    },
+    "MergeType": {
+      "folder": "按文件夹合并",
+      "file": "按文件合并"
+    },
+    "ImageLayoutType": {
+      "single_page": "一页一张图片",
+      "multiple_pages": "一页多张图片"
+    },
+    "Bool": {
+      "True": "是",
+      "False": "否"
+    }
+  }
+}

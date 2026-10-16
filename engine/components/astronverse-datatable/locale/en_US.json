@@ -1,0 +1,587 @@
+{
+  "DataTable.read_data": {
+    "title": "Read Data Table",
+    "comment": "Read data from data table @{read_type}, output to variable @{cell_info||row_info||column_info||area_info}",
+    "inputList": {
+      "read_type": {
+        "title": "Read Method",
+        "tip": "Select how to read data"
+      },
+      "row": {
+        "title": "Row Number",
+        "tip": "Specify the row number to read (e.g. 1, 2, 3...)"
+      },
+      "col": {
+        "title": "Column Number",
+        "tip": "Specify the column number to read (e.g. A, B, C, AB...)"
+      },
+      "start_row": {
+        "title": "Start Row",
+        "tip": "Specify the start row number (e.g. 1, 2, 3...)"
+      },
+      "start_col": {
+        "title": "Start Column",
+        "tip": "Specify the start column number (e.g. A, B, C, AB...)"
+      },
+      "end_row": {
+        "title": "End Row",
+        "tip": "End row must be >= start row; 0 or empty reads the used area"
+      },
+      "end_col": {
+        "title": "End Column",
+        "tip": "End column must be >= start column; empty reads the used area"
+      },
+      "is_trim_spaces": {
+        "title": "Trim Spaces",
+        "tip": "Whether to trim leading/trailing spaces from strings when reading"
+      },
+      "is_replace_none": {
+        "title": "Replace Empty Values",
+        "tip": "Whether to replace None with empty string when reading"
+      }
+    },
+    "outputList": {
+      "cell_info": {
+        "title": "Cell Data",
+        "tip": "Returns data from the specified cell as a string"
+      },
+      "row_info": {
+        "title": "Row Data",
+        "tip": "Returns data from the specified row as an array"
+      },
+      "column_info": {
+        "title": "Column Data",
+        "tip": "Returns data from the specified column as an array"
+      },
+      "area_info": {
+        "title": "Area Data",
+        "tip": "Returns data from the specified area as a 2D array"
+      }
+    }
+  },
+  "DataTable.write_data": {
+    "title": "Write to Data Table",
+    "comment": "Write data to data table @{write_type}",
+    "inputList": {
+      "write_type": {
+        "title": "Write Method",
+        "tip": "Select how to write data"
+      },
+      "row": {
+        "title": "Row Number",
+        "tip": "Specify the row number to write (e.g. 1, 2, 3...)"
+      },
+      "col": {
+        "title": "Column Number",
+        "tip": "Specify the column number to write (e.g. A, B, C, AB...)"
+      },
+      "data": {
+        "title": "Data to Write",
+        "tip": "Data content to write. Cell requires string, row/column requires array, area requires 2D array"
+      },
+      "start_row": {
+        "title": "Start Row",
+        "tip": "Specify the start row number (e.g. 1, 2, 3...)"
+      },
+      "start_col": {
+        "title": "Start Column",
+        "tip": "Specify the start column number (e.g. A, B, C, AB...)"
+      },
+      "write_mode": {
+        "title": "Write Mode",
+        "tip": "Select write mode (overwrite, insert, append)"
+      },
+      "cell_insert_shift": {
+        "title": "Cell Insert Shift",
+        "tip": "How to shift cells when inserting (shift down, shift right)"
+      },
+      "row_insert_shift": {
+        "title": "Row Insert Position",
+        "tip": "Where to insert rows (insert above, insert below)"
+      },
+      "column_insert_shift": {
+        "title": "Column Insert Position",
+        "tip": "Where to insert columns (insert left, insert right)"
+      },
+      "append_position": {
+        "title": "Append Method",
+        "tip": "Select how to append data (row append, column append)"
+      }
+    }
+  },
+  "DataTable.get_max_row": {
+    "title": "Get Used Rows in Data Table",
+    "comment": "Get the maximum used row number in the data table and output to @{max_row}",
+    "outputList": {
+      "max_row": {
+        "title": "Maximum Row Number",
+        "tip": "Returns the maximum row number in the data table as an integer"
+      }
+    }
+  },
+  "DataTable.get_max_column": {
+    "title": "Get Used Columns in Data Table",
+    "comment": "Get the maximum used column number in the data table and output to @{max_column}",
+    "outputList": {
+      "max_column": {
+        "title": "Maximum Column Number",
+        "tip": "Returns the maximum column number in the data table as an integer"
+      }
+    }
+  },
+  "DataTable.copy_data": {
+    "title": "Copy Data Table",
+    "comment": "Copy @{copy_type} data from the data table to clipboard",
+    "inputList": {
+      "copy_type": {
+        "title": "Copy Method",
+        "tip": "Select how to copy data (cell, row, column, area)"
+      },
+      "row": {
+        "title": "Row Number",
+        "tip": "Specify the row number to copy (e.g. 1, 2, 3...)"
+      },
+      "col": {
+        "title": "Column Number",
+        "tip": "Specify the column number to copy (e.g. A, B, C, AB...)"
+      },
+      "start_row": {
+        "title": "Start Row",
+        "tip": "Specify the start row number (e.g. 1, 2, 3...)"
+      },
+      "start_col": {
+        "title": "Start Column",
+        "tip": "Specify the start column number (e.g. A, B, C, AB...)"
+      },
+      "end_row": {
+        "title": "End Row",
+        "tip": "End row must be >= start row; 0 or empty copies the used area"
+      },
+      "end_col": {
+        "title": "End Column",
+        "tip": "End column must be >= start column; empty copies the used area"
+      }
+    },
+    "outputList": {
+      "copied_cell": {
+        "title": "Copied Cell",
+        "tip": "Returns the copied cell data as a string"
+      },
+      "copied_row": {
+        "title": "Copied Row",
+        "tip": "Returns the copied row data as an array"
+      },
+      "copied_column": {
+        "title": "Copied Column",
+        "tip": "Returns the copied column data as an array"
+      },
+      "copied_area": {
+        "title": "Copied Area",
+        "tip": "Returns the copied area data as a 2D array"
+      }
+    }
+  },
+  "DataTable.paste_data": {
+    "title": "Paste Data Table",
+    "comment": "Paste data from clipboard to data table @{paste_type}",
+    "inputList": {
+      "paste_type": {
+        "title": "Paste Method",
+        "tip": "Select how to paste data (cell, row, column, area)"
+      },
+      "row": {
+        "title": "Row Number",
+        "tip": "Specify the row number to paste to (e.g. 1, 2, 3...)"
+      },
+      "col": {
+        "title": "Column Number",
+        "tip": "Specify the column number to paste to (e.g. A, B, C, AB...)"
+      },
+      "start_row": {
+        "title": "Start Row",
+        "tip": "Specify the start row number (e.g. 1, 2, 3...)"
+      },
+      "start_col": {
+        "title": "Start Column",
+        "tip": "Specify the start column number (e.g. A, B, C, AB...)"
+      }
+    }
+  },
+  "DataTable.delete_data": {
+    "title": "Delete Data Table",
+    "comment": "Delete data from data table @{delete_type}",
+    "inputList": {
+      "delete_type": {
+        "title": "Delete Method",
+        "tip": "Select how to delete data (cell, row, column, area)"
+      },
+      "row": {
+        "title": "Row Number",
+        "tip": "Specify the row number to delete (e.g. 1, 2, 3...)"
+      },
+      "col": {
+        "title": "Column Number",
+        "tip": "Specify the column number to delete (e.g. A, B, C, AB...)"
+      },
+      "start_row": {
+        "title": "Start Row",
+        "tip": "Specify the start row number (e.g. 1, 2, 3...)"
+      },
+      "start_col": {
+        "title": "Start Column",
+        "tip": "Specify the start column number (e.g. A, B, C, AB...)"
+      },
+      "end_row": {
+        "title": "End Row",
+        "tip": "End row must be >= start row; 0 or empty deletes the used area"
+      },
+      "end_col": {
+        "title": "End Column",
+        "tip": "End column must be >= start column; empty deletes the used area"
+      },
+      "delete_cell_move": {
+        "title": "Cell Shift After Deletion",
+        "tip": "How to shift cells after deletion (shift left, shift up)"
+      },
+      "delete_col_move": {
+        "title": "Shift Left After Column Deletion",
+        "tip": "Movement direction after deleting a column (shift left)"
+      },
+      "delete_row_move": {
+        "title": "Shift Up After Row Deletion",
+        "tip": "Movement direction after deleting a row (shift up)"
+      }
+    }
+  },
+  "DataTable.loop_data_table": {
+    "title": "Loop Data Table",
+    "comment": "Loop through @{loop_type} in the data table, output index to @{index}, output value to @{value}",
+    "inputList": {
+      "loop_type": {
+        "title": "Loop Type",
+        "tip": "Select how to loop (row, column, area)"
+      },
+      "row": {
+        "title": "Row Number",
+        "tip": "Specify the row number to loop"
+      },
+      "col": {
+        "title": "Column Number",
+        "tip": "Specify the column number to loop"
+      },
+      "start_row": {
+        "title": "Start Row",
+        "tip": "Specify the start row of the loop area"
+      },
+      "start_col": {
+        "title": "Start Column",
+        "tip": "Specify the start column of the loop area"
+      },
+      "end_row": {
+        "title": "End Row",
+        "tip": "Specify the end row of the loop area"
+      },
+      "end_col": {
+        "title": "End Column",
+        "tip": "Specify the end column of the loop area"
+      }
+    },
+    "outputList": {
+      "index": {
+        "title": "Current Index",
+        "tip": "Returns the index of the current iteration"
+      },
+      "value": {
+        "title": "Current Value",
+        "tip": "Returns the value of the current iteration"
+      }
+    }
+  },
+  "DataTable.insert_row_column": {
+    "title": "Insert Row/Column in Data Table",
+    "comment": "Insert @{amount} blank @{insert_type}(s) into the data table",
+    "inputList": {
+      "insert_type": {
+        "title": "Insert Type",
+        "tip": "Select whether to insert rows or columns"
+      },
+      "row": {
+        "title": "Row Number",
+        "tip": "Specify the row number at the insert position"
+      },
+      "col": {
+        "title": "Column Number",
+        "tip": "Specify the column number at the insert position"
+      },
+      "amount": {
+        "title": "Insert Count",
+        "tip": "Number of rows/columns to insert"
+      },
+      "row_insert_shift": {
+        "title": "Row Insert Position",
+        "tip": "Where to insert rows (insert above, insert below)"
+      },
+      "column_insert_shift": {
+        "title": "Column Insert Position",
+        "tip": "Where to insert columns (insert left, insert right)"
+      }
+    }
+  },
+  "DataTable.insert_formula": {
+    "title": "Insert Formula in Data Table",
+    "comment": "Insert formula @{formula} into data table cell @{col}@{row}",
+    "inputList": {
+      "row": {
+        "title": "Row Number",
+        "tip": "Specify the row number for the formula"
+      },
+      "col": {
+        "title": "Column Number",
+        "tip": "Specify the column number for the formula"
+      },
+      "formula": {
+        "title": "Formula",
+        "tip": "Formula to insert, e.g. \"=SUM(A1:A5)\". Supports math, statistics, logic, text, date, and lookup formulas"
+      }
+    }
+  },
+  "DataTable.set_column_title": {
+    "title": "Set Column Info in Data Table",
+    "comment": "Set info @{title} for column @{col} in the data table",
+    "inputList": {
+      "col": {
+        "title": "Column Number",
+        "tip": "Specify the column number to set"
+      },
+      "title": {
+        "title": "Column Info",
+        "tip": "The column info to set"
+      }
+    }
+  },
+  "DataTable.get_column_title": {
+    "title": "Get Column Info in Data Table",
+    "comment": "Get info for column @{col} in the data table and output to @{column_title}",
+    "inputList": {
+      "col": {
+        "title": "Column Number",
+        "tip": "Specify the column number to get"
+      }
+    },
+    "outputList": {
+      "column_title": {
+        "title": "Column Info",
+        "tip": "Returns the info for the specified column"
+      }
+    }
+  },
+  "DataTable.find_and_replace": {
+    "title": "Find and Replace in Data Table",
+    "comment": "Search for @{find_value} using @{find_type} in data table@{is_replace:, and replace}",
+    "inputList": {
+      "find_type": {
+        "title": "Find Type",
+        "tip": "Select how to search: single column or entire table"
+      },
+      "col": {
+        "title": "Column Number",
+        "tip": "Specify the column number to search (e.g. A, B, C...). Used only for single column search"
+      },
+      "find_value": {
+        "title": "Search Content",
+        "tip": "Content to search for"
+      },
+      "is_case_sensitive": {
+        "title": "Case Sensitive",
+        "tip": "Whether to distinguish case when searching"
+      },
+      "is_replace": {
+        "title": "Replace",
+        "tip": "Whether to replace the found content"
+      },
+      "replace_value": {
+        "title": "Replace Content",
+        "tip": "The replacement content; used only when replacing"
+      }
+    },
+    "outputList": {
+      "find_data_positions": {
+        "title": "Found Positions",
+        "tip": "Returns a list of positions where the content was found"
+      }
+    }
+  },
+  "DataTable.filter_data_table": {
+    "title": "Filter Data Table",
+    "comment": "Filter data table based on @{filter_type} conditions",
+    "inputList": {
+      "filter_type": {
+        "title": "Filter Type",
+        "tip": "Select filter type (column filter, row filter, table filter)"
+      },
+      "row": {
+        "title": "Row Number",
+        "tip": "Specify the row number to filter"
+      },
+      "col": {
+        "title": "Column Number",
+        "tip": "Specify the column number to filter"
+      },
+      "condition_type": {
+        "title": "Condition Type",
+        "tip": "Select condition type"
+      },
+      "condition_value": {
+        "title": "Condition Value",
+        "tip": "Enter the condition value"
+      },
+      "date_value": {
+        "title": "Date Value",
+        "tip": "Select date value"
+      },
+      "date_range": {
+        "title": "Date Range",
+        "tip": "Select date range"
+      },
+      "is_case_sensitive": {
+        "title": "Case Sensitive",
+        "tip": "Whether to distinguish case when filtering"
+      },
+      "is_save_filtered": {
+        "title": "Save Filter Result",
+        "tip": "Whether to save the filter result"
+      }
+    },
+    "outputList": {
+      "data_filtered": {
+        "title": "Filter Result",
+        "tip": "Returns the filtered data result"
+      }
+    }
+  },
+  "DataTable.import_data_table_from_file": {
+    "title": "Import Data from File to Data Table",
+    "comment": "Import data from file @{import_file_path} into the data table",
+    "inputList": {
+      "import_file_path": {
+        "title": "Import File Path",
+        "tip": "File path of the data to import"
+      },
+      "sheet_name": {
+        "title": "Sheet Name",
+        "tip": "Name of the sheet to import; defaults to the active sheet"
+      }
+    }
+  },
+  "DataTable.export_data_table_to_file": {
+    "title": "Export Data Table to File",
+    "comment": "Export data table to file @{export_dest_path}",
+    "inputList": {
+      "export_dest_path": {
+        "title": "Export Destination Path",
+        "tip": "Path where the exported file will be saved"
+      },
+      "export_file_name": {
+        "title": "Export File Name",
+        "tip": "Name of the exported file"
+      },
+      "export_file_type": {
+        "title": "Export File Type",
+        "tip": "Select the file type to export"
+      },
+      "is_overwrite": {
+        "title": "Overwrite Existing File",
+        "tip": "Whether to overwrite an existing file with the same name at the destination"
+      }
+    },
+    "outputList": {
+      "export_file_path": {
+        "title": "Export File Path",
+        "tip": "Returns the full path of the exported file"
+      }
+    }
+  },
+  "options": {
+    "BaseOperateType": {
+      "cell": "Cell",
+      "row": "Row",
+      "column": "Column",
+      "area": "Area"
+    },
+    "Bool": {
+      "True": "Yes",
+      "False": "No"
+    },
+    "WriteMode": {
+      "overwrite": "Overwrite",
+      "insert": "Insert",
+      "append": "Append"
+    },
+    "CellInsertShift": {
+      "down": "Shift Down",
+      "right": "Shift Right"
+    },
+    "RowInsertShift": {
+      "up": "Insert Above",
+      "down": "Insert Below"
+    },
+    "ColumnInsertShift": {
+      "left": "Insert Left",
+      "right": "Insert Right"
+    },
+    "AppendShift": {
+      "row": "Row Append",
+      "column": "Column Append"
+    },
+    "DeleteCellMove": {
+      "left": "Shift Cell Left",
+      "up": "Shift Cell Up",
+      "not": "Do Not Move Cell"
+    },
+    "SortOrder": {
+      "ascending": "Ascending",
+      "descending": "Descending"
+    },
+    "LoopType": {
+      "row": "Row",
+      "column": "Column",
+      "area": "Area"
+    },
+    "InsertType": {
+      "row": "Row",
+      "column": "Column"
+    },
+    "FindType": {
+      "column": "Single Column Search",
+      "table": "Full Table Search"
+    },
+    "FilterType": {
+      "row": "Row Filter",
+      "column": "Column Filter",
+      "table": "Table Filter"
+    },
+    "ConditionType": {
+      "equals": "Equals",
+      "not_equals": "Not Equals",
+      "greater_than": "Greater Than",
+      "less_than": "Less Than",
+      "greater_than_or_equal": "Greater Than or Equal",
+      "less_than_or_equal": "Less Than or Equal",
+      "contains": "Contains",
+      "not_contains": "Does Not Contain",
+      "is_empty": "Is Empty",
+      "is_not_empty": "Is Not Empty",
+      "starts_with": "Starts With",
+      "ends_with": "Ends With",
+      "date_before": "Before This Date",
+      "date_after": "After This Date",
+      "date_between": "Between These Dates"
+    },
+    "ExportFileType": {
+      "xlsx": ".xlsx File",
+      "xls": ".xls File",
+      "csv": ".csv File",
+      "json": ".json File"
+    }
+  }
+}

@@ -1,0 +1,372 @@
+{
+  "Network.ftp_create": {
+    "title": "Create FTP Connection",
+    "comment": "Establish an FTP connection to @{host} on port @{port}, output connection as @{ftp_instance}",
+    "inputList": {
+      "host": {
+        "title": "Server Address",
+        "tip": "FTP server address"
+      },
+      "port": {
+        "title": "Server Port",
+        "tip": "FTP server port number"
+      },
+      "name": {
+        "title": "Username",
+        "tip": "Login account provided by the file server"
+      },
+      "password": {
+        "title": "Password",
+        "tip": "Password for the login account provided by the file server"
+      }
+    },
+    "outputList": {
+      "ftp_instance": {
+        "title": "Save FTP Connection Object To",
+        "tip": "Save the created FTP connection object to a specified variable"
+      }
+    }
+  },
+  "Network.ftp_close": {
+    "title": "Close FTP Connection",
+    "comment": "Disconnect FTP connection @{ftp_instance} and output result to @{close_ftp}",
+    "inputList": {
+      "ftp_instance": {
+        "title": "FTP Object",
+        "tip": "The FTP connection object to disconnect"
+      }
+    },
+    "outputList": {
+      "close_ftp": {
+        "title": "Save Disconnect Result To",
+        "tip": "Boolean indicating whether the FTP connection was successfully disconnected"
+      }
+    }
+  },
+  "Network.get_work_dir": {
+    "title": "Get Working Directory (FTP)",
+    "comment": "Get the current working directory of @{ftp_instance}, output as @{get_work_dir}",
+    "inputList": {
+      "ftp_instance": {
+        "title": "FTP Connection Object",
+        "tip": "Current FTP connection object"
+      }
+    },
+    "outputList": {
+      "get_work_dir": {
+        "title": "Save Working Directory To",
+        "tip": "Output the retrieved working directory"
+      }
+    }
+  },
+  "Network.change_working_dir": {
+    "title": "Change Working Directory (FTP)",
+    "comment": "Change working directory of FTP connection @{ftp_instance} to @{new_work_dir} and save result to @{change_work_dir}",
+    "inputList": {
+      "ftp_instance": {
+        "title": "FTP Connection Object",
+        "tip": "FTP connection object whose working directory needs to be changed"
+      },
+      "new_work_dir": {
+        "title": "Working Directory",
+        "tip": "The new working directory to switch to"
+      }
+    },
+    "outputList": {
+      "change_work_dir": {
+        "title": "Working Directory After Change",
+        "tip": "Output the current working directory after switching"
+      }
+    }
+  },
+  "Network.create_folder": {
+    "title": "Create Folder (FTP)",
+    "comment": "Create folder @{folder_name} on FTP connection @{ftp_instance} and save the new folder path to @{new_folder}",
+    "inputList": {
+      "ftp_instance": {
+        "title": "FTP Connection Object",
+        "tip": "FTP connection object on which to create the folder"
+      },
+      "folder_name": {
+        "title": "New Folder Name",
+        "tip": "Name of the folder to create"
+      },
+      "exist_type": {
+        "title": "When Folder Exists",
+        "tip": "Action to take when a folder with the same name already exists on the FTP server"
+      }
+    },
+    "outputList": {
+      "new_folder": {
+        "title": "Created Folder Path",
+        "tip": "Save the created folder path to a variable"
+      }
+    }
+  },
+  "Network.get_ftp_list": {
+    "title": "Get Files/Folders (FTP)",
+    "comment": "Get the @{file_type} list from FTP connection @{ftp_instance} and save to @{get_ftp_list}",
+    "inputList": {
+      "ftp_instance": {
+        "title": "FTP Connection Object",
+        "tip": "FTP connection object from which to retrieve file and folder information"
+      },
+      "file_type": {
+        "title": "Object to Retrieve",
+        "tip": "Select the type of objects to retrieve"
+      }
+    },
+    "outputList": {
+      "get_ftp_list": {
+        "title": "Retrieved File/Folder List",
+        "tip": "Output the file/folder list from the FTP connection to a variable"
+      }
+    }
+  },
+  "Network.ftp_rename": {
+    "title": "Rename File/Folder (FTP)",
+    "comment": "Rename @{file_type} @{cur_file_name||cur_folder_name} in @{ftp_instance} to @{new_file_name||new_folder_name} and save renamed path to @{rename_ftp_path}",
+    "inputList": {
+      "ftp_instance": {
+        "title": "FTP Connection Object",
+        "tip": "FTP connection object on which to rename the file/folder"
+      },
+      "file_type": {
+        "title": "Rename Object"
+      },
+      "cur_file_name": {
+        "title": "Current File Name",
+        "tip": "Enter the file to be renamed"
+      },
+      "new_file_name": {
+        "title": "New File Name (without extension)",
+        "tip": "Enter the new file name without extension"
+      },
+      "cur_folder_name": {
+        "title": "Current Folder Name",
+        "tip": "Enter the folder to be renamed"
+      },
+      "new_folder_name": {
+        "title": "New Folder Name",
+        "tip": "Enter the new folder name"
+      },
+      "exist_type": {
+        "title": "When Renamed Object Exists",
+        "tip": "Action to take when the renamed object already exists"
+      }
+    },
+    "outputList": {
+      "rename_ftp_path": {
+        "title": "Path After Rename",
+        "tip": "Save the path of the renamed @{file_type} to a variable"
+      }
+    }
+  },
+  "Network.ftp_upload": {
+    "title": "Upload File/Folder (FTP)",
+    "comment": "Upload @{file_path||folder_path} to FTP directory @{ftp_pwd} and save upload result paths to @{upload_ftp_list}",
+    "inputList": {
+      "ftp_instance": {
+        "title": "FTP Connection Object",
+        "tip": "FTP connection object to upload files/folders to"
+      },
+      "file_type": {
+        "title": "Upload Object"
+      },
+      "ftp_pwd": {
+        "title": "Remote Working Directory",
+        "tip": "Remote working directory for file/folder upload. Leave empty to upload to current working path"
+      },
+      "file_path": {
+        "title": "Files to Upload",
+        "tip": "Supports single or multiple file upload. Separate multiple file names with commas, e.g.: test1.txt,test2.txt,test3.txt"
+      },
+      "folder_path": {
+        "title": "Folders to Upload",
+        "tip": "Supports single or multiple folder upload. Separate multiple folder names with commas, e.g.: folder1,folder2,folder3"
+      },
+      "exist_type": {
+        "title": "When Upload Object Exists",
+        "tip": "How to handle files/folders that already exist on the FTP server"
+      }
+    },
+    "outputList": {
+      "upload_ftp_list": {
+        "title": "Upload List",
+        "tip": "Output the paths of uploaded files/folders on the FTP server to a variable as a list"
+      }
+    }
+  },
+  "Network.ftp_download": {
+    "title": "Download File/Folder (FTP)",
+    "comment": "Download @{download_file_name||download_folder_name} to local directory @{dst_path} and save downloaded paths to @{download_ftp_path}",
+    "inputList": {
+      "ftp_instance": {
+        "title": "FTP Connection Object",
+        "tip": "FTP connection object to download files/folders from"
+      },
+      "file_type": {
+        "title": "Download Object"
+      },
+      "download_file_name": {
+        "title": "Files to Download",
+        "tip": "Supports single or multiple file download. Separate multiple file names with commas, e.g.: test1.txt,test2.txt,test3.txt"
+      },
+      "download_folder_name": {
+        "title": "Folders to Download",
+        "tip": "Supports single or multiple folder download. Separate multiple folder names with commas, e.g.: folder1,folder2,folder3"
+      },
+      "dst_path": {
+        "title": "Download To",
+        "tip": "Local storage path"
+      },
+      "state_type": {
+        "title": "When Local Path Does Not Exist",
+        "tip": "Action to take when the local storage path does not exist"
+      },
+      "exist_type": {
+        "title": "When Download Object Exists",
+        "tip": "Action to take when the downloaded file/folder already exists locally"
+      }
+    },
+    "outputList": {
+      "download_ftp_path": {
+        "title": "Download List",
+        "tip": "Output the list of downloaded file/folder paths to a variable as a list"
+      }
+    }
+  },
+  "Network.ftp_delete": {
+    "title": "Delete File/Folder (FTP)",
+    "comment": "Delete @{delete_file_name||delete_folder_name} from @{ftp_instance} and output result to @{delete_ftp_result}",
+    "inputList": {
+      "ftp_instance": {
+        "title": "FTP Connection Object",
+        "tip": "FTP connection object on which to delete files/folders"
+      },
+      "file_type": {
+        "title": "Delete Object"
+      },
+      "delete_file_name": {
+        "title": "Files to Delete",
+        "tip": "Supports single or multiple file deletion. Separate multiple file names with commas, e.g.: test1.txt,test2.txt,test3.txt"
+      },
+      "delete_folder_name": {
+        "title": "Folders to Delete",
+        "tip": "Supports single or multiple folder deletion. Separate multiple folder names with commas, e.g.: folder1,folder2,folder3"
+      }
+    },
+    "outputList": {
+      "delete_ftp_result": {
+        "title": "Delete Result",
+        "tip": "Output the delete result to a variable"
+      }
+    }
+  },
+  "Network.http_request": {
+    "title": "HTTP Request",
+    "comment": "Send HTTP @{request_type} request to URL @{url} with headers @{headers} and body @{body}, save response to @{http_response}",
+    "inputList": {
+      "url": {
+        "title": "URL"
+      },
+      "request_type": {
+        "title": "Request Type"
+      },
+      "headers": {
+        "title": "Request Headers"
+      },
+      "body": {
+        "title": "Request Body"
+      },
+      "file_path": {
+        "title": "File Path to Upload"
+      },
+      "time_out": {
+        "title": "Timeout (seconds)"
+      },
+      "save_type": {
+        "title": "Save Response to File",
+        "tip": "Save the response to a specified text file"
+      },
+      "save_path": {
+        "title": "File Save Directory",
+        "tip": "Enter the directory to save the file"
+      },
+      "save_name": {
+        "title": "File Name",
+        "tip": "Enter the save file name. Default is a text file"
+      }
+    },
+    "outputList": {
+      "http_response": {
+        "title": "Save Response To"
+      }
+    }
+  },
+  "Network.http_download": {
+    "title": "HTTP Download",
+    "comment": "Download file from URL @{url} to directory @{dst_dir} and save download path to @{http_download_path}",
+    "inputList": {
+      "url": {
+        "title": "Download URL"
+      },
+      "dst_dir": {
+        "title": "File Save Directory"
+      },
+      "rename": {
+        "title": "Specify File Name",
+        "tip": "If not specified, the default file name from the URL is used. An error is raised if no default file name is available"
+      },
+      "state_type": {
+        "title": "When Directory Does Not Exist",
+        "tip": "How to handle a missing file save directory"
+      },
+      "exist_type": {
+        "title": "When File Exists",
+        "tip": "How to handle an existing destination file"
+      }
+    },
+    "outputList": {
+      "http_download_path": {
+        "title": "Save Downloaded File To",
+        "tip": "Save the downloaded file path to a variable"
+      }
+    }
+  },
+  "options": {
+    "FileExistenceType": {
+      "rename": "Create File Copy",
+      "overwrite": "Overwrite Existing File",
+      "cancel": "Skip Save Operation"
+    },
+    "ListType": {
+      "all": "All",
+      "file": "File",
+      "folder": "Folder"
+    },
+    "FileType": {
+      "file": "File",
+      "folder": "Folder"
+    },
+    "StateType": {
+      "create": "Create",
+      "error": "Raise Error"
+    },
+    "RequestType": {
+      "post": "post",
+      "get": "get",
+      "connect": "connect",
+      "put": "put",
+      "patch": "patch",
+      "delete": "delete",
+      "options": "options",
+      "head": "head",
+      "trace": "trace"
+    },
+    "SaveType": {
+      "yes": "Save",
+      "no": "Do Not Save"
+    }
+  }
+}

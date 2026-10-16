@@ -1,0 +1,197 @@
+{
+  "Code.If": {
+    "title": "IF条件",
+    "comment": "如果 @{args1}  @{condition}  @{args2} ，则执行以下操作",
+    "inputList": {
+      "args1": {
+        "title": "对象1"
+      },
+      "condition": {
+        "title": "关系"
+      },
+      "args2": {
+        "title": "对象2"
+      }
+    }
+  },
+  "Code.ElseIf": {
+    "title": "ELSE IF条件",
+    "comment": "如果 @{args1}  @{condition}  @{args2} ，则执行以下操作",
+    "inputList": {
+      "args1": {
+        "title": "对象1"
+      },
+      "condition": {
+        "title": "关系"
+      },
+      "args2": {
+        "title": "对象2"
+      }
+    }
+  },
+  "Code.Else": {
+    "title": "Else条件",
+    "comment": "Else条件"
+  },
+  "Code.IfEnd": {
+    "title": "判断结束",
+    "comment": "判断结束"
+  },
+  "Code.ElseEnd": {
+    "title": "判断结束",
+    "comment": "判断结束"
+  },
+  "Code.ElseIfEnd": {
+    "title": "判断结束",
+    "comment": "判断结束"
+  },
+  "Code.While": {
+    "title": "While循环",
+    "comment": "当 @{args1}  @{condition}  @{args2} 时，执行以下操作",
+    "inputList": {
+      "args1": {
+        "title": "对象1"
+      },
+      "condition": {
+        "title": "关系"
+      },
+      "args2": {
+        "title": "对象2"
+      }
+    }
+  },
+  "Code.WhileEnd": {
+    "title": "循环结束",
+    "comment": "循环结束"
+  },
+  "Code.ForList": {
+    "title": "列表For循环",
+    "comment": "遍历列表 @{list_obj}",
+    "inputList": {
+      "list_obj": {
+        "title": "列表对象"
+      }
+    },
+    "outputList": {
+      "index": {
+        "title": "索引"
+      },
+      "item": {
+        "title": "元素"
+      }
+    }
+  },
+  "Code.ForListEnd": {
+    "title": "列表For循环结束",
+    "comment": "列表For循环结束"
+  },
+  "Code.ForDict": {
+    "title": "字典For循环",
+    "comment": "遍历字典 @{dicts}",
+    "inputList": {
+      "dicts": {
+        "title": "字典对象"
+      }
+    },
+    "outputList": {
+      "key": {
+        "title": "键"
+      },
+      "value": {
+        "title": "值"
+      }
+    }
+  },
+  "Code.ForDictEnd": {
+    "title": "字典For循环结束",
+    "comment": "字典For循环结束"
+  },
+  "Code.ForStep": {
+    "title": "计数For循环",
+    "comment": "从 @{start} 到 @{end}，步长 @{step}",
+    "inputList": {
+      "start": {
+        "title": "起始值"
+      },
+      "end": {
+        "title": "结束值"
+      },
+      "step": {
+        "title": "步长"
+      }
+    },
+    "outputList": {
+      "index": {
+        "title": "索引"
+      }
+    }
+  },
+  "Code.ForStepEnd": {
+    "title": "计数For循环结束",
+    "comment": "计数For循环结束"
+  },
+  "Code.ForEnd": {
+    "title": "循环结束",
+    "comment": "循环结束"
+  },
+  "Code.Break": {
+    "title": "退出循环（Break）",
+    "comment": "退出该次循环"
+  },
+  "Code.Continue": {
+    "title": "继续下次循环（Continue）",
+    "comment": "继续下一次循环"
+  },
+  "Code.Return": {
+    "title": "退出流程（Return）",
+    "comment": "退出当前流程"
+  },
+  "Code.Try": {
+    "title": "捕获异常（Try）",
+    "comment": "捕获异常"
+  },
+  "Code.TryEnd": {
+    "title": "捕获结束",
+    "comment": "捕获结束"
+  },
+  "Code.Catch": {
+    "title": "捕获异常（Catch）",
+    "comment": "捕获异常"
+  },
+  "Code.CatchEnd": {
+    "title": "捕获结束",
+    "comment": "捕获结束"
+  },
+  "Code.Finally": {
+    "title": "捕获异常（Finally）",
+    "comment": "捕获异常"
+  },
+  "Code.FinallyEnd": {
+    "title": "捕获结束",
+    "comment": "捕获结束"
+  },
+  "Code.Group": {
+    "title": "编组开始",
+    "comment": "编组开始"
+  },
+  "Code.GroupEnd": {
+    "title": "编组结束",
+    "comment": "编组结束"
+  },
+  "options": {
+    "ConditionType": {
+      "==": "等于",
+      "!=": "不等于",
+      ">": "大于",
+      ">=": "大于等于",
+      "<": "小于",
+      "<=": "小于等于",
+      "in": "包含",
+      "notin": "不包含",
+      "empty": "为空",
+      "notempty": "不为空",
+      "true": "为真",
+      "false": "为假"
+    }
+  }
+}

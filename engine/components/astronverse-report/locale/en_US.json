@@ -1,0 +1,22 @@
+{
+  "Report.print": {
+    "title": "Log Print",
+    "comment": "Print variable @{msg}",
+    "inputList": {
+      "report_type": {
+        "title": "Log Level"
+      },
+      "msg": {
+        "title": "Log Content",
+        "tip": "Content to print in the log, supports strings and variables"
+      }
+    }
+  },
+  "options": {
+    "ReportLevelType": {
+      "info": "Info",
+      "warning": "Warning",
+      "error": "Error"
+    }
+  }
+}

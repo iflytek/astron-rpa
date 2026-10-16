@@ -51,10 +51,20 @@ class TypesManager:
 
         return real_shortcut
 
-    def json(self):
-        """meta_type.json"""
+    def json(self, locale: str = None):
+        """meta_type.json
 
-        json_data = config.get("types")
+        Args:
+            locale: 语言代码，如 "zh_CN" 或 "en_US"。
+                    提供时使用内置 TYPES_FRAME + TRANSLATIONS 生成翻译；
+                    不提供时（默认）沿用 config.get("types") 的原有行为。
+        """
+        if locale is not None:
+            from astronverse.actionlib.types_default import get_types_config
+
+            json_data = get_types_config(locale)
+        else:
+            json_data = config.get("types")
 
         temp_register_dict = {}
         for k, v in self.register_dict.items():
@@ -93,8 +103,8 @@ class TypesManager:
                 temp_register_dict[group_key]["funcList"].append(v)
         return json.dumps(temp_register_dict, ensure_ascii=False)
 
-    def meta(self):
-        data = self.json()
+    def meta(self, locale: str = None):
+        data = self.json(locale=locale)
         file = "meta_type.json"
         with open(file, "w", encoding="utf-8") as file:
             file.write(data)

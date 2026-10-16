@@ -1,0 +1,41 @@
+{
+  "Script.process": {
+    "title": "Run Subprocess",
+    "comment": "Run subprocess @{process:Subprocess}",
+    "inputList": {
+      "process": {
+        "title": "Select Subprocess",
+        "tip": "Select the subprocess to run"
+      },
+      "process_param": {
+        "title": "Input Parameters"
+      }
+    },
+    "outputList": {
+      "process_res": {
+        "title": "Save Process Output Result"
+      }
+    }
+  },
+  "Script.module": {
+    "title": "Run Python Module",
+    "comment": "Run Python module @{content:Python Module}",
+    "inputList": {
+      "content": {
+        "title": "Select Python Module"
+      },
+      "module_param": {
+        "title": "Input Parameters"
+      }
+    }
+  },
+  "Script.component": {
+    "title": "Run Component",
+    "comment": "Run component @{component:Component}",
+    "inputList": {
+      "component": {
+        "title": "Select Component"
+      }
+    }
+  }
+}

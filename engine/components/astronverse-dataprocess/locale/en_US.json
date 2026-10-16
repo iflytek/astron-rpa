@@ -1,0 +1,1060 @@
+{
+  "DataProcess.set_variable_value": {
+    "title": "Set Variable Value",
+    "comment": "Assign @{value} to variable @{variable_var}",
+    "inputList": {
+      "value": {
+        "title": "Variable Value",
+        "tip": "Enter the value to set"
+      },
+      "variable_type": {
+        "title": "Variable Type",
+        "tip": "Select the variable type to set"
+      }
+    },
+    "outputList": {
+      "variable_var": {
+        "title": "Variable Value After Setting"
+      }
+    }
+  },
+  "DataConvertProcess.json_convertor": {
+    "title": "JSON String Conversion",
+    "comment": "Convert input text @{input_data} from JSON to string or from string to JSON format, return converted result @{json_convert_data}",
+    "inputList": {
+      "input_data": {
+        "title": "Input Content"
+      },
+      "convert_type": {
+        "title": "Conversion Type"
+      }
+    },
+    "outputList": {
+      "json_convert_data": {
+        "title": "Conversion Result"
+      }
+    }
+  },
+  "DataConvertProcess.other_to_str": {
+    "title": "Other Format to Text",
+    "comment": "Convert input content @{input_data} (e.g. numbers, lists, dictionaries) to string format, return converted result @{other_convert_str}",
+    "inputList": {
+      "input_data": {
+        "title": "Input Content"
+      }
+    },
+    "outputList": {
+      "other_convert_str": {
+        "title": "Conversion Result",
+        "tip": "Returns the result converted to string"
+      }
+    }
+  },
+  "DataConvertProcess.str_to_other": {
+    "title": "Text to Other Format",
+    "comment": "Convert input text (string) @{input_data} to another format, return converted result @{str_convert_other}",
+    "inputList": {
+      "input_data": {
+        "title": "Input Content"
+      },
+      "convert_type": {
+        "title": "Conversion Type"
+      }
+    },
+    "outputList": {
+      "str_convert_other": {
+        "title": "Conversion Result"
+      }
+    }
+  },
+  "DictProcess.create_new_dict": {
+    "title": "Create New Dictionary",
+    "comment": "Create a dictionary and return the created dictionary @{created_new_dict_data}",
+    "inputList": {
+      "dict_data": {
+        "title": "Dictionary Data"
+      }
+    },
+    "outputList": {
+      "created_new_dict_data": {
+        "title": "Newly Created Dictionary"
+      }
+    }
+  },
+  "DictProcess.set_value_to_dict": {
+    "title": "Set Value in Dictionary",
+    "comment": "Set key @{dict_key} with value @{value} in dictionary @{dict_data}, return updated dictionary @{inserted_dict_data}",
+    "inputList": {
+      "dict_data": {
+        "title": "Dictionary Data"
+      },
+      "dict_key": {
+        "title": "Key"
+      },
+      "value": {
+        "title": "Value"
+      }
+    },
+    "outputList": {
+      "inserted_dict_data": {
+        "title": "Dictionary After Setting"
+      }
+    }
+  },
+  "DictProcess.delete_value_from_dict": {
+    "title": "Delete Value from Dictionary",
+    "comment": "Delete key @{dict_key} from dictionary @{dict_data}, return updated dictionary @{deleted_dict_data}",
+    "inputList": {
+      "dict_data": {
+        "title": "Dictionary Data"
+      },
+      "dict_key": {
+        "title": "Key"
+      }
+    },
+    "outputList": {
+      "deleted_dict_data": {
+        "title": "Dictionary After Deletion"
+      }
+    }
+  },
+  "DictProcess.get_value_from_dict": {
+    "title": "Get Value from Dictionary",
+    "comment": "Get value @{get_dict_value} for key @{dict_key} in dictionary @{dict_data}",
+    "inputList": {
+      "dict_data": {
+        "title": "Dictionary Data"
+      },
+      "dict_key": {
+        "title": "Key"
+      },
+      "fail_option": {
+        "title": "When Key Does Not Exist",
+        "tip": "Whether to raise an exception or return a default value when key does not exist"
+      },
+      "default_value": {
+        "title": "Default Value"
+      }
+    },
+    "outputList": {
+      "get_dict_value": {
+        "title": "Dictionary Value"
+      }
+    }
+  },
+  "DictProcess.get_keys_from_dict": {
+    "title": "Get All Keys from Dictionary",
+    "comment": "Get all keys @{get_dict_keys} from dictionary @{dict_data}",
+    "inputList": {
+      "dict_data": {
+        "title": "Dictionary Data"
+      }
+    },
+    "outputList": {
+      "get_dict_keys": {
+        "title": "Key List"
+      }
+    }
+  },
+  "DictProcess.get_values_from_dict": {
+    "title": "Get All Values from Dictionary",
+    "comment": "Get all values @{get_dict_values} from dictionary @{dict_data}",
+    "inputList": {
+      "dict_data": {
+        "title": "Dictionary Data"
+      }
+    },
+    "outputList": {
+      "get_dict_values": {
+        "title": "Value List"
+      }
+    }
+  },
+  "ListProcess.create_new_list": {
+    "title": "Create New List",
+    "comment": "Create a @{list_type} type list, return created list @{created_list_data}",
+    "inputList": {
+      "list_type": {
+        "title": "List Type",
+        "tip": "Select the type of list to create"
+      },
+      "size": {
+        "title": "List Length",
+        "tip": "Enter the length of the list to create"
+      },
+      "value": {
+        "title": "Initial Value",
+        "tip": "Enter the initial value for the list"
+      },
+      "custom_list": {
+        "title": "Custom List",
+        "tip": "Define list content; separate multiple elements with commas"
+      }
+    },
+    "outputList": {
+      "created_list_data": {
+        "title": "Created List",
+        "tip": "Returns the newly created list"
+      }
+    }
+  },
+  "ListProcess.clear_list": {
+    "title": "Clear List",
+    "comment": "Clear list @{list_data}, return cleared list @{cleared_list_data}",
+    "inputList": {
+      "list_data": {
+        "title": "List Data"
+      }
+    },
+    "outputList": {
+      "cleared_list_data": {
+        "title": "Cleared List"
+      }
+    }
+  },
+  "ListProcess.insert_value_to_list": {
+    "title": "Insert Value into List",
+    "comment": "Insert value @{value} into list @{list_data} at @{insert_method} position @{index}, return updated list @{inserted_list_data}",
+    "inputList": {
+      "list_data": {
+        "title": "List Data"
+      },
+      "value": {
+        "title": "Insert Value"
+      },
+      "insert_method": {
+        "title": "Insert Method",
+        "tip": "Select insert method: append or insert at specified position"
+      },
+      "index": {
+        "title": "Insert Position"
+      }
+    },
+    "outputList": {
+      "inserted_list_data": {
+        "title": "List After Insertion",
+        "tip": "Returns the new list after inserting the value"
+      }
+    }
+  },
+  "ListProcess.change_value_in_list": {
+    "title": "Modify Value in List",
+    "comment": "Change value at position @{index} in list @{list_data} to @{new_value}, return updated list @{changed_list_data}",
+    "inputList": {
+      "list_data": {
+        "title": "List Data"
+      },
+      "index": {
+        "title": "Position Index",
+        "tip": "Enter the position index to modify (0-based: index 0 for first, 1 for second, etc.)"
+      },
+      "new_value": {
+        "title": "New Value"
+      }
+    },
+    "outputList": {
+      "changed_list_data": {
+        "title": "List After Modification"
+      }
+    }
+  },
+  "ListProcess.get_list_position": {
+    "title": "Get Value Position in List",
+    "comment": "Get position @{get_list_position} of value @{value} in list @{list_data}",
+    "inputList": {
+      "list_data": {
+        "title": "List Data"
+      },
+      "value": {
+        "title": "Value"
+      }
+    },
+    "outputList": {
+      "get_list_position": {
+        "title": "Position Index"
+      }
+    }
+  },
+  "ListProcess.remove_value_from_list": {
+    "title": "Delete Value from List",
+    "comment": "Remove specified value @{del_value} or element at position @{del_pos} from list @{list_data} using @{del_mode} method, return updated list @{removed_list_data}",
+    "inputList": {
+      "list_data": {
+        "title": "List Data"
+      },
+      "del_mode": {
+        "title": "Delete Method",
+        "tip": "Select delete method: by value or by index"
+      },
+      "del_value": {
+        "title": "Value to Delete"
+      },
+      "del_pos": {
+        "title": "Position to Delete",
+        "tip": "Specify single or multiple positions; separate multiple indexes with commas, e.g.: 1,3,5"
+      }
+    },
+    "outputList": {
+      "removed_list_data": {
+        "title": "List After Deletion",
+        "tip": "Returns the new list after removing the element"
+      }
+    }
+  },
+  "ListProcess.sort_list": {
+    "title": "Sort List",
+    "comment": "Sort list @{list_data} using @{sort_method} method, return sorted list @{sorted_list_data}",
+    "inputList": {
+      "list_data": {
+        "title": "List Data"
+      },
+      "sort_method": {
+        "title": "Sort Method"
+      }
+    },
+    "outputList": {
+      "sorted_list_data": {
+        "title": "Sorted List"
+      }
+    }
+  },
+  "ListProcess.random_shuffle_list": {
+    "title": "Randomly Shuffle List",
+    "comment": "Randomly shuffle list @{list_data}, return shuffled list @{shuffled_list_data}",
+    "inputList": {
+      "list_data": {
+        "title": "List Data"
+      }
+    },
+    "outputList": {
+      "shuffled_list_data": {
+        "title": "Shuffled List"
+      }
+    }
+  },
+  "ListProcess.filter_elements_from_list": {
+    "title": "Remove Multiple Items from List",
+    "comment": "Remove elements in list @{list_data_2} from list @{list_data_1}, return filtered list @{filter_list_data}",
+    "inputList": {
+      "list_data_1": {
+        "title": "List to Process",
+        "tip": "Enter the list to process"
+      },
+      "list_data_2": {
+        "title": "Elements to Remove",
+        "tip": "Enter the list of elements to remove; any matching elements in the source list will be removed"
+      }
+    },
+    "outputList": {
+      "filter_list_data": {
+        "title": "Filtered List",
+        "tip": "Returns the filtered list"
+      }
+    }
+  },
+  "ListProcess.reverse_list": {
+    "title": "Reverse List",
+    "comment": "Reverse list @{list_data}, return reversed list @{reversed_list_data}",
+    "inputList": {
+      "list_data": {
+        "title": "List Data"
+      }
+    },
+    "outputList": {
+      "reversed_list_data": {
+        "title": "Reversed List"
+      }
+    }
+  },
+  "ListProcess.merge_list": {
+    "title": "Merge Lists",
+    "comment": "Merge list @{list_data_1} and list @{list_data_2} into one list @{merged_list_data}",
+    "inputList": {
+      "list_data_1": {
+        "title": "First List"
+      },
+      "list_data_2": {
+        "title": "Second List"
+      }
+    },
+    "outputList": {
+      "merged_list_data": {
+        "title": "Merged List"
+      }
+    }
+  },
+  "ListProcess.get_unique_list": {
+    "title": "Deduplicate List",
+    "comment": "Deduplicate list @{list_data}, return deduplicated list @{unique_list_data}",
+    "inputList": {
+      "list_data": {
+        "title": "List Data"
+      }
+    },
+    "outputList": {
+      "unique_list_data": {
+        "title": "Deduplicated List"
+      }
+    }
+  },
+  "ListProcess.get_common_elements_from_list": {
+    "title": "Get Common Elements of Two Lists",
+    "comment": "Get common elements of list @{list_data_1} and list @{list_data_2}, return common elements list @{common_list_data}",
+    "inputList": {
+      "list_data_1": {
+        "title": "First List"
+      },
+      "list_data_2": {
+        "title": "Second List"
+      }
+    },
+    "outputList": {
+      "common_list_data": {
+        "title": "Common Elements List"
+      }
+    }
+  },
+  "ListProcess.get_value_from_list": {
+    "title": "Get List Value by Index",
+    "comment": "Get value @{get_list_value} from list @{list_data} by index @{index}",
+    "inputList": {
+      "list_data": {
+        "title": "List Data"
+      },
+      "index": {
+        "title": "Index"
+      }
+    },
+    "outputList": {
+      "get_list_value": {
+        "title": "Value"
+      }
+    }
+  },
+  "ListProcess.get_length_of_list": {
+    "title": "Get List Length",
+    "comment": "Get length @{get_list_length} of list @{list_data}",
+    "inputList": {
+      "list_data": {
+        "title": "List Data"
+      }
+    },
+    "outputList": {
+      "get_list_length": {
+        "title": "Length"
+      }
+    }
+  },
+  "MathProcess.generate_random_number": {
+    "title": "Generate Random Number",
+    "comment": "Generate @{size} random numbers of @{number_type} type in range @{start} to @{end}, return generated random numbers @{generated_random_numbers}",
+    "inputList": {
+      "number_type": {
+        "title": "Random Number Type"
+      },
+      "size": {
+        "title": "Count"
+      },
+      "start": {
+        "title": "Start Range"
+      },
+      "end": {
+        "title": "End Range"
+      }
+    },
+    "outputList": {
+      "generated_random_numbers": {
+        "title": "Generated Random Numbers"
+      }
+    }
+  },
+  "MathProcess.get_rounding_number": {
+    "title": "Round Number",
+    "comment": "Round number @{number} to @{precision} decimal places, return rounded number @{rounding_number}",
+    "inputList": {
+      "number": {
+        "title": "Original Number"
+      },
+      "precision": {
+        "title": "Precision",
+        "tip": "Enter decimal places (e.g., 2 rounds to 2 decimal places). Negative values and 0 are also supported (e.g., -2 rounds to the hundreds place)"
+      }
+    },
+    "outputList": {
+      "rounding_number": {
+        "title": "Rounded Number"
+      }
+    }
+  },
+  "MathProcess.self_calculation_number": {
+    "title": "Increment/Decrement",
+    "comment": "Increment or decrement number @{number} by @{add_sub_number}, return result @{self_calculation_number}",
+    "inputList": {
+      "number": {
+        "title": "Original Number"
+      },
+      "add_sub": {
+        "title": "Increment/Decrement",
+        "tip": "Select whether to increment or decrement"
+      },
+      "add_sub_number": {
+        "title": "Amount to Increment/Decrement"
+      }
+    },
+    "outputList": {
+      "self_calculation_number": {
+        "title": "Result After Increment/Decrement"
+      }
+    }
+  },
+  "MathProcess.get_absolute_number": {
+    "title": "Get Absolute Value",
+    "comment": "Get absolute value @{absolute_number} of number @{raw_number}",
+    "inputList": {
+      "raw_number": {
+        "title": "Original Number"
+      }
+    },
+    "outputList": {
+      "absolute_number": {
+        "title": "Absolute Value"
+      }
+    }
+  },
+  "MathProcess.calculate_expression": {
+    "title": "Mathematical Calculation",
+    "comment": "Perform basic math calculation @{left} @{operator} @{right}, return result @{calculation_number}",
+    "inputList": {
+      "left": {
+        "title": "Left Operand"
+      },
+      "operator": {
+        "title": "Operator"
+      },
+      "right": {
+        "title": "Right Operand"
+      },
+      "handle_method": {
+        "title": "Result Processing Method"
+      },
+      "precision": {
+        "title": "Decimal Places to Keep"
+      }
+    },
+    "outputList": {
+      "calculation_number": {
+        "title": "Calculation Result"
+      }
+    }
+  },
+  "StringProcess.extract_content_from_string": {
+    "title": "Extract Content from Text",
+    "comment": "Extract @{extract_type} type content from text @{text}",
+    "inputList": {
+      "text": {
+        "title": "Original Text",
+        "tip": "Enter the text to extract content from"
+      },
+      "extract_type": {
+        "title": "Extract Type",
+        "tip": "Select the type of content to extract"
+      },
+      "regex_formula": {
+        "title": "Regular Expression",
+        "tip": "Enter a regex pattern, e.g. [\\u4e00-\\u9fff] for Chinese, \\d for digits, [a-zA-Z] for English"
+      },
+      "first_flag": {
+        "title": "Extract First Match Only",
+        "tip": "Whether to extract only the first matching result"
+      }
+    },
+    "outputList": {
+      "extract_from_string": {
+        "title": "Extracted Content",
+        "tip": "Returns the extracted content"
+      }
+    }
+  },
+  "StringProcess.replace_content_in_string": {
+    "title": "Replace Content in Text",
+    "comment": "Replace @{replace_type} type content in text @{text} with @{new_value}",
+    "inputList": {
+      "text": {
+        "title": "Original Text",
+        "tip": "Enter the text to replace content in"
+      },
+      "replace_type": {
+        "title": "Replace Type",
+        "tip": "Select the type of content to replace"
+      },
+      "replaced_string": {
+        "title": "String to Replace",
+        "tip": "Enter the string to be replaced"
+      },
+      "regex_formula": {
+        "title": "Replace with Regular Expression",
+        "tip": "Enter a regex pattern for replacement"
+      },
+      "new_value": {
+        "title": "Replace With",
+        "tip": "Enter the new value"
+      },
+      "first_flag": {
+        "title": "Replace First Match Only",
+        "tip": "Whether to replace only the first matching result"
+      },
+      "ignore_case_flag": {
+        "title": "Ignore Case",
+        "tip": "Whether to ignore case when replacing"
+      }
+    },
+    "outputList": {
+      "replaced_content_string": {
+        "title": "Text After Replacement",
+        "tip": "Returns the text after replacement"
+      }
+    }
+  },
+  "StringProcess.merge_list_to_string": {
+    "title": "Join List into Text",
+    "comment": "Join list @{list_data} elements into text @{merged_string_from_list}",
+    "inputList": {
+      "list_data": {
+        "title": "List Data",
+        "tip": "Enter the list data to join"
+      },
+      "separator": {
+        "title": "Separator",
+        "tip": "Enter the separator"
+      }
+    },
+    "outputList": {
+      "merged_string_from_list": {
+        "title": "Joined Text",
+        "tip": "Returns the joined text"
+      }
+    }
+  },
+  "StringProcess.split_string_to_list": {
+    "title": "Split Text into List",
+    "comment": "Split text @{string_data} by @{separator} into list @{split_list_from_string}",
+    "inputList": {
+      "string_data": {
+        "title": "Text Data",
+        "tip": "Enter the text data to split"
+      },
+      "separator": {
+        "title": "Separator",
+        "tip": "Enter the separator"
+      }
+    },
+    "outputList": {
+      "split_list_from_string": {
+        "title": "Split List",
+        "tip": "Returns the split list"
+      }
+    }
+  },
+  "StringProcess.concatenate_string": {
+    "title": "Concatenate Text",
+    "comment": "Concatenate @{string_data_1} and @{string_data_2} into @{concat_string}",
+    "inputList": {
+      "string_data_1": {
+        "title": "First Text",
+        "tip": "Enter the first text to concatenate"
+      },
+      "string_data_2": {
+        "title": "Second Text",
+        "tip": "Enter the second text to concatenate"
+      },
+      "concat_type": {
+        "title": "Concatenation Type",
+        "tip": "Select concatenation type; custom separator is available"
+      },
+      "separator": {
+        "title": "Separator",
+        "tip": "Enter the separator"
+      }
+    },
+    "outputList": {
+      "concat_string": {
+        "title": "Concatenated Text",
+        "tip": "Returns the concatenated text"
+      }
+    }
+  },
+  "StringProcess.fill_string_to_length": {
+    "title": "Pad Text to Fixed Length",
+    "comment": "Pad text @{string_data} to length @{total_length} using method @{fill_type}",
+    "inputList": {
+      "string_data": {
+        "title": "Text Data",
+        "tip": "Enter the text data to pad"
+      },
+      "add_str": {
+        "title": "Padding Character"
+      },
+      "total_length": {
+        "title": "Total Length",
+        "tip": "Enter the total length to pad to"
+      },
+      "fill_type": {
+        "title": "Padding Method",
+        "tip": "Select padding method: left-pad or right-pad"
+      }
+    },
+    "outputList": {
+      "complete_string": {
+        "title": "Padded Text"
+      }
+    }
+  },
+  "StringProcess.strip_string": {
+    "title": "Strip Whitespace from Text",
+    "comment": "Strip whitespace from sides of text @{string_data}, result @{stripped_string}",
+    "inputList": {
+      "string_data": {
+        "title": "Text Data"
+      },
+      "strip_method": {
+        "title": "Strip Method"
+      }
+    },
+    "outputList": {
+      "stripped_string": {
+        "title": "Text After Stripping Whitespace"
+      }
+    }
+  },
+  "StringProcess.cut_string_to_length": {
+    "title": "Cut Text to Fixed Length",
+    "comment": "Cut text @{string_data} to length @{length} using method @{cut_type}, return cut text @{cut_string}",
+    "inputList": {
+      "string_data": {
+        "title": "Text to Cut"
+      },
+      "length": {
+        "title": "Cut Length"
+      },
+      "cut_type": {
+        "title": "Cut Type"
+      },
+      "index": {
+        "title": "Start Character Position"
+      },
+      "find_str": {
+        "title": "String to Search For"
+      }
+    },
+    "outputList": {
+      "cut_string": {
+        "title": "Cut Text"
+      }
+    }
+  },
+  "StringProcess.change_case_of_string": {
+    "title": "Change Text Case",
+    "comment": "Change case of text @{string_data} to @{case_type}, return modified text @{change_case_string}",
+    "inputList": {
+      "string_data": {
+        "title": "Text Data"
+      },
+      "case_type": {
+        "title": "Case Type"
+      }
+    },
+    "outputList": {
+      "change_case_string": {
+        "title": "Text After Case Change"
+      }
+    }
+  },
+  "StringProcess.get_string_length": {
+    "title": "Get Text Length",
+    "comment": "Get length @{string_length} of text @{string_data}",
+    "inputList": {
+      "string_data": {
+        "title": "Text Data"
+      }
+    },
+    "outputList": {
+      "string_length": {
+        "title": "Text Length"
+      }
+    }
+  },
+  "TimeProcess.get_current_time": {
+    "title": "Get Current Time",
+    "comment": "Get current time in format @{time_format}, return current time object @{current_time}",
+    "inputList": {
+      "time_format": {
+        "title": "Time Format"
+      }
+    },
+    "outputList": {
+      "current_time": {
+        "title": "Current Time Object",
+        "tip": "Returns a time object; use helper functions or conversion actions to output as string"
+      }
+    }
+  },
+  "TimeProcess.set_time": {
+    "title": "Set Time",
+    "comment": "Set time @{time} using method @{change_type}, return adjusted time object @{set_time}",
+    "inputList": {
+      "time": {
+        "title": "Time Object"
+      },
+      "change_type": {
+        "title": "Date Adjustment Method"
+      },
+      "seconds": {
+        "title": "Seconds"
+      },
+      "minutes": {
+        "title": "Minutes"
+      },
+      "hours": {
+        "title": "Hours"
+      },
+      "days": {
+        "title": "Days"
+      },
+      "months": {
+        "title": "Months"
+      },
+      "years": {
+        "title": "Years"
+      }
+    },
+    "outputList": {
+      "set_time": {
+        "title": "Set Time Object"
+      }
+    }
+  },
+  "TimeProcess.time_to_timestamp": {
+    "title": "Time Object to Timestamp",
+    "comment": "Convert time object @{time} to timestamp with @{timestamp_unit} precision, return converted timestamp @{converted_timestamp}",
+    "inputList": {
+      "time": {
+        "title": "Time Object"
+      },
+      "timestamp_unit": {
+        "title": "Timestamp Precision"
+      }
+    },
+    "outputList": {
+      "converted_timestamp": {
+        "title": "Timestamp"
+      }
+    }
+  },
+  "TimeProcess.timestamp_to_time": {
+    "title": "Timestamp to Time Object",
+    "comment": "Convert timestamp @{timestamp} to time object @{converted_time}",
+    "inputList": {
+      "timestamp": {
+        "title": "Timestamp"
+      },
+      "time_zone": {
+        "title": "Select Timezone"
+      }
+    },
+    "outputList": {
+      "converted_time": {
+        "title": "Time Object"
+      }
+    }
+  },
+  "TimeProcess.get_time_difference": {
+    "title": "Get Time Difference",
+    "comment": "Get time difference between @{time_1} and @{time_2} in @{time_unit} units, return time difference @{time_difference}",
+    "inputList": {
+      "time_1": {
+        "title": "Time Object 1"
+      },
+      "time_2": {
+        "title": "Time Object 2"
+      },
+      "time_unit": {
+        "title": "Time Unit"
+      }
+    },
+    "outputList": {
+      "time_difference": {
+        "title": "Time Difference"
+      }
+    }
+  },
+  "TimeProcess.format_datetime": {
+    "title": "Output Time as Formatted Text",
+    "comment": "Output time object @{time} as text @{format_datetime} in specified format @{format_type}",
+    "inputList": {
+      "time": {
+        "title": "Time Object"
+      },
+      "format_type": {
+        "title": "Time Format"
+      }
+    },
+    "outputList": {
+      "format_datetime": {
+        "title": "Time Text"
+      }
+    }
+  },
+  "options": {
+    "VariableType": {
+      "str": "String",
+      "int": "Integer",
+      "float": "Float",
+      "bool": "Boolean",
+      "list": "List",
+      "dict": "Dictionary",
+      "json": "JSON",
+      "tuple": "Tuple",
+      "other": "Other"
+    },
+    "JSONConvertType": {
+      "json_to_str": "JSON to String",
+      "str_to_json": "String to JSON"
+    },
+    "StringConvertType": {
+      "str_to_list": "String to List",
+      "str_to_dict": "String to Dictionary",
+      "str_to_tuple": "String to Tuple",
+      "str_to_bool": "String to Boolean",
+      "str_to_int": "String to Integer",
+      "str_to_float": "String to Float"
+    },
+    "NoKeyOptionType": {
+      "raise_error": "Raise Exception",
+      "return_default": "Return Default Value"
+    },
+    "ListType": {
+      "empty": "Empty List",
+      "same_data": "List with Identical Elements",
+      "user_defined": "User-Defined List"
+    },
+    "InsertMethodType": {
+      "append": "Append",
+      "index": "Insert at Specified Position"
+    },
+    "DeleteMethodType": {
+      "index": "Delete by Position",
+      "value": "Delete by Value"
+    },
+    "SortMethodType": {
+      "asc": "Ascending",
+      "desc": "Descending"
+    },
+    "NumberType": {
+      "integer": "Integer",
+      "float": "Float"
+    },
+    "AddSubType": {
+      "add": "Add",
+      "sub": "Subtract"
+    },
+    "MathOperatorType": {
+      "+": "Add",
+      "-": "Subtract",
+      "*": "Multiply",
+      "/": "Divide"
+    },
+    "MathRoundType": {
+      "round": "Round",
+      "ceil": "Ceiling",
+      "floor": "Floor",
+      "none": "No Operation"
+    },
+    "ExtractType": {
+      "phone_number": "Chinese Mobile Number",
+      "email": "Email Address",
+      "url": "URL",
+      "digit": "Digits",
+      "id_number": "Chinese ID Number",
+      "regex": "Regular Expression"
+    },
+    "Bool": {
+      "True": "Yes",
+      "False": "No"
+    },
+    "ReplaceType": {
+      "string": "String",
+      "phone_number": "Chinese Mobile Number",
+      "email": "Email Address",
+      "url": "URL",
+      "digit": "Digits",
+      "id_number": "Chinese ID Number",
+      "regex": "Regular Expression"
+    },
+    "ConcatStringType": {
+      "none": "No Separator",
+      "linebreak": "Line Break",
+      "space": "Space ( )",
+      "hyphen": "Hyphen (-)",
+      "underline": "Underscore (_)",
+      "other": "Custom"
+    },
+    "FillStringType": {
+      "right": "Right Pad",
+      "left": "Left Pad"
+    },
+    "StripStringType": {
+      "left": "Left Side",
+      "right": "Right Side",
+      "both": "Both Sides"
+    },
+    "CutStringType": {
+      "first": "Start from First Character",
+      "index": "Start from Specified Position",
+      "string": "Start from Specified String"
+    },
+    "CaseChangeType": {
+      "upper": "All Uppercase",
+      "lower": "All Lowercase",
+      "caps": "Capitalize First Letter"
+    },
+    "TimeFormatType": {
+      "%Y-%m-%d": "Year-Month-Day",
+      "%Y-%m-%d %H:%M:%S": "Year-Month-Day Hour:Minute:Second",
+      "%Y-%m-%d %H:%M": "Year-Month-Day Hour:Minute",
+      "%Y/%m/%d": "Year/Month/Day",
+      "%Y/%m/%d %H:%M": "Year/Month/Day Hour:Minute",
+      "%Y/%m/%d %H:%M:%S": "Year/Month/Day Hour:Minute:Second",
+      "%Y%m%d": "YearMonthDay",
+      "%H:%M": "Hour:Minute",
+      "%H:%M:%S": "Hour:Minute:Second",
+      "%w": "Day of the Week",
+      "%j": "Day of the Year",
+      "%W": "Week of the Year",
+      "%Y年%m月%d日": "XXXX Year XX Month XX Day",
+      "%Y年%m月%d日 %H:%M": "XXXX Year XX Month XX Day XX:XX",
+      "%Y年%m月%d日 %H:%M:%S": "XXXX Year XX Month XX Day XX:XX:XX"
+    },
+    "TimeChangeType": {
+      "maintain": "Keep Unchanged",
+      "add": "Add Time",
+      "sub": "Subtract Time"
+    },
+    "TimestampUnitType": {
+      "second": "Seconds",
+      "millisecond": "Milliseconds",
+      "microsecond": "Microseconds"
+    },
+    "TimeZoneType": {
+      "UTC": "UTC Standard Time",
+      "local": "Local Time"
+    },
+    "TimeUnitType": {
+      "second": "Seconds",
+      "minute": "Minutes",
+      "hour": "Hours",
+      "day": "Days",
+      "month": "Months",
+      "year": "Years"
+    }
+  }
+}

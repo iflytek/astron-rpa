@@ -42,7 +42,7 @@
     "@types/lodash-es": "^4.17.12",
     "@types/node": "^18.15.0",
     "@types/node-7z": "^2.1.11",
-    "electron": "^25.9.8",
+    "electron": "25.9.8",
     "electron-builder": "^24.13.3",
     "electron-vite": "^5.0.0",
     "tsdown": "catalog:",

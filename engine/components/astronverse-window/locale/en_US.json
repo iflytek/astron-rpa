@@ -1,0 +1,72 @@
+{
+  "Window.exist": {
+    "title": "IF Window Exists",
+    "comment": "Check if picked window @{pick} @{check_type}, execute the following operations if true",
+    "inputList": {
+      "pick": {
+        "title": "Window Pick",
+        "tip": "Select the window object to check for existence"
+      },
+      "check_type": {
+        "title": "Check Mode",
+        "tip": "Select check mode, default is exists"
+      },
+      "wait_time": {
+        "title": "Wait Time (seconds)",
+        "tip": "Time to wait for the check result"
+      }
+    }
+  },
+  "Window.top": {
+    "title": "Bring Window to Top",
+    "comment": "Bring window object @{pick} to top",
+    "inputList": {
+      "pick": {
+        "title": "Window Pick",
+        "tip": "Pick the window object to bring to top"
+      }
+    }
+  },
+  "Window.close": {
+    "title": "Close Window",
+    "comment": "Close window object @{pick}",
+    "inputList": {
+      "pick": {
+        "title": "Window Pick",
+        "tip": "Pick the window object to close"
+      }
+    }
+  },
+  "Window.set_size": {
+    "title": "Resize Window",
+    "comment": "Resize window @{pick} using @{size_type} mode",
+    "inputList": {
+      "pick": {
+        "title": "Window Pick",
+        "tip": "Pick the desktop application window to resize"
+      },
+      "size_type": {
+        "title": "Resize Mode"
+      },
+      "width": {
+        "title": "Window Width",
+        "tip": "Set the specified window width in pixels (px), typically 0-9999"
+      },
+      "height": {
+        "title": "Window Height",
+        "tip": "Set the specified window height in pixels (px), typically 0-9999"
+      }
+    }
+  },
+  "options": {
+    "WindowExistType": {
+      "exist": "Exists",
+      "not_exist": "Does Not Exist"
+    },
+    "WindowSizeType": {
+      "custom": "Custom",
+      "max": "Maximize",
+      "min": "Minimize"
+    }
+  }
+}

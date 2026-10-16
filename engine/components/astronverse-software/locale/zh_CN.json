@@ -1,0 +1,48 @@
+{
+  "Software.open": {
+    "title": "打开程序",
+    "comment": "打开路径为 @{app_absolute_path} 的应用程序，将结果输出为 @{software_open}",
+    "inputList": {
+      "app_absolute_path": {
+        "title": "应用程序路径",
+        "tip": "输入需要打开的应用程序文件路径"
+      },
+      "app_arguments": {
+        "title": "打开的应用程序参数",
+        "tip": "输入打开应用程序时需要传递的参数"
+      }
+    },
+    "outputList": {
+      "software_open": {
+        "title": "应用程序路径",
+        "tip": "输出该被打开的应用程序路径"
+      }
+    }
+  },
+  "Software.close": {
+    "title": "关闭程序",
+    "comment": "关闭应用程序路径为 @{app_absolute_path} 的程序",
+    "inputList": {
+      "app_absolute_path": {
+        "title": "应用程序路径",
+        "tip": "需要被关闭的应用程序路径"
+      }
+    }
+  },
+  "Software.cmd": {
+    "title": "Cmd命令",
+    "comment": "通过配置cmd字符串(@{cmd})，执行cmd命令，执行结果保存至(@{exec_cmd})",
+    "inputList": {
+      "cmd": {
+        "title": "cmd字符串",
+        "tip": "输入cmd字符串"
+      }
+    },
+    "outputList": {
+      "exec_cmd": {
+        "title": "执行结果",
+        "tip": "输出自定义cmd命令运行后返回的对象结果"
+      }
+    }
+  }
+}

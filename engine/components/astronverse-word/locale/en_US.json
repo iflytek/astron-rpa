@@ -1,0 +1,773 @@
+{
+  "Docx.open_docx": {
+    "title": "Open Word",
+    "comment": "Open Word document at path @{file_path}, return Word object @{doc_obj}",
+    "inputList": {
+      "file_path": {
+        "title": "Document Path",
+        "tip": "Enter the path to the Word document"
+      },
+      "default_application": {
+        "title": "Open With",
+        "tip": "Select the application to open Word, such as Word or WPS"
+      },
+      "visible_flag": {
+        "title": "Visible",
+        "tip": "Whether to display the Word window"
+      },
+      "encoding": {
+        "title": "Encoding Mode",
+        "tip": "Select the document encoding mode, such as UTF-8 or GBK"
+      },
+      "open_pwd_flag": {
+        "title": "Set Word Open Password",
+        "tip": "Select whether a password is required to open the document"
+      },
+      "open_pwd": {
+        "title": "Word Open Password",
+        "tip": "Enter the Word open password"
+      },
+      "write_pwd_flag": {
+        "title": "Set Word Write Password",
+        "tip": "Select whether a password is required to write to the document"
+      },
+      "write_pwd": {
+        "title": "Word Write Password",
+        "tip": "Enter the Word write password"
+      }
+    },
+    "outputList": {
+      "doc_obj": {
+        "title": "Word Object",
+        "tip": "Returns the Word object for subsequent operations"
+      }
+    }
+  },
+  "Docx.read_docx": {
+    "title": "Read Word Content",
+    "comment": "Read content from Word object @{doc}, return document content @{doc_data}",
+    "inputList": {
+      "doc": {
+        "title": "Word Object",
+        "tip": "Word object returned by a preceding operation (e.g., open, create)"
+      },
+      "select_range": {
+        "title": "Read Range",
+        "tip": "Select the range to read, such as entire document or selected area"
+      }
+    },
+    "outputList": {
+      "doc_data": {
+        "title": "Document Content",
+        "tip": "Returns the read document content as a string"
+      }
+    }
+  },
+  "Docx.create_docx": {
+    "title": "Create Word",
+    "comment": "Create a Word document, save to path @{file_path} with filename @{file_name}, return Word object @{doc_obj} and save path @{doc_create_path}",
+    "inputList": {
+      "file_path": {
+        "title": "Document Save Folder",
+        "tip": "Enter the folder path to save the Word document"
+      },
+      "file_name": {
+        "title": "Document Name",
+        "tip": "Enter the name of the Word document"
+      },
+      "default_application": {
+        "title": "Driver",
+        "tip": "Select the application to open Word, such as Word or WPS"
+      },
+      "visible_flag": {
+        "title": "Visible",
+        "tip": "Whether to display the Word window"
+      },
+      "exist_handle_type": {
+        "title": "Duplicate File Handling",
+        "tip": "Select handling when a file with the same name exists: overwrite, create copy, or skip"
+      }
+    },
+    "outputList": {
+      "doc_obj": {
+        "title": "Word Object",
+        "tip": "Returns the Word object for subsequent operations"
+      },
+      "doc_create_path": {
+        "title": "Document Save Path",
+        "tip": "Full path of the saved Word document"
+      }
+    }
+  },
+  "Docx.save_docx": {
+    "title": "Save Word",
+    "comment": "Save Word object @{doc} with save type @{save_type}, output save path @{save_file_path}",
+    "inputList": {
+      "doc": {
+        "title": "Word Object",
+        "tip": "Word object returned by a preceding operation (e.g., open, create)"
+      },
+      "save_type": {
+        "title": "Save Type",
+        "tip": "Select save type: save, save as, or discard"
+      },
+      "file_path": {
+        "title": "Document Path",
+        "tip": "Enter the save path for the Word document"
+      },
+      "file_name": {
+        "title": "Document Name",
+        "tip": "Enter the name of the Word document"
+      },
+      "exist_handle_type": {
+        "title": "Duplicate File Handling",
+        "tip": "Select handling when a file with the same name exists: overwrite, create copy, or skip"
+      },
+      "close_flag": {
+        "title": "Close Document",
+        "tip": "Select whether to close the document window"
+      }
+    },
+    "outputList": {
+      "save_file_path": {
+        "title": "Save Path",
+        "tip": "Full path of the saved Word document"
+      }
+    }
+  },
+  "Docx.close_docx": {
+    "title": "Close Word",
+    "comment": "Close Word object @{doc}",
+    "inputList": {
+      "doc": {
+        "title": "Word Object",
+        "tip": "Word object returned by a preceding operation (e.g., open, create)"
+      },
+      "close_range_flag": {
+        "title": "Close Range",
+        "tip": "Select the range to close: current document or all documents"
+      },
+      "save_type": {
+        "title": "Save Type",
+        "tip": "Select save type: save, save as, or discard"
+      },
+      "file_path": {
+        "title": "Save As Document Path",
+        "tip": "Enter the save path for the Word document"
+      },
+      "file_name": {
+        "title": "Save As Document Name",
+        "tip": "Enter the name of the Word document"
+      },
+      "exist_handle_type": {
+        "title": "Duplicate File Handling",
+        "tip": "Select handling when a file with the same name exists: overwrite, create copy, or skip"
+      },
+      "pkill_flag": {
+        "title": "Terminate Word/WPS Process",
+        "tip": "Select whether to terminate the Word or WPS process"
+      }
+    }
+  },
+  "Docx.insert_docx": {
+    "title": "Insert Text into Word",
+    "comment": "Insert text @{text} into Word object @{doc}",
+    "inputList": {
+      "doc": {
+        "title": "Word Object",
+        "tip": "Word object returned by a preceding operation (e.g., open, create)"
+      },
+      "text_source": {
+        "title": "Input Method",
+        "tip": "Select direct input or read from file"
+      },
+      "text": {
+        "title": "Insert Text",
+        "tip": "Enter the text to insert"
+      },
+      "text_file_path": {
+        "title": "Text File Path",
+        "tip": "Select the text file to read"
+      },
+      "enter_flag": {
+        "title": "New Line Before Insert",
+        "tip": "Select whether to add a new line before inserting"
+      },
+      "font_size": {
+        "title": "Font Size",
+        "tip": "Enter the font size"
+      },
+      "bold_flag": {
+        "title": "Bold",
+        "tip": "Select whether to bold"
+      },
+      "italic_flag": {
+        "title": "Italic",
+        "tip": "Select whether to italicize"
+      },
+      "underline_flag": {
+        "title": "Underline",
+        "tip": "Select whether to add underline"
+      },
+      "font_name": {
+        "title": "Font Name",
+        "tip": "Enter the font name"
+      },
+      "font_color": {
+        "title": "Font Color",
+        "tip": "Select the font color"
+      }
+    }
+  },
+  "Docx.select_text": {
+    "title": "Select Word Text",
+    "comment": "Select text from Word object @{doc}",
+    "inputList": {
+      "doc": {
+        "title": "Word Object",
+        "tip": "Word object returned by a preceding operation (e.g., open, create)"
+      },
+      "select_type": {
+        "title": "Text Selection Method",
+        "tip": "Supports selecting entire document, paragraph, or line"
+      },
+      "p_start": {
+        "title": "Start Paragraph Number",
+        "tip": "Enter the start paragraph number"
+      },
+      "p_end": {
+        "title": "End Paragraph Number",
+        "tip": "Enter the end paragraph number"
+      },
+      "r_start": {
+        "title": "Start Line Number",
+        "tip": "Enter the start line number"
+      },
+      "r_end": {
+        "title": "End Line Number",
+        "tip": "Enter the end line number"
+      }
+    }
+  },
+  "Docx.get_cursor_position": {
+    "title": "Position Word Cursor",
+    "comment": "Position the cursor in Word object @{doc}",
+    "inputList": {
+      "doc": {
+        "title": "Word Object",
+        "tip": "Word object returned by a preceding operation (e.g., open, create)"
+      },
+      "by": {
+        "title": "Cursor Positioning Method",
+        "tip": "Select positioning to entire document, paragraph, line, or text"
+      },
+      "pos": {
+        "title": "Cursor Relative Position",
+        "tip": "Before selected content / After selected content"
+      },
+      "content": {
+        "title": "Text Content",
+        "tip": "If positioning by text, enter the text content"
+      },
+      "c_idx": {
+        "title": "Text Index",
+        "tip": "Enter the index of the target text"
+      },
+      "p_idx": {
+        "title": "Paragraph Number",
+        "tip": "Enter the target paragraph number"
+      },
+      "r_idx": {
+        "title": "Line Number",
+        "tip": "Select the target line number"
+      }
+    }
+  },
+  "Docx.move_cursor": {
+    "title": "Move Word Cursor",
+    "comment": "Move the cursor in Word object @{doc}",
+    "inputList": {
+      "doc": {
+        "title": "Word Object",
+        "tip": "Word object returned by a preceding operation (e.g., open, create)"
+      },
+      "direction": {
+        "title": "Cursor Move Direction",
+        "tip": "Select up, down, left, or right"
+      },
+      "unitupdown": {
+        "title": "Up/Down Move Unit",
+        "tip": "Select line or paragraph"
+      },
+      "unitleftright": {
+        "title": "Left/Right Move Unit",
+        "tip": "Select character or word"
+      },
+      "distance": {
+        "title": "Move Distance",
+        "tip": "Enter the move distance"
+      },
+      "with_shift": {
+        "title": "Hold Shift",
+        "tip": "Select whether to hold Shift"
+      }
+    }
+  },
+  "Docx.insert_sep": {
+    "title": "Insert Page/Paragraph into Word",
+    "comment": "Insert a page or paragraph into Word object @{doc}",
+    "inputList": {
+      "doc": {
+        "title": "Word Object",
+        "tip": "Word object returned by a preceding operation (e.g., open, create)"
+      },
+      "sep_type": {
+        "title": "Insert Type",
+        "tip": "Select page or paragraph"
+      }
+    }
+  },
+  "Docx.insert_hyperlink": {
+    "title": "Insert Hyperlink into Word",
+    "comment": "Insert a hyperlink into Word object @{doc}",
+    "inputList": {
+      "doc": {
+        "title": "Word Object",
+        "tip": "Word object returned by a preceding operation (e.g., open, create)"
+      },
+      "url": {
+        "title": "Link",
+        "tip": "Enter the link to insert"
+      },
+      "display": {
+        "title": "Display Text",
+        "tip": "Enter the text to display"
+      }
+    }
+  },
+  "Docx.insert_img": {
+    "title": "Insert Image into Word",
+    "comment": "Insert an image from path @{img_path} or clipboard into Word object @{doc}",
+    "inputList": {
+      "doc": {
+        "title": "Word Object",
+        "tip": "Word object returned by a preceding operation (e.g., open, create)"
+      },
+      "img_from": {
+        "title": "Image Source",
+        "tip": "Select from file path or clipboard"
+      },
+      "img_path": {
+        "title": "File Path",
+        "tip": "Enter the file path"
+      },
+      "scale": {
+        "title": "Scale",
+        "tip": "Enter an integer as percentage (e.g., 100 means 100%), default 100"
+      },
+      "newline": {
+        "title": "New Line",
+        "tip": "Select whether to add a new line before inserting"
+      }
+    }
+  },
+  "Docx.read_table": {
+    "title": "Read Word Table",
+    "comment": "Read table content from Word object @{doc} and return table data object @{table_content}",
+    "inputList": {
+      "doc": {
+        "title": "Word Object",
+        "tip": "Word object returned by a preceding operation (e.g., open, create)"
+      },
+      "search_type": {
+        "title": "Table Search Method",
+        "tip": "Select the method to find the table"
+      },
+      "idx": {
+        "title": "Index",
+        "tip": "Enter the index of the table to find"
+      },
+      "text": {
+        "title": "Text",
+        "tip": "Enter the text to find the table"
+      }
+    },
+    "outputList": {
+      "table_content": {
+        "title": "Table Content"
+      }
+    }
+  },
+  "Docx.insert_table": {
+    "title": "Insert Table into Word",
+    "comment": "Insert table content into Word object @{doc}",
+    "inputList": {
+      "doc": {
+        "title": "Word Object",
+        "tip": "Word object returned by a preceding operation (e.g., open, create)"
+      },
+      "table_content": {
+        "title": "Table Content",
+        "tip": "Table content to create, as a 2D array or read Excel table content"
+      },
+      "table_behavior": {
+        "title": "Table Size",
+        "tip": "Select default or fit to content"
+      },
+      "alignment": {
+        "title": "Horizontal Alignment",
+        "tip": "Select left, center, or right alignment"
+      },
+      "v_alignment": {
+        "title": "Vertical Alignment",
+        "tip": "Select top, center, or bottom alignment"
+      },
+      "border": {
+        "title": "Table Border",
+        "tip": "Select whether to show border"
+      },
+      "if_change_font": {
+        "title": "Change Font",
+        "tip": "Select whether to change font"
+      },
+      "font_size": {
+        "title": "Size",
+        "tip": "Select font size"
+      },
+      "font_color": {
+        "title": "Color",
+        "tip": "Select font color"
+      },
+      "font_set": {
+        "title": "Font",
+        "tip": "Select font"
+      },
+      "font_bold": {
+        "title": "Bold",
+        "tip": "Select whether to bold"
+      },
+      "font_italic": {
+        "title": "Italic",
+        "tip": "Select whether to italicize"
+      },
+      "underline": {
+        "title": "Underline",
+        "tip": "Select whether to underline"
+      },
+      "newline": {
+        "title": "Insert on New Line",
+        "tip": "Select whether to insert on a new line"
+      }
+    }
+  },
+  "Docx.delete": {
+    "title": "Delete Word Content",
+    "comment": "Delete content from Word object @{doc}",
+    "inputList": {
+      "doc": {
+        "title": "Word Object",
+        "tip": "Word object returned by a preceding operation (e.g., open, create)"
+      },
+      "delete_mode": {
+        "title": "Delete Method",
+        "tip": "Select the delete method"
+      },
+      "delete_str": {
+        "title": "Text",
+        "tip": "Select the text to delete"
+      },
+      "delete_idx": {
+        "title": "Index",
+        "tip": "Select which occurrence of the text to delete"
+      },
+      "str_delete_all": {
+        "title": "Delete All Matches",
+        "tip": "Select whether to delete all matching text"
+      },
+      "p_start": {
+        "title": "Start Paragraph",
+        "tip": "Enter the start paragraph"
+      },
+      "c_start": {
+        "title": "Start Character",
+        "tip": "Enter the start character"
+      },
+      "p_end": {
+        "title": "End Paragraph",
+        "tip": "Enter the end paragraph"
+      },
+      "c_end": {
+        "title": "End Character",
+        "tip": "Enter the end character"
+      }
+    }
+  },
+  "Docx.replace": {
+    "title": "Replace Word Content",
+    "comment": "Find and replace content in Word object @{doc}",
+    "inputList": {
+      "doc": {
+        "title": "Word Object",
+        "tip": "Word object returned by a preceding operation (e.g., open, create)"
+      },
+      "origin_word": {
+        "title": "Find Content",
+        "tip": "Enter the content to find"
+      },
+      "replace_type": {
+        "title": "Replace With",
+        "tip": "Select replace with image or text"
+      },
+      "new_word": {
+        "title": "New Content",
+        "tip": "Enter the replacement content"
+      },
+      "img_path": {
+        "title": "Image Path",
+        "tip": "Select the image path"
+      },
+      "replace_method": {
+        "title": "Replace Mode",
+        "tip": "Select replace all or replace first"
+      },
+      "ignore_case": {
+        "title": "Ignore Case",
+        "tip": "Select whether to ignore case"
+      }
+    }
+  },
+  "Docx.create_comment": {
+    "title": "Create Word Comment",
+    "comment": "Create a comment in Word object @{doc}",
+    "inputList": {
+      "doc": {
+        "title": "Word Object",
+        "tip": "Word object returned by a preceding operation (e.g., open, create)"
+      },
+      "comment": {
+        "title": "Comment Content",
+        "tip": "Enter the comment content"
+      },
+      "comment_type": {
+        "title": "Comment Target",
+        "tip": "Select specified range or specified content"
+      },
+      "paragraph_idx": {
+        "title": "Paragraph Number",
+        "tip": "Enter the paragraph number for the comment"
+      },
+      "start": {
+        "title": "Start Character Index",
+        "tip": "Enter the start character index for the comment"
+      },
+      "end": {
+        "title": "End Character Index",
+        "tip": "Enter the end character index for the comment"
+      },
+      "target_str": {
+        "title": "Target Content",
+        "tip": "Enter the target content for the comment"
+      },
+      "comment_all": {
+        "title": "Comment All",
+        "tip": "Select whether to comment all matches"
+      },
+      "comment_index": {
+        "title": "Index",
+        "tip": "Select the index of the comment content"
+      }
+    }
+  },
+  "Docx.delete_comment": {
+    "title": "Delete Word Comment",
+    "comment": "Delete specified comment from Word object @{doc}",
+    "inputList": {
+      "doc": {
+        "title": "Word Object",
+        "tip": "Word object returned by a preceding operation (e.g., open, create)"
+      },
+      "delete_all": {
+        "title": "Delete All",
+        "tip": "Select whether to delete all comments"
+      },
+      "comment_index": {
+        "title": "Comment Index",
+        "tip": "Enter the index of the comment to delete"
+      }
+    }
+  },
+  "Docx.convert_format": {
+    "title": "Export Word to PDF/TXT",
+    "comment": "Export specified content from Word object @{doc} as PDF or TXT file",
+    "inputList": {
+      "doc": {
+        "title": "Word Object",
+        "tip": "Word object returned by a preceding operation (e.g., open, create)"
+      },
+      "output_path": {
+        "title": "Export Path",
+        "tip": "Select the folder to export to"
+      },
+      "default_name": {
+        "title": "Use Default Name",
+        "tip": "Select whether to use the default name"
+      },
+      "output_name": {
+        "title": "Export File Name",
+        "tip": "Enter the file name without extension"
+      },
+      "output_file_type": {
+        "title": "Export File Format",
+        "tip": "Select export as PDF or TXT"
+      },
+      "page_type": {
+        "title": "Page Range",
+        "tip": "Select all pages, specified page range, current page, or current selection"
+      },
+      "page_start": {
+        "title": "Start Page",
+        "tip": "Enter the start page for export"
+      },
+      "page_end": {
+        "title": "End Page",
+        "tip": "Enter the end page for export"
+      },
+      "save_type": {
+        "title": "Duplicate Name Handling",
+        "tip": "Select error, overwrite, or auto-rename when a duplicate file exists"
+      }
+    }
+  },
+  "options": {
+    "ApplicationType": {
+      "Word": "Word",
+      "WPS": "WPS",
+      "Default": "Default Application"
+    },
+    "Bool": {
+      "True": "Yes",
+      "False": "No"
+    },
+    "EncodingType": {
+      "utf-8": "utf-8",
+      "gbk": "gbk"
+    },
+    "SelectRangeType": {
+      "all": "Entire Document",
+      "selected": "Selected Area"
+    },
+    "FileExistenceType": {
+      "overwrite": "Overwrite Existing File",
+      "rename": "Create File Copy",
+      "cancel": "Skip Save Operation"
+    },
+    "SaveType": {
+      "save": "Save",
+      "save_as": "Save As",
+      "abort": "Discard"
+    },
+    "CloseRangeType": {
+      "one": "Close Current Document",
+      "all": "Close All Documents"
+    },
+    "UnderLineStyle": {
+      "0": "No Underline",
+      "1": "Underline"
+    },
+    "SelectTextType": {
+      "all": "Entire Document",
+      "paragraph": "Paragraph",
+      "row": "Line"
+    },
+    "CursorPointerType": {
+      "all": "Document",
+      "paragraph": "Paragraph",
+      "row": "Line",
+      "content": "Text Content"
+    },
+    "CursorPositionType": {
+      "head": "Before Selected Content",
+      "tail": "After Selected Content"
+    },
+    "MoveDirectionType": {
+      "up": "Up",
+      "down": "Down",
+      "left": "Left",
+      "right": "Right"
+    },
+    "MoveUpDownType": {
+      "paragraph": "Paragraph",
+      "row": "Line"
+    },
+    "MoveLeftRightType": {
+      "character": "Character",
+      "word": "Word"
+    },
+    "InsertionType": {
+      "page": "Page",
+      "paragraph": "Paragraph"
+    },
+    "InsertImgType": {
+      "file": "File",
+      "clipboard": "Clipboard"
+    },
+    "SearchTableType": {
+      "text": "Text",
+      "idx": "Index"
+    },
+    "TableBehavior": {
+      "0": "Default",
+      "1": "Fit to Content"
+    },
+    "RowAlignment": {
+      "0": "Left-Aligned",
+      "1": "Center-Aligned",
+      "2": "Right-Aligned"
+    },
+    "VerticalAlignment": {
+      "0": "Top-Aligned",
+      "1": "Center-Aligned",
+      "3": "Bottom-Aligned"
+    },
+    "DeleteMode": {
+      "all": "All",
+      "content": "Specified Text",
+      "range": "Specified Range"
+    },
+    "ReplaceType": {
+      "img": "Image",
+      "str": "Text"
+    },
+    "ReplaceMethodType": {
+      "first": "First",
+      "all": "All"
+    },
+    "CommentType": {
+      "position": "Specified Position",
+      "content": "Specified Content"
+    },
+    "FileType": {
+      "pdf": "PDF",
+      "txt": "TXT"
+    },
+    "ConvertPageType": {
+      "0": "All Pages",
+      "2": "Current Page",
+      "3": "Specified Page Range",
+      "1": "Selected Content"
+    },
+    "SaveFileType": {
+      "warn": "Duplicate Name Warning",
+      "generate": "Auto-Generate Name",
+      "overwrite": "Overwrite Existing File"
+    },
+    "TextInputSourceType": {
+      "input": "Direct Input",
+      "file": "Read from File"
+    }
+  },
+  "DocumentObject": {
+    "desc": "Word Object",
+    "template": "Word Object"
+  }
+}

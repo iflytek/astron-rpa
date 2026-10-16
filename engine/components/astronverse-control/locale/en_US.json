@@ -1,0 +1,197 @@
+{
+  "Code.If": {
+    "title": "IF Condition",
+    "comment": "If @{args1}  @{condition}  @{args2} , execute the following operations",
+    "inputList": {
+      "args1": {
+        "title": "Object 1"
+      },
+      "condition": {
+        "title": "Relation"
+      },
+      "args2": {
+        "title": "Object 2"
+      }
+    }
+  },
+  "Code.ElseIf": {
+    "title": "ELSE IF Condition",
+    "comment": "If @{args1}  @{condition}  @{args2} , execute the following operations",
+    "inputList": {
+      "args1": {
+        "title": "Object 1"
+      },
+      "condition": {
+        "title": "Relation"
+      },
+      "args2": {
+        "title": "Object 2"
+      }
+    }
+  },
+  "Code.Else": {
+    "title": "Else Condition",
+    "comment": "Else Condition"
+  },
+  "Code.IfEnd": {
+    "title": "End Condition",
+    "comment": "End Condition"
+  },
+  "Code.ElseEnd": {
+    "title": "End Condition",
+    "comment": "End Condition"
+  },
+  "Code.ElseIfEnd": {
+    "title": "End Condition",
+    "comment": "End Condition"
+  },
+  "Code.While": {
+    "title": "While Loop",
+    "comment": "While @{args1}  @{condition}  @{args2} , execute the following operations",
+    "inputList": {
+      "args1": {
+        "title": "Object 1"
+      },
+      "condition": {
+        "title": "Relation"
+      },
+      "args2": {
+        "title": "Object 2"
+      }
+    }
+  },
+  "Code.WhileEnd": {
+    "title": "End Loop",
+    "comment": "End Loop"
+  },
+  "Code.ForList": {
+    "title": "List For Loop",
+    "comment": "Iterate over list @{list_obj}",
+    "inputList": {
+      "list_obj": {
+        "title": "List Object"
+      }
+    },
+    "outputList": {
+      "index": {
+        "title": "Index"
+      },
+      "item": {
+        "title": "Item"
+      }
+    }
+  },
+  "Code.ForListEnd": {
+    "title": "End List For Loop",
+    "comment": "End List For Loop"
+  },
+  "Code.ForDict": {
+    "title": "Dict For Loop",
+    "comment": "Iterate over dict @{dicts}",
+    "inputList": {
+      "dicts": {
+        "title": "Dict Object"
+      }
+    },
+    "outputList": {
+      "key": {
+        "title": "Key"
+      },
+      "value": {
+        "title": "Value"
+      }
+    }
+  },
+  "Code.ForDictEnd": {
+    "title": "End Dict For Loop",
+    "comment": "End Dict For Loop"
+  },
+  "Code.ForStep": {
+    "title": "Count For Loop",
+    "comment": "From @{start} to @{end}, step @{step}",
+    "inputList": {
+      "start": {
+        "title": "Start Value"
+      },
+      "end": {
+        "title": "End Value"
+      },
+      "step": {
+        "title": "Step"
+      }
+    },
+    "outputList": {
+      "index": {
+        "title": "Index"
+      }
+    }
+  },
+  "Code.ForStepEnd": {
+    "title": "End Count For Loop",
+    "comment": "End Count For Loop"
+  },
+  "Code.ForEnd": {
+    "title": "End Loop",
+    "comment": "End Loop"
+  },
+  "Code.Break": {
+    "title": "Break Loop (Break)",
+    "comment": "Exit current loop"
+  },
+  "Code.Continue": {
+    "title": "Continue Loop (Continue)",
+    "comment": "Continue next iteration"
+  },
+  "Code.Return": {
+    "title": "Exit Process (Return)",
+    "comment": "Exit current process"
+  },
+  "Code.Try": {
+    "title": "Catch Exception (Try)",
+    "comment": "Catch exception"
+  },
+  "Code.TryEnd": {
+    "title": "End Catch",
+    "comment": "End Catch"
+  },
+  "Code.Catch": {
+    "title": "Catch Exception (Catch)",
+    "comment": "Catch exception"
+  },
+  "Code.CatchEnd": {
+    "title": "End Catch",
+    "comment": "End Catch"
+  },
+  "Code.Finally": {
+    "title": "Catch Exception (Finally)",
+    "comment": "Catch exception"
+  },
+  "Code.FinallyEnd": {
+    "title": "End Catch",
+    "comment": "End Catch"
+  },
+  "Code.Group": {
+    "title": "Group Start",
+    "comment": "Group Start"
+  },
+  "Code.GroupEnd": {
+    "title": "Group End",
+    "comment": "Group End"
+  },
+  "options": {
+    "ConditionType": {
+      "==": "Equal to",
+      "!=": "Not equal to",
+      ">": "Greater than",
+      ">=": "Greater than or equal to",
+      "<": "Less than",
+      "<=": "Less than or equal to",
+      "in": "Contains",
+      "notin": "Does not contain",
+      "empty": "Is empty",
+      "notempty": "Is not empty",
+      "true": "Is true",
+      "false": "Is false"
+    }
+  }
+}

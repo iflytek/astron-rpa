@@ -5,6 +5,8 @@ import { to } from 'await-to-js'
 
 import { toUnicode } from '../common'
 
+import { getSkippedEngineRoutePort, isEngineStartSkipped } from './config'
+import { isDevEngineReady } from './devEngineHealth'
 import { mainToRender } from './event'
 import { extract7z } from './file'
 import logger from './log'
@@ -19,6 +21,14 @@ process.on('uncaughtException', (err) => {
 function sendToRender(message: string, percent: number) {
   const unicodeMessage = `{"type":"sync","msg":{"msg":"${toUnicode(message)}","step":${percent}}}`
   mainToRender('scheduler-event', unicodeMessage, undefined, true)
+}
+
+function sendReady(routePort: number) {
+  const message = JSON.stringify({
+    type: 'sync_cancel',
+    msg: { route_port: routePort, step: 100 },
+  })
+  mainToRender('scheduler-event', message, undefined, true)
 }
 
 /**
@@ -54,6 +64,20 @@ export function checkPythonRpaProcess() {
  */
 export async function startServer() {
   // 查看是否已经启动 envJson.SCHEDULER_NAME
+  if (isEngineStartSkipped()) {
+    const port = getSkippedEngineRoutePort()
+    logger.info(`Skipping bundled Engine start, checking external Engine at 127.0.0.1:${port}`)
+    setTimeout(async () => {
+      const ready = await isDevEngineReady(port)
+      if (!ready) {
+        logger.error(`External Engine is not ready at http://127.0.0.1:${port}/rpa-local-route/health`)
+        return
+      }
+      sendReady(port)
+    }, 1000)
+    return
+  }
+
   const isRunning = await checkPythonRpaProcess()
   if (isRunning) {
     logger.info(`${envJson.SCHEDULER_NAME} is running`)
@@ -93,6 +117,11 @@ export async function startServer() {
  * 关闭所有子进程
  */
 export function closeSubProcess() {
+  if (isEngineStartSkipped()) {
+    logger.info('Skipping Engine cleanup because Engine start is disabled')
+    return Promise.resolve()
+  }
+
   return new Promise<void>((resolve) => {
     exec(
       `"${pythonExe}" -m ${envJson.SCHEDULER_NAME} --stop="True"`,
@@ -276,6 +305,11 @@ export async function startBackend() {
     return
 
   sendToRender('正在初始化', 10)
+
+  if (isEngineStartSkipped()) {
+    startServer()
+    return
+  }
 
   // 检查 python envJson.SCHEDULER_NAME 是否正在运行
   const isRunning = await checkPythonRpaProcess()

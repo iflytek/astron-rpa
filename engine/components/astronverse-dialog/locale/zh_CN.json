@@ -1,0 +1,273 @@
+{
+  "Dialog.message_box": {
+    "title": "消息提示框",
+    "comment": "打开消息提示对话框，可设定消息提示的内容和标题",
+    "inputList": {
+      "box_title": {
+        "title": "对话框标题",
+        "tip": "用户自定义的对话框上方的显示标题，限制标题内容字符数量为50个字符，不输入则默认标题为“消息提示框”"
+      },
+      "message_type": {
+        "title": "消息类型",
+        "tip": "可选消息类型"
+      },
+      "message_content": {
+        "title": "消息内容",
+        "tip": "用户自定义的对话框内的显示内容，限制内容字符数量为120个字符"
+      },
+      "button_type": {
+        "title": "展示按钮",
+        "tip": "消息框可展示给用户进行选择的按钮，只允许切换，不允许空选状态"
+      },
+      "auto_check": {
+        "title": "无操作自动关闭对话框"
+      },
+      "wait_time": {
+        "title": "无操作超时等待（秒）",
+        "tip": "设置超时等待时间，未识别到用户鼠标移动行为超过该时间则选中默认按钮，默认为60秒"
+      },
+      "default_button_c": {
+        "title": "超时默认选中按钮"
+      },
+      "default_button_cn": {
+        "title": "超时默认选中按钮"
+      },
+      "default_button_y": {
+        "title": "超时默认选中按钮"
+      },
+      "default_button_yn": {
+        "title": "超时默认选中按钮"
+      },
+      "preview_button": {
+        "title": "预览"
+      }
+    },
+    "outputList": {
+      "result_button": {
+        "title": "保存用户选择的按钮至"
+      }
+    }
+  },
+  "Dialog.input_box": {
+    "title": "输入对话框",
+    "comment": "打开输入对话框，需用户进行信息输入并确定提交，返回用户在对话框中输入的内容",
+    "inputList": {
+      "box_title": {
+        "title": "对话框标题",
+        "tip": "限制标题内容字符数量为50个字符，不输入则默认标题为“输入对话框”"
+      },
+      "input_type": {
+        "title": "输入框类型"
+      },
+      "input_title": {
+        "title": "输入框标题"
+      },
+      "default_input_text": {
+        "title": "输入框内容默认值",
+        "tip": "填写则在对话框中展示默认文本作为文本提示符，限制内容字符数量为120个字符"
+      },
+      "default_input_pwd": {
+        "title": "输入框内容默认值",
+        "tip": "填写则在对话框中展示默认密码，密码长度在4-16位之间"
+      },
+      "preview_button": {
+        "title": "预览"
+      }
+    },
+    "outputList": {
+      "input_content": {
+        "title": "保存用户输入内容至"
+      }
+    }
+  },
+  "Dialog.select_box": {
+    "title": "选择对话框",
+    "comment": "打开选择对话框，保存用户从选择列表中选择的一个或多个选项",
+    "inputList": {
+      "box_title": {
+        "title": "对话框标题"
+      },
+      "select_type": {
+        "title": "选择模式"
+      },
+      "options": {
+        "title": "选项"
+      },
+      "options_title": {
+        "title": "选择框标题"
+      },
+      "preview_button": {
+        "title": "预览"
+      }
+    },
+    "outputList": {
+      "select_result": {
+        "title": "保存选择结果至"
+      }
+    }
+  },
+  "Dialog.select_time_box": {
+    "title": "日期时间选择框",
+    "comment": "打开日期时间选择框，保存用户选择的日期或时间",
+    "inputList": {
+      "box_title": {
+        "title": "对话框标题"
+      },
+      "time_type": {
+        "title": "时间类型"
+      },
+      "time_format": {
+        "title": "时间格式"
+      },
+      "default_time": {
+        "title": "默认时间"
+      },
+      "default_time_range": {
+        "title": "默认时间"
+      },
+      "input_title": {
+        "title": "输入框标题"
+      },
+      "preview_button": {
+        "title": "预览"
+      }
+    },
+    "outputList": {
+      "select_time": {
+        "title": "保存时间选择结果至"
+      }
+    }
+  },
+  "Dialog.select_file_box": {
+    "title": "文件选择对话框",
+    "comment": "打开系统选择文件对话框，保存用户选择的对应的文件/文件夹路径",
+    "inputList": {
+      "box_title_file": {
+        "title": "对话框标题"
+      },
+      "box_title_folder": {
+        "title": "对话框标题"
+      },
+      "open_type": {
+        "title": "打开类型"
+      },
+      "file_type": {
+        "title": "文件类型"
+      },
+      "multiple_choice": {
+        "title": "是否允许多选"
+      },
+      "select_title": {
+        "title": "选择框标题"
+      },
+      "default_path": {
+        "title": "默认文件夹",
+        "tip": "当配置了该参数，则在打开文件选择框时默认解析在该文件夹路径进行下一步选择"
+      },
+      "preview_button": {
+        "title": "预览"
+      }
+    },
+    "outputList": {
+      "select_file": {
+        "title": "保存文件选择结果至",
+        "tip": "保存用户的文件选择结果，如果用户点击取消按钮则返回为空值"
+      }
+    }
+  },
+  "Dialog.custom_box": {
+    "title": "自定义对话框",
+    "comment": "打开自定义对话框，用户可根据需求设计对话框界面和输入控件，保存用户在自定义对话框中的输入内容和点击结果",
+    "inputList": {
+      "box_title": {
+        "title": "对话框标题"
+      },
+      "design_interface": {
+        "title": "设计对话框界面",
+        "tip": "点击按钮则进入对话框设计弹窗界面"
+      },
+      "auto_check": {
+        "title": "无操作自动关闭对话框"
+      },
+      "wait_time": {
+        "title": "无操作超时等待（秒）"
+      },
+      "default_button": {
+        "title": "超时默认选中按钮"
+      }
+    },
+    "outputList": {
+      "dialog_result": {
+        "title": "自定义对话框结果",
+        "tip": "存储所有表单控件的输出结果以及点击的按钮结果"
+      }
+    }
+  },
+  "options": {
+    "MessageType": {
+      "message": "信息",
+      "warning": "警告",
+      "question": "问题",
+      "error": "错误"
+    },
+    "ButtonType": {
+      "confirm": "确认",
+      "confirm_cancel": "确认-取消",
+      "yes_no": "是-否",
+      "yes_no_cancel": "是-否-取消"
+    },
+    "Bool": {
+      "True": "是",
+      "False": "否"
+    },
+    "DefaultButtonC": {
+      "confirm": "确认"
+    },
+    "DefaultButtonCN": {
+      "confirm": "确认",
+      "cancel": "取消"
+    },
+    "DefaultButtonY": {
+      "yes": "是",
+      "no": "否"
+    },
+    "DefaultButtonYN": {
+      "yes": "是",
+      "no": "否",
+      "cancel": "取消"
+    },
+    "InputType": {
+      "text": "文本框",
+      "password": "密码框"
+    },
+    "SelectType": {
+      "single": "单选",
+      "multi": "多选"
+    },
+    "TimeType": {
+      "time": "时间",
+      "time_range": "时间段"
+    },
+    "TimeFormat": {
+      "YYYY-MM-DD": "年-月-日",
+      "YYYY-MM-DD HH:mm": "年-月-日 时:分",
+      "YYYY-MM-DD HH:mm:ss": "年-月-日 时:分:秒",
+      "YYYY/MM/DD": "年/月/日",
+      "YYYY/MM/DD HH:mm": "年/月/日 时:分",
+      "YYYY/MM/DD HH:mm:ss": "年/月/日 时:分:秒"
+    },
+    "OpenType": {
+      "file": "文件",
+      "folder": "文件夹"
+    },
+    "FileType": {
+      "*": "所有文件",
+      ".xls,.xlsx": "Excel",
+      ".doc,.docx": "Word",
+      ".txt": "文本文件",
+      ".png,.jpg,.jpeg,.bmp,.gif": "图像文件",
+      ".ppt,.pptx": "PPT文件",
+      ".zip,.rar": "压缩文件"
+    }
+  }
+}

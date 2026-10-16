@@ -1,0 +1,72 @@
+{
+  "Window.exist": {
+    "title": "IF窗口存在",
+    "comment": "判断拾取窗口@{pick}是否@{check_type}，是就执行以下操作",
+    "inputList": {
+      "pick": {
+        "title": "窗口拾取",
+        "tip": "选择需要判断是否存在的窗口对象"
+      },
+      "check_type": {
+        "title": "判断方式",
+        "tip": "选择判断方式，默认为存在"
+      },
+      "wait_time": {
+        "title": "等待时间（秒）",
+        "tip": "等待判断结果的时间"
+      }
+    }
+  },
+  "Window.top": {
+    "title": "置顶窗口",
+    "comment": "置顶窗口对象@{pick}",
+    "inputList": {
+      "pick": {
+        "title": "窗口拾取",
+        "tip": "拾取需要置顶的窗口对象"
+      }
+    }
+  },
+  "Window.close": {
+    "title": "关闭窗口",
+    "comment": "关闭窗口对象 @{pick}",
+    "inputList": {
+      "pick": {
+        "title": "窗口拾取",
+        "tip": "拾取需要关闭的窗口对象"
+      }
+    }
+  },
+  "Window.set_size": {
+    "title": "调整窗口大小",
+    "comment": "按照 @{size_type} 方式调整窗口 @{pick} 大小",
+    "inputList": {
+      "pick": {
+        "title": "窗口拾取",
+        "tip": "拾取需要调整大小的桌面软件窗口"
+      },
+      "size_type": {
+        "title": "调整方式"
+      },
+      "width": {
+        "title": "窗口宽度",
+        "tip": "设置指定窗口宽度值，单位为屏幕的分辨率像素px，一般为0-9999之间的数值"
+      },
+      "height": {
+        "title": "窗口高度",
+        "tip": "设置指定窗口高度值，单位为屏幕的分辨率像素px，一般为0-9999之间的数值"
+      }
+    }
+  },
+  "options": {
+    "WindowExistType": {
+      "exist": "存在",
+      "not_exist": "不存在"
+    },
+    "WindowSizeType": {
+      "custom": "自定义",
+      "max": "最大化",
+      "min": "最小化"
+    }
+  }
+}

@@ -1,5 +1,10 @@
+import json
+import pathlib
+
 from astronverse.actionlib.atomic import atomicMg
 from astronverse.actionlib.config import config
+from astronverse.actionlib.locale import apply_locale, apply_types_locale, load_locale
+from astronverse.actionlib.tree import treeMg
 from astronverse.actionlib.types import typesMg
 from astronverse.baseline.config.config import load_config
 from astronverse.browser.browser import Browser
@@ -7,19 +12,43 @@ from astronverse.browser.browser_element import BrowserElement
 from astronverse.browser.browser_script import BrowserScript
 from astronverse.browser.browser_software import BrowserSoftware
 
-
-def get_version():
-    pyproject_data = load_config("pyproject.toml")
-    return pyproject_data["project"]["version"]
+LANGS = ("zh_CN", "en_US")
 
 
 if __name__ == "__main__":
-    config.set_config_file("config.yaml")
-    atomicMg.register(BrowserElement, version=get_version())
-    atomicMg.register(BrowserSoftware, version=get_version())
-    atomicMg.register(BrowserScript, version=get_version())
-    atomicMg.meta()
+    version = load_config("pyproject.toml")["project"]["version"]
 
-    config.set_config_file("config_type.yaml")
-    typesMg.register_types(Browser, version=get_version(), channel="global", template="Browser对象")
-    typesMg.meta()
+    config.set_config_file("config.yaml")
+    atomicMg.register(BrowserElement, version=version)
+    atomicMg.register(BrowserSoftware, version=version)
+    atomicMg.register(BrowserScript, version=version)
+    atomicMg.meta("meta.json")
+    base_meta: dict = json.loads(pathlib.Path("meta.json").read_text(encoding="utf-8"))
+
+    typesMg.register_types(Browser, version=version, channel="global", template="Browser对象")
+    raw_types: dict = json.loads(typesMg.json())
+
+    for lang in LANGS:
+        locale = load_locale(lang)
+        out_dir = pathlib.Path("resources") / lang
+        out_dir.mkdir(parents=True, exist_ok=True)
+
+        # meta.json
+        meta_path = out_dir / "meta.json"
+        meta_path.write_text(
+            json.dumps(apply_locale(base_meta, locale), ensure_ascii=False, indent=2),
+            encoding="utf-8",
+        )
+
+        treeMg.root_nodes = {}
+        treeMg.load_default_node_config(locale=lang)
+        treeMg.build_from_meta_and_config(str(meta_path), "config.yaml")
+        tree_path = out_dir / "tree.json"
+        treeMg.meta(str(tree_path))
+
+        # meta_type.json
+        type_path = out_dir / "meta_type.json"
+        type_path.write_text(
+            json.dumps(apply_types_locale(raw_types, locale), ensure_ascii=False),
+            encoding="utf-8",
+        )

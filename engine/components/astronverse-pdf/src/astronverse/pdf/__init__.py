@@ -1,4 +1,5 @@
 import ast
+import os
 from enum import Enum
 
 from astronverse.pdf.error import *
@@ -6,16 +7,24 @@ from astronverse.pdf.error import *
 
 def _handle_files_input(files_path):
     if isinstance(files_path, str):
+        files_path = files_path.strip()
         if files_path.startswith("[") and files_path.endswith("]"):
-            files_path = ast.literal_eval(files_path)
-        else:
+            parsed_files = ast.literal_eval(files_path)
+            if not isinstance(parsed_files, list):
+                raise BaseException(FILE_PATH_ERROR_FORMAT.format(files_path), "PDF文件路径有误，请输入正确的路径")
+            files_path = parsed_files
+        elif os.path.exists(files_path):
+            files_path = [files_path]
+        elif ".pdf," in files_path:
             files_path = files_path.split(".pdf,")
-            for i in range(len(files_path)):
-                if i != len(files_path) - 1:
-                    # 最后一项是正常路径
-                    files_path[i] = files_path[i].strip() + ".pdf"
+            for i in range(len(files_path) - 1):
+                files_path[i] = files_path[i].strip() + ".pdf"
+        else:
+            files_path = [item.strip() for item in files_path.split(",") if item.strip()]
     elif not isinstance(files_path, list):
         raise BaseException(FILE_PATH_ERROR_FORMAT.format(str(files_path)), "PDF文件路径有误，请输入正确的路径")
+
+    return files_path
 
 
 class FileExistenceType(Enum):

@@ -1,7 +1,5 @@
 import threading
-import time
 from abc import ABC, abstractmethod
-from concurrent.futures import ThreadPoolExecutor
 
 from astronverse.scheduler import ServerLevel
 from astronverse.scheduler.logger import logger
@@ -37,7 +35,13 @@ class IServer(ABC):
 
     def recover(self):
         """监控检查恢复"""
-        pass
+        return None
+
+    def stop(self):
+        """Stop resources owned by this server."""
+        close = getattr(self, "close", None)
+        if close:
+            close()
 
 
 class ServerManager:
@@ -46,6 +50,9 @@ class ServerManager:
     def __init__(self, svc):
         self.server_list = []
         self.svc = svc
+        self.stop_event = threading.Event()
+        self.threads = []
+        self.svc.stop_event = self.stop_event
 
     def register(self, server: IServer):
         """注册"""
@@ -54,10 +61,11 @@ class ServerManager:
 
     def check(self):
         """检测"""
-        while True:
-            time.sleep(10)
+        while not self.stop_event.wait(10):
             try:
                 for server in self.server_list:
+                    if self.stop_event.is_set():
+                        return
                     if not server.health() and server.recover_ing is False:
                         logger.info(f"{server.name} is not health, start recover")
                         server.recover_ing = True
@@ -66,27 +74,67 @@ class ServerManager:
             except Exception as e:
                 pass
 
+    def _run_server(self, server):
+        try:
+            server.run()
+        except Exception:
+            if not self.stop_event.is_set():
+                logger.exception("{} stopped unexpectedly".format(server.name))
+
+    def _start_thread(self, target, *args):
+        thread = threading.Thread(target=target, args=args, daemon=True)
+        self.threads.append(thread)
+        thread.start()
+
     def run(self):
         # 1. 先启动code核心的非异步
         for c_server in self.server_list:
+            if self.stop_event.is_set():
+                return self
             if not c_server.run_is_async and c_server.level == ServerLevel.CORE:
                 c_server.run()
 
         def async_run():
-            while not self.svc.route_server_is_start:
-                time.sleep(1)
+            while not self.svc.route_server_is_start and not self.stop_event.wait(1):
+                pass
+            if self.stop_event.is_set():
+                return
 
             # 2. 启动普通的的非异步
             for n_server in self.server_list:
+                if self.stop_event.is_set():
+                    return
                 if not n_server.run_is_async and n_server.level == ServerLevel.NORMAL:
-                    n_server.run()
+                    self._run_server(n_server)
 
             # 3. 启动异步
-            with ThreadPoolExecutor() as pool:
-                for a_server in self.server_list:
-                    if a_server.run_is_async:
-                        pool.submit(a_server.run)
+            for a_server in self.server_list:
+                if self.stop_event.is_set():
+                    return
+                if a_server.run_is_async:
+                    self._start_thread(self._run_server, a_server)
 
-        threading.Thread(target=async_run, daemon=True).start()
-        threading.Thread(target=self.check, daemon=True).start()
+        self._start_thread(async_run)
+        self._start_thread(self.check)
         return self
+
+    def stop(self):
+        if self.stop_event.is_set():
+            return
+
+        self.stop_event.set()
+        for server in reversed(self.server_list):
+            try:
+                server.stop()
+            except Exception:
+                logger.exception("{} stop failed".format(server.name))
+
+        try:
+            self.svc.stop()
+        except Exception:
+            logger.exception("scheduler resources stop failed")
+
+        current_thread = threading.current_thread()
+        for thread in self.threads:
+            if thread is not current_thread:
+                thread.join(timeout=2)

@@ -1,0 +1,41 @@
+{
+  "Script.process": {
+    "title": "运行子流程",
+    "comment": "运行子流程 @{process:子流程}",
+    "inputList": {
+      "process": {
+        "title": "选择子流程",
+        "tip": "选择要运行的子流程"
+      },
+      "process_param": {
+        "title": "输入参数"
+      }
+    },
+    "outputList": {
+      "process_res": {
+        "title": "保存流程输出结果"
+      }
+    }
+  },
+  "Script.module": {
+    "title": "运行Python模块",
+    "comment": "运行Python模块 @{content:Python模块}",
+    "inputList": {
+      "content": {
+        "title": "选择Python模块"
+      },
+      "module_param": {
+        "title": "输入参数"
+      }
+    }
+  },
+  "Script.component": {
+    "title": "运行组件",
+    "comment": "运行组件 @{component:组件}",
+    "inputList": {
+      "component": {
+        "title": "选择组件"
+      }
+    }
+  }
+}

@@ -1,0 +1,1393 @@
+{
+  "Excel.open_excel": {
+    "title": "Open Excel",
+    "comment": "Open the Excel file at @{file_path} and return the Excel object @{open_excel_obj}",
+    "inputList": {
+      "file_path": {
+        "title": "File Path",
+        "tip": "Enter the file path"
+      },
+      "default_application": {
+        "title": "Default Application",
+        "tip": "Select the default application. Available options: Excel or WPS"
+      },
+      "visible_flag": {
+        "title": "Visible"
+      },
+      "password": {
+        "title": "Password",
+        "tip": "Required when opening the file"
+      },
+      "update_links": {
+        "title": "Automatically Update External Links"
+      },
+      "write_res_password": {
+        "title": "Modify Password",
+        "tip": "Required when modifying after opening"
+      }
+    },
+    "outputList": {
+      "open_excel_obj": {
+        "title": "Opened Excel Object"
+      }
+    }
+  },
+  "Excel.get_excel": {
+    "title": "Get Open Excel Object",
+    "comment": "Get the Excel object with file name @{file_name} and return the Excel object @{get_excel_obj}",
+    "inputList": {
+      "file_name": {
+        "title": "File Name",
+        "tip": "Enter the file name. No need to enter the previously opened Excel variable"
+      }
+    },
+    "outputList": {
+      "get_excel_obj": {
+        "title": "Retrieved Excel Object"
+      }
+    }
+  },
+  "Excel.create_excel": {
+    "title": "Create Excel",
+    "comment": "Create an Excel file named @{file_name} at @{file_path} and return the Excel object @{create_excel_obj}",
+    "inputList": {
+      "file_path": {
+        "title": "Save Folder Path"
+      },
+      "file_name": {
+        "title": "Save File Name",
+        "tip": "Enter the file name"
+      },
+      "default_application": {
+        "title": "Default Creation Application",
+        "tip": "Select the default application used to create the file. Available options: Excel or WPS"
+      },
+      "visible_flag": {
+        "title": "Visible"
+      },
+      "exist_handle_type": {
+        "title": "File Exists Handling",
+        "tip": "Select how to handle an existing file. Available options: overwrite, rename, or cancel save"
+      },
+      "password": {
+        "title": "Open Password"
+      }
+    },
+    "outputList": {
+      "create_excel_obj": {
+        "title": "Created Excel Object"
+      },
+      "excel_path": {
+        "title": "Created Excel Path"
+      }
+    }
+  },
+  "Excel.save_excel": {
+    "title": "Save Excel",
+    "comment": "Save Excel object @{excel} using save mode @{save_type}",
+    "inputList": {
+      "excel": {
+        "title": "Excel Object",
+        "tip": "Enter the Excel object"
+      },
+      "save_type": {
+        "title": "Save Type",
+        "tip": "Select the save type. Available options: save or save as"
+      },
+      "file_path": {
+        "title": "File Path",
+        "tip": "Enter the file path"
+      },
+      "file_name": {
+        "title": "File Name",
+        "tip": "Enter the file name"
+      },
+      "exist_handle_type": {
+        "title": "File Exists Handling",
+        "tip": "Select how to handle an existing file. Available options: overwrite, rename, or cancel save"
+      },
+      "close_flag": {
+        "title": "Close File",
+        "tip": "Select whether to close the file after saving. Available options: close or do not close"
+      }
+    }
+  },
+  "Excel.close_excel": {
+    "title": "Close Excel",
+    "comment": "Close @{close_range_flag}, current Excel object @{excel}, with save mode @{save_type_one||save_type_all}",
+    "inputList": {
+      "close_range_flag": {
+        "title": "Close Document Range",
+        "tip": "Select the range of documents to close, such as the current document or all documents"
+      },
+      "excel": {
+        "title": "Excel Object",
+        "tip": "Enter the Excel object"
+      },
+      "save_type_one": {
+        "title": "Save Type",
+        "tip": "Select the save type. Available options: save, save as, or do not save"
+      },
+      "save_type_all": {
+        "title": "Save Type",
+        "tip": "Select the save type. Available options: save or do not save"
+      },
+      "file_path": {
+        "title": "File Path",
+        "tip": "Enter the file path"
+      },
+      "file_name": {
+        "title": "File Name",
+        "tip": "Enter the file name"
+      },
+      "exist_handle_type": {
+        "title": "File Exists Handling",
+        "tip": "Select how to handle an existing file. Available options: overwrite, rename, or cancel save"
+      },
+      "pkill_flag": {
+        "title": "Terminate Process",
+        "tip": "Select whether to terminate the process. Available options: terminate or do not terminate"
+      }
+    }
+  },
+  "Excel.edit_excel": {
+    "title": "Write to Excel",
+    "comment": "Edit Excel object @{excel} and write content @{value}",
+    "inputList": {
+      "excel": {
+        "title": "Excel Object",
+        "tip": "Enter the Excel object"
+      },
+      "edit_range": {
+        "title": "Edit Range",
+        "tip": "Select the edit range. Available options: row, column, or area"
+      },
+      "sheet_name": {
+        "title": "Worksheet Name",
+        "tip": "Enter the worksheet name to edit, such as 'Sheet1'. If empty, the first worksheet object in the Excel file is used by default"
+      },
+      "start_col": {
+        "title": "Start Column",
+        "tip": "Enter the starting column to edit. Both letter format (such as 'A') and number format (such as 1) are supported"
+      },
+      "start_row": {
+        "title": "Start Row",
+        "tip": "Enter the starting row number to edit, counting from 1. This can be left empty when COLUMN is selected, but is required when ROW or AREA is selected"
+      },
+      "value": {
+        "title": "Content to Write",
+        "tip": "Enter the content to modify as a list. When row or column is selected, enter a list such as [1,2,3], meaning 1,2,3 are written in order to the specified row or column. When area is selected, enter a list such as [[1,1],[2,2]], meaning data is written row by row into the specified area"
+      },
+      "edit_type": {
+        "title": "Write Mode",
+        "tip": "Select the write type. Available options: overwrite or append"
+      }
+    }
+  },
+  "Excel.read_excel": {
+    "title": "Read Excel Content",
+    "comment": "Read Excel content from worksheet @{sheet_name} in Excel object @{excel}",
+    "inputList": {
+      "excel": {
+        "title": "Excel Object",
+        "tip": "Enter the Excel object"
+      },
+      "sheet_name": {
+        "title": "Worksheet Name",
+        "tip": "Enter the worksheet name to edit, such as 'Sheet1'. If empty, the first worksheet object in the Excel file is used by default"
+      },
+      "read_range": {
+        "title": "Read Range",
+        "tip": "Select the read range. Available options: cell, row, column, area, or used range"
+      },
+      "start_col": {
+        "title": "Start Column",
+        "tip": "Enter the start column"
+      },
+      "end_col": {
+        "title": "End Column",
+        "tip": "Enter the end column"
+      },
+      "cell": {
+        "title": "Cell",
+        "tip": "Enter the cell to read, such as A1"
+      },
+      "row": {
+        "title": "Row",
+        "tip": "Enter an integer row number, starting from 1"
+      },
+      "column": {
+        "title": "Column",
+        "tip": "Enter the column name. Character A or integer 1 is supported"
+      },
+      "start_row": {
+        "title": "Start Row",
+        "tip": "Enter an integer row number, starting from 1"
+      },
+      "end_row": {
+        "title": "End Row",
+        "tip": "Enter an integer row number. -n means the nth row from the end"
+      },
+      "read_display": {
+        "title": "Read Displayed Cell Content",
+        "tip": "Select whether to read the displayed content of the cell. Available options: yes or no"
+      },
+      "trim_spaces": {
+        "title": "Trim Spaces",
+        "tip": "Select whether to trim spaces. Available options: yes or no"
+      },
+      "replace_none": {
+        "title": "Replace Empty Values",
+        "tip": "Select whether to replace empty values (None) with empty strings. Available options: yes or no"
+      }
+    },
+    "outputList": {
+      "read_excel_contents": {
+        "title": "Read Excel Content",
+        "tip": "The read Excel content is returned as a list"
+      }
+    }
+  },
+  "Excel.design_cell_type": {
+    "title": "Set Cell Properties",
+    "comment": "Set the cell format in worksheet @{sheet_name} of @{excel}, with font size @{font_size}, font name @{font_name}, font color @{font_color}, and background color @{bg_color}",
+    "inputList": {
+      "excel": {
+        "title": "Excel Object"
+      },
+      "sheet_name": {
+        "title": "Worksheet Name",
+        "tip": "Enter the worksheet name to edit, such as 'Sheet1'. If empty, the first worksheet object in the Excel file is used by default"
+      },
+      "design_type": {
+        "title": "Set Range",
+        "tip": "Select the range to set. Available options: cell, row, column, or area"
+      },
+      "cell_position": {
+        "title": "Cell Position",
+        "tip": "Enter the cell position, such as A1"
+      },
+      "range_position": {
+        "title": "Range Position",
+        "tip": "Enter the cell range, such as A1:B2"
+      },
+      "col": {
+        "title": "Column",
+        "tip": "Enter the column name. Character A or integer 1 is supported"
+      },
+      "row": {
+        "title": "Row",
+        "tip": "Enter an integer row number, starting from 1"
+      },
+      "col_width": {
+        "title": "Column Width"
+      },
+      "bg_color": {
+        "title": "Background Color"
+      },
+      "font_color": {
+        "title": "Font Color"
+      },
+      "font_type": {
+        "title": "Font Style"
+      },
+      "font_name": {
+        "title": "Font Name"
+      },
+      "font_size": {
+        "title": "Font Size"
+      },
+      "numberformat": {
+        "title": "Number Format"
+      },
+      "numberformat_other": {
+        "title": "Custom Number Format"
+      },
+      "horizontal_align": {
+        "title": "Horizontal Alignment"
+      },
+      "vertical_align": {
+        "title": "Vertical Alignment"
+      },
+      "wrap_text": {
+        "title": "Wrap Text"
+      },
+      "auto_row_height": {
+        "title": "Auto Row Height"
+      },
+      "auto_column_width": {
+        "title": "Auto Column Width"
+      }
+    }
+  },
+  "Excel.copy_excel": {
+    "title": "Copy Excel Cells",
+    "comment": "Copy cells from worksheet @{sheet_name} in Excel object @{excel}, and return the copied content as string format @{copy_excel_contents}",
+    "inputList": {
+      "excel": {
+        "title": "Excel Object"
+      },
+      "sheet_name": {
+        "title": "Worksheet Name",
+        "tip": "Enter the worksheet name to edit, such as 'Sheet1'. If empty, the first worksheet object in the Excel file is used by default"
+      },
+      "copy_range_type": {
+        "title": "Copy Range"
+      },
+      "cell_position": {
+        "title": "Cell Position",
+        "tip": "Enter the cell position, such as A1"
+      },
+      "row": {
+        "title": "Row",
+        "tip": "Enter an integer row number, starting from 1"
+      },
+      "col": {
+        "title": "Column",
+        "tip": "Enter the column name. Character A or integer 1 is supported"
+      },
+      "range_position": {
+        "title": "Cell Range",
+        "tip": "Enter the cell range, such as A1:B2"
+      }
+    },
+    "outputList": {
+      "copy_excel_contents": {
+        "title": "Copied Excel Content"
+      }
+    }
+  },
+  "Excel.paste_excel": {
+    "title": "Paste Excel Cells",
+    "comment": "Paste cells into worksheet @{sheet_name} in Excel object @{excel}",
+    "inputList": {
+      "excel": {
+        "title": "Excel Object"
+      },
+      "sheet_name": {
+        "title": "Worksheet Name",
+        "tip": "Enter the worksheet name to edit, such as 'Sheet1'. If empty, the first worksheet object in the Excel file is used by default"
+      },
+      "paste_type": {
+        "title": "Paste Type"
+      },
+      "start_location": {
+        "title": "Start Position",
+        "tip": "Enter the starting cell position, such as A1"
+      },
+      "skip_blanks": {
+        "title": "Skip Blank Cells"
+      },
+      "transpose": {
+        "title": "Transpose"
+      }
+    }
+  },
+  "Excel.delete_excel_cell": {
+    "title": "Delete Excel Cells",
+    "comment": "Delete cells from worksheet @{sheet_name} in Excel object @{excel}",
+    "inputList": {
+      "excel": {
+        "title": "Excel Object"
+      },
+      "sheet_name": {
+        "title": "Worksheet Name",
+        "tip": "Enter the worksheet name to edit, such as 'Sheet1'. If empty, the first worksheet object in the Excel file is used by default"
+      },
+      "delete_range_excel": {
+        "title": "Delete Range"
+      },
+      "coordinate": {
+        "title": "Cell Position",
+        "tip": "Enter the cell position, such as A1"
+      },
+      "row": {
+        "title": "Row",
+        "tip": "Enter an integer row number, starting from 1"
+      },
+      "col": {
+        "title": "Column",
+        "tip": "Enter the column name. Character A or integer 1 is supported"
+      },
+      "data_region": {
+        "title": "Cell Range",
+        "tip": "Enter the cell range, such as A1:B2"
+      },
+      "direction": {
+        "title": "Fill Direction for Remaining Data"
+      }
+    }
+  },
+  "Excel.clear_excel_content": {
+    "title": "Clear Excel Range Content",
+    "comment": "Clear cell content in worksheet @{sheet_name} of Excel object @{excel}",
+    "inputList": {
+      "excel": {
+        "title": "Excel Object"
+      },
+      "sheet_name": {
+        "title": "Worksheet Name",
+        "tip": "Enter the worksheet name to edit, such as 'Sheet1'. If empty, the first worksheet object in the Excel file is used by default"
+      },
+      "select_type": {
+        "title": "Range Selection",
+        "tip": "Select the area whose content needs to be cleared"
+      },
+      "cell_location": {
+        "title": "Cell Position",
+        "tip": "Enter the cell position, such as A1"
+      },
+      "row": {
+        "title": "Row",
+        "tip": "Enter an integer row number, starting from 1"
+      },
+      "col": {
+        "title": "Column",
+        "tip": "Enter the column name. Character A or integer 1 is supported"
+      },
+      "data_range": {
+        "title": "Cell Range",
+        "tip": "Enter a continuous cell range, such as A1:B2"
+      },
+      "clear_type": {
+        "title": "Clear Type"
+      }
+    }
+  },
+  "Excel.insert_excel_row_or_column": {
+    "title": "Insert Excel Row or Column",
+    "comment": "Insert rows or columns into worksheet @{sheet_name} in Excel object @{excel}",
+    "inputList": {
+      "excel": {
+        "title": "Excel Object"
+      },
+      "sheet_name": {
+        "title": "Worksheet Name",
+        "tip": "Enter the worksheet name to edit, such as 'Sheet1'. If empty, the first worksheet object in the Excel file is used by default"
+      },
+      "insert_type": {
+        "title": "Insert Type"
+      },
+      "row": {
+        "title": "Row",
+        "tip": "Enter an integer row number, starting from 1"
+      },
+      "row_direction": {
+        "title": "Row Insert Direction"
+      },
+      "col": {
+        "title": "Column",
+        "tip": "Enter the column name. Character A or integer 1 is supported"
+      },
+      "col_direction": {
+        "title": "Column Insert Direction"
+      },
+      "blank_rows": {
+        "title": "Insert Blank Rows/Columns Only"
+      },
+      "insert_num": {
+        "title": "Number of Rows to Insert"
+      },
+      "insert_content": {
+        "title": "Inserted Content",
+        "tip": "When inserting one or more rows, the inserted content must be a multidimensional list, and strings must use single quotes ''. Example: insert 1 row with content [[123,24,32]]; insert 2 rows with content [[123,123],['aaa']], then the actual written Excel content will be: first row: 123 123; second row: aaa. If the content is [[123,123],'aaa'], then the actual written Excel content will be: first row: 123 123; second row: a a a. If the inserted rows or columns exceed the data length, the extra cells remain empty"
+      }
+    }
+  },
+  "Excel.get_excel_row_num": {
+    "title": "Get Excel Row Count",
+    "comment": "Get the number of rows in worksheet @{sheet_name} of Excel object @{excel} and return row count @{excel_row_num}",
+    "inputList": {
+      "excel": {
+        "title": "Excel Object"
+      },
+      "sheet_name": {
+        "title": "Worksheet Name",
+        "tip": "Enter the worksheet name to edit, such as 'Sheet1'. If empty, the first worksheet object in the Excel file is used by default"
+      },
+      "get_col_type": {
+        "title": "Get Type"
+      },
+      "col": {
+        "title": "Column",
+        "tip": "Enter the column name. Character A or integer 1 is supported"
+      }
+    },
+    "outputList": {
+      "excel_row_num": {
+        "title": "Excel Row Count"
+      }
+    }
+  },
+  "Excel.get_excel_col_num": {
+    "title": "Get Excel Column Count",
+    "comment": "Get the number of columns in worksheet @{sheet_name} of Excel object @{excel} and return column count @{excel_col_num}",
+    "inputList": {
+      "excel": {
+        "title": "Excel Object"
+      },
+      "sheet_name": {
+        "title": "Worksheet Name",
+        "tip": "Enter the worksheet name to edit, such as 'Sheet1'. If empty, the first worksheet object in the Excel file is used by default"
+      },
+      "get_row_type": {
+        "title": "Get Type"
+      },
+      "row": {
+        "title": "Row",
+        "tip": "Enter an integer row number, starting from 1"
+      },
+      "output_type": {
+        "title": "Output Format"
+      }
+    },
+    "outputList": {
+      "excel_col_num": {
+        "title": "Excel Column Count"
+      }
+    }
+  },
+  "Excel.get_excel_first_available_row": {
+    "title": "Get First Available Excel Row",
+    "comment": "Get the first available row in worksheet @{sheet_name} of Excel object @{excel} and return available row @{get_first_available_row}",
+    "inputList": {
+      "excel": {
+        "title": "Excel Object"
+      },
+      "sheet_name": {
+        "title": "Worksheet Name",
+        "tip": "Enter the worksheet name to edit, such as 'Sheet1'. If empty, the first worksheet object in the Excel file is used by default"
+      }
+    },
+    "outputList": {
+      "get_first_available_row": {
+        "title": "First Available Row"
+      }
+    }
+  },
+  "Excel.get_excel_first_available_col": {
+    "title": "Get First Available Excel Column",
+    "comment": "Get the first available column in worksheet @{sheet_name} of Excel object @{excel} and return available column @{get_first_available_col}",
+    "inputList": {
+      "excel": {
+        "title": "Excel Object"
+      },
+      "sheet_name": {
+        "title": "Worksheet Name",
+        "tip": "Enter the worksheet name to edit, such as 'Sheet1'. If empty, the first worksheet object in the Excel file is used by default"
+      },
+      "output_type": {
+        "title": "Output Format"
+      }
+    },
+    "outputList": {
+      "get_first_available_col": {
+        "title": "First Available Column"
+      }
+    }
+  },
+  "Excel.loop_excel_content": {
+    "title": "Loop Excel Content",
+    "comment": "Loop through the content of @{select_type} in Excel object @{excel}, output the loop item position to @{key}, and output the loop item to @{value}",
+    "inputList": {
+      "excel": {
+        "title": "Excel Object"
+      },
+      "sheet_name": {
+        "title": "Worksheet Name",
+        "tip": "Enter the worksheet name to edit, such as 'Sheet1'. If empty, the first worksheet object in the Excel file is used by default"
+      },
+      "select_type": {
+        "title": "Loop Range"
+      },
+      "start_row": {
+        "title": "Start Row",
+        "tip": "Enter the starting row number, beginning from 1"
+      },
+      "end_row": {
+        "title": "End Row",
+        "tip": "Enter the ending row number. -n means the nth row from the end"
+      },
+      "start_col": {
+        "title": "Start Column",
+        "tip": "Enter the starting column number, such as A or 1"
+      },
+      "end_col": {
+        "title": "End Column",
+        "tip": "Enter the ending column number. -n means the nth column from the end"
+      },
+      "real_text": {
+        "title": "Get Displayed Value",
+        "tip": "The displayed value in Excel is what you see when the file is opened. The real value may be a hidden formula, etc. Select No to get the real value"
+      },
+      "cell_strip": {
+        "title": "Trim Spaces",
+        "tip": "Whether to trim leading and trailing spaces and newline characters"
+      }
+    },
+    "outputList": {
+      "key": {
+        "title": "Loop Item Position",
+        "tip": "For example A, B"
+      },
+      "value": {
+        "title": "Loop Item",
+        "tip": "For example [1.0, None]"
+      }
+    }
+  },
+  "Excel.excel_get_cell_color": {
+    "title": "Get Excel Cell Color",
+    "comment": "Get the color of cell @{coordinate} in worksheet @{sheet_name} of Excel object @{excel}, and return color @{get_cell_color}",
+    "inputList": {
+      "excel": {
+        "title": "Excel Object"
+      },
+      "coordinate": {
+        "title": "Cell Position",
+        "tip": "Enter the cell position, such as A1"
+      },
+      "sheet_name": {
+        "title": "Worksheet Name",
+        "tip": "Enter the worksheet name to edit, such as 'Sheet1'. If empty, the first worksheet object in the Excel file is used by default"
+      }
+    },
+    "outputList": {
+      "get_cell_color": {
+        "title": "Cell Color"
+      }
+    }
+  },
+  "Excel.merge_split_excel_cell": {
+    "title": "Merge or Split Excel Cells",
+    "comment": "Merge or split cells in worksheet @{sheet_name} of Excel object @{excel}",
+    "inputList": {
+      "excel": {
+        "title": "Excel Object"
+      },
+      "sheet_name": {
+        "title": "Worksheet Name",
+        "tip": "Enter the worksheet name to edit, such as 'Sheet1'. If empty, the first worksheet object in the Excel file is used by default"
+      },
+      "job_type": {
+        "title": "Merge or Split Type"
+      },
+      "merge_cell_range": {
+        "title": "Merge Cell Range",
+        "tip": "Enter the continuous cell range to merge, such as A1:B2"
+      },
+      "split_cell_range": {
+        "title": "Split Cell Range",
+        "tip": "Enter the continuous cell range to split, such as A1:B2"
+      }
+    }
+  },
+  "Excel.add_excel_worksheet": {
+    "title": "Add Excel Worksheet",
+    "comment": "Add worksheet @{sheet_name} to Excel object @{excel}",
+    "inputList": {
+      "excel": {
+        "title": "Excel Object"
+      },
+      "sheet_name": {
+        "title": "Worksheet Name",
+        "tip": "Enter the worksheet name to edit, such as 'Sheet1'. If empty, the first worksheet object in the Excel file is used by default"
+      },
+      "insert_type": {
+        "title": "Insert Position"
+      },
+      "relative_sheet_name": {
+        "title": "Insert Before/After",
+        "tip": "Enter the worksheet name related to the relative position, such as 'Sheet1'"
+      }
+    }
+  },
+  "Excel.move_excel_worksheet": {
+    "title": "Move Excel Worksheet",
+    "comment": "Move worksheet @{move_sheet} in Excel object @{excel} using move mode @{move_type}",
+    "inputList": {
+      "excel": {
+        "title": "Excel Object"
+      },
+      "move_type": {
+        "title": "Move Mode"
+      },
+      "move_sheet": {
+        "title": "Worksheet to Move",
+        "tip": "The worksheet can be specified by name or index, such as 'Sheet1' or '1'. Index starts from 1"
+      },
+      "move_to_sheet": {
+        "title": "Target Worksheet",
+        "tip": "The worksheet can be specified by name or index, such as 'Sheet1' or '1'. Index starts from 1"
+      }
+    }
+  },
+  "Excel.delete_excel_worksheet": {
+    "title": "Delete Excel Worksheet",
+    "comment": "Delete worksheet @{del_sheet_name} from Excel object @{excel}",
+    "inputList": {
+      "excel": {
+        "title": "Excel Object"
+      },
+      "del_sheet_name": {
+        "title": "Worksheet to Delete",
+        "tip": "The worksheet can be specified by name or index, such as 'Sheet1' or '1'. Index starts from 1"
+      }
+    }
+  },
+  "Excel.rename_excel_worksheet": {
+    "title": "Rename Excel Worksheet",
+    "comment": "Rename worksheet @{source_sheet_name} in Excel object @{excel} to @{new_sheet_name}",
+    "inputList": {
+      "excel": {
+        "title": "Excel Object"
+      },
+      "source_sheet_name": {
+        "title": "Original Worksheet",
+        "tip": "The worksheet can be specified by name or index, such as 'Sheet1' or '1'. Index starts from 1"
+      },
+      "new_sheet_name": {
+        "title": "New Worksheet Name",
+        "tip": "The worksheet can be specified by name or index, such as 'Sheet1' or '1'. Index starts from 1"
+      }
+    }
+  },
+  "Excel.copy_excel_worksheet": {
+    "title": "Copy Excel Worksheet",
+    "comment": "Copy worksheet @{source_sheet_name} in Excel object @{excel} using copy type @{copy_type}",
+    "inputList": {
+      "excel": {
+        "title": "Excel Object"
+      },
+      "source_sheet_name": {
+        "title": "Original Worksheet",
+        "tip": "The worksheet can be specified by name or index, such as 'Sheet1' or '1'. Index starts from 1"
+      },
+      "new_sheet_name": {
+        "title": "New Worksheet Name",
+        "tip": "The worksheet can be specified by name or index, such as 'Sheet1' or '1'. Index starts from 1"
+      },
+      "location": {
+        "title": "Copy Position"
+      },
+      "copy_type": {
+        "title": "Copy Type"
+      },
+      "other_excel_obj": {
+        "title": "Other Excel Object"
+      },
+      "is_cover": {
+        "title": "Overwrite"
+      }
+    }
+  },
+  "Excel.get_excel_worksheet_names": {
+    "title": "Get Excel Worksheet Names",
+    "comment": "Get worksheet names from Excel object @{excel} and return worksheet name list @{sheet_names}",
+    "inputList": {
+      "excel": {
+        "title": "Excel Object"
+      },
+      "sheet_range": {
+        "title": "Worksheet Range"
+      }
+    },
+    "outputList": {
+      "sheet_names": {
+        "title": "Worksheet Names",
+        "tip": "Returns a list of worksheet names, such as ['Sheet1', 'Sheet2']"
+      }
+    }
+  },
+  "Excel.search_and_replace_excel_content": {
+    "title": "Find or Replace Excel Content",
+    "comment": "Find or replace @{find_str} within @{search_range} of Excel object @{excel}, and return search result @{search_excel_result}",
+    "inputList": {
+      "excel": {
+        "title": "Excel Object"
+      },
+      "find_str": {
+        "title": "Find Content"
+      },
+      "replace_flag": {
+        "title": "Replace"
+      },
+      "replace_str": {
+        "title": "Replacement Content"
+      },
+      "lookup_range_excel": {
+        "title": "Lookup Range"
+      },
+      "sheet_name": {
+        "title": "Worksheet Name",
+        "tip": "Enter the worksheet name to edit, such as 'Sheet1'. If empty, the first worksheet object in the Excel file is used by default"
+      },
+      "search_range": {
+        "title": "Search Range Within Worksheet"
+      },
+      "row": {
+        "title": "Row",
+        "tip": "Enter an integer row number, starting from 1"
+      },
+      "col": {
+        "title": "Column",
+        "tip": "Enter the column name. Character A or integer 1 is supported"
+      },
+      "start_row": {
+        "title": "Start Row"
+      },
+      "end_row": {
+        "title": "End Row"
+      },
+      "start_col": {
+        "title": "Start Column",
+        "tip": "Enter the column name. Character A or integer 1 is supported"
+      },
+      "end_col": {
+        "title": "End Column",
+        "tip": "Enter the column name. Character A or integer 1 is supported. -n means the nth column from the end"
+      },
+      "exact_match": {
+        "title": "Exact Match"
+      },
+      "case_flag": {
+        "title": "Case Sensitive"
+      },
+      "match_range": {
+        "title": "Number of Matches"
+      },
+      "output_type": {
+        "title": "Output Type",
+        "tip": "By default, cell positions are returned, such as ['A1', 'B2']. You can also choose to return column and row separately, such as [['A', 1], ['B', 2]]"
+      }
+    },
+    "outputList": {
+      "search_excel_result": {
+        "title": "Search Result",
+        "tip": "When searching a single worksheet, a list of cell positions is returned, such as ['A1', 'B2']. When searching multiple worksheets, a dictionary of worksheet names and cell position lists is returned, such as {'Sheet1': ['A1', 'B2'], 'Sheet2': ['C3', 'D4']}"
+      }
+    }
+  },
+  "Excel.insert_pic": {
+    "title": "Insert Excel Image",
+    "comment": "Insert image @{pic_path} into worksheet @{sheet_name} of Excel object @{excel} using insert type @{pic_size_type}",
+    "inputList": {
+      "excel": {
+        "title": "Excel Object"
+      },
+      "sheet_name": {
+        "title": "Worksheet Name",
+        "tip": "Enter the worksheet name to edit, such as 'Sheet1'. If empty, the first worksheet object in the Excel file is used by default"
+      },
+      "insert_pos": {
+        "title": "Insert Position",
+        "tip": "You can enter a cell position, such as 'A1', or a range position, such as 'A1:B2'"
+      },
+      "pic_path": {
+        "title": "Image Path"
+      },
+      "pic_size_type": {
+        "title": "Image Size Control"
+      },
+      "pic_height": {
+        "title": "Image Height"
+      },
+      "pic_width": {
+        "title": "Image Width"
+      },
+      "pic_scale": {
+        "title": "Image Scale Ratio"
+      }
+    }
+  },
+  "Excel.insert_formula": {
+    "title": "Insert Excel Formula",
+    "comment": "Insert formula @{formula} into worksheet @{sheet_name} of Excel object @{excel}",
+    "inputList": {
+      "excel": {
+        "title": "Excel Object"
+      },
+      "sheet_name": {
+        "title": "Worksheet Name",
+        "tip": "Enter the worksheet name to edit, such as 'Sheet1'. If empty, the first worksheet object in the Excel file is used by default"
+      },
+      "insert_direction": {
+        "title": "Formula Insert Direction"
+      },
+      "col": {
+        "title": "Column",
+        "tip": "Enter the column name. Character A or integer 1 is supported"
+      },
+      "start_row": {
+        "title": "Start Row",
+        "tip": "Enter an integer row number, starting from 1"
+      },
+      "end_row": {
+        "title": "End Row",
+        "tip": "Enter an integer row number. -n means the nth row from the end"
+      },
+      "row": {
+        "title": "Row",
+        "tip": "Enter an integer row number, starting from 1"
+      },
+      "start_col": {
+        "title": "Start Column",
+        "tip": "Enter the column name. Character A or integer 1 is supported"
+      },
+      "end_col": {
+        "title": "End Column",
+        "tip": "Enter the column name. Character A or integer 1 is supported. -n means the nth column from the end"
+      },
+      "formula": {
+        "title": "Formula to Insert"
+      }
+    }
+  },
+  "Excel.create_excel_comment": {
+    "title": "Create Excel Comment",
+    "comment": "Insert comment @{comment} into Excel object @{excel}",
+    "inputList": {
+      "excel": {
+        "title": "Excel Object"
+      },
+      "comment_type": {
+        "title": "Comment Insert Mode",
+        "tip": "You can insert by specified cell position or by content search"
+      },
+      "comment": {
+        "title": "Comment Content"
+      },
+      "sheet_name": {
+        "title": "Worksheet Name",
+        "tip": "Enter the worksheet name to edit, such as 'Sheet1'. If empty, the first worksheet object in the Excel file is used by default"
+      },
+      "cell_position": {
+        "title": "Cell Position",
+        "tip": "Enter the cell position, such as A1"
+      },
+      "comment_range": {
+        "title": "Search Range"
+      },
+      "find_str": {
+        "title": "Search Content"
+      },
+      "comment_all": {
+        "title": "Comment on All Matches",
+        "tip": "Select Yes to add comments to all matched content. Select No to comment only on the first matched content"
+      }
+    }
+  },
+  "Excel.delete_excel_comment": {
+    "title": "Delete Excel Comment",
+    "comment": "Delete comments from Excel object @{excel}",
+    "inputList": {
+      "excel": {
+        "title": "Excel Object"
+      },
+      "delete_all": {
+        "title": "Delete All Comments"
+      },
+      "sheet_name": {
+        "title": "Worksheet Name",
+        "tip": "Enter the worksheet name to edit, such as 'Sheet1'. If empty, the first worksheet object in the Excel file is used by default"
+      },
+      "cell_position": {
+        "title": "Cell Position",
+        "tip": "Enter the cell position, such as A1"
+      }
+    }
+  },
+  "Excel.excel_text_to_number": {
+    "title": "Convert Excel Text to Number",
+    "comment": "Convert text in the selected range of worksheet @{sheet_name} in Excel object @{excel_obj} to number format",
+    "inputList": {
+      "excel_obj": {
+        "title": "Excel Object"
+      },
+      "sheet_name": {
+        "title": "Worksheet Name",
+        "tip": "Enter the worksheet name to edit, such as 'Sheet1'. If empty, the first worksheet object in the Excel file is used by default"
+      },
+      "select_type": {
+        "title": "Range Selection"
+      },
+      "cell_position": {
+        "title": "Cell Position",
+        "tip": "Enter the cell position, such as A1"
+      },
+      "row": {
+        "title": "Row",
+        "tip": "Enter an integer row number, starting from 1"
+      },
+      "col": {
+        "title": "Column",
+        "tip": "Enter the column name. Character A or integer 1 is supported"
+      },
+      "range_location": {
+        "title": "Cell Range",
+        "tip": "Enter the cell range, such as A1:B2"
+      }
+    }
+  },
+  "Excel.excel_number_to_text": {
+    "title": "Convert Excel Number to Text",
+    "comment": "Convert numbers in the selected range of worksheet @{sheet_name} in Excel object @{excel_obj} to text format",
+    "inputList": {
+      "excel_obj": {
+        "title": "Excel Object"
+      },
+      "sheet_name": {
+        "title": "Worksheet Name",
+        "tip": "Enter the worksheet name to edit, such as 'Sheet1'. If empty, the first worksheet object in the Excel file is used by default"
+      },
+      "select_type": {
+        "title": "Range Selection"
+      },
+      "cell_position": {
+        "title": "Cell Position",
+        "tip": "Enter the cell position, such as A1"
+      },
+      "row": {
+        "title": "Row",
+        "tip": "Enter an integer row number, starting from 1"
+      },
+      "col": {
+        "title": "Column",
+        "tip": "Enter the column name. Character A or integer 1 is supported"
+      },
+      "range_location": {
+        "title": "Cell Range",
+        "tip": "Enter the cell range, such as A1:B2"
+      }
+    }
+  },
+  "Excel.excel_set_col_width": {
+    "title": "Set Excel Column Width",
+    "comment": "Set the width of column @{col} in worksheet @{sheet_name} of Excel object @{excel_obj}",
+    "inputList": {
+      "excel_obj": {
+        "title": "Excel Object"
+      },
+      "sheet_name": {
+        "title": "Worksheet Name",
+        "tip": "Enter the worksheet name to edit, such as 'Sheet1'. If empty, the first worksheet object in the Excel file is used by default"
+      },
+      "set_type": {
+        "title": "Set Type"
+      },
+      "col": {
+        "title": "Column",
+        "tip": "Enter the column name. Character A or integer 1 is supported"
+      },
+      "width": {
+        "title": "Column Width"
+      }
+    }
+  },
+  "Excel.excel_set_row_height": {
+    "title": "Set Excel Row Height",
+    "comment": "Set the height of row @{row} in worksheet @{sheet_name} of Excel object @{excel_obj}",
+    "inputList": {
+      "excel_obj": {
+        "title": "Excel Object"
+      },
+      "sheet_name": {
+        "title": "Worksheet Name",
+        "tip": "Enter the worksheet name to edit, such as 'Sheet1'. If empty, the first worksheet object in the Excel file is used by default"
+      },
+      "set_type": {
+        "title": "Set Type"
+      },
+      "row": {
+        "title": "Row",
+        "tip": "Enter an integer row number, starting from 1"
+      },
+      "height": {
+        "title": "Row Height"
+      }
+    }
+  },
+  "options": {
+    "ApplicationType": {
+      "Excel": "Office",
+      "WPS": "WPS",
+      "Default": "Auto-select by system"
+    },
+    "Bool": {
+      "True": "Yes",
+      "False": "No"
+    },
+    "FileExistenceType": {
+      "overwrite": "Overwrite existing file",
+      "rename": "Create file copy",
+      "cancel": "Skip save operation"
+    },
+    "SaveType": {
+      "save": "Save",
+      "save_as": "Save As",
+      "abort": "Do Not Save"
+    },
+    "CloseRangeType": {
+      "one": "Current Document",
+      "all": "All Documents"
+    },
+    "SaveType_ALL": {
+      "save": "Save",
+      "abort": "Do Not Save"
+    },
+    "EditRangeType": {
+      "row": "Row",
+      "column": "Column",
+      "area": "Area",
+      "cell": "Cell"
+    },
+    "EditType": {
+      "overwrite": "Overwrite",
+      "append": "Append"
+    },
+    "ReadRangeType": {
+      "cell": "Cell",
+      "row": "Row",
+      "column": "Column",
+      "area": "Area",
+      "all": "Used Range"
+    },
+    "FontType": {
+      "no_change": "Keep unchanged",
+      "bold": "Bold",
+      "italic": "Italic",
+      "bold_italic": "Bold Italic",
+      "normal": "Regular"
+    },
+    "FontNameType": {
+      "维持原状": "Keep unchanged",
+      "黑体": "SimHei",
+      "仿宋": "FangSong",
+      "宋体": "SimSun",
+      "微软雅黑": "Microsoft YaHei",
+      "微软雅黑 Light": "Microsoft YaHei Light",
+      "华文中宋": "STZhongsong",
+      "华文仿宋": "STFangsong",
+      "华文宋体": "STSong",
+      "华文彩云": "STCaiyun",
+      "华文新魏": "STXinwei",
+      "华文楷体": "STKaiti",
+      "华文琥珀": "STHupo",
+      "华文细黑": "STXihei",
+      "华文行楷": "STXingkai",
+      "华文隶书": "STLiti",
+      "幼圆": "YouYuan",
+      "隶书": "LiSu",
+      "方正姚体": "FZYaoti",
+      "方正舒体": "FZShuTi",
+      "新宋体": "NSimSun",
+      "微軟正黑體 Light": "Microsoft JhengHei Light",
+      "微軟正黑體": "Microsoft JhengHei",
+      "細明體_HKSCS-ExtB": "MingLiU_HKSCS-ExtB",
+      "等线": "DengXian",
+      "等线 Light": "DengXian Light",
+      "楷体": "KaiTi",
+      "細明置-ExtB": "MingLiU-ExtB",
+      "新細明置-ExtB": "PMingLiU-ExtB",
+      "Onyx": "Onyx",
+      "Myanmar Text": "Myanmar Text",
+      "Niagara Engraved": "Niagara Engraved",
+      "Niagara Solid": "Niagara Solid",
+      "Nirmala Ul": "Nirmala Ul",
+      "Nirmala Ul Semilight": "Nirmala Ul Semilight",
+      "OCR A Extended": "OCR A Extended",
+      "Old English Text MT": "Old English Text MT",
+      "Palace Script MT": "Palace Script MT",
+      "Poor Richard": "Poor Richard",
+      "Papyrus": "Papyrus",
+      "Parchment": "Parchment",
+      "Perpetua": "Perpetua",
+      "Perpetua Tilting MT": "Perpetua Tilting MT",
+      "Playbill": "Playbill",
+      "MV Boli": "MV Boli",
+      "Pristina": "Pristina",
+      "Rage Italic": "Rage Italic",
+      "Ravie": "Ravie",
+      "Palatino Linotype": "Palatino Linotype",
+      "MT Extra": "MT Extra",
+      "MS Gothic": "MS Gothic",
+      "MS Reference Specialty": "MS Reference Specialty",
+      "Marlett": "Marlett",
+      "Matura MT Script Capitals": "Matura MT Script Capitals",
+      "Microsoft Himalaya": "Microsoft Himalaya",
+      "Microsoft JhengHei UI": "Microsoft JhengHei UI",
+      "Microsoft JhengHei UI Light": "Microsoft JhengHei UI Light",
+      "Microsoft New Tai Lue": "Microsoft New Tai Lue",
+      "Microsoft PhagsPa": "Microsoft PhagsPa",
+      "Microsoft Sans Serif": "Microsoft Sans Serif",
+      "Microsoft Tai Le": "Microsoft Tai Le",
+      "Microsoft Uighur": "Microsoft Uighur",
+      "Microsoft Yahei Ul": "Microsoft Yahei Ul",
+      "Microsoft YaHei Ul Light": "Microsoft YaHei Ul Light",
+      "Microsoft Yi Baiti": "Microsoft Yi Baiti",
+      "Mistral": "Mistral",
+      "Modern No.20": "Modern No.20",
+      "Mogolian Baiti": "Mogolian Baiti"
+    },
+    "NumberFormatType": {
+      "no_change": "Keep unchanged",
+      "G/通用格式": "General",
+      "0.00": "Number",
+      "¥#,##0.00": "Currency",
+      "_(¥* #,##0.00_);_(¥* (#,##0.00);_(¥* -_0_0_);_(@_)": "_(¥* #,##0.00_);_(¥* (#,##0.00);_(¥* -_0_0_);_(@_)",
+      "yyyy/m/d": "Short Date",
+      "yyyy年mm月dd日": "Long Date",
+      "h:mm:ss AM/PM": "Time",
+      "0.00%": "Percentage",
+      "# ?/?": "Fraction",
+      "0.00E+00": "Scientific",
+      "@": "@",
+      "other": "Custom"
+    },
+    "HorizontalAlign": {
+      "no_change": "Keep unchanged",
+      "default": "Default",
+      "left-aligned": "Left",
+      "right-aligned": "Right",
+      "center": "Center",
+      "padding": "Fill",
+      "aligned_both_sides": "Justify",
+      "center_cross_column": "Center Across Selection",
+      "distributed_align": "Distributed"
+    },
+    "VerticalAlign": {
+      "no_change": "Keep unchanged",
+      "up": "Top",
+      "middle": "Middle",
+      "down": "Bottom",
+      "aligned_both_sides": "Justify",
+      "distributed_align": "Distributed"
+    },
+    "PasteType": {
+      "all": "Paste All",
+      "value_and_format": "Values and Number Formats",
+      "format": "Formats Only",
+      "exclude_frame": "All Except Borders",
+      "col_width_only": "Column Widths Only",
+      "formula_only": "Formulas Only",
+      "formula_and_format": "Formulas and Number Formats",
+      "paste_value": "Paste Values"
+    },
+    "DeleteCellDirection": {
+      "lower_move_up": "Shift Cells Up",
+      "right_move_left": "Shift Cells Left"
+    },
+    "ClearType": {
+      "content": "Clear Content",
+      "style": "Clear Format",
+      "all": "Clear Content and Format"
+    },
+    "EnhancedInsertType": {
+      "row": "Insert at Specified Row",
+      "column": "Insert at Specified Column",
+      "add_rows": "Insert After Last Row",
+      "add_columns": "Insert After Last Column"
+    },
+    "RowDirectionType": {
+      "upper": "Insert Upward",
+      "lower": "Insert Downward"
+    },
+    "ColumnDirectionType": {
+      "left": "Insert to Left",
+      "right": "Insert to Right"
+    },
+    "ColumnType": {
+      "all": "All Columns",
+      "one_column": "Single Column"
+    },
+    "RowType": {
+      "all": "All Rows",
+      "one_row": "Single Row"
+    },
+    "ColumnOutputType": {
+      "letter": "Letter Column Index",
+      "number": "Numeric Column Index"
+    },
+    "SearchRangeType": {
+      "all": "Used Range",
+      "row": "Row",
+      "column": "Column",
+      "area": "Area"
+    },
+    "MergeOrSplitType": {
+      "merge": "Merge",
+      "split": "Split"
+    },
+    "SheetInsertType": {
+      "first": "New sheet becomes the first worksheet",
+      "last": "New sheet becomes the last worksheet",
+      "before": "Insert new sheet before specified worksheet",
+      "after": "Insert new sheet after specified worksheet"
+    },
+    "MoveSheetType": {
+      "move_after": "Move after target worksheet",
+      "move_before": "Move before target worksheet",
+      "move_to_first": "Move to the first worksheet",
+      "move_to_last": "Move to the last worksheet"
+    },
+    "CopySheetLocationType": {
+      "before": "Copy before current worksheet",
+      "after": "Copy after current worksheet",
+      "first": "Copy to the first worksheet",
+      "last": "Copy to the last worksheet"
+    },
+    "CopySheetType": {
+      "current_workbook": "Current Workbook",
+      "other_workbook": "Other Workbook"
+    },
+    "SheetRangeType": {
+      "activated": "Active Worksheet",
+      "all": "All Worksheets"
+    },
+    "SearchSheetType": {
+      "all": "All Worksheets",
+      "one": "Single Worksheet"
+    },
+    "MatchCountType": {
+      "all": "All Results",
+      "first": "First Result"
+    },
+    "SearchResultType": {
+      "cell": "Return Cell Position",
+      "col_and_row": "Return Column and Row"
+    },
+    "ImageSizeType": {
+      "scale": "Scale by Ratio",
+      "number": "Set Height and Width",
+      "auto": "Auto Fit to Range"
+    },
+    "InsertFormulaDirectionType": {
+      "down": "Insert Downward",
+      "right": "Insert to the Right"
+    },
+    "CreateCommentType": {
+      "position": "Insert by Cell Position",
+      "content": "Insert by Content Search"
+    },
+    "SetType": {
+      "value": "Set Value",
+      "auto": "Auto Fit"
+    }
+  },
+  "ExcelObj": {
+    "desc": "Excel object",
+    "template": "Excel object",
+    "ExcelObj.get_full_name": {
+      "funcDesc": "File location",
+      "resDesc": "String"
+    },
+    "ExcelObj.get_first_free_row": {
+      "funcDesc": "First available row",
+      "resDesc": "Integer"
+    },
+    "ExcelObj.get_row_count": {
+      "funcDesc": "Total number of available rows",
+      "resDesc": "Integer"
+    }
+  }
+}

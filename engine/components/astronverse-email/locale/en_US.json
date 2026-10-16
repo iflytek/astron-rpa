@@ -1,0 +1,145 @@
+{
+  "Email.send_email": {
+    "title": "Send Email",
+    "comment": "Send email to specified mailbox @{receiver}",
+    "inputList": {
+      "receiver": {
+        "title": "Recipient Email",
+        "tip": "Recipient email address"
+      },
+      "cc": {
+        "title": "CC Email",
+        "tip": "CC email address"
+      },
+      "subject": {
+        "title": "Subject"
+      },
+      "is_html": {
+        "title": "Is HTML Format"
+      },
+      "content": {
+        "title": "Content"
+      },
+      "attachment_path": {
+        "title": "Attachment Path"
+      },
+      "mail_server": {
+        "title": "Mail Server",
+        "tip": "e.g.: smtp.126.com, smtp.qq.com, etc."
+      },
+      "other_mail_server": {
+        "title": "Other Mail Server",
+        "tip": "Enter mail server address and port when selecting other mail server"
+      },
+      "mail_port": {
+        "title": "Mail Server Port",
+        "tip": "e.g.: smtp.126.com port is 25, smtp.qq.com port is 465 or 587"
+      },
+      "use_ssl": {
+        "title": "Use SSL Encryption"
+      },
+      "sender_mail": {
+        "title": "Sender Email",
+        "tip": "Sender email address, must match mail server"
+      },
+      "send_name": {
+        "title": "Sender Name"
+      },
+      "password": {
+        "title": "Password/Authorization Code",
+        "tip": "Password or authorization code of sender email; using authorization code is more secure. Refer to mail provider documentation for how to obtain one"
+      },
+      "bcc": {
+        "title": "BCC Email"
+      },
+      "replace_table": {
+        "title": "Smart Fill Table"
+      }
+    }
+  },
+  "Email.receive_email": {
+    "title": "Receive Email",
+    "comment": "Receive email from mailbox @{user_mail}",
+    "inputList": {
+      "mail_server": {
+        "title": "Mail Server Address",
+        "tip": "Select a mailbox type"
+      },
+      "custom_mail_server": {
+        "title": "IMAP Server Address",
+        "tip": "Enter the specified IMAP server address"
+      },
+      "custom_mail_port": {
+        "title": "IMAP Server Port",
+        "tip": "Enter the specified IMAP server port"
+      },
+      "user_mail": {
+        "title": "User Mail Account",
+        "tip": "Username for IMAP server authentication, typically the email account. Follow the specific mail provider's requirements"
+      },
+      "user_password": {
+        "title": "Authorization Code",
+        "tip": "Authorization code for IMAP server authentication. Usually requires SMS verification to activate. Some providers use account password. Follow the specific mail provider's requirements"
+      },
+      "max_return_num": {
+        "title": "Max Email Return Count",
+        "tip": "Maximum number of emails to return"
+      },
+      "unseen_flag": {
+        "title": "Unread Emails Only",
+        "tip": "Fetch only unread emails or all emails"
+      },
+      "save_attachment_flag": {
+        "title": "Save Attachments",
+        "tip": "Whether to download email attachments"
+      },
+      "save_attachment_path": {
+        "title": "Save Directory",
+        "tip": "Directory to save attachments"
+      },
+      "folder_name": {
+        "title": "Folder Name",
+        "tip": "Enter the mailbox folder name to receive emails from, default is INBOX"
+      },
+      "mask_as_read_flag": {
+        "title": "Mark as Read",
+        "tip": "Mark emails as read after fetching"
+      },
+      "sender_text": {
+        "title": "Sender Contains",
+        "tip": "Filter by sender keyword"
+      },
+      "receiver_text": {
+        "title": "Recipient Contains",
+        "tip": "Filter by recipient keyword"
+      },
+      "theme_text": {
+        "title": "Subject Contains",
+        "tip": "Filter by subject keyword"
+      },
+      "content_text": {
+        "title": "Body Contains",
+        "tip": "Filter by body keyword"
+      }
+    },
+    "outputList": {
+      "mail_list": {
+        "title": "Save Email List",
+        "tip": "Specify a variable name to store the returned email list"
+      }
+    }
+  },
+  "options": {
+    "Bool": {
+      "True": "Yes",
+      "False": "No"
+    },
+    "EmailServerType": {
+      "other": "Other",
+      "126": "126",
+      "163": "163",
+      "qq": "QQ",
+      "iflytek": "iFlytek Mail"
+    }
+  }
+}

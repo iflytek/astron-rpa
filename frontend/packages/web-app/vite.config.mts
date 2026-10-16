@@ -24,7 +24,7 @@ import { ModalReplacementResolver } from './src/plugins/component-resolver'
 
 const baseSrc = fileURLToPath(new URL('./src', import.meta.url))
 const basePublic = fileURLToPath(new URL('../../public', import.meta.url))
-const nodeModules = fileURLToPath(new URL('./node_modules', import.meta.url))
+const antDesignVue = resolve(require.resolve('ant-design-vue/package.json'), '..')
 
 const sentryConfig: SentryVitePluginOptions = {
   authToken: process.env.SENTRY_AUTH_TOKEN,
@@ -117,19 +117,19 @@ export default defineConfig((env) => {
         },
         {
           find: /^ant-design-vue\/es$/,
-          replacement: resolve(nodeModules, 'ant-design-vue/es'),
+          replacement: resolve(antDesignVue, 'es'),
         },
         {
           find: /^ant-design-vue\/dist$/,
-          replacement: resolve(nodeModules, 'ant-design-vue/dist'),
+          replacement: resolve(antDesignVue, 'dist'),
         },
         {
           find: /^ant-design-vue\/lib$/,
-          replacement: resolve(nodeModules, 'ant-design-vue/es'),
+          replacement: resolve(antDesignVue, 'es'),
         },
         {
           find: /^ant-design-vue$/,
-          replacement: resolve(nodeModules, 'ant-design-vue/es'),
+          replacement: resolve(antDesignVue, 'es'),
         },
         {
           find: 'lodash',

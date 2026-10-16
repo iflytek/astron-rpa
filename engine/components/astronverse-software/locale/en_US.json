@@ -1,0 +1,48 @@
+{
+  "Software.open": {
+    "title": "Open Application",
+    "comment": "Open the application at path @{app_absolute_path} and output result as @{software_open}",
+    "inputList": {
+      "app_absolute_path": {
+        "title": "Application Path",
+        "tip": "Enter the file path of the application to open"
+      },
+      "app_arguments": {
+        "title": "Application Arguments",
+        "tip": "Enter arguments to pass when opening the application"
+      }
+    },
+    "outputList": {
+      "software_open": {
+        "title": "Application Path",
+        "tip": "Output the path of the opened application"
+      }
+    }
+  },
+  "Software.close": {
+    "title": "Close Application",
+    "comment": "Close the application at path @{app_absolute_path}",
+    "inputList": {
+      "app_absolute_path": {
+        "title": "Application Path",
+        "tip": "Path of the application to close"
+      }
+    }
+  },
+  "Software.cmd": {
+    "title": "Cmd Command",
+    "comment": "Execute the configured cmd string @{cmd} and save the result to @{exec_cmd}",
+    "inputList": {
+      "cmd": {
+        "title": "Cmd String",
+        "tip": "Enter a cmd string"
+      }
+    },
+    "outputList": {
+      "exec_cmd": {
+        "title": "Execution Result",
+        "tip": "Output the object returned by the custom cmd command"
+      }
+    }
+  }
+}

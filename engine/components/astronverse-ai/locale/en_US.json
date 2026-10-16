@@ -1,0 +1,692 @@
+{
+  "SemanticAI.choose": {
+    "title": "Semantic Choice",
+    "comment": "Classify text according to the instruction @{instruction} and output the selected option or abstain.",
+    "inputList": {
+      "instruction": {
+        "title": "Instruction",
+        "tip": "Describe the classification criteria; return abstain when the choice cannot be determined."
+      },
+      "text": {
+        "title": "Text to Classify",
+        "tip": "Enter text or reference text extracted from a web page."
+      },
+      "options": {
+        "title": "Candidate List",
+        "tip": "Reference a List variable. Each item must be a dictionary containing id and label; ids must be unique and cannot be __abstain__."
+      }
+    },
+    "outputList": {
+      "semantic_result": {
+        "title": "Semantic Choice Result",
+        "subTitle": "AI Generated",
+        "tip": "The dictionary contains status, selected_id, and confidence; network or service errors are handled as node errors."
+      }
+    }
+  },
+  "Agent.call_dify": {
+    "title": "Call Dify Workflow",
+    "comment": "Call Dify workflow @{app_token} to complete your specified task",
+    "inputList": {
+      "user": {
+        "title": "Username"
+      },
+      "app_token": {
+        "title": "Dify Workflow Token",
+        "tip": "Dify Workflow Token"
+      },
+      "app_url": {
+        "title": "Dify Workflow Address",
+        "tip": "Dify Workflow Address"
+      },
+      "file_flag": {
+        "title": "Upload File"
+      },
+      "variable_name": {
+        "title": "Variable Name"
+      },
+      "variable_value": {
+        "title": "Variable Value"
+      },
+      "file_path": {
+        "title": "File Path"
+      },
+      "file_type": {
+        "title": "File Type"
+      }
+    },
+    "outputList": {
+      "dify_result": {
+        "title": "Dify Workflow Result Output"
+      }
+    }
+  },
+  "Agent.call_dify_chatflow": {
+    "title": "Call Dify Chat Flow",
+    "comment": "Call Dify chat flow @{app_token} to complete your specified task",
+    "inputList": {
+      "user": {
+        "title": "Username"
+      },
+      "app_token": {
+        "title": "Dify Workflow Token",
+        "tip": "Dify Workflow Token"
+      },
+      "app_url": {
+        "title": "Dify Workflow Address",
+        "tip": "Dify Workflow Address"
+      },
+      "query": {
+        "title": "User Input",
+        "tip": "Conversational user input"
+      },
+      "file_flag": {
+        "title": "Upload File"
+      },
+      "variable_name": {
+        "title": "Variable Name"
+      },
+      "variable_value": {
+        "title": "Variable Value"
+      },
+      "file_path": {
+        "title": "File Path"
+      },
+      "file_type": {
+        "title": "File Type"
+      }
+    },
+    "outputList": {
+      "dify_result": {
+        "title": "Dify Workflow Result Output"
+      }
+    }
+  },
+  "Agent.call_xcagent": {
+    "title": "Call Astron Agent Workflow",
+    "comment": "Call Astron Agent workflow @{flow_id} to complete your specified task",
+    "inputList": {
+      "api_key": {
+        "title": "API Key"
+      },
+      "api_secret": {
+        "title": "API Secret"
+      },
+      "flow_id": {
+        "title": "Flow ID"
+      },
+      "input_value": {
+        "title": "Workflow Default Input"
+      },
+      "file_flag": {
+        "title": "Upload File"
+      },
+      "variable_name": {
+        "title": "Variable Name"
+      },
+      "variable_value": {
+        "title": "Variable Value"
+      },
+      "file_path": {
+        "title": "File Path"
+      }
+    },
+    "outputList": {
+      "xcagent_result": {
+        "title": "Astron Agent Return Value"
+      }
+    }
+  },
+  "Agent.call_astron_agent": {
+    "title": "Get and Call Astron Agent Workflow",
+    "comment": "Get Astron Agent workflow according to your configuration and complete your specified task.",
+    "inputList": {
+      "astron_workflow": {
+        "title": "Astron Agent Workflow Configuration"
+      }
+    },
+    "outputList": {
+      "astron_agent_result": {
+        "title": "Astron Agent Return Value"
+      }
+    }
+  },
+  "ChatAI.chat": {
+    "title": "Multi-turn Conversation",
+    "comment": "The AI model will play a role and conduct up to @{max_turns} rounds of Q&A",
+    "inputList": {
+      "is_save": {
+        "title": "Save Conversation",
+        "tip": "Whether to save the conversation when it ends"
+      },
+      "title": {
+        "title": "Window Title",
+        "tip": "Define the conversation window title"
+      },
+      "max_turns": {
+        "title": "Maximum Q&A Turns",
+        "tip": "Maximum number of Q&A turns, one complete Q&A counts as one turn"
+      },
+      "model": {
+        "title": "Model Selection",
+        "tip": "Select the model to use"
+      },
+      "custom_model": {
+        "title": "Custom Model ID"
+      }
+    },
+    "outputList": {
+      "chat_res": {
+        "title": "Conversation Chat History Output",
+        "tip": "Output conversation chat history as a variable"
+      }
+    }
+  },
+  "ChatAI.knowledge_chat": {
+    "title": "Knowledge Q&A",
+    "comment": "The AI model will read the file at @{file_path} for knowledge Q&A",
+    "inputList": {
+      "file_path": {
+        "title": "File Path",
+        "tip": "Please select the file path for knowledge Q&A"
+      },
+      "is_save": {
+        "title": "Save Conversation",
+        "tip": "Whether to save the conversation when it ends"
+      },
+      "max_turns": {
+        "title": "Maximum Q&A Turns",
+        "tip": "Maximum number of Q&A turns, one complete Q&A counts as one turn"
+      }
+    },
+    "outputList": {
+      "knowledge_chat_res": {
+        "title": "Conversation Chat History Output",
+        "tip": "Output conversation chat history as a variable"
+      }
+    }
+  },
+  "ChatAI.llm_chat": {
+    "title": "AI Large Language Model",
+    "comment": "The AI model will respond based on the prompt @{prompt}",
+    "inputList": {
+      "model_select": {
+        "title": "Model Selection"
+      },
+      "file_path": {
+        "title": "File Path"
+      },
+      "prompt": {
+        "title": "Prompt"
+      }
+    },
+    "outputList": {
+      "AI_Chat_res": {
+        "title": "Conversation Result Output"
+      }
+    }
+  },
+  "ContractAI.get_factors": {
+    "title": "Contract Element Extraction",
+    "comment": "Extract elements from contract @{contract_content}",
+    "inputList": {
+      "contract_type": {
+        "title": "Contract Input Method"
+      },
+      "contract_path": {
+        "title": "Contract Path"
+      },
+      "contract_content": {
+        "title": "Contract Text Content",
+        "tip": "Contract content"
+      },
+      "custom_factors": {
+        "title": "Elements"
+      },
+      "contract_validate": {
+        "title": "Effect Validation"
+      },
+      "model": {
+        "title": "Model ID"
+      }
+    },
+    "outputList": {
+      "factor_result": {
+        "title": "Return Element Result"
+      }
+    }
+  },
+  "DocumentAI.theme_expand": {
+    "title": "Theme Expansion",
+    "comment": "The AI model will expand based on the theme @{theme} and prompt @{prompt} you provide",
+    "inputList": {
+      "model_select": {
+        "title": "Model Selection"
+      },
+      "prompt": {
+        "title": "Prompt"
+      },
+      "theme": {
+        "title": "Theme"
+      }
+    },
+    "outputList": {
+      "theme_expanded_res": {
+        "title": "Theme Expansion Result Output"
+      }
+    }
+  },
+  "DocumentAI.sentence_expand": {
+    "title": "Paragraph Expansion",
+    "comment": "The AI model will expand based on the paragraph @{paragraph_text} and prompt @{prompt} you provide",
+    "inputList": {
+      "model_select": {
+        "title": "Model Selection"
+      },
+      "prompt": {
+        "title": "Prompt"
+      },
+      "paragraph_text": {
+        "title": "Paragraph"
+      }
+    },
+    "outputList": {
+      "sentence_expanded_res": {
+        "title": "Paragraph Expansion Result Output"
+      }
+    }
+  },
+  "DocumentAI.sentence_reduce": {
+    "title": "Paragraph Compression",
+    "comment": "The AI model will compress based on the paragraph @{paragraph_text} and prompt @{prompt} you provide",
+    "inputList": {
+      "model_select": {
+        "title": "Model Selection"
+      },
+      "prompt": {
+        "title": "Prompt"
+      },
+      "paragraph_text": {
+        "title": "Paragraph"
+      }
+    },
+    "outputList": {
+      "sentence_reduce_res": {
+        "title": "Paragraph Compression Result Output"
+      }
+    }
+  },
+  "DocumentAI.organize_notes": {
+    "title": "Auto Organize Notes",
+    "comment": "Automatically organize note content, supporting both text and mind map output formats",
+    "inputList": {
+      "model_select": {
+        "title": "Model Selection"
+      },
+      "prompt_text": {
+        "title": "Prompt",
+        "tip": "Define text organization style, output structure, key focus content, etc. (≤5000 characters)"
+      },
+      "prompt_mindmap": {
+        "title": "Prompt",
+        "tip": "Define mind map organization style, node hierarchy, key focus content, etc. (≤5000 characters)"
+      },
+      "input_mode": {
+        "title": "Input Method"
+      },
+      "document_path": {
+        "title": "Document Path",
+        "tip": "Support .doc/.docx/.ppt/.pptx/.pdf, size ≤100MB"
+      },
+      "note_content": {
+        "title": "Note Content",
+        "tip": "Input raw note content (≤100000 characters)"
+      },
+      "output_type": {
+        "title": "Output Type",
+        "tip": "Choose text format or mind map"
+      },
+      "image_output_path": {
+        "title": "Image Output Path",
+        "tip": "Mind map image save path (png format)"
+      }
+    },
+    "outputList": {
+      "AI_text_organization_res": {
+        "title": "Auto Organize Notes Result",
+        "tip": "Organized note content or mind map path"
+      }
+    }
+  },
+  "DocumentAI.summarize_document": {
+    "title": "Document Summary",
+    "comment": "Intelligently summarize document content based on prompt @{prompt}",
+    "inputList": {
+      "model_select": {
+        "title": "Model Selection"
+      },
+      "prompt": {
+        "title": "Prompt",
+        "tip": "Define summary requirements, key focus content, etc. (≤5000 characters)"
+      },
+      "input_mode": {
+        "title": "Input Method"
+      },
+      "document_path": {
+        "title": "Document Path",
+        "tip": "Support .doc/.docx/.ppt/.pptx/.pdf, size ≤100MB"
+      },
+      "document_content": {
+        "title": "Document Content",
+        "tip": "Input document content to be summarized (≤100000 characters)"
+      }
+    },
+    "outputList": {
+      "document_summary_res": {
+        "title": "Document Summary Result",
+        "tip": "Summarized text content"
+      }
+    }
+  },
+  "DocumentAI.analyze_document": {
+    "title": "Document Analysis",
+    "comment": "Perform in-depth analysis on document content based on prompt @{prompt}",
+    "inputList": {
+      "model_select": {
+        "title": "Model Selection"
+      },
+      "prompt": {
+        "title": "Prompt",
+        "tip": "Define analysis dimensions, focus areas, etc. (≤5000 characters)"
+      },
+      "input_mode": {
+        "title": "Input Method"
+      },
+      "document_path": {
+        "title": "Document Path",
+        "tip": "Support .doc/.docx/.ppt/.pptx/.pdf, size ≤100MB"
+      },
+      "document_content": {
+        "title": "Document Content",
+        "tip": "Input document content to be analyzed (≤100000 characters)"
+      }
+    },
+    "outputList": {
+      "document_analysis_text": {
+        "title": "Document Analysis Result",
+        "tip": "Analyzed text content"
+      }
+    }
+  },
+  "DocumentAI.polish_document": {
+    "title": "Document Polish",
+    "comment": "Polish and optimize document content based on prompt @{prompt}",
+    "inputList": {
+      "model_select": {
+        "title": "Model Selection"
+      },
+      "prompt": {
+        "title": "Prompt",
+        "tip": "Define polish style, optimization direction, etc. (≤5000 characters)"
+      },
+      "input_mode": {
+        "title": "Input Method"
+      },
+      "document_path": {
+        "title": "Document Path",
+        "tip": "Support .doc/.docx/.ppt/.pptx/.pdf, size ≤100MB"
+      },
+      "document_content": {
+        "title": "Document Content",
+        "tip": "Input document content to be polished (≤100000 characters)"
+      }
+    },
+    "outputList": {
+      "AI_text_polishing_res": {
+        "title": "Document Polish Result",
+        "tip": "Polished text content"
+      }
+    }
+  },
+  "DocumentAI.format_document": {
+    "title": "AI Formatting",
+    "comment": "Intelligently parse document structure and automatically beautify layout",
+    "inputList": {
+      "input_mode": {
+        "title": "Input Method"
+      },
+      "document_path": {
+        "title": "Document Path",
+        "tip": "Support .doc/.docx/.txt/.json, size ≤100MB"
+      },
+      "document_content": {
+        "title": "Document Content"
+      },
+      "template_select": {
+        "title": "Template Selection"
+      },
+      "save_type": {
+        "title": "Save Type"
+      },
+      "output_path": {
+        "title": "Document Output Path",
+        "tip": "Select output folder path"
+      },
+      "output_filename": {
+        "title": "Document Output Filename",
+        "tip": "Output filename (without extension)"
+      }
+    }
+  },
+  "ImageAI.generate_image": {
+    "title": "Text to Image",
+    "comment": "Generate high-quality images based on prompt @{prompt}",
+    "inputList": {
+      "model_select": {
+        "title": "Model Selection"
+      },
+      "prompt": {
+        "title": "Prompt",
+        "tip": "Define AI role and answer requirements. E.g.: act as an IT expert, provide professional and rigorous answers"
+      },
+      "negative_prompt": {
+        "title": "Negative Prompt",
+        "tip": "Exclude unwanted elements such as blur, low quality, distortion, etc. (≤5000 characters)"
+      },
+      "aspect_ratio": {
+        "title": "Image Aspect Ratio",
+        "tip": "Select the width-to-height ratio for generated images"
+      },
+      "image_size": {
+        "title": "Image Size",
+        "tip": "Select image resolution"
+      },
+      "image_output_path": {
+        "title": "Image Output Path"
+      },
+      "image_filename": {
+        "title": "Image Name"
+      }
+    }
+  },
+  "ImageAI.understand_image": {
+    "title": "Image Understanding",
+    "comment": "Perform in-depth visual understanding and analysis of image @{image_path}",
+    "inputList": {
+      "model_select": {
+        "title": "Model Selection"
+      },
+      "prompt": {
+        "title": "Prompt",
+        "tip": "Define AI role and answer requirements. E.g.: act as an IT expert, provide professional and rigorous answers"
+      },
+      "image_path": {
+        "title": "Image Path",
+        "tip": "Support .jpg/.jpeg/.png, size ≤20MB, up to 1 image"
+      }
+    },
+    "outputList": {
+      "AI_image_analysis_res": {
+        "title": "Image Understanding Result Output",
+        "tip": "Complete analysis description or answer for the image"
+      }
+    }
+  },
+  "RecruitAI.generate_keywords": {
+    "title": "Job Keywords Generation",
+    "comment": "Generate keywords based on job description @{job_description}",
+    "inputList": {
+      "job_name": {
+        "title": "Job Title"
+      },
+      "job_description": {
+        "title": "Job Description"
+      },
+      "job_website": {
+        "title": "Job Website"
+      },
+      "model": {
+        "title": "Model ID"
+      }
+    },
+    "outputList": {
+      "recruit_keywords": {
+        "title": "Job Keywords"
+      }
+    }
+  },
+  "RecruitAI.rating_resume": {
+    "title": "Resume Rating",
+    "comment": "Rate resume based on @{resume_content}",
+    "inputList": {
+      "job_name": {
+        "title": "Job Title"
+      },
+      "resume_input_type": {
+        "title": "Resume Input Method"
+      },
+      "resume_file_path": {
+        "title": "Resume File Path"
+      },
+      "resume_content": {
+        "title": "Resume Text Content"
+      },
+      "job_description": {
+        "title": "Job Description"
+      },
+      "rating_system": {
+        "title": "Job Rating System"
+      },
+      "rating_dimensions": {
+        "title": "Job Rating Profile"
+      },
+      "model": {
+        "title": "Model ID"
+      }
+    },
+    "outputList": {
+      "recruit_rating": {
+        "title": "Resume Matching Result"
+      }
+    }
+  },
+  "ChatAI.single_turn_chat": {
+    "title": "Single-turn Conversation",
+    "comment": "The AI model will answer your question: @{query}.",
+    "inputList": {
+      "query": {
+        "title": "User Input",
+        "tip": "The question to ask the AI model."
+      },
+      "model": {
+        "title": "Model Selection",
+        "tip": "Select the model to use."
+      },
+      "custom_model": {
+        "title": "Custom Model ID"
+      }
+    },
+    "outputList": {
+      "single_chat_res": {
+        "title": "Answer Output",
+        "subTitle": "AI Generated",
+        "tip": "Output the answer generated by the AI model as a variable."
+      }
+    }
+  },
+  "options": {
+    "Bool": {
+      "True": "Yes",
+      "False": "No"
+    },
+    "DifyFileTypes": {
+      "document": "Document",
+      "image": "Image",
+      "video": "Video",
+      "audio": "Audio",
+      "custom": "Other Format"
+    },
+    "LLMModelTypes": {
+      "xopdeepseekv32": "DeepSeek-V3.2",
+      "xopkimik25": "Kimi-K2.5",
+      "xopkimik2blins": "Kimi-K2-Instruct",
+      "xopqwen35397b": "Qwen-3.5-397B-A17B",
+      "xop3qwen235b": "Qwen3-235B-A22B",
+      "xop3qwen30b2507": "Qwen3-30B-A3B-Instruct-2507",
+      "xminimaxm25": "MiniMax-M2.5",
+      "xminimaxm2": "MiniMax-M2.1",
+      "xopglm5": "GLM-5",
+      "xopglmv47flash": "GLM-4.7-Flash",
+      "custom": "Custom Model"
+    },
+    "InputType": {
+      "file": "File Format",
+      "text": "Text Format"
+    },
+    "JobWebsitesTypes": {
+      "boss": "BOSS Zhipin",
+      "liepin": "Liepin",
+      "zhilian": "Zhilian Recruitment"
+    },
+    "RatingSystemTypes": {
+      "default": "Generate based on job description",
+      "custom": "Custom judgment criteria"
+    },
+    "OutputType": {
+      "text": "Text Format",
+      "mindmap": "Mind Map"
+    },
+    "SaveType": {
+      "保存": "Save",
+      "另存为": "Save As"
+    },
+    "TemplateType": {
+      "通用公文": "General Official Document",
+      "学术论文": "Academic Paper",
+      "合同协议": "Contract Agreement"
+    },
+    "LLMMultiModalModelTypes": {
+      "xopqwentti20b": "Qwen-Image-2512",
+      "xskolorss2b6": "Kolors",
+      "xssdxl": "StableDiffusion-XL-Base-1"
+    },
+    "VLLMModelTypes": {
+      "xqwen2d5s32bvl": "QWEN2.5-VL-32B-Instruct",
+      "xop3qwen32bvl": "QWEN3-VL-32B-Instruct",
+      "xopdeepseekocr": "DeepSeek_OCR"
+    },
+    "AspectRatio": {
+      "1:1": "1:1",
+      "3:4": "3:4",
+      "4:3": "4:3",
+      "4:7": "4:7",
+      "7:4": "7:4",
+      "9:16": "9:16",
+      "16:9": "16:9"
+    },
+    "ImageSize": {
+      "1024p": "1024p",
+      "720p": "720p"
+    }
+  }
+}

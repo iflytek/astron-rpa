@@ -22,3 +22,15 @@ function loadConfig(): IAppConfig {
 }
 
 export const config = loadConfig();
+
+export function isEngineStartSkipped() {
+  return Boolean(config.skip_engine_start || process.env.SKIP_ENGINE_START)
+}
+
+export function getSkippedEngineRoutePort() {
+  const rawPort = process.env.ENGINE_ROUTE_PORT ?? process.env.ROUTER_PORT ?? '13159'
+  const port = Number(rawPort)
+  if (!Number.isInteger(port) || port <= 0 || port > 65535)
+    throw new Error(`Invalid Engine route port: ${rawPort}`)
+  return port
+}
