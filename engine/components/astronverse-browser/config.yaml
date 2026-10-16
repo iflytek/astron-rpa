@@ -927,6 +927,9 @@ atomic:
       - key: browser_type
         title: 浏览器类型
         tip: 选择该浏览器对象所在的浏览器类型
+      - key: activate_window
+        title: 置顶并最大化窗口
+        tip: 默认保持原有窗口激活行为；只读流程应关闭，避免改变窗口位置和前台焦点
     outputList:
       - key: browser_obj
         title: 浏览器对象

@@ -1,6 +1,6 @@
 {
   "name": "n8n-nodes-astron-rpa",
-  "version": "0.1.0-dev.1",
+  "version": "0.1.0-dev.2",
   "description": "AstronRPA published workflow control through MCP",
   "license": "Apache-2.0",
   "keywords": [

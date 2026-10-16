@@ -32,13 +32,17 @@ class FTP:
         try:
             FtpCore.ftp_connection(ftp_instance, host, port)
         except Exception as e:
+            ftp_instance.close()
             raise BaseException(FTP_CONNECTION_FORMAT.format(host, port), "连接到FTP服务器失败")
 
         if name and password:
             try:
                 FtpCore.ftp_login(ftp_instance, name, password)
             except Exception as e:
-                raise BaseException(FTP_LOGIN_FORMAT.format(name, password), "登录到FTP服务器失败")
+                ftp_instance.close()
+                raise BaseException(
+                    FTP_LOGIN_FORMAT.format("[REDACTED]", "[REDACTED]"), "登录到FTP服务器失败"
+                ) from None
 
         return ftp_instance
 

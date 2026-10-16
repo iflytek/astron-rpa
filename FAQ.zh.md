@@ -90,7 +90,21 @@
 **A:**
 1. **C++ 编译环境**：确保已安装 Microsoft Visual C++ 14.0 或更高版本（包含 MSVC v143 和 Win10/11 SDK）。
 2. **权限问题**：请使用管理员权限（Administrator）运行构建脚本。
-3. **依赖裁剪**：如果当前场景不需要特定数据库驱动（如 Oracle/PostgreSQL），可以修改 `/engine/components/astronverse-database/pyproject.toml`，移除 `psycopg2` 和 `cx-oracle` 等依赖，以绕过复杂的本地编译。
+3. **可选数据库驱动**：Oracle、PostgreSQL、SQL Server 和 Access 驱动属于可选依赖，只需安装流程使用的驱动，见下方的数据库驱动说明。
+
+### Q: 数据库流程需要安装哪些驱动？
+
+**A:** 驱动应安装在客户端实际执行流程的 Python 环境中。
+
+| 数据库 | Python 依赖 | 组件 extra |
+| --- | --- | --- |
+| SQLite | 标准库，无需单独安装 | — |
+| MySQL | `pymysql`，默认安装 | — |
+| Oracle | `cx_Oracle` | `oracle` |
+| PostgreSQL | `psycopg2-binary`，导入名为 `psycopg2` | `postgresql` |
+| SQL Server / Access | `pyodbc` | `sqlserver` / `access` |
+
+extra 定义见 [astronverse-database/pyproject.toml](engine/components/astronverse-database/pyproject.toml)。驱动缺失或加载失败时，错误信息会提示具体安装包；若已安装，请检查驱动是否支持客户端的 Python 版本、位数，以及所需的 Oracle Client 或 ODBC 库。安装到其他 Python 环境不会使该驱动在流程中可用。
 
 ### Q: 🆕 开源版 RPA 支持前后端分离部署以便于二次开发调试吗？
 
@@ -346,6 +360,16 @@ CASDOOR_EXTERNAL_ENDPOINT="https://auth.example.com:8443"
 
 其他网页自动化说明可详见 [官方使用指南](https://www.iflyrpa.com/docs/quick-start/web-automation.html)
 
+### Q: 如何获取已打开的浏览器，同时保持窗口位置和焦点？
+
+**A:** 在“获取已打开的浏览器对象”（`BrowserSoftware.get_current_obj`）中关闭“置顶并最大化窗口”（`activate_window`）。该参数默认 `True`，未保存此参数的旧流程也使用默认值。设为 `False` 时，仅获取浏览器对象，不改变窗口焦点和大小；执行时仍需保持安装了 AstronRPA 插件的窗口中目标页面处于活动状态。若设计器中没有该选项，请同步更新组件元数据和匹配的客户端代码，见[元数据使用说明](engine/README.zh.md#使用方法)。
+
+### Q: 为什么“仅未读邮件”查询会重复返回同一批邮件？
+
+**A:** 未开启“标记为已读”（`mask_as_read_flag`）时，接收邮件使用 `BODY.PEEK[]`，保持邮件未读状态，因此重复查询可能再次返回这些邮件。需要按未读状态消费邮件时，请开启该选项；仅最终匹配并返回的邮件会被标记，扫描但未返回的邮件不会。
+
+从使用 `RFC822` 获取邮件的版本升级时，旧流程不能再依赖读取内容隐式标记已读，需显式配置该选项。只读接入要求保持此选项关闭，应由调用方自行去重。
+
 ### Q: 🆕 如何处理网页截图与验证码？
 
 **A:**
@@ -552,6 +576,10 @@ docker logs [container_name] > logs.txt
 ### Q: 🆕 邮件组件使用 imap4 接收邮件时报错（如 search 参数不匹配、unknown encoding utf-8 等）怎么办？
 
 **A:** 这是由于特定邮件服务器交互和编码处理的兼容性问题。建议更新到最新版本的客户端，底层组件已修复编码解析与附件名正则提取空指针问题。在旧版本中遇到时可联系技术支持获取源码补丁。
+
+### Q: 为什么保存附件时提示文件名或保存路径不安全？
+
+**A:** 附件保存仅接受所选目录内的普通文件名。包含路径、盘符、Windows 保留名称或非法字符的名称会被拒绝，包括 `file.txt:stream` 这样的数据流名称；目标文件不能是符号链接，也不能解析到保存目录之外。请使用合法文件名和普通目标文件；合法附件仍会覆盖目录内的同名文件。未开启“保存附件”时，仅返回附件名称，不写文件，也不执行此文件名校验。
 
 ### Q: 🆕 Excel 自动化执行“复制单元格”等操作时，为什么会异常自动打开新的空白工作簿？
 

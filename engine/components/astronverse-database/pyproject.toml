@@ -6,11 +6,16 @@ requires-python = ">=3.13"
 
 dependencies = [
     "astronverse-actionlib",
-    "pymysql",
-    "pyodbc",
-    "cx_Oracle",
-    "psycopg2-binary"
+    "pymysql"
 ]
+
+# Native drivers are installed only for the database used by a workflow.
+# SQLite uses the standard library; MySQL is available in the packaged client.
+[project.optional-dependencies]
+sqlserver = ["pyodbc"]
+access = ["pyodbc"]
+oracle = ["cx_Oracle"]
+postgresql = ["psycopg2-binary"]
 
 [tool.uv.sources]
 astronverse-actionlib = {path = "../../shared/astronverse-actionlib", editable = true}

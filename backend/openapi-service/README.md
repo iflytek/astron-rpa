@@ -217,6 +217,44 @@ GUI/human requirements, environment, side effects, risk, execution type, exclusi
 and an optional output schema. The `json-data` class requires both `capabilityClass: "json-data"` and
 `capabilities: ["json-data"]`; it rejects file transfer and GUI requirements and exposes bounded JSON
 limits in the workflow profile.
+
+Browser and service read classes additionally require `componentOperations`,
+`allowedTransports`, no declared business side effects, and a private `readOnlyReview`:
+
+```json
+{
+  "version": 1,
+  "boundedResources": true,
+  "readOnlyConnections": true,
+  "operationInputs": {
+    "Network.http_request": { "request_type": "get", "file_path": "", "save_type": "no" }
+  }
+}
+```
+
+The administrator must check the published workflow's actual operations and fixed arguments.
+Use an array of argument objects when the same operation occurs several times; operations
+without guarded switches still require `{}` entries. A direct input binding such as
+`{"parameter":"method"}` requires a schema enum containing only permitted values and is
+checked again at execution. SQL must be fixed, reviewed read SQL using read-only database
+credentials; dynamic SQL is not admitted. This is a trusted release review, not a sandbox
+or a general SQL firewall. Connection handles, element objects and iterators stay inside
+the workflow; public results must satisfy the frozen JSON schema and limits.
+
+HTTP is limited to GET/HEAD without upload or save; mail disables attachment saving and
+mark-as-read; browser extraction is single-page without file/data-table export.
+Each `BrowserSoftware.get_current_obj` call must explicitly pass `activate_window=False`,
+with `"BrowserSoftware.get_current_obj": {"activate_window": false}` in
+`readOnlyReview.operationInputs`. Omitted or enabled switches are rejected because the
+component defaults to activating and maximizing the browser window. When changing workflow
+arguments, republish the workflow and review that version before updating its declaration;
+editing the policy alone does not change the workflow's behavior.
+
+The public profile exposes `readContractVersion: 1`, not private SQL or review arguments. Review changes
+invalidate the profile revision. MCP remains primary. An explicitly admitted REST execution
+uses `?contract=1` for submission/query and `POST /executions/{id}/cancel`; these return the
+same authorized snapshot as MCP. Deploy the matching gateway Lua policy for these routes.
+
 Unknown values remain distinct from false. The supported declaration scope is `controlled-validation`;
 file-transfer declarations are rejected. The data contract currently limits encoded JSON to 1 MiB, nesting
 depth to 12, object properties to 200, array items to 1,000 and each string to 100,000 characters.

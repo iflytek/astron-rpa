@@ -1,8 +1,10 @@
 from datetime import datetime
 from enum import Enum
-from typing import Any, Literal, Optional, Union
+from typing import Any, Optional, Union
 
 from pydantic import BaseModel, Field
+
+from app.schemas.integration import CapabilityClass
 
 
 class WorkflowStatus(int, Enum):
@@ -61,7 +63,7 @@ class ExecutionCreate(BaseModel):
     idempotency_key: Optional[str] = Field(None, min_length=1, max_length=200)
     execution_timeout: Optional[int] = Field(None, ge=1, le=86400, strict=True)
     profile_revision: Optional[str] = Field(None, min_length=1, max_length=100)
-    capability_class: Literal["json-data"] | None = None
+    capability_class: CapabilityClass | None = None
 
     # 2026-01-12 新增手机号参数，用于星辰Agent的复制调用
     phone_number: Optional[str] = Field(None, description="手机号")

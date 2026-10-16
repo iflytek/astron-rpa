@@ -61,7 +61,21 @@ In an offline environment, you need to export image packages using `docker save`
 **A:**
 1. **C++ Build Environment**: Ensure Microsoft Visual C++ 14.0 or higher is installed (including MSVC v143 and Win10/11 SDK).
 2. **Permission Issue**: Please run the build script with Administrator privileges.
-3. **Dependency Trimming**: If specific database drivers (like Oracle/PostgreSQL) are not needed in the current scenario, you can modify `/engine/components/astronverse-database/pyproject.toml` and remove dependencies like `psycopg2` and `cx-oracle` to bypass complex local compilation.
+3. **Optional Database Drivers**: Oracle, PostgreSQL, SQL Server and Access drivers are optional dependencies. Install only those required by your workflows; see the [driver requirements](#q-which-drivers-do-database-workflows-need).
+
+### Q: Which drivers do database workflows need?
+
+**A:** Install the driver in the Python environment that executes the workflow on the client.
+
+| Database | Python dependency | Component extra |
+| --- | --- | --- |
+| SQLite | Standard library; no separate installation | — |
+| MySQL | `pymysql`, included by default | — |
+| Oracle | `cx_Oracle` | `oracle` |
+| PostgreSQL | `psycopg2-binary` (import name: `psycopg2`) | `postgresql` |
+| SQL Server / Access | `pyodbc` | `sqlserver` / `access` |
+
+The extras are defined in [astronverse-database/pyproject.toml](engine/components/astronverse-database/pyproject.toml). Missing or unloadable drivers report the package to install. If it is already installed, check its support for the client's Python version and architecture, plus any required Oracle Client or ODBC libraries. Installing a package in a different Python environment does not make it available to the workflow.
 
 ### Q: 🆕 Does the open-source version of RPA support front-end and back-end separate deployment for secondary development and debugging?
 
@@ -317,6 +331,16 @@ CASDOOR_EXTERNAL_ENDPOINT="https://auth.example.com:8443"
 
 For more web automation information, see the [Official Guide](https://www.iflyrpa.com/docs/quick-start/web-automation.html)
 
+### Q: How do I get an open browser without activating or maximizing its window?
+
+**A:** Disable **Activate and maximize window** (`activate_window`) in `BrowserSoftware.get_current_obj`. Its default is `True`, including for saved workflows that omit the parameter. With `False`, the component returns the browser object without changing window focus or size; keep the intended page active in the window connected to the AstronRPA extension. If the option is missing from the designer, update the component metadata together with the matching client code; see the [metadata guide](engine/README.md#how-to-use).
+
+### Q: Why do unread-only mail queries return the same messages?
+
+**A:** With **Mark as read** (`mask_as_read_flag`) disabled, receiving mail uses `BODY.PEEK[]` and leaves unread messages unread. Repeated unread-only queries can therefore return them again. Enable this option when the workflow should consume unread mail; only matching messages actually returned are marked, not every scanned message.
+
+When upgrading from versions that fetched `RFC822`, workflows must not rely on fetching to implicitly mark messages read. Set the option explicitly if that behavior is required. Read-only integrations require it to remain disabled, so those callers must handle deduplication themselves.
+
 ### Q: 🆕 How to handle web page screenshots and CAPTCHAs?
 
 **A:**
@@ -503,6 +527,10 @@ It may be missing `Microsoft Edge WebView2 Runtime` or the version is too low (c
 ### Q: 🆕 What should I do if the email component reports errors (e.g., search parameter mismatch, unknown encoding utf-8) when using imap4 to receive emails?
 
 **A:** This is due to compatibility issues with specific email server interactions and encoding processing. It is recommended to update to the latest version of the client. The underlying component has fixed the encoding parsing and attachment name regex extraction null pointer issues. If encountered in older versions, you can contact technical support for a source code patch.
+
+### Q: Why is an attachment filename or save path rejected?
+
+**A:** Attachment saving accepts plain filenames within the selected directory. Names containing paths, drive prefixes, Windows reserved names or invalid characters (including alternate data streams such as `file.txt:stream`) are rejected. The destination must not be a symbolic link or resolve outside that directory. Use a valid filename and a regular destination file; valid attachments still overwrite an existing file with the same name. When **Save attachments** is disabled, names are returned without saving files or applying this filename check.
 
 ### Q: 🆕 Why does Excel automation abnormally open a new blank workbook when performing operations like "Copy Cells"?
 

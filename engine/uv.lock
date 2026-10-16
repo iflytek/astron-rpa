@@ -222,6 +222,26 @@ requires-dist = [
 ]
 
 [[package]]
+name = "astronverse-database"
+version = "1.0.1"
+source = { editable = "components/astronverse-database" }
+dependencies = [
+    { name = "astronverse-actionlib" },
+    { name = "pymysql" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "astronverse-actionlib", editable = "shared/astronverse-actionlib" },
+    { name = "cx-oracle", marker = "extra == 'oracle'" },
+    { name = "psycopg2-binary", marker = "extra == 'postgresql'" },
+    { name = "pymysql" },
+    { name = "pyodbc", marker = "extra == 'access'" },
+    { name = "pyodbc", marker = "extra == 'sqlserver'" },
+]
+provides-extras = ["sqlserver", "access", "oracle", "postgresql"]
+
+[[package]]
 name = "astronverse-dataprocess"
 version = "1.0.2"
 source = { editable = "components/astronverse-dataprocess" }
@@ -1249,6 +1269,7 @@ dependencies = [
     { name = "astronverse-browser-bridge" },
     { name = "astronverse-browser-plugin" },
     { name = "astronverse-cua" },
+    { name = "astronverse-database" },
     { name = "astronverse-dataprocess" },
     { name = "astronverse-datatable" },
     { name = "astronverse-dialog" },
@@ -1296,6 +1317,7 @@ requires-dist = [
     { name = "astronverse-browser-bridge", editable = "servers/astronverse-browser-bridge" },
     { name = "astronverse-browser-plugin", editable = "shared/astronverse-browser-plugin" },
     { name = "astronverse-cua", editable = "components/astronverse-cua" },
+    { name = "astronverse-database", editable = "components/astronverse-database" },
     { name = "astronverse-dataprocess", editable = "components/astronverse-dataprocess" },
     { name = "astronverse-datatable", editable = "components/astronverse-datatable" },
     { name = "astronverse-dialog", editable = "components/astronverse-dialog" },
@@ -2273,6 +2295,15 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/ae/6a/e80da7594ee598a776972d09e2813df2b06b3bc29218f440631dfa7c78a8/pymsgbox-2.0.1.tar.gz", hash = "sha256:98d055c49a511dcc10fa08c3043e7102d468f5e4b3a83c6d3c61df722c7d798d", size = 20768, upload-time = "2025-09-09T00:38:56.863Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/6f/3e/08c8cac81b2b2f7502746e6b9c8e5b0ec6432cd882c605560fc409aaf087/pymsgbox-2.0.1-py3-none-any.whl", hash = "sha256:5de8ec19bca2ca7e6c09d39c817c83f17c75cee80275235f43a9931db699f73b", size = 9994, upload-time = "2025-09-09T00:38:55.672Z" },
+]
+
+[[package]]
+name = "pymysql"
+version = "1.1.1"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/b3/8f/ce59b5e5ed4ce8512f879ff1fa5ab699d211ae2495f1adaa5fbba2a1eada/pymysql-1.1.1.tar.gz", hash = "sha256:e127611aaf2b417403c60bf4dc570124aeb4a57f5f37b8e95ae399a42f904cd0", size = 47678, upload-time = "2024-05-21T11:03:43.722Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/0c/94/e4181a1f6286f545507528c78016e00065ea913276888db2262507693ce5/PyMySQL-1.1.1-py3-none-any.whl", hash = "sha256:4de15da4c61dc132f4fb9ab763063e693d521a80fd0e87943b9a453dd4c19d6c", size = 44972, upload-time = "2024-05-21T11:03:41.216Z" },
 ]
 
 [[package]]

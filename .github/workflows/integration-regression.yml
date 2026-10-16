@@ -1,0 +1,94 @@
+name: Integration Regression
+
+on:
+  workflow_call:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  openapi:
+    name: OpenAPI targeted regression
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@v6
+        with:
+          version: '0.12.1'
+          python-version: '3.13'
+          enable-cache: false
+      - name: Run isolated OpenAPI tests
+        run: python .github/scripts/run-integration-regression.py openapi --report-dir "${{ runner.temp }}/regression-reports"
+      - name: Upload test report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: regression-openapi
+          path: ${{ runner.temp }}/regression-reports/openapi.xml
+          if-no-files-found: warn
+          retention-days: 7
+
+  engine:
+    name: Engine ${{ matrix.component }} unit regression (Windows)
+    runs-on: windows-latest
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        component: [browser, database, email, network, enterprise]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@v6
+        with:
+          version: '0.12.1'
+          python-version: '3.13'
+          enable-cache: false
+      - name: Run isolated component tests
+        run: python .github/scripts/run-integration-regression.py engine --component ${{ matrix.component }} --report-dir "${{ runner.temp }}/regression-reports"
+      - name: Upload test report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: regression-engine-${{ matrix.component }}
+          path: ${{ runner.temp }}/regression-reports/engine-${{ matrix.component }}.xml
+          if-no-files-found: warn
+          retention-days: 7
+
+  n8n:
+    name: n8n node regression
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: integrations/n8n/n8n-nodes-astron-rpa
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: integrations/n8n/n8n-nodes-astron-rpa/package-lock.json
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm run lint
+      - name: Check formatting (accept checkout line endings)
+        run: npm run format:check -- --end-of-line auto
+      - run: npm run build
+      - name: Run node tests
+        run: node --test --test-reporter=junit --test-reporter-destination="${{ runner.temp }}/n8n.xml" tests/*.test.cjs
+      - name: Upload test report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: regression-n8n
+          path: ${{ runner.temp }}/n8n.xml
+          if-no-files-found: warn
+          retention-days: 7
