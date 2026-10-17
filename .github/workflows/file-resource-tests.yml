@@ -1,0 +1,53 @@
+name: File resource regressions
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'backend/resource-service/**'
+      - 'backend/robot-service/**'
+      - '.github/workflows/file-resource-tests.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'backend/resource-service/**'
+      - 'backend/robot-service/**'
+      - '.github/workflows/file-resource-tests.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  resource-tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: maven
+          cache-dependency-path: backend/resource-service/pom.xml
+      - name: Test resource transactions and HTTP routes
+        working-directory: backend/resource-service
+        run: mvn -B -ntp test
+
+  element-tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '8'
+          cache: maven
+          cache-dependency-path: backend/robot-service/pom.xml
+      - name: Test duplicate element image handling
+        working-directory: backend/robot-service
+        run: mvn -B -ntp -DskipTests=false -Dtest=CElementServiceImplOrphanImageTest test
