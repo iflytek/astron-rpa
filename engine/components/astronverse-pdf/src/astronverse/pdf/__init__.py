@@ -17,8 +17,8 @@ def _handle_files_input(files_path):
             files_path = [files_path]
         elif ".pdf," in files_path:
             files_path = files_path.split(".pdf,")
-            for i in range(len(files_path) - 1):
-                files_path[i] = files_path[i].strip() + ".pdf"
+            files_path = [item.strip() for item in files_path]
+            files_path[:-1] = [item + ".pdf" for item in files_path[:-1]]
         else:
             files_path = [item.strip() for item in files_path.split(",") if item.strip()]
     elif not isinstance(files_path, list):
