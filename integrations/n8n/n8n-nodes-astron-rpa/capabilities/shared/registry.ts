@@ -2,6 +2,7 @@ import { AstronError, object } from "../../mapping/contracts";
 import { validateBrowserServiceProfile } from "../browser-service";
 import { validateJsonDataProfile } from "../json-data";
 import { validateOfficeFileProfile } from "../office-file";
+import { validateDesktopProfile } from "../desktop-ui";
 import {
   CAPABILITY_CLASSES,
   type CapabilityClass,
@@ -18,6 +19,7 @@ const validators: Record<
 > = {
   "json-data": validateJsonDataProfile,
   "office-file": validateOfficeFileProfile,
+  "desktop-ui": validateDesktopProfile,
   "browser-read": validateBrowserServiceProfile,
   "service-http-read": validateBrowserServiceProfile,
   "service-database-read": validateBrowserServiceProfile,

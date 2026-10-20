@@ -27,6 +27,61 @@ main 新增 `astronverse-control` 后，当前组件目录为 **26 个**。分�
 
 本轮结构化记录见 [validation-evidence.json](validation-evidence.json) 的 `browserServiceConflictReview`，此前记录保持原日期和适用范围。
 
+## 桌面与 UI 能力验证（2026-10-14）
+
+本轮基于 `feat/office-file-workflows` 的 `225914d15d328ec6193bbc790b52b4d00c2cc38e` 与未提交修改。使用现有 Windows 客户端、物理主屏 `1920×1200`、本机 n8n `2.40.7` / Node.js `24.18.0`、tarball 安装的 `n8n-nodes-astron-rpa@0.1.0-dev.2` 和现有 HTTPS OpenAPI 服务，TLS 校验保持开启。测试使用合成窗口和经管理员审核的已发布工作流。
+
+### 实现范围与准入边界
+
+`capabilities/desktop-ui.ts` 与 JSON 数据、浏览器/服务连接、Office/文件模块平级；文件契约校验移至 `shared/file-contract.ts`，不同类别互不继承。继续复用公共执行、幂等、等待、查询、取消和结果映射。MCP 为默认执行通道，REST 仅用于声明允许的显式辅助执行及既有文件传输，不因结果未知跨通道重发。
+
+公开 `desktopContract` 声明分辨率、软件标识及人工交互模式；私有 `desktopReview` 保存审核过的操作、软件绝对路径、目标窗口及允许的弹窗标题，并绑定发布版本、输入 Schema 和声明 revision。受理时冻结契约，沿用已有 `data_contract`，无新增数据库迁移。涉及截图、上传或下载时仍须完整的文件契约与审核，不因具备桌面权限而放开文件权限。
+
+准入清单为 browser 39、dialog 4、input 8、software 1、system 6、vision 5、window 4、winelement 6，合计 **8 个组件、73 项操作**。该数量表示代码允许审核接入的范围，**不是 73 项均已独立现场复验**。模型驱动 CUA、任意脚本/命令、验证码处理、终止进程、锁屏/解锁、打印、动态自定义表单和任意本地文件选择不开放。核对原组件后，`Software.close` 和 `BrowserSoftware.browser_close` 因会结束同名程序的全部进程而未纳入；保留经审核的定向窗口/标签页关闭。
+
+客户端在启动前及执行期间检查 Windows 交互会话、输入桌面、物理主屏分辨率、审核软件和目标窗口的非预期所属弹窗；终端忙碌明确拒绝，无隐式排队。停止未确认时保留不确定状态。这里面向管理员审核过的确定性工作流，**不构成任意 Python/GUI 沙箱，也不承诺前台焦点拦截或后台固定标签页路由**；运行时仍需预留交互会话。
+
+### 最终本地回归与静态检查
+
+| 检查 | 结果与范围 |
+| --- | --- |
+| OpenAPI | 342 项通过，无失败或跳过；覆盖桌面契约/私有审核、版本绑定、混合文件权限及原执行框架；4 个既有 SQLite datetime adapter 警告 |
+| Engine | files/scheduler 33、desktop 9、vision 2、dialog 6，合计 50 项通过，无失败或跳过；覆盖会话检查、弹窗判断、独占/恢复/清理、桌面中断后禁止上传文件、托管图像与原生表单分发；其他 Engine 组未在本轮重跑 |
+| n8n | 48 项通过；构建、类型检查、ESLint、Prettier（`--end-of-line auto`）通过，节点已打包安装 |
+| Python 静态检查 | 后端 8 个、Engine 11 个变更文件格式通过；与 HEAD 在同环境比较，无新增 Ruff 诊断，既有诊断分别从 6 降至 2、70 降至 48 |
+| CI | 回归入口增加 OpenAPI 桌面测试及 Engine desktop、vision、dialog 组；主 CI 与定向工作流通过 actionlint；GitHub 托管 CI 尚未运行 |
+| 收尾检查 | 验证证据 JSON 可解析且统计一致，历史记录未改写；`git diff --check` 通过，暂存区为空 |
+
+Python 回归使用 [定向入口](../../.github/scripts/run-integration-regression.py) 的隔离环境，报告放在仓库外；Engine 本轮使用 `--component files|desktop|vision|dialog` 分组执行。上述结果来自最后一次源码修复后的本地回归，不把旧能力的历史测试数量累加到本轮。
+
+### 真实环境验证
+
+| 场景 | 实测结果 |
+| --- | --- |
+| 窗口、键鼠与元素 | 合成窗口置顶/调整大小、键鼠输入 `desktop-verified`、WinEle 读取 `Verified 1` 及定向关闭通过 |
+| 截图与文件输出 | 仅截取合成窗口，经授权输出句柄下载为 n8n Binary；PNG 为 880×550、16,974 字节，SHA-256 一致并目视核对 |
+| 固定图像匹配 | 合成窗口中的固定图像匹配返回 `true`；托管路径不再保存额外全屏调试图 |
+| 原生人工表单 | 消息框返回 `confirm`，文本输入返回 `native-input-verified`，单选返回夹具选项字面值 `"beta"`（含引号），单日期返回 `2026-10-14`；未回答的选择框在期限到达后退出 |
+| MCP / 显式 REST | 两条声明允许的执行路径均成功；同业务键跨通道重放返回相同 executionId/runId |
+| 独占、取消与期限 | 忙碌返回 `CLIENT_BUSY` 且未启动第二个执行；精准取消及重复取消旧执行通过，未影响新执行；执行期限返回 timeout 并有停止证据 |
+| 弹窗与启动检查 | 真实非预期所属弹窗触发 `DESKTOP_POPUP_BLOCKED`；分辨率不匹配、审核软件缺失均在启动前拒绝，`runId=null` |
+| 客户端通道重连 | 运行中重启 OpenAPI，客户端实际重连；原执行以相同 executionId/runId 完成，没有重新派发 |
+| n8n 重启恢复 | 在持久等待检查点重启 n8n；停机期间原 60 秒等待预算耗尽，恢复返回 `WAIT_BUDGET_EXPIRED` 并保留原执行身份及最后快照；随后显式查询原 ID 得到 succeeded。未将父等待流程记为成功完成 |
+| 可导入示例 | `examples/desktop-ui.json` 导入真实 n8n 后成功执行 |
+| 最后源码同步检查 | 最后一次客户端重启后，旧成功执行可原样重放，新 Window.exist 执行成功（测试窗口不存在，预期返回 false），分辨率及软件缺失拒绝再次通过 |
+
+联调修复了 DPI 虚拟分辨率误判、弹窗 API 调用不兼容、托管弹窗依赖设计器 WebSocket 而无法交互、桌面执行等待日志浮层连接及额外全屏调试图问题；对应场景修复后已复测。恢复和清理期间保持终端独占，避免并发恢复覆盖回执。最后一项恢复修订确保已记录桌面中断时不因迟到的成功回执上传文件；该竞态经自动化回归验证，随后完成源码同步、客户端重启及上述最终检查，未再次重放全部 GUI 手势。
+
+### 一致性、清理与未测边界
+
+7 个 OpenAPI 源码文件、7 个已安装客户端源码文件、41 个已安装节点包文件与本地逐项一致；节点 tarball SHA-256 为 `c1c6904c5cf673a1e4ae7db14b9d7bedbb2983da7a52cac78d463fe32e5125e1`。服务器写入和清理均限制在指定源码部署目录。
+
+服务端与客户端 **35 条执行回执一致且全部终态**：19 COMPLETED、11 FAILED、3 CANCELLED、2 TIMEOUT，无剩余测试执行进程。该统计包含预期拒绝、早期夹具错误及未执行到目标动作的空分支，不能将 19 条 COMPLETED 全部视为独立 GUI 验收；功能证据以上表实际效果为准。
+
+23 个临时机器人及对应工作流/声明、1 个输出文件句柄、7 个 n8n 临时工作流、100 条 n8n 执行记录、服务器测试包与临时目录均已清理，原声明策略恢复。14 个客户端临时运行目录经用户手动清理并只读核验不存在。合成窗口、表单及回环测试服务已退出；服务端/客户端审计、非测试数据与原凭据保留，先前按用户要求保留的 Office 临时凭据副本未改动。客户端空闲、n8n 健康且保持运行。
+
+本轮未实际锁屏或切换 Windows 会话，相关异常路径仅有模拟回归；未独立实测密码、多选、日期范围表单、全部浏览器桌面手势、软件启动及多屏适配，也未逐项现场复验全部 73 个操作。未重建完整客户端 EXE、未重跑全仓 `make check`、未运行 GitHub 托管 CI。当前结论限于上述受控环境与场景。脱敏执行标识、结果摘要和清理证据见 [validation-evidence.json](validation-evidence.json) 的 `desktopUiValidation`。本轮代码未暂存、提交或推送。
+
 ## Office 与文件能力验证（2026-10-13）
 
 本轮基于 `feat/office-file-workflows` 的 `4e26f079` 与未提交修改。使用本机 n8n `2.40.7`、Node.js `24.18.0`、tarball 安装的 `n8n-nodes-astron-rpa@0.1.0-dev.2`、现有 HTTPS OpenAPI 服务和同步源码后的 Windows 客户端。TLS 验证通过，证书有效期至 2026-12-13。Office 实测使用 WPS Office 2023 专业版的 `Ket.Application`、`Kwps.Application`。

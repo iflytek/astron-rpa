@@ -7,8 +7,8 @@ Control published AstronRPA workflows through authenticated HTTPS MCP: discover 
 - This development package provides the common execution framework for individually approved workflows with `supportScope: controlled-validation`. An approved workflow does not establish support for an entire RPA capability family.
 - The verified host configuration is self-hosted n8n `2.36.9`, Node.js `24+`, one OpenAPI connection owner and one Windows client matching the repository, with managed client protocol `1`. The package declares `n8n-workflow >=2.36.4 <3`; other host versions, queue mode, multiple replicas or terminals, n8n Cloud and older clients are not covered by this validation.
 - OpenAPI must provide integration contract `1`, profile schema `1` and MCP `2025-11-25`. MCP is the primary channel. A published capability may explicitly allow the REST auxiliary transport; the node never switches transports after an uncertain start.
-- Capability declarations include a stable `capabilityClass`, `capabilities`, `componentOperations` and `allowedTransports`. The node has independent validators for `json-data`, reviewed service/browser reads and `office-file`. A declaration describes a workflow; it does not add an adapter for unsupported Engine operations.
-- Control inputs and outputs use bounded JSON. Files use authorized handles and separate binary transfer for approved `office-file` workflows. Runtime objects, arbitrary local paths and general desktop/UI automation are not exposed. JSON limits are 1 MiB encoded JSON, depth 12, 200 object properties, 1,000 array items and 100,000 characters per string. The server profile is authoritative; the node rejects a mismatched limit contract.
+- Capability declarations include a stable `capabilityClass`, `capabilities`, `componentOperations` and `allowedTransports`. The node has independent validators for `json-data`, reviewed service/browser reads, `office-file` and `desktop-ui`. A declaration describes a workflow; it does not add an adapter for unsupported Engine operations.
+- Control inputs and outputs use bounded JSON. Files use authorized handles and separate binary transfer for approved file workflows. Reviewed `desktop-ui` workflows can operate a reserved Windows session. Runtime objects and arbitrary local paths are not exposed. JSON limits are 1 MiB encoded JSON, depth 12, 200 object properties, 1,000 array items and 100,000 characters per string. The server profile is authoritative; the node rejects a mismatched limit contract.
 
 The package requires Node.js `>=24`. The [official n8n `2.36.9` Dockerfile](https://github.com/n8n-io/n8n/blob/n8n%402.36.9/docker/images/n8n/Dockerfile) pins its runtime base to Node.js `24.18.1`, which meets this requirement. Before installation, check the Node version **inside your n8n container**, for example with `docker exec YOUR_N8N_CONTAINER node --version`; the host machine's Node version does not determine the container runtime. Older images with Node.js 20 or 22 do not meet this package's requirement.
 
@@ -114,6 +114,20 @@ Limits are 10 MiB per file, eight input and output bindings combined per executi
 
 The client downloads inputs into an execution-specific directory and replaces output placeholders with private paths. Workflows must use those paths, return bounded JSON summaries and close all resources; local workspace paths cannot be returned as results. Office runs require an installed, compatible Excel/Word or WPS COM provider, use private instances and disable macros. Do not use global Office close/kill options, clipboard operations or attachment to a user's open document. Archive extraction rejects traversal and links; managed archives are limited to 512 members, 10 MiB per member and 80 MiB expanded data. Reviewed external transfers still require the relevant service credentials and destination restrictions. File workflows accepting secret-marked parameters are currently rejected, since binary artifacts cannot use the ordinary result-suppression mechanism.
 
+### Desktop and UI workflows
+
+Select an administrator-reviewed `desktop-ui` release and set an execution deadline of 1–3,600 seconds. Keep the Windows client logged in on an unlocked, active interactive session at the declared primary-screen resolution in physical pixels. Reserve that session for the task; concurrent user input, unrelated focus changes and arbitrary application popups cannot be made safe by periodic checks. Coordinate-based components must obey their own primary-screen bounds; multiple monitors and DPI/layout changes require a separate workflow review. There is no implicit queue or automatic unlock.
+
+The public `desktopContract` declares version `1`, `resolution: {width, height}`, installed program identifiers and `humanMode` (`none` or `attended`). Private executable paths and reviewed target/popup titles stay on the server/client channel. The client checks the environment before launch and every 500 ms while running. A detected lock, session change, resolution mismatch or unreviewed owned popup requests a stop of that execution's process. A stop that cannot be confirmed remains `unknown`; it is never replayed as a new task.
+
+Deterministic window, UI element, keyboard/mouse, browser, fixed-image matching, text clipboard and reviewed application launch and window-close operations are admitted by operation name. The allowlist contains 73 operations across eight components; that count does not indicate independent runtime verification. Dialog workflows require `attended` mode and remain subject to the execution deadline. Managed runs use process-owned native message, text/password, selection and date forms, so an open designer is unnecessary; the client Python runtime must include Tcl/Tk. Ordinary designer runs keep their existing form host. Administrators must review the actual published code, input bindings, approved targets, application arguments, side effects and cleanup, and keep user-entered credentials out of public results. This is a trusted-workflow contract, not a desktop sandbox or a foreground-input interceptor.
+
+File-producing UI actions require the same `fileContract` and private file review as other file workflows; use authorized handles and Binary Data, never caller-provided client paths. Clipboard file modes, file-backed browser switches and application arguments must also stay within that reviewed workspace. Runtime element handles, generators and process objects stay inside the workflow. Managed image matching does not save diagnostic full-screen images.
+
+Model-driven `ComputerUse` actions, CAPTCHA automation, JavaScript/command execution, cookie modification, process termination (including `Software.close` and `BrowserSoftware.browser_close`, which kill all matching process names), screen lock/unlock and printing remain outside this admission. Custom dynamic dialogs and dialogs selecting arbitrary local files are also excluded. Availability in the Engine or the classification catalog does not grant integration permission.
+
+Common environment failures are `DESKTOP_UNAVAILABLE`, `DESKTOP_LOCKED`, `DESKTOP_SESSION_CHANGED`, `DESKTOP_RESOLUTION_MISMATCH`, `DESKTOP_SOFTWARE_UNAVAILABLE`, `DESKTOP_HUMAN_UNAVAILABLE` and `DESKTOP_POPUP_BLOCKED`. A client without the desktop protocol is rejected with `CLIENT_DESKTOP_PROTOCOL_UNSUPPORTED`. Correct the environment before deliberately starting a new execution; reuse the original key only to observe the original receipt.
+
 ## Capability layout
 
 The node invokes published workflows through the common transport and execution framework. Capability modules are peers and validate declarations; they do not call Engine components directly or inherit another category's validator.
@@ -129,9 +143,11 @@ n8n-nodes-astron-rpa/
 |   |-- json-data.ts             # JSON/data declaration checks
 |   |-- browser-service.ts       # Browser/service read declaration checks
 |   |-- office-file.ts           # Office/file declaration checks
+|   |-- desktop-ui.ts            # Desktop/UI declaration checks
 |   `-- shared/
 |       |-- types.ts             # Wire identifiers and profile types
 |       |-- catalog.ts           # 26 components -> five peer capability groups
+|       |-- file-contract.ts     # Shared file constraints for mixed workflows
 |       `-- registry.ts           # Dispatch to the matching capability module
 |-- tests/
 `-- examples/
@@ -139,13 +155,13 @@ n8n-nodes-astron-rpa/
 
 `shared/catalog.ts` maps component operations to categories; it does not create a separate node for each component. A component may span several groups. Control-flow markers do not grant access to the operations nested inside them. Group names describe source organization; `capabilityClass` identifies the wire contract.
 
-| Peer group / module            | Component coverage by operation                                                                                           |
-| ------------------------------ | ------------------------------------------------------------------------------------------------------------------------- |
-| `json-data.ts`                 | dataprocess, datatable, encrypt, report, reviewed script                                                                  |
-| `browser-service.ts`           | browser, network, database, email, enterprise reads                                                                       |
-| `office-file.ts`               | datatable, browser, email, enterprise, excel, network, openapi, pdf, system, word file operations                         |
-| `desktop-ui.ts` (planned)      | browser, cua, dialog, input, software, system, verifycode, vision, window, winelement interaction                         |
-| `ai-dynamic-risk.ts` (planned) | ai, browser, cua, database, email, enterprise, network, script, smart, verifycode, vision dynamic or high-risk operations |
+| Peer group / module            | Component coverage by operation                                                                                                 |
+| ------------------------------ | ------------------------------------------------------------------------------------------------------------------------------- |
+| `json-data.ts`                 | dataprocess, datatable, encrypt, report, reviewed script                                                                        |
+| `browser-service.ts`           | browser, network, database, email, enterprise reads                                                                             |
+| `office-file.ts`               | datatable, browser, email, enterprise, excel, network, openapi, pdf, system, word file operations                               |
+| `desktop-ui.ts`                | reviewed browser, dialog, input, software, system, vision, window and winelement operations; model-driven actions remain closed |
+| `ai-dynamic-risk.ts` (planned) | ai, browser, cua, database, email, enterprise, network, script, smart, verifycode, vision dynamic or high-risk operations       |
 
 Future modules belong beside `json-data.ts` and `browser-service.ts`, use the shared registry and common framework, and do not import a previous category's implementation. Planned names are documentation only; no empty modules or unsupported handlers are registered. Catalog coverage is an inventory, not a claim that every listed operation has been implemented or verified. Shared utilities should stay neutral; server/client defects belong in their original modules.
 

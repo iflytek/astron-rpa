@@ -61,6 +61,7 @@ class ManagedExecution:
         self.lock = threading.RLock()
         self.active = {}
         self.recovering = set()
+        self.cleaning = set()
         with self._db() as db:
             db.execute("CREATE TABLE IF NOT EXISTS identity (id TEXT PRIMARY KEY)")
             db.execute(
@@ -105,7 +106,12 @@ class ManagedExecution:
                 return None, None
             receipt = json.loads(row[1])
             key = (owner, execution_id)
-            recover = receipt["status"] == "unknown" and receipt.get("runId") and key not in self.recovering
+            recover = (
+                receipt["status"] == "unknown"
+                and receipt.get("runId")
+                and key not in self.recovering
+                and key not in self.active
+            )
             if recover:
                 self.recovering.add(key)
 
@@ -116,7 +122,16 @@ class ManagedExecution:
                 with self.lock:
                     self.recovering.discard(key)
         if receipt["status"] in TERMINAL and receipt.get("fileWorkflow"):
-            self._cleanup_files(owner, execution_id)
+            with self.lock:
+                cleanup = key not in self.active and key not in self.cleaning
+                if cleanup:
+                    self.cleaning.add(key)
+            if cleanup:
+                try:
+                    self._cleanup_files(owner, execution_id)
+                finally:
+                    with self.lock:
+                        self.cleaning.discard(key)
         return row[0], receipt
 
     def _read_snapshot(self, owner, execution_id):
@@ -126,6 +141,7 @@ class ManagedExecution:
             ).fetchone()
 
     def _recover_receipt(self, owner, execution_id, receipt):
+        original = receipt.copy()
         try:
             recovered = json.loads(self.result_path(owner, execution_id).read_text(encoding="utf-8"))
             if not (
@@ -136,6 +152,10 @@ class ManagedExecution:
                 and process_stopped(recovered)
             ):
                 return receipt
+            if receipt.get("desktopError"):
+                # An interrupted desktop result must never publish files, even
+                # if the process wrote a late success receipt before it stopped.
+                recovered.update(status="failed", result=None, error=receipt["desktopError"])
             if receipt.get("fileWorkflow") and recovered["status"] == "succeeded":
                 try:
                     workspace = self._file_workspace(owner, execution_id)
@@ -150,15 +170,17 @@ class ManagedExecution:
                 receipt["status"] = "timeout"
             with self.lock:
                 current = self._read_snapshot(owner, execution_id)
-                if current and json.loads(current[1])["status"] == "unknown":
+                if current and json.loads(current[1]) == original:
                     with self._db() as db:
                         db.execute(
                             "UPDATE runs SET receipt=? WHERE owner=? AND id=?",
                             (json.dumps(receipt, allow_nan=False), owner, execution_id),
                         )
+                elif current:
+                    return json.loads(current[1])
             return receipt
         except (OSError, ValueError, TypeError):
-            return receipt
+            return original
 
     def result_path(self, owner, execution_id):
         name = hashlib.sha256(json.dumps([owner, execution_id]).encode()).hexdigest()
@@ -199,9 +221,9 @@ class ManagedExecution:
     def _unresolved_process(self):
         # A new Scheduler must not overlap a still-running orphan with new work.
         with self._db() as db:
-            rows = db.execute("SELECT owner,id FROM runs").fetchall()
-        for owner, execution_id in rows:
-            _, receipt = self._read(owner, execution_id)
+            rows = db.execute("SELECT receipt FROM runs").fetchall()
+        for (serialized,) in rows:
+            receipt = json.loads(serialized)
             if receipt["status"] not in TERMINAL and receipt.get("runId") and not process_stopped(receipt):
                 return True
         return False
@@ -216,7 +238,12 @@ class ManagedExecution:
                 "clientId": self.client_id,
                 "supportsCancel": True,
                 "fileTransferVersion": 1,
-                "busy": self.manager.status() or bool(self.active) or self._unresolved_process(),
+                "desktopProtocolVersion": 1,
+                "busy": self.manager.status()
+                or bool(self.active)
+                or bool(self.recovering)
+                or bool(self.cleaning)
+                or self._unresolved_process(),
             }
         owner, execution_id = command.get("owner"), command.get("executionId")
         if (
@@ -286,7 +313,7 @@ class ManagedExecution:
                 "cancelRequested": False,
                 **({"fileWorkflow": True} if payload.get("fileBundle") else {}),
             }
-            if self.active or self.manager.status() or self._unresolved_process():
+            if self.active or self.recovering or self.cleaning or self.manager.status() or self._unresolved_process():
                 receipt.update(status="failed", error="CLIENT_BUSY", finishedAt=now(), supportsCancel=False)
             with self._db() as db:
                 db.execute("INSERT INTO runs VALUES (?,?,?,?)", (owner, execution_id, fingerprint, json.dumps(receipt)))
@@ -300,6 +327,7 @@ class ManagedExecution:
         from astronverse.scheduler.core.executor.executor import ProjectExecPosition
 
         observing = False
+        guard = None
         params = payload.get("params", {})
         try:
             _, receipt = self._read(owner, execution_id)
@@ -307,11 +335,25 @@ class ManagedExecution:
                 self._change(owner, execution_id, status="cancelled")  # No process was launched.
                 return
 
+            if payload.get("desktopContract") is not None:
+                from astronverse.scheduler.core.executor.managed_desktop import DesktopError, DesktopGuard
+
+                if type(payload.get("executionTimeout")) is not int or not 1 <= payload["executionTimeout"] <= 3600:
+                    raise DesktopError("DESKTOP_CONTRACT_INVALID")
+                guard = DesktopGuard(payload["desktopContract"])
+                guard.check(initial=True)
+
             if payload.get("fileBundle"):
                 params = self._file_workspace(owner, execution_id, payload["fileBundle"]).prepare(params)
 
             def bind(instance):
                 # ExecutorManager invokes this before starting the exact process.
+                if guard:
+                    try:
+                        guard.check()
+                    except DesktopError as error:
+                        self._change(owner, execution_id, status="failed", error=error.code)
+                        raise
                 cancelled = False
                 with self.lock:
                     row = self._read_snapshot(owner, execution_id)
@@ -329,6 +371,11 @@ class ManagedExecution:
                         path = self.result_path(owner, execution_id)
                         path.parent.mkdir(parents=True, exist_ok=True, mode=0o700)
                         instance.ins.set_param("managed_receipt", quote(str(path)))
+                        if guard:
+                            instance.ins.set_param("managed_desktop", "y")
+                            # Managed forms have their own host. The designer's
+                            # log overlay can steal focus and is not a prerequisite.
+                            instance.ins.set_param("wait_tip_ws", "n")
                         if payload.get("fileBundle"):
                             instance.ins.set_param("managed_files", "y")
                 if cancelled:
@@ -348,7 +395,7 @@ class ManagedExecution:
                 )
                 observing = True
                 threading.Thread(
-                    target=self._observe, args=(owner, execution_id, payload, instance), daemon=True
+                    target=self._observe, args=(owner, execution_id, payload, instance, guard), daemon=True
                 ).start()
 
             executor = self.manager.create(
@@ -378,9 +425,10 @@ class ManagedExecution:
                 )
         except Exception as error:
             if not observing:
+                from astronverse.scheduler.core.executor.managed_desktop import DesktopError
                 from astronverse.scheduler.core.executor.managed_files import FileTransferError
 
-                if isinstance(error, FileTransferError):
+                if isinstance(error, (FileTransferError, DesktopError)):
                     self._change(owner, execution_id, status="failed", error=error.code)
                 else:
                     self._change(
@@ -388,24 +436,30 @@ class ManagedExecution:
                     )
         finally:
             if not observing:
-                with self.lock:
-                    self.active.pop((owner, execution_id), None)
-                _, receipt = self._read(owner, execution_id)
-                if payload.get("fileBundle") and receipt["status"] in TERMINAL:
-                    self._cleanup_files(owner, execution_id)
+                try:
+                    _, receipt = self._read(owner, execution_id)
+                    if payload.get("fileBundle") and receipt["status"] in TERMINAL:
+                        self._cleanup_files(owner, execution_id)
+                finally:
+                    with self.lock:
+                        self.active.pop((owner, execution_id), None)
 
-    def _observe(self, owner, execution_id, payload, executor):
+    def _observe(self, owner, execution_id, payload, executor, guard=None):
         from astronverse.scheduler.core.executor.executor import ExecuteStatus
 
         try:
             deadline = executor.launched_at + payload["executionTimeout"] if payload.get("executionTimeout") else None
             stop_reason = None
             stop_at = None
+            desktop_error = None
+            next_desktop_check = 0
             while True:
                 # The concrete process handle is retained; never use stop_current/project.
                 alive = executor.ins.is_alive()
                 if not alive and executor.report_log_time < 0:
-                    if executor.execute_status == ExecuteStatus.SUCCESS:
+                    if desktop_error:
+                        self._change(owner, execution_id, status="failed", error=desktop_error)
+                    elif executor.execute_status == ExecuteStatus.SUCCESS:
                         try:
                             result = json_value(executor.execute_data)
                             # A workflow accepting secrets has no public result summary.
@@ -433,18 +487,37 @@ class ManagedExecution:
                         self._change(owner, execution_id, status="cancelled")
                     else:
                         code = (
-                            "UNSUPPORTED_RESULT"
-                            if executor.execute_reason == "UNSUPPORTED_RESULT"
+                            executor.execute_reason
+                            if executor.execute_reason in ("UNSUPPORTED_RESULT", "DESKTOP_HUMAN_UNAVAILABLE")
                             else "EXECUTION_FAILED"
                         )
                         self._change(owner, execution_id, status="failed", error=code)
                     return
                 if alive and stop_reason is None:
                     _, receipt = self._read(owner, execution_id)
-                    if receipt["cancelRequested"] or (deadline is not None and time.time() >= deadline):
-                        stop_reason = "cancelled" if receipt["cancelRequested"] else "timeout"
+                    if guard and time.monotonic() >= next_desktop_check:
+                        from astronverse.scheduler.core.executor.managed_desktop import DesktopError
+
+                        try:
+                            guard.check()
+                        except DesktopError as error:
+                            desktop_error = error.code
+                        next_desktop_check = time.monotonic() + 0.5
+                    if (
+                        desktop_error
+                        or receipt["cancelRequested"]
+                        or (deadline is not None and time.time() >= deadline)
+                    ):
+                        stop_reason = (
+                            "failed" if desktop_error else ("cancelled" if receipt["cancelRequested"] else "timeout")
+                        )
                         stop_at = time.monotonic()
-                        self._change(owner, execution_id, stopReason=stop_reason)
+                        self._change(
+                            owner,
+                            execution_id,
+                            stopReason=stop_reason,
+                            **({"desktopError": desktop_error} if desktop_error else {}),
+                        )
                         try:
                             self.manager.close(executor)
                         except Exception:
@@ -460,7 +533,9 @@ class ManagedExecution:
                 owner, execution_id, status="unknown", error="EXECUTION_OBSERVATION_FAILED", supportsCancel=False
             )
         finally:
-            with self.lock:
-                self.active.pop((owner, execution_id), None)
-            if payload.get("fileBundle") and not executor.ins.is_alive():
-                self._cleanup_files(owner, execution_id)
+            try:
+                if payload.get("fileBundle") and not executor.ins.is_alive():
+                    self._cleanup_files(owner, execution_id)
+            finally:
+                with self.lock:
+                    self.active.pop((owner, execution_id), None)

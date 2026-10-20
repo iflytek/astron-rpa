@@ -345,6 +345,39 @@ The store enforces 10 MiB per file, eight file bindings per execution, 64 record
 owner; pending uploads reserve 10 MiB. Grant revocation releases unused output reservations. Server paths,
 client paths and caller-supplied URLs are never file identifiers.
 
+#### Desktop and UI workflows
+
+Use `capabilityClass: "desktop-ui"`, `capabilities: ["desktop-ui"]`, `requiresGui: true`, `exclusiveTerminal: true`, a low/medium risk declaration and `sideEffects` containing `desktop-interaction`. `componentOperations` must match the deterministic allowlist in `app/schemas/desktop_ui.py`. The client must advertise `desktopProtocolVersion: 1`; execution requires a deadline of 1–3,600 seconds. MCP and explicitly admitted REST share the same authorization, frozen contract, receipt and cancellation path.
+
+Add these fields to the existing version-bound declaration (replace the example program and window with reviewed deployment values):
+
+```json
+{
+  "desktopContract": {
+    "version": 1,
+    "resolution": {"width": 1920, "height": 1080},
+    "programs": ["business-app"],
+    "humanMode": "none"
+  },
+  "desktopReview": {
+    "version": 1,
+    "operations": ["Window.exist"],
+    "programs": {"business-app": "C:/Apps/Business/app.exe"},
+    "targets": ["Reviewed business window"],
+    "boundedResources": true,
+    "noHighRiskActions": true,
+    "inputBindingsReviewed": true,
+    "resourcesReleased": true
+  }
+}
+```
+
+`desktopReview` is private and contributes to the declaration revision. Its operations must exactly match `componentOperations`; paths must be absolute local `.exe` paths. Program identifiers are public, paths and target titles are not. These paths check installation only; they do not execute programs. Review every program argument, dynamic input, element locator, clipboard mode, browser/file switch and cleanup action against the actual published code. This does not sandbox Python or guarantee isolation from user input.
+
+Dialog operations require `requiresHuman: true` and `humanMode: "attended"`. Managed runs use process-owned native forms (Tcl/Tk is required in the client Python runtime); ordinary designer runs retain their existing form host. The execution deadline and precise cancellation also bound native dialogs. File actions or mixed Office workflows additionally require a valid `fileContract` and `fileReview`, retaining file authorization, workspace boundaries and secret-input restrictions. No file permission is implied by desktop admission. Model-driven CUA, CAPTCHA automation, commands/scripts and destructive system control remain closed.
+
+The client checks session availability, lock state, primary-screen resolution and installed programs before launching, then checks session/resolution and unexpected owned popups every 500 ms. Reserve the interactive terminal; periodic checks cannot prevent all GUI races. A detected environment loss requests precise cancellation and becomes a safe desktop error only after the process stops. Unconfirmed stops remain unknown. Reconnection/restart observes the original execution and never replays desktop side effects. The exclusive slot remains occupied during active execution, recovery and resource cleanup; there is no task queue.
+
 ## 🚀 Quick Start
 
 ### Environment Requirements

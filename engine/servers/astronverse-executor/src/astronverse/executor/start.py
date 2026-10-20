@@ -136,6 +136,7 @@ def start():
     parser.add_argument("--exec_id", default="", help="启动的执行id", required=False)
     parser.add_argument("--managed_execution", default="n", choices=("y", "n"))
     parser.add_argument("--managed_files", default="n", choices=("y", "n"))
+    parser.add_argument("--managed_desktop", default="n", choices=("y", "n"))
     parser.add_argument("--managed_secrets", default="n", choices=("y", "n"))
     parser.add_argument("--managed_receipt", default="")
 
@@ -172,6 +173,10 @@ def start():
     Config.debug_mode = args.debug == "y"
     Config.is_custom_component = args.is_custom_component == "y"
     Config.managed_execution = args.managed_execution == "y"
+    if Config.managed_execution and args.managed_desktop == "y":
+        os.environ["ASTRON_RPA_MANAGED_DESKTOP"] = "1"
+    else:
+        os.environ.pop("ASTRON_RPA_MANAGED_DESKTOP", None)
     if Config.managed_execution and args.managed_files == "y":
         from pathlib import Path
 
@@ -236,6 +241,10 @@ def start():
         else:
             logger.error("error {} traceback {}".format(e, traceback.format_exc()))
         if debug_svc:
-            debug_svc.end(ExecuteStatus.FAIL, reason=MSG_EXECUTION_ERROR)
+            from astronverse.dialog.managed import ManagedDialogError
+
+            debug_svc.end(
+                ExecuteStatus.FAIL, reason=e.code if isinstance(e, ManagedDialogError) else MSG_EXECUTION_ERROR
+            )
         return
     logger.debug("end")

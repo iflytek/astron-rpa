@@ -1714,5 +1714,460 @@
       },
       "integrationRun": "not run by request"
     }
+  },
+  "desktopUiValidation": {
+    "date": "2026-10-14",
+    "baseCommit": "225914d15d328ec6193bbc790b52b4d00c2cc38e",
+    "branch": "feat/office-file-workflows",
+    "workingTreeChanges": "Desktop/UI peer capability, reviewed frozen desktop contract, managed Windows session checks and dialogs, execution recovery fixes and bounded regression coverage; not staged, committed or pushed",
+    "environment": {
+      "n8n": "2.40.7",
+      "node": "24.18.0",
+      "nodePackage": "n8n-nodes-astron-rpa@0.1.0-dev.2",
+      "client": "Existing Windows client with synchronized source; no full EXE rebuild",
+      "primaryPhysicalResolution": {
+        "width": 1920,
+        "height": 1200
+      },
+      "tlsVerificationEnabled": true,
+      "fixture": "Synthetic desktop window and administrator-reviewed published workflows"
+    },
+    "architecture": {
+      "peerModule": "capabilities/desktop-ui.ts",
+      "sharedFileValidation": "capabilities/shared/file-contract.ts",
+      "primaryControlTransport": "mcp",
+      "rest": "Explicit admitted auxiliary execution and existing authorized binary transfer; no uncertain redispatch",
+      "contract": "Public desktopContract and private desktopReview bound to version, schema and revision; frozen in existing data_contract",
+      "databaseMigrationAdded": false,
+      "trustBoundary": "Reviewed deterministic published workflows; not a general Python/GUI sandbox or foreground interception mechanism"
+    },
+    "admission": {
+      "components": {
+        "browser": 39,
+        "dialog": 4,
+        "input": 8,
+        "software": 1,
+        "system": 6,
+        "vision": 5,
+        "window": 4,
+        "winelement": 6
+      },
+      "totalOperations": 73,
+      "allOperationsIndependentlyLiveValidated": false,
+      "excluded": "Model-driven CUA, arbitrary scripts/commands, CAPTCHA handling, process termination, lock/unlock, printing, dynamic forms and arbitrary local file dialogs; Software.close and BrowserSoftware.browser_close excluded because they terminate all processes with the same executable name"
+    },
+    "localTests": {
+      "openapi": {
+        "passed": 342,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "engine-files": {
+        "passed": 33,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "engine-desktop": {
+        "passed": 9,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "engine-vision": {
+        "passed": 2,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "engine-dialog": {
+        "passed": 6,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "engineTotalPassed": 50,
+      "n8n": {
+        "passed": 48,
+        "failed": 0,
+        "skipped": 0
+      },
+      "openapiExistingWarnings": 4
+    },
+    "staticChecks": {
+      "nodeBuild": true,
+      "nodeTypecheck": true,
+      "nodeEslint": true,
+      "nodePrettier": "Passed with --end-of-line auto",
+      "pythonRuffBaselineComparison": [
+        {
+          "scope": "backend/openapi-service/",
+          "files": 8,
+          "headDiagnostics": 6,
+          "currentDiagnostics": 2,
+          "newDiagnostics": [],
+          "formatPassed": true
+        },
+        {
+          "scope": "engine/",
+          "files": 11,
+          "headDiagnostics": 70,
+          "currentDiagnostics": 48,
+          "newDiagnostics": [],
+          "formatPassed": true
+        }
+      ],
+      "actionlint": "main-ci.yml and integration-regression.yml passed",
+      "gitDiffCheck": "passed",
+      "stagingAreaEmpty": true
+    },
+    "ci": {
+      "newOpenapiTest": "test_desktop_ui.py",
+      "newEngineGroups": [
+        "desktop",
+        "vision",
+        "dialog"
+      ],
+      "existingFileRecoveryGroupExtended": true,
+      "githubHostedRunCompleted": false
+    },
+    "liveSuccessfulCases": [
+      {
+        "case": "keyboardMouse",
+        "n8nExecutionId": 620,
+        "executionId": "65c45857-3864-4f42-ab30-e5b1b4d858b9",
+        "runId": "2110187732138487808",
+        "status": "succeeded",
+        "terminal": true,
+        "observed": "Synthetic fixture text changed to desktop-verified"
+      },
+      {
+        "case": "windowElementRead",
+        "n8nExecutionId": 622,
+        "executionId": "4b556447-0f42-45f8-9a05-82f9704e8d5b",
+        "runId": "2110187788266663936",
+        "status": "succeeded",
+        "terminal": true,
+        "observed": "Returned Verified 1"
+      },
+      {
+        "case": "windowResize",
+        "n8nExecutionId": 636,
+        "executionId": "b40ac1a5-c665-4bc1-abf9-b07ad1a8fabf",
+        "runId": "2110195197198495744",
+        "status": "succeeded",
+        "terminal": true,
+        "observed": "Synthetic window brought to top and resized"
+      },
+      {
+        "case": "screenshot",
+        "n8nExecutionId": 638,
+        "executionId": "eb894344-ea01-48e0-bf8f-b1e21378fc4a",
+        "runId": "2110195251577647104",
+        "status": "succeeded",
+        "terminal": true,
+        "observed": "Only synthetic window captured; authorized output downloaded through n8n Binary"
+      },
+      {
+        "case": "fixedImage",
+        "n8nExecutionId": 673,
+        "executionId": "72832e4b-df9f-43c1-a19d-83578cda9d63",
+        "runId": "2110195823949148160",
+        "status": "succeeded",
+        "terminal": true,
+        "observed": "Returned true"
+      },
+      {
+        "case": "nativeMessage",
+        "n8nExecutionId": 675,
+        "executionId": "0167124b-ead3-4b93-a39b-c62222ebbc75",
+        "runId": "2110195876784795648",
+        "status": "succeeded",
+        "terminal": true,
+        "observed": "Returned confirm"
+      },
+      {
+        "case": "nativeInput",
+        "n8nExecutionId": 677,
+        "executionId": "48e0c3b6-374d-48a7-abc3-fe1b369730ef",
+        "runId": "2110195929146486784",
+        "status": "succeeded",
+        "terminal": true,
+        "observed": "Returned native-input-verified"
+      },
+      {
+        "case": "nativeSelection",
+        "n8nExecutionId": 681,
+        "executionId": "8c137715-10b1-4b0b-9308-ff0d77d42d5f",
+        "runId": "2110196485806125056",
+        "status": "succeeded",
+        "terminal": true,
+        "observed": "Returned the fixture option literal containing double quotes: \"beta\""
+      },
+      {
+        "case": "nativeDate",
+        "n8nExecutionId": 683,
+        "executionId": "f5539d2c-caad-4d5a-adcc-17f070eb020d",
+        "runId": "2110196653511176192",
+        "status": "succeeded",
+        "terminal": true,
+        "observed": "Returned 2026-10-14"
+      },
+      {
+        "case": "windowClose",
+        "n8nExecutionId": 698,
+        "executionId": "3ac61950-600a-44b9-a6cb-936dfc7181e0",
+        "runId": "2110198298387181568",
+        "status": "succeeded",
+        "terminal": true,
+        "observed": "Closed the targeted synthetic fixture window"
+      }
+    ],
+    "screenshot": {
+      "executionId": "eb894344-ea01-48e0-bf8f-b1e21378fc4a",
+      "size": 16974,
+      "sha256": "52a30e97de95354f94e3605cce190d96720645ae416bb5642dcbe19fc042c632",
+      "downloadSha256Verified": true,
+      "width": 880,
+      "height": 550,
+      "visuallyCheckedSyntheticFixtureOnly": true
+    },
+    "controls": {
+      "mcp": {
+        "n8nExecutionId": 642,
+        "executionId": "6cb59600-ba5b-488c-ba07-8b1a97be94ae",
+        "runId": "2110195368653254656",
+        "status": "succeeded",
+        "terminal": true
+      },
+      "cross-channel-replay": {
+        "n8nExecutionId": 644,
+        "executionId": "6cb59600-ba5b-488c-ba07-8b1a97be94ae",
+        "runId": "2110195368653254656",
+        "status": "succeeded",
+        "terminal": true
+      },
+      "rest": {
+        "n8nExecutionId": 646,
+        "executionId": "ff07ee05-d870-408a-8402-e2f987e86840",
+        "runId": "2110195423351173120",
+        "status": "succeeded",
+        "terminal": true
+      },
+      "busy": {
+        "executionId": "eaf4cd04-afcf-4632-9e7e-02191338702f",
+        "runId": null,
+        "status": "failed",
+        "terminal": true,
+        "errorCode": "CLIENT_BUSY"
+      },
+      "cancelled": {
+        "executionId": "287c4c16-23eb-4b88-8744-862f30d575a5",
+        "runId": "2110195470130245632",
+        "status": "cancelled",
+        "terminal": true
+      },
+      "popup-blocked": {
+        "executionId": "3a32a420-9125-41d5-9d1b-9bc4bbbeb0b8",
+        "runId": "2110195554800660480",
+        "status": "failed",
+        "terminal": true,
+        "errorCode": "DESKTOP_POPUP_BLOCKED"
+      },
+      "old-cancel-isolated": {
+        "executionId": "d0c435e2-3ab4-4de3-901b-73361133080b",
+        "runId": "2110195605790814208",
+        "status": "running",
+        "terminal": false
+      },
+      "next-cleaned": {
+        "executionId": "d0c435e2-3ab4-4de3-901b-73361133080b",
+        "runId": "2110195605790814208",
+        "status": "cancelled",
+        "terminal": true
+      }
+    },
+    "executionDeadlines": [
+      {
+        "case": "runningWorkflow",
+        "n8nExecutionId": 640,
+        "executionId": "edb7badc-462a-4283-9b3d-5bd3a21d188b",
+        "runId": "2110195302278393856",
+        "status": "timeout",
+        "terminal": true,
+        "code": "EXECUTION_TIMEOUT",
+        "errorCode": "EXECUTION_TIMEOUT",
+        "processStopConfirmed": true
+      },
+      {
+        "case": "unansweredNativeForm",
+        "n8nExecutionId": 679,
+        "executionId": "40a5407b-3c41-4095-bf30-33f66412bb79",
+        "runId": "2110196084134408192",
+        "status": "timeout",
+        "terminal": true,
+        "code": "EXECUTION_TIMEOUT",
+        "errorCode": "EXECUTION_TIMEOUT",
+        "processStopConfirmed": true
+      }
+    ],
+    "n8nRestart": {
+      "parentExecutionId": 685,
+      "waitingExecutionId": 686,
+      "waitingBeforeRestart": true,
+      "afterRestart": {
+        "executionId": "ec19ed7e-aa67-475a-b67d-2d453986b3eb",
+        "runId": "2110197101672558592",
+        "status": "running",
+        "terminal": false,
+        "code": "WAIT_BUDGET_EXPIRED"
+      },
+      "queriedAfterRestart": {
+        "executionId": "ec19ed7e-aa67-475a-b67d-2d453986b3eb",
+        "runId": "2110197101672558592",
+        "status": "succeeded",
+        "terminal": true
+      },
+      "sameIdentity": true,
+      "interpretation": "Original 60-second wait budget expired during downtime; recovered caller reported WAIT_BUDGET_EXPIRED with original identity and last running snapshot. Explicit query found succeeded. Parent wait was not a successful completion."
+    },
+    "clientChannelReconnect": {
+      "trigger": "OpenAPI restart while execution was running",
+      "before": {
+        "executionId": "2b241899-6c46-46db-a9ec-580929e4e0f5",
+        "runId": "2110197992488202240",
+        "status": "running",
+        "terminal": false
+      },
+      "after": {
+        "executionId": "2b241899-6c46-46db-a9ec-580929e4e0f5",
+        "runId": "2110197992488202240",
+        "status": "succeeded",
+        "terminal": true
+      },
+      "clientReconnected": true,
+      "sameIdentity": true
+    },
+    "importedExample": {
+      "file": "examples/desktop-ui.json",
+      "n8nExecutionId": 688,
+      "executionId": "c83b3a0f-97d8-40cc-95c9-621aa738a4e7",
+      "runId": "2110197940332032000",
+      "status": "succeeded",
+      "terminal": true
+    },
+    "finalClientRestartChecks": {
+      "clientRestartReplay": {
+        "n8nExecutionId": 700,
+        "executionId": "b40ac1a5-c665-4bc1-abf9-b07ad1a8fabf",
+        "runId": "2110195197198495744",
+        "status": "succeeded",
+        "terminal": true
+      },
+      "latestClientSuccess": {
+        "n8nExecutionId": 702,
+        "executionId": "8415f715-89e1-4a8b-830d-fd0885d25605",
+        "runId": "2110198656819818496",
+        "status": "succeeded",
+        "terminal": true
+      },
+      "resolution": {
+        "n8nExecutionId": 704,
+        "executionId": "108f9c34-4b87-4f92-8bf3-68c719868e28",
+        "runId": null,
+        "status": "failed",
+        "terminal": true,
+        "code": "DESKTOP_RESOLUTION_MISMATCH",
+        "errorCode": "DESKTOP_RESOLUTION_MISMATCH"
+      },
+      "missing": {
+        "n8nExecutionId": 706,
+        "executionId": "b5d1221e-23f4-43af-a8b6-5bfd272dd12a",
+        "runId": null,
+        "status": "failed",
+        "terminal": true,
+        "code": "DESKTOP_SOFTWARE_UNAVAILABLE",
+        "errorCode": "DESKTOP_SOFTWARE_UNAVAILABLE"
+      }
+    },
+    "issuesFixedAndRetested": [
+      "Use physical display settings rather than DPI-virtualized metrics",
+      "Use user32.GetLastActivePopup for owned popup detection",
+      "Managed native forms no longer depend on designer WebSocket; ordinary designer path preserved",
+      "Guarded desktop runs do not wait for log overlay WebSocket",
+      "Managed vision does not write extra full-screen debug images"
+    ],
+    "finalRecoveryFix": {
+      "change": "Apply persisted desktop interruption before file finish/upload; retain exclusive slot through recovery and cleanup",
+      "validation": "Final unit regressions passed, latest sources synchronized, client restarted, prior execution replay and new success/preflight failures verified",
+      "allGuiGesturesRepeatedAfterThisFix": false
+    },
+    "audit": {
+      "serverClientReceiptsMatched": 35,
+      "statuses": {
+        "COMPLETED": 19,
+        "FAILED": 11,
+        "CANCELLED": 3,
+        "TIMEOUT": 2
+      },
+      "nonterminalExecutions": 0,
+      "testExecutorProcesses": 0,
+      "executorRunning": false,
+      "interpretation": "Includes expected failures, early fixture errors and successful empty branches. COMPLETED count is not a count of independently verified GUI operations."
+    },
+    "consistency": {
+      "clientFilesMatched": 7,
+      "nodePackageFilesMatched": 41,
+      "packageSha256": "c1c6904c5cf673a1e4ae7db14b9d7bedbb2983da7a52cac78d463fe32e5125e1",
+      "serverFilesMatched": 7,
+      "serverWritesRestrictedToSource": true
+    },
+    "cleanup": {
+      "server": {
+        "fileHandlesRemoved": 1,
+        "unrelatedFileHandlesPreserved": 0,
+        "testDeclarationsRemoved": 23,
+        "originalPolicyEquivalent": true,
+        "workflowRowsRemoved": 23,
+        "nonterminalExecutions": 0,
+        "executionAuditRetained": true,
+        "featureStorageConfigurationRetained": true
+      },
+      "serverTemporaryPaths": [
+        ".desktop-ui-source.tgz",
+        ".desktop-ui-20261014"
+      ],
+      "robots": {
+        "temporaryRobotsRemoved": 23
+      },
+      "n8n": {
+        "testWorkflowsRemoved": 7,
+        "testExecutionsRemoved": 100,
+        "unrelatedDataPreserved": true,
+        "pendingExecutions": 0
+      },
+      "client": {
+        "testRuntimeDirectoriesRemoved": 14,
+        "manualCleanupConfirmedAndVerified": true,
+        "remainingTestRuntimeDirectories": 0,
+        "executionAuditRetained": true,
+        "fixturePortClosed": true,
+        "existingOfficeCredentialCopyPreserved": true
+      },
+      "nativeFormsClosed": true,
+      "clientLeftReadyAndIdle": true,
+      "n8nLeftRunningAndHealthy": true,
+      "noNewCredentialExport": true
+    },
+    "notValidated": [
+      "Independent live validation of all 73 admitted operations",
+      "Actual Windows lock/unlock or session switching; failure paths simulated in unit tests",
+      "Password, multi-selection and date-range form interaction; only unit/dispatch coverage",
+      "Every browser desktop gesture, software launch or multi-monitor adaptation",
+      "Full client EXE rebuild",
+      "Full repository make check",
+      "GitHub-hosted CI execution"
+    ]
   }
 }

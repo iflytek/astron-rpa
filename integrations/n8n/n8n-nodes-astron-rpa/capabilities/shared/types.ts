@@ -7,6 +7,7 @@ export const CAPABILITY_CLASSES = [
   "service-openapi-read",
   "service-shared-read",
   "office-file",
+  "desktop-ui",
 ] as const;
 
 export type CapabilityClass = (typeof CAPABILITY_CLASSES)[number];
@@ -27,5 +28,6 @@ export interface CapabilityProfile {
   executionType?: unknown;
   jsonLimits?: unknown;
   fileContract?: unknown;
+  desktopContract?: unknown;
   exclusiveTerminal?: unknown;
 }

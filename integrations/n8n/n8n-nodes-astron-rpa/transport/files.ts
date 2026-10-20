@@ -1,5 +1,8 @@
 import { createHash } from "node:crypto";
-import { FILE_LIMITS, safeFileName } from "../capabilities/office-file";
+import {
+  FILE_LIMITS,
+  safeFileName,
+} from "../capabilities/shared/file-contract";
 import { AstronError, object } from "../mapping/contracts";
 import type { Connection } from "./mcp";
 

@@ -11,9 +11,12 @@ CAPABILITY_CLASSES = (
     "service-openapi-read",
     "service-shared-read",
     "office-file",
+    "desktop-ui",
 )
 
-SERVICE_READ_CLASSES = frozenset(CAPABILITY_CLASSES[1:-1])
+SERVICE_READ_CLASSES = frozenset(
+    value for value in CAPABILITY_CLASSES if value.startswith("service-") or value == "browser-read"
+)
 SERVICE_READ_OPERATIONS = {
     "browser-read": frozenset(
         {
@@ -63,4 +66,5 @@ CapabilityClass = Literal[
     "service-openapi-read",
     "service-shared-read",
     "office-file",
+    "desktop-ui",
 ]

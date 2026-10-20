@@ -32,7 +32,8 @@ class Manager:
             execute_reason=None,
             launched_at=None,
         )
-        item.ins = SimpleNamespace(set_param=lambda *_: None)
+        item.launch_params = {}
+        item.ins = SimpleNamespace(set_param=lambda key, value: item.launch_params.__setitem__(key, value))
         on_prepared(item)
         proc = subprocess.Popen(
             [sys.executable, "-c", f"import time; time.sleep({self.seconds})"],
@@ -139,6 +140,7 @@ def test_simultaneous_duplicate_executes_once_and_preserves_json(client):
     result = observe(controller, request, lambda r: r.get("status") == "succeeded")
     assert result["result"] == manager.result
     assert len(manager.instances) == 1
+    assert "wait_tip_ws" not in manager.instances[0].launch_params
     assert controller.handle({**request, "payload": {"params": {"zero": 1}}})["error"] == "IDEMPOTENCY_CONFLICT"
 
 
@@ -217,7 +219,8 @@ def test_secret_payload_not_in_journal_or_public_result(client):
     assert b"sensitive-fixture" not in controller.path.read_bytes()
 
 
-def test_late_engine_receipt_after_scheduler_restart_is_recovered(client, tmp_path, monkeypatch):
+@pytest.mark.parametrize("desktop_error", [None, "DESKTOP_LOCKED"])
+def test_late_engine_receipt_after_scheduler_restart_is_recovered(client, tmp_path, monkeypatch, desktop_error):
     import json
 
     controller, manager = client
@@ -225,7 +228,11 @@ def test_late_engine_receipt_after_scheduler_restart_is_recovered(client, tmp_pa
     request = command(controller)
     controller.handle(request)
     controller._change("owner", request["executionId"], runId="real-run", startedAt="2025-12-31T23:59:59+00:00")
+    if desktop_error:
+        controller._change("owner", request["executionId"], desktopError=desktop_error, fileWorkflow=True)
     restarted = ManagedExecution(manager, tmp_path, "https://self-hosted.example")
+    monkeypatch.setattr(restarted, "_cleanup_files", lambda *_: None)
+    monkeypatch.setattr(restarted, "_file_workspace", lambda *_: pytest.fail("Interrupted output must not upload"))
     assert restarted.handle({**request, "action": "get"})["status"] == "unknown"
     path = restarted.result_path("owner", request["executionId"])
     path.parent.mkdir(parents=True, exist_ok=True)
@@ -242,8 +249,10 @@ def test_late_engine_receipt_after_scheduler_restart_is_recovered(client, tmp_pa
     assert restarted.handle({**request, "action": "get"})["status"] == "unknown"
     path.write_text(json.dumps({**payload, "runId": "real-run"}))
     recovered = restarted.handle({**request, "action": "get"})
-    assert recovered["status"] == "succeeded"
-    assert recovered["result"] == {"zero": 0}
+    assert recovered["status"] == ("failed" if desktop_error else "succeeded")
+    assert recovered["result"] == (None if desktop_error else {"zero": 0})
+    if desktop_error:
+        assert recovered["error"] == desktop_error
     assert recovered["startedAt"] == "2025-12-31T23:59:59+00:00"
     assert manager.instances == []
 
@@ -333,6 +342,7 @@ def test_file_recovery_does_not_hold_lock_during_transfer(client, tmp_path, monk
     request["payload"]["fileBundle"] = {"version": 1}
     controller.handle(request)
     controller._change("owner", request["executionId"], status="unknown", runId="run-1")
+    controller.active.clear()  # Simulate the absence of a live observer after restart.
     path = controller.result_path("owner", request["executionId"])
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(
@@ -370,6 +380,55 @@ def test_file_recovery_does_not_hold_lock_during_transfer(client, tmp_path, monk
     concurrent = controller.handle({**request, "action": "get"})
     assert time.monotonic() - started < 0.5
     assert concurrent["status"] == "unknown"
+    started = time.monotonic()
+    assert controller.handle(command(controller))["error"] == "CLIENT_BUSY"
+    assert time.monotonic() - started < 0.5
     release.set()
     thread.join(timeout=3)
     assert result["receipt"]["status"] == "succeeded"
+
+
+@pytest.mark.parametrize("code", ["DESKTOP_LOCKED", "DESKTOP_RESOLUTION_MISMATCH", "DESKTOP_SOFTWARE_UNAVAILABLE"])
+def test_desktop_preflight_failure_never_launches_or_replays(client, monkeypatch, code):
+    from astronverse.scheduler.core.executor import managed_desktop
+
+    controller, manager = client
+
+    def unavailable(*_, **__):
+        raise managed_desktop.DesktopError(code)
+
+    monkeypatch.setattr(managed_desktop, "DesktopGuard", lambda _: SimpleNamespace(check=unavailable))
+    request = command(controller)
+    request["payload"].update(desktopContract={"version": 1}, executionTimeout=10)
+    controller.handle(request)
+    failed = observe(controller, request, lambda r: r["status"] == "failed")
+    assert failed["error"] == code
+    assert not manager.instances
+    assert controller.handle(request)["executionId"] == failed["executionId"]
+    assert not manager.instances
+
+
+def test_desktop_session_loss_stops_exact_process_and_preserves_failure(client, monkeypatch):
+    from astronverse.scheduler.core.executor import managed_desktop
+
+    controller, manager = client
+    manager.seconds = 10
+    lost = threading.Event()
+
+    def check(**_):
+        if lost.is_set():
+            raise managed_desktop.DesktopError("DESKTOP_LOCKED")
+
+    monkeypatch.setattr(managed_desktop, "DesktopGuard", lambda _: SimpleNamespace(check=check))
+    request = command(controller)
+    request["payload"].update(desktopContract={"version": 1}, executionTimeout=10)
+    controller.handle(request)
+    running = observe(controller, request, lambda r: r["status"] == "running")
+    assert controller.handle(command(controller))["error"] == "CLIENT_BUSY"
+    assert manager.instances[0].launch_params["wait_tip_ws"] == "n"
+    assert manager.instances[0].launch_params["managed_desktop"] == "y"
+    lost.set()
+    failed = observe(controller, request, lambda r: r["status"] == "failed")
+    assert failed["error"] == "DESKTOP_LOCKED"
+    assert failed["runId"] == running["runId"]
+    assert not manager.instances[0].ins.is_alive()

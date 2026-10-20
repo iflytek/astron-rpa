@@ -96,7 +96,7 @@ class DebugSvc:
                                 outcome,
                                 data,
                                 self.conf.managed_started_at,
-                                "UNSUPPORTED_RESULT" if reason == "UNSUPPORTED_RESULT" else None,
+                                reason if reason in ("UNSUPPORTED_RESULT", "DESKTOP_HUMAN_UNAVAILABLE") else None,
                             )
                         except (OSError, ValueError, TypeError):
                             logger.error("Managed terminal receipt could not be persisted")

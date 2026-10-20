@@ -17,6 +17,7 @@ OPENAPI_TESTS = [
     "test_mcp_auth.py",
     "test_mcp_modern.py",
     "test_office_file.py",
+    "test_desktop_ui.py",
     "test_schema_readiness.py",
     "test_sensitive_logging.py",
     "test_service_read.py",
@@ -31,6 +32,9 @@ ENGINE_TESTS = {
     "network": ["test_read.py"],
     "enterprise": ["test_shared_read.py"],
     "files": ["test_managed_files.py", "test_managed_execution.py"],
+    "desktop": ["test_managed_desktop.py"],
+    "vision": ["test_managed_images.py"],
+    "dialog": ["test_managed_dialog.py"],
     "excel": ["test_managed_office.py"],
     "word": ["test_managed_office.py"],
     "system": ["test_compress_safety.py"],
@@ -130,7 +134,7 @@ def main():
             )
         else:
             component = ROOT / "engine/components" / f"astronverse-{args.component}"
-            if args.component == "files":
+            if args.component in {"files", "desktop"}:
                 component = ROOT / "engine/servers/astronverse-scheduler"
             sources = [
                 component / "src",
@@ -141,7 +145,7 @@ def main():
             if args.component == "browser":
                 sources.append(ROOT / "engine/components/astronverse-software/src")
                 dependencies.extend(["psutil", "pywin32"])
-            if args.component in {"excel", "word", "files"}:
+            if args.component in {"excel", "word", "files", "desktop"}:
                 dependencies.extend(["psutil", "pywin32"])
             if args.component == "files":
                 dependencies.extend(["websocket-client", "httpx"])
@@ -151,6 +155,8 @@ def main():
                 dependencies.extend(["pyzipper", "py7zr"])
             if args.component == "datatable":
                 dependencies.append("openpyxl")
+            if args.component == "vision":
+                dependencies.extend(["opencv-python", "numpy", "pyautogui", "pillow"])
             # Reuse the committed Engine versions without resolving its full GUI/EXE graph
             # or generating component-level lockfiles during a test run.
             lock = tomllib.loads((ROOT / "engine/uv.lock").read_text(encoding="utf-8"))

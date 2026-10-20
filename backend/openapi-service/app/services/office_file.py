@@ -31,7 +31,10 @@ def transfer_url():
     return value
 
 
-def validate_file_review(declaration, schema, params=None):
+def validate_file_review(declaration, schema, params=None, *, desktop=False):
+    from app.schemas.desktop_ui import DESKTOP_OPERATIONS
+
+    allowed_operations = OFFICE_FILE_OPERATIONS | (DESKTOP_OPERATIONS if desktop else set())
     contract, review = declaration.fileContract, declaration.fileReview
     if (
         not isinstance(contract, dict)
@@ -46,17 +49,18 @@ def validate_file_review(declaration, schema, params=None):
         or declaration.fileInputs != bool(contract["inputs"])
         or declaration.fileOutputs != bool(contract["outputs"])
         or not declaration.allowedTransports
-        or declaration.requiresHuman is not False
+        or (not desktop and declaration.requiresHuman is not False)
         or declaration.exclusiveTerminal is not True
         or declaration.risk not in {"low", "medium"}
         or not isinstance(declaration.sideEffects, list)
-        or not set(declaration.sideEffects) <= {"workspace-files", "external-file-transfer"}
+        or not set(declaration.sideEffects)
+        <= ({"workspace-files", "external-file-transfer"} | ({"desktop-interaction"} if desktop else set()))
         or (contract["outputs"] and "workspace-files" not in declaration.sideEffects)
         or not declaration.componentOperations
-        or not set(declaration.componentOperations) <= OFFICE_FILE_OPERATIONS
+        or not set(declaration.componentOperations) <= allowed_operations
     ):
         deny("FILE_CONTRACT_INVALID")
-    gui = any(op.startswith(("Excel.", "Docx.", "Browser")) for op in declaration.componentOperations)
+    gui = desktop or any(op.startswith(("Excel.", "Docx.", "Browser")) for op in declaration.componentOperations)
     if declaration.requiresGui is not gui:
         deny("FILE_CONTRACT_INVALID")
     external = any(

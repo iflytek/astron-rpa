@@ -593,6 +593,11 @@ export class AstronRpa implements INodeType {
             if (key.length > 200) throw new AstronError("INVALID_ARGUMENTS");
             const deadline = integer(this, "executionTimeout", i, 0, 86400, 0);
             if (
+              declaredCapability === "desktop-ui" &&
+              (deadline < 1 || deadline > 3600)
+            )
+              throw new AstronError("DESKTOP_EXECUTION_DEADLINE_REQUIRED");
+            if (
               declaredCapability === "office-file" &&
               (deadline < 1 || deadline > 3600)
             )

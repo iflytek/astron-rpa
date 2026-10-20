@@ -20,6 +20,7 @@ export interface ComponentCoverage {
   groups: readonly CapabilityGroup[];
   serviceReadOperations?: readonly string[];
   officeFileOperations?: readonly string[];
+  desktopOperations?: readonly string[];
   note: string;
 }
 
@@ -37,6 +38,47 @@ export const COMPONENT_COVERAGE: readonly ComponentCoverage[] = [
   },
   {
     component: "astronverse-browser",
+    desktopOperations: [
+      "BrowserElement.click",
+      "BrowserElement.create_element",
+      "BrowserElement.data_batch",
+      "BrowserElement.element_exist",
+      "BrowserElement.element_operation",
+      "BrowserElement.element_text",
+      "BrowserElement.get_checked",
+      "BrowserElement.get_relative_element",
+      "BrowserElement.get_select",
+      "BrowserElement.get_table",
+      "BrowserElement.hover_over",
+      "BrowserElement.input",
+      "BrowserElement.loop_similar",
+      "BrowserElement.position_screenshot",
+      "BrowserElement.screenshot",
+      "BrowserElement.scroll",
+      "BrowserElement.scroll_into_view",
+      "BrowserElement.set_checked",
+      "BrowserElement.set_select",
+      "BrowserElement.similar",
+      "BrowserElement.slider_hover",
+      "BrowserElement.wait_element",
+      "BrowserSoftware.browser_back",
+      "BrowserSoftware.browser_forward",
+      "BrowserSoftware.browser_open",
+      "BrowserSoftware.download_web_file",
+      "BrowserSoftware.get_cookies",
+      "BrowserSoftware.get_current_obj",
+      "BrowserSoftware.get_current_tab_id",
+      "BrowserSoftware.get_current_title",
+      "BrowserSoftware.get_current_url",
+      "BrowserSoftware.screenshot",
+      "BrowserSoftware.stop_web_load",
+      "BrowserSoftware.upload_web_file",
+      "BrowserSoftware.wait_web_load",
+      "BrowserSoftware.web_close",
+      "BrowserSoftware.web_open",
+      "BrowserSoftware.web_refresh",
+      "BrowserSoftware.web_switch",
+    ],
     officeFileOperations: [
       "BrowserElement.create_element",
       "BrowserElement.data_batch",
@@ -110,6 +152,12 @@ export const COMPONENT_COVERAGE: readonly ComponentCoverage[] = [
   },
   {
     component: "astronverse-dialog",
+    desktopOperations: [
+      "Dialog.input_box",
+      "Dialog.message_box",
+      "Dialog.select_box",
+      "Dialog.select_time_box",
+    ],
     groups: ["desktop-ui"],
     note: "Interactive dialogs",
   },
@@ -176,6 +224,16 @@ export const COMPONENT_COVERAGE: readonly ComponentCoverage[] = [
   },
   {
     component: "astronverse-input",
+    desktopOperations: [
+      "GuiKeyBoard.key_input",
+      "GuiKeyBoard.keyboard",
+      "GuiMouse.mouse",
+      "GuiMouse.mouse_drag",
+      "GuiMouse.mouse_move",
+      "GuiMouse.mouse_move_new",
+      "GuiMouse.mouse_position",
+      "GuiMouse.mouse_wheel",
+    ],
     groups: ["desktop-ui"],
     note: "Keyboard and mouse interaction",
   },
@@ -245,11 +303,20 @@ export const COMPONENT_COVERAGE: readonly ComponentCoverage[] = [
   },
   {
     component: "astronverse-software",
-    groups: ["desktop-ui"],
-    note: "Local program and process control",
+    desktopOperations: ["Software.open"],
+    groups: ["desktop-ui", "ai-dynamic-risk"],
+    note: "Reviewed program launch; close kills every matching process name and is not admitted",
   },
   {
     component: "astronverse-system",
+    desktopOperations: [
+      "Clipboard.clear_clip",
+      "Clipboard.copy_clip",
+      "Clipboard.paste_clip",
+      "Folder.folder_open",
+      "Process.get_pid",
+      "System.screen_shot",
+    ],
     officeFileOperations: [
       "Compress.compress",
       "Compress.uncompress",
@@ -285,16 +352,37 @@ export const COMPONENT_COVERAGE: readonly ComponentCoverage[] = [
   },
   {
     component: "astronverse-vision",
+    desktopOperations: [
+      "CV.cv_click",
+      "CV.hover_image",
+      "CV.image_input",
+      "CV.is_image_exist",
+      "CV.wait_image",
+    ],
     groups: ["desktop-ui", "ai-dynamic-risk"],
     note: "Screen/image interaction",
   },
   {
     component: "astronverse-window",
+    desktopOperations: [
+      "Window.close",
+      "Window.exist",
+      "Window.set_size",
+      "Window.top",
+    ],
     groups: ["desktop-ui"],
     note: "Window management",
   },
   {
     component: "astronverse-winelement",
+    desktopOperations: [
+      "WinEle.click_element",
+      "WinEle.get_element_text",
+      "WinEle.hover_element",
+      "WinEle.input_text_element",
+      "WinEle.screenshot_element",
+      "WinEle.similar",
+    ],
     groups: ["desktop-ui"],
     note: "Desktop UI elements",
   },
@@ -332,4 +420,8 @@ export const BROWSER_SERVICE_COMPONENTS = COMPONENT_COVERAGE.filter((entry) =>
 
 export const OFFICE_FILE_OPERATIONS = new Set(
   COMPONENT_COVERAGE.flatMap((entry) => entry.officeFileOperations ?? []),
+);
+
+export const DESKTOP_OPERATIONS = new Set(
+  COMPONENT_COVERAGE.flatMap((entry) => entry.desktopOperations ?? []),
 );

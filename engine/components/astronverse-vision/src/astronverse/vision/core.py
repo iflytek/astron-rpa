@@ -1,5 +1,6 @@
 import base64
 import io
+import os
 
 import cv2
 import numpy as np
@@ -42,7 +43,8 @@ class CvCore:
             center_coords_anchor = ""
 
         match_img = pyautogui.screenshot(region=None)
-        match_img.save(desktop_filepath_match)
+        if os.environ.get("ASTRON_RPA_MANAGED_DESKTOP") != "1":
+            match_img.save(desktop_filepath_match)
         ratio_w = match_img.width / data["sr"]["screen_w"]
         ratio_h = match_img.height / data["sr"]["screen_h"]
         ratio = f"{ratio_w},{ratio_h}"
@@ -61,7 +63,8 @@ class CvCore:
         if result is None or not isinstance(result, (list, tuple)) or len(result) != 2:
             raise ValueError("match.process_image did not return a valid (out_img, match_box) tuple")
         out_img, match_box = result
-        cv2.imwrite(desktop_filepath, out_img)
+        if os.environ.get("ASTRON_RPA_MANAGED_DESKTOP") != "1":
+            cv2.imwrite(desktop_filepath, out_img)
         return match_box
 
     @staticmethod

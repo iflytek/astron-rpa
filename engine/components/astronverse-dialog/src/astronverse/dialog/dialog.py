@@ -7,6 +7,7 @@ from typing import Optional
 from astronverse.actionlib import AtomicFormType, AtomicFormTypeMeta, AtomicLevel, DynamicsItem
 from astronverse.actionlib.atomic import atomicMg
 from astronverse.dialog import *
+from astronverse.dialog import ButtonType, InputType, SelectType, TimeType, managed
 
 
 def wait_with_timeout(check_done: Callable[[], bool], reset_timeout_on_activity: bool, wait_time: int):
@@ -145,6 +146,23 @@ class Dialog:
         if wait_time is None:
             wait_time = 60 if auto_check else 620
 
+        if managed.enabled():
+            default = {
+                ButtonType.CONFIRM: default_button_c,
+                ButtonType.CONFIRM_CANCEL: default_button_cn,
+                ButtonType.YES_NO: default_button_y,
+                ButtonType.YES_NO_CANCEL: default_button_yn,
+            }[button_type]
+            return managed.show(
+                "message",
+                title=box_title,
+                message=message_content,
+                buttons=button_type.value,
+                auto=auto_check,
+                seconds=wait_time,
+                default=default.value,
+            )
+
         done = threading.Event()
         res = {}
         res_e = None
@@ -234,6 +252,14 @@ class Dialog:
         default_input_pwd: str = "",
         preview_button=None,
     ):
+        if managed.enabled():
+            return managed.show(
+                "input",
+                title=box_title,
+                prompt=input_title,
+                password=input_type == InputType.PASSWORD,
+                default=default_input_pwd if input_type == InputType.PASSWORD else default_input_text,
+            )
         done = threading.Event()
         res = {}
         res_e = None
@@ -302,6 +328,10 @@ class Dialog:
         options_title: str = "",
         preview_button=None,
     ):
+        if managed.enabled():
+            return managed.show(
+                "select", title=box_title, prompt=options_title, items=options, multiple=select_type == SelectType.MULTI
+            )
         done = threading.Event()
         res = {}
         res_e = None
@@ -391,6 +421,15 @@ class Dialog:
         input_title: str = "输入框标题",
         preview_button: bool = None,
     ):
+        if managed.enabled():
+            return managed.show(
+                "time",
+                title=box_title,
+                prompt=input_title,
+                format=time_format.value,
+                multiple=time_type == TimeType.TIME_RANGE,
+                default=default_time_range if time_type == TimeType.TIME_RANGE else default_time,
+            )
         done = threading.Event()
         res = {}
         res_e = None

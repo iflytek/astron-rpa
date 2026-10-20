@@ -257,13 +257,18 @@ class ExecutionService:
         requested_class = execution_data.capability_class
         if requested_class is not None and profile["capabilityClass"] != requested_class:
             raise WorkflowAccessError("CAPABILITY_NOT_ALLOWED", "Workflow is not admitted for the requested capability")
-        bounded_json = profile["capabilityClass"] in {"json-data", "office-file", *SERVICE_READ_CLASSES}
+        bounded_json = profile["capabilityClass"] in {"json-data", "office-file", "desktop-ui", *SERVICE_READ_CLASSES}
         if bounded_json:
             # Bound the raw request before defaults, then again after binding.
             validate_json_value(execution_data.params or {}, require_object=True)
         data_contract = None
         file_binding = None
-        if profile["capabilityClass"] == "office-file":
+        desktop_binding = None
+        if profile["capabilityClass"] == "desktop-ui":
+            from app.services.desktop_ui import freeze_desktop
+
+            desktop_binding = freeze_desktop(profile, execution_data.execution_timeout)
+        if profile["capabilityClass"] == "office-file" or (desktop_binding and profile.get("fileContract")):
             from app.services.office_file import freeze_authorized_files
 
             if workflow_secret_fields(workflow, schema):
@@ -283,6 +288,7 @@ class ExecutionService:
                     "outputSchema": profile["outputSchema"],
                     "limits": JSON_LIMITS,
                     **({"fileContract": file_binding} if file_binding else {}),
+                    **({"desktopContract": desktop_binding} if desktop_binding else {}),
                 },
                 allow_nan=False,
             )
@@ -298,6 +304,10 @@ class ExecutionService:
             or any(type(value) not in (str, int, float) for value in params.values())
         )
         capability = await management.capabilities(user_id, required=requires_managed)
+        if desktop_binding and (not capability or capability.get("desktopProtocolVersion") != 1):
+            raise WorkflowAccessError(
+                "CLIENT_DESKTOP_PROTOCOL_UNSUPPORTED", "Client must support desktop protocol version 1"
+            )
         if file_binding and (not capability or capability.get("fileTransferVersion") != 1):
             raise WorkflowAccessError("CLIENT_FILE_PROTOCOL_UNSUPPORTED", "Client must support file transfer version 1")
         if not capability and requires_managed:

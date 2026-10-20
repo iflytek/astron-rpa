@@ -43,6 +43,14 @@ ERRORS = {
     "FILE_TRANSFER_FAILED",
     "FILE_OUTPUT_INVALID",
     "OFFICE_UNAVAILABLE",
+    "DESKTOP_UNAVAILABLE",
+    "DESKTOP_LOCKED",
+    "DESKTOP_SESSION_CHANGED",
+    "DESKTOP_RESOLUTION_MISMATCH",
+    "DESKTOP_SOFTWARE_UNAVAILABLE",
+    "DESKTOP_POPUP_BLOCKED",
+    "DESKTOP_CONTRACT_INVALID",
+    "DESKTOP_HUMAN_UNAVAILABLE",
 }
 
 
@@ -240,6 +248,7 @@ async def reconcile(service, record):
                     "recordingConfig": record.recording_config,
                     "secretFields": json.loads(record.secret_fields or "[]"),
                     **({"fileBundle": bundle} if bundle else {}),
+                    **({"desktopContract": contract["desktopContract"]} if contract.get("desktopContract") else {}),
                 },
             )
     try:
