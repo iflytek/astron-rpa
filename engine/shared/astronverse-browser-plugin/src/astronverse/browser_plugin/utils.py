@@ -352,8 +352,34 @@ def remove_browser_setting(preferences_path_list, secure_preferences, extension_
                     with open(file, "w", encoding="utf8") as f:
                         json.dump(dict_msg, f)
 
+    # Only remove entries for our extension from Secure Preferences, not the entire file
     if os.path.exists(secure_preferences):
-        os.remove(secure_preferences)
+        try:
+            with open(secure_preferences, encoding="utf8") as f:
+                secure_data = json.loads(f.read())
+                is_secure_update = False
+
+                # Remove only our extension's entries from various security-related sections
+                protection = secure_data.get("protection", {})
+                macs = protection.get("macs", {})
+
+                # Remove MAC entries for our extension
+                extensions_settings = macs.get("extensions.settings", {})
+                if extension_id in extensions_settings:
+                    del extensions_settings[extension_id]
+                    is_secure_update = True
+
+                for old_id in old_extension_ids:
+                    if old_id in extensions_settings:
+                        del extensions_settings[old_id]
+                        is_secure_update = True
+
+                if is_secure_update:
+                    with open(secure_preferences, "w", encoding="utf8") as f:
+                        json.dump(secure_data, f)
+                        logger.info(f"Updated Secure Preferences, removed entries for {extension_id}")
+        except Exception as e:
+            logger.warning(f"Failed to update Secure Preferences (non-fatal): {e}")
 
 
 def remove_old_extensions(extension_path, old_extension_ids=[], old_extension_path_list=[]):
