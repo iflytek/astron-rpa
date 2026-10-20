@@ -1,5 +1,108 @@
 {
   "scope": "n8n MCP community node public framework; controlled single-instance validation",
+  "browserServiceConflictReview": {
+    "date": "2026-10-20",
+    "originalHead": "4e26f0790cdaf65f0249be43ca7a15487cd05fd0",
+    "mainBase": "59b576ed4fd22bf44bbe81ff1265cd2a75f9cb08",
+    "rebasedCommitsHead": "c47d5cddd5205140341606a949b4262ad4fd0d3f",
+    "scope": "Resolve conflicts with main, adapt browser metadata localization and current component inventory, align validation and PR acceptance claims",
+    "conflictResolution": [
+      "Keep main locale-based metadata builder and removal of tracked browser metadata and legacy meta_json.py",
+      "Move browser activate_window labels to en_US/zh_CN locale; preserve default True and explicit False for reviewed reads",
+      "Keep main Engine dependency versions while retaining database dependency and optional driver extras",
+      "Keep current metadata README workflow and links to compatibility guidance in FAQ"
+    ],
+    "componentInventory": {
+      "components": 26,
+      "newMainComponent": "astronverse-control",
+      "admittedReadComponents": 5,
+      "admittedReadOperations": 29,
+      "newReadPermissions": false
+    },
+    "environment": {
+      "platform": "Windows",
+      "python": "3.13.14",
+      "node": "24.18.0",
+      "npm": "11.16.0"
+    },
+    "localTests": {
+      "engine-browser": 6,
+      "engine-database": 12,
+      "engine-email": 22,
+      "engine-enterprise": 2,
+      "engine-network": 4,
+      "n8n": 36,
+      "openapi": 284,
+      "engineTotal": 46,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "existingSQLiteDatetimeWarnings": 4
+    },
+    "staticChecks": {
+      "engineLockCheck": true,
+      "nodeInstall": true,
+      "nodeTypecheck": true,
+      "nodeLint": true,
+      "nodeBuild": true,
+      "nodePrettier": "passed with --end-of-line auto",
+      "actionlint": [
+        "main-ci.yml",
+        "integration-regression.yml"
+      ],
+      "ruff": "runner and changed browser test passed check and format with Engine configuration",
+      "gitDiffCheck": true
+    },
+    "historicalHostedCi": {
+      "commit": "4e26f0790cdaf65f0249be43ca7a15487cd05fd0",
+      "reviewDate": "2026-10-13",
+      "reference": "https://github.com/iflytek/astron-rpa/pull/879#issuecomment-6143263871",
+      "openapi": 284,
+      "engine": 45,
+      "n8n": 36,
+      "appliesToRebasedHead": false
+    },
+    "historicalLiveValidation": [
+      {
+        "date": "2026-09-20",
+        "evidenceKey": "browserServiceValidation",
+        "reportedOperations": 29
+      },
+      {
+        "date": "2026-10-10",
+        "evidenceKey": "browserServiceRebaseReview",
+        "reportedOperations": 19
+      }
+    ],
+    "currentLiveValidationPerformed": false,
+    "preMergeHostValidation": {
+      "owner": "bbdu3",
+      "role": "PR author",
+      "status": "pending",
+      "requiredEvidence": [
+        "Candidate commit and validation date",
+        "Current Windows client/plugin, OpenAPI and n8n versions and installed-source consistency",
+        "Default browser activation and explicit read-only mode on controlled active page",
+        "HTTP, SQLite, FTP, email and shared-variable reads with MCP and explicitly admitted REST",
+        "Original execution identity, idempotency, cancellation, timeout and resource cleanup",
+        "Execution receipts, actual operation coverage and explicit untested boundaries for maintainer review"
+      ]
+    },
+    "notValidated": [
+      "Current live Windows GUI/browser/plugin and n8n/server/client integration",
+      "Full client EXE build",
+      "Remote databases",
+      "Independent current live verification of all 29 operations",
+      "Other Engine groups",
+      "Full repository check: mingw32-make check stopped after prolonged frontend file enumeration; not passed"
+    ],
+    "cleanup": {
+      "reportsOutsideRepository": true,
+      "noDeploymentChanges": true,
+      "noGuiOperations": true,
+      "noCredentialExports": true
+    }
+  },
   "ciRegressionReview": {
     "date": "2026-10-12",
     "sourceCommit": "a200c867c4c5a705fdd8400ac0ef8c17224cd2be",

@@ -60,6 +60,11 @@ export const COMPONENT_COVERAGE: readonly ComponentCoverage[] = [
     note: "Read-only queries and local browser context; generators and element handles stay inside the workflow. Attribute reads and single-page extraction require reviewed switches; export, scripts and page interaction remain outside this group",
   },
   {
+    component: "astronverse-control",
+    groups: ["json-data"],
+    note: "Control-flow markers; nested operations still require their own capability review. This entry grants no service-read operations",
+  },
+  {
     component: "astronverse-cua",
     groups: ["desktop-ui", "ai-dynamic-risk"],
     note: "Computer-use and screen interaction",

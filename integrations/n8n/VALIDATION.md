@@ -1,6 +1,31 @@
 # n8n MCP 公共框架验收记录
 
-本文保留公共框架与各能力的历史验收记录。最近一次定向回归及 CI 接入核验见下节（2026-10-12）；历史联调分别见 `browserServiceValidation`（2026-09-20）和 `browserServiceRebaseReview`（2026-10-10），不代表当前代码已再次完成相同的真实环境验证。
+本文保留公共框架与各能力的历史验收记录。最近一次变基与定向回归见下节（2026-10-20）；此前 CI 接入核验为 2026-10-12。历史联调分别见 `browserServiceValidation`（2026-09-20）和 `browserServiceRebaseReview`（2026-10-10），不代表当前代码已再次完成相同的真实环境验证。
+
+## 浏览器与服务读取变基核验（2026-10-20）
+
+`browser-service` 从 `4e26f079` 变基到 main `59b576ed4fd22bf44bbe81ff1265cd2a75f9cb08`，保留本分支原有五个提交的工作范围。采用 main 的本地化元数据生成流程，未恢复已删除的 `engine/meta_json.py` 和已取消跟踪的浏览器 `meta.json`；`activate_window` 的中英文表单说明迁入 `locale`，默认激活兼容行为保持不变。Engine 锁文件保留 main 的依赖版本并合入数据库依赖，`uv lock --check --project engine` 通过。
+
+main 新增 `astronverse-control` 后，当前组件目录为 **26 个**。分类清单已补齐控制流组件，其嵌套操作仍须按实际能力审核；本次读取准入仍为 **5 个组件、29 项操作**，未新增读取权限。浏览器元数据回归扩展为中英文两种生成结果，验证开关标题、提示及默认值。
+
+| 检查 | 本轮本地结果 |
+| --- | --- |
+| OpenAPI 定向回归 | 284 项通过；4 个既有 SQLite datetime adapter 警告 |
+| Engine 五组 | browser 6、database 12、email 22、network 4、enterprise 2，合计 46 项通过；相对历史 45 项增加 1 个本地化元数据用例 |
+| n8n | 36 项通过；安装、类型检查、ESLint、Prettier（`--end-of-line auto`）及构建通过 |
+| 静态检查 | 两个 CI 工作流通过 actionlint；回归入口和修改的浏览器测试通过 Ruff 检查及格式检查（Engine 配置）；`git diff --check` 通过 |
+
+本轮使用仓库 CI 同一定向入口、Windows / Python 3.13.14 / Node.js 24.18.0，测试无失败或跳过，报告与临时环境放在仓库外。未同步或操作实际客户端、服务器和 n8n 宿主，未运行真实 GUI 或远程数据库。全仓 `mingw32-make check` 在递归枚举 frontend 文件阶段长时间未完成，已停止，不能记为通过。旧提交 `4e26f079` 的 GitHub CI 已真实通过 OpenAPI 284 项、Engine 45 项、n8n 36 项，见 2026-10-13 的 [PR 复审记录](https://github.com/iflytek/astron-rpa/pull/879#issuecomment-6143263871)；该结果不替代变基后提交的 CI。
+
+### 历史现场证据与合并前责任
+
+- **2026-09-20：**历史记录包含 29 项操作的执行覆盖，限当时的受控 Windows 环境和代码；不是当前分支全部 29 项的现场复验。
+- **2026-10-10：**历史变基联调覆盖 19 个不同操作（Browser 8、Database 3、Network 6、Email 1、Enterprise 1），使用现有 Windows 客户端同步源码、n8n 2.40.7 / Node.js 24.18.0 和自部署 HTTPS 服务，未重建完整 EXE。MCP/显式 REST、幂等、取消、期限及资源释放的证据按该日期保留。
+- **当前合并前检查责任人：PR 作者 `bbdu3`。状态：待完成。**由其在拟合并提交上核对当前 Windows 客户端/插件、服务端和 n8n 宿主的版本与安装文件一致性；验证浏览器默认激活与显式只读、受控活动页读取、HTTP/SQLite/FTP/邮件/共享变量读取，以及幂等、取消、超时和资源释放。执行后补录日期、提交号、实际覆盖操作和执行回执，再交由维护者复审；不将这份责任清单表述为已验收。
+
+完整 EXE 打包、远程数据库、其他 Engine 组及全部 29 项操作的当前独立现场复验仍未完成；若合并验收范围不包含其中某项，由 `bbdu3` 在上述检查记录中明确保留边界并由维护者确认，不能用历史联调或定向测试替代。当前结论限于管理员审核并绑定版本的受控读取契约及已列出的自动化回归，不代表整个多模块 PR 获得无条件批准。
+
+本轮结构化记录见 [validation-evidence.json](validation-evidence.json) 的 `browserServiceConflictReview`，此前记录保持原日期和适用范围。
 
 ## CI 定向回归核验（2026-10-12）
 
@@ -30,7 +55,7 @@ python .github/scripts/run-integration-regression.py engine --component <browser
 
 n8n 在 `integrations/n8n/n8n-nodes-astron-rpa` 执行 `npm ci`、`npm run typecheck`、`npm run lint`、`npm run format:check -- --end-of-line auto` 和 `npm test`。CI 使用同样的构建与测试命令，另输出 JUnit。换行参数兼容 Windows checkout 的 CRLF。此次 `npm ci` 输出 12 项 high 依赖审计告警，未改动依赖锁文件或将安装成功表述为安全审计通过。
 
-**覆盖边界：**本轮未实测 Windows GUI/浏览器插件、完整客户端 EXE、远程数据库或真实 n8n/服务器/客户端联调，未覆盖其他 Engine 组，也未重跑全仓 `make check`。准入清单中的 **29 个操作是能力清单数量，不是本次独立复验通过数**。历史联调记录仅保留为历史证据。GitHub 托管 CI 尚未运行（本轮按要求不提交、不推送）；本地同入口通过不能替代推送后 Ubuntu/Windows runner 的检查结果。
+**覆盖边界：**本轮未实测 Windows GUI/浏览器插件、完整客户端 EXE、远程数据库或真实 n8n/服务器/客户端联调，未覆盖其他 Engine 组，也未重跑全仓 `make check`。准入清单中的 **29 个操作是能力清单数量，不是本次独立复验通过数**。历史联调记录仅保留为历史证据。2026-10-12 形成本地记录时 GitHub 托管 CI 尚未运行（当时按要求不提交、不推送）；后续 `4e26f079` 的实际 CI 结果见上文，不能将旧提交的结果用于确认当前提交。
 
 ## 公共框架历史验收
 

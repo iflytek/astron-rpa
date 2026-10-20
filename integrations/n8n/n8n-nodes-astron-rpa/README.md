@@ -110,13 +110,13 @@ n8n-nodes-astron-rpa/
 |   |-- browser-service.ts       # 4.2-specific declaration checks
 |   `-- shared/
 |       |-- types.ts             # Wire identifiers and profile types
-|       |-- catalog.ts           # 25 components -> five peer plan groups
+|       |-- catalog.ts           # 26 components -> five peer capability groups
 |       `-- registry.ts           # Dispatch to the matching capability module
 |-- tests/
 `-- examples/
 ```
 
-`shared/catalog.ts` maps component operations to categories, not 25 components to 25 nodes or mutually exclusive categories. A component may span several groups. `CAPABILITY_GROUPS` records the exact plan section; group names describe source organization, while existing `capabilityClass` values remain unchanged on the wire.
+`shared/catalog.ts` maps component operations to categories; it does not create a separate node for each component. A component may span several groups. Control-flow markers do not grant access to the operations nested inside them. `CAPABILITY_GROUPS` records the exact plan section; group names describe source organization, while existing `capabilityClass` values remain unchanged on the wire.
 
 | Plan | Peer group / module            | Component coverage by operation                                                                                           |
 | ---- | ------------------------------ | ------------------------------------------------------------------------------------------------------------------------- |

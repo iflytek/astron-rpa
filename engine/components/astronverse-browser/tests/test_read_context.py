@@ -1,4 +1,5 @@
 import json
+from pathlib import Path
 from unittest.mock import Mock
 
 import pytest
@@ -33,12 +34,22 @@ def test_failed_activation_still_returns_browser_as_before(monkeypatch):
     assert method().browser_control is control
 
 
-def test_activation_switch_is_available_in_component_metadata():
+@pytest.mark.parametrize(
+    ("language", "title"),
+    [("zh_CN", "置顶并最大化窗口"), ("en_US", "Activate and maximize window")],
+)
+def test_activation_switch_is_available_in_localized_component_metadata(language, title):
     from astronverse.actionlib.atomic import atomicMg
+    from astronverse.actionlib.locale import apply_locale, load_locale
 
     atomicMg.register(BrowserSoftware)
-    inputs = json.loads(atomicMg.json())["BrowserSoftware.get_current_obj"]["inputList"]
+    locale = load_locale(language, Path(__file__).parents[1] / "locale")
+    metadata = apply_locale(json.loads(atomicMg.json()), locale)
+    inputs = metadata["BrowserSoftware.get_current_obj"]["inputList"]
     switch = next(p for p in inputs if p["key"] == "activate_window")
     assert switch["default"] is True
     assert switch["types"] == "Bool"
     assert switch["required"] is False
+    assert switch["title"] == title
+    assert switch["tip"] == locale["BrowserSoftware.get_current_obj"]["inputList"]["activate_window"]["tip"]
+    assert switch["tip"]
