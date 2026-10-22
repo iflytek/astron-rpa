@@ -4,7 +4,7 @@ import http.client
 import json
 import os
 
-import requests
+from astronverse.ai.api.http import request_json
 from astronverse.baseline.logger.logger import logger
 
 
@@ -32,34 +32,49 @@ class xcAgent:  # pylint: disable=invalid-name
         else:
             if file_flag:
                 # 上传文件
-                response = self.upload_file(file_path)
-                file_url = response.json()["data"]["url"]
+                file_url = self.upload_file(file_path)["data"]["url"]
                 parameters = {"AGENT_USER_INPUT": content, variable_name: file_url}
             else:
                 parameters = {"AGENT_USER_INPUT": content, variable_name: variable_value}
-        logger.info("parameters: {}".format(parameters))
+        return self._run(flow_id, parameters, is_stream)
 
-        data = {
-            "flow_id": flow_id,
-            "parameters": parameters,
-            "stream": is_stream,
-        }
-        payload = json.dumps(data)
+    def run_astron_flow(self, flow_id, is_stream, inputs):
+        parameters = {}
+        for item in inputs or []:
+            key, value = item["key"], item["value"]
+            if item.get("type") == "file":
+                value = self.upload_file(value)["data"]["url"]
+            parameters[key] = value
+        return self._run(flow_id, parameters, is_stream)
 
-        conn = http.client.HTTPSConnection("xingchen-api.xf-yun.com", timeout=600)
-        conn.request(
-            "POST",
-            "/workflow/v1/chat/completions",
-            payload,
-            self.headers,
-            encode_chunked=True,
-        )
-        res = conn.getresponse()
-
-        data = res.readline().decode("utf-8")
-        response_json = json.loads(data)
-        logger.info("response_json: {}".format(response_json))
-        return response_json["choices"][0]["delta"]["content"]
+    def _run(self, flow_id, parameters, is_stream):
+        conn = http.client.HTTPSConnection("xingchen-api.xf-yun.com", timeout=35)
+        try:
+            conn.request(
+                "POST",
+                "/workflow/v1/chat/completions",
+                json.dumps({"flow_id": flow_id, "parameters": parameters, "stream": is_stream}),
+                self.headers,
+            )
+            response = conn.getresponse()
+            if response.status != 200:
+                raise RuntimeError("AI_REQUEST_FAILED")
+            data = response.read(1024 * 1024 + 1)
+            if len(data) > 1024 * 1024:
+                raise RuntimeError("AI_RESPONSE_TOO_LARGE")
+            if is_stream:
+                parts = []
+                for line in data.decode("utf-8").splitlines():
+                    if line.startswith("data:") and line[5:].strip() != "[DONE]":
+                        parts.append(json.loads(line[5:])["choices"][0]["delta"].get("content", ""))
+                return "".join(parts)
+            result = json.loads(data)
+            choice = result["choices"][0]
+            return choice.get("message", choice.get("delta", {}))["content"]
+        except Exception:
+            raise RuntimeError("AI_REQUEST_FAILED") from None
+        finally:
+            conn.close()
 
     @staticmethod
     def get_content_type(file_path):
@@ -133,21 +148,12 @@ class xcAgent:  # pylint: disable=invalid-name
             # 构建files参数
             files = {"file": (file_name, f, content_type)}
 
-            try:
-                response = requests.post(
-                    "https://xingchen-api.xf-yun.com/workflow/v1/upload_file",
-                    files=files,
-                    headers=self.upload_headers,
-                    timeout=300,  # 5分钟超时，适应大文件
-                )
-
-                response.raise_for_status()
-                logger.info(f"上传成功: {response.json()}")
-                return response
-
-            except requests.exceptions.RequestException as e:
-                logger.info(f"上传失败: {e}")
-                raise
+            return request_json(
+                "POST",
+                "https://xingchen-api.xf-yun.com/workflow/v1/upload_file",
+                files=files,
+                headers=self.upload_headers,
+            )
 
 
 if __name__ == "__main__":

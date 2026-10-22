@@ -76,6 +76,9 @@ class ManagedExecution:
             for owner, execution_id, serialized in db.execute("SELECT owner,id,receipt FROM runs").fetchall():
                 receipt = json.loads(serialized)
                 if receipt["status"] not in TERMINAL:
+                    if receipt.get("error") == "EXECUTION_START_UNCONFIRMED" and receipt.get("runId") is None:
+                        # Keep the pre-bind failure evidence for _read below.
+                        continue
                     receipt.update(status="unknown", supportsCancel=False, error="CLIENT_RESTARTED")
                     db.execute(
                         "UPDATE runs SET receipt=? WHERE owner=? AND id=?", (json.dumps(receipt), owner, execution_id)
@@ -106,6 +109,21 @@ class ManagedExecution:
                 return None, None
             receipt = json.loads(row[1])
             key = (owner, execution_id)
+            if (
+                receipt["status"] == "unknown"
+                and receipt.get("error") == "EXECUTION_START_UNCONFIRMED"
+                and receipt.get("runId") is None
+                and key not in self.active
+            ):
+                # bind() durably records runId before process launch. Once the
+                # preparation worker has exited, absence proves zero launches.
+                # A bound but unconfirmed launch must remain unknown.
+                receipt.update(status="failed", error="EXECUTION_FAILED", finishedAt=now(), supportsCancel=False)
+                with self._db() as db:
+                    db.execute(
+                        "UPDATE runs SET receipt=? WHERE owner=? AND id=?",
+                        (json.dumps(receipt), owner, execution_id),
+                    )
             recover = (
                 receipt["status"] == "unknown"
                 and receipt.get("runId")
@@ -164,6 +182,7 @@ class ManagedExecution:
                 except Exception:
                     recovered.update(status="failed", result=None, error="FILE_TRANSFER_FAILED")
             receipt.update({key: recovered.get(key) for key in ("status", "result", "error", "finishedAt")})
+            receipt["supportsCancel"] = False
             receipt["startedAt"] = receipt.get("startedAt") or recovered["startedAt"]
             receipt["result"] = None if receipt.get("secretResult") else json_value(receipt["result"])
             if receipt["status"] == "cancelled" and receipt.get("stopReason") == "timeout":
@@ -239,6 +258,7 @@ class ManagedExecution:
                 "supportsCancel": True,
                 "fileTransferVersion": 1,
                 "desktopProtocolVersion": 1,
+                "riskProtocolVersion": 1,
                 "busy": self.manager.status()
                 or bool(self.active)
                 or bool(self.recovering)
@@ -371,6 +391,12 @@ class ManagedExecution:
                         path = self.result_path(owner, execution_id)
                         path.parent.mkdir(parents=True, exist_ok=True, mode=0o700)
                         instance.ins.set_param("managed_receipt", quote(str(path)))
+                        if payload.get("riskContract"):
+                            path.with_suffix(".risk.json").write_text(
+                                json.dumps(payload["riskContract"], allow_nan=False), encoding="utf-8"
+                            )
+                            instance.ins.set_param("managed_risk", "y")
+                            instance.ins.set_param("wait_tip_ws", "n")
                         if guard:
                             instance.ins.set_param("managed_desktop", "y")
                             # Managed forms have their own host. The designer's
@@ -459,6 +485,22 @@ class ManagedExecution:
                 if not alive and executor.report_log_time < 0:
                     if desktop_error:
                         self._change(owner, execution_id, status="failed", error=desktop_error)
+                    elif payload.get("riskContract"):
+                        # Risk runs redact business values and diagnostics from
+                        # reports. Their durable terminal receipt is authoritative.
+                        if stop_reason:
+                            self._change(owner, execution_id, status=stop_reason)
+                        else:
+                            _, current = self._read(owner, execution_id)
+                            recovered = self._recover_receipt(owner, execution_id, current)
+                            if recovered["status"] not in TERMINAL:
+                                self._change(
+                                    owner,
+                                    execution_id,
+                                    status="unknown",
+                                    error="EXECUTION_OBSERVATION_FAILED",
+                                    supportsCancel=False,
+                                )
                     elif executor.execute_status == ExecuteStatus.SUCCESS:
                         try:
                             result = json_value(executor.execute_data)
@@ -488,7 +530,16 @@ class ManagedExecution:
                     else:
                         code = (
                             executor.execute_reason
-                            if executor.execute_reason in ("UNSUPPORTED_RESULT", "DESKTOP_HUMAN_UNAVAILABLE")
+                            if executor.execute_reason
+                            in (
+                                "UNSUPPORTED_RESULT",
+                                "DESKTOP_HUMAN_UNAVAILABLE",
+                                "RISK_OPERATION_DENIED",
+                                "RISK_ARGUMENTS_DENIED",
+                                "RISK_CODE_DENIED",
+                                "RISK_CONTRACT_INVALID",
+                                "RISK_AUDIT_FAILED",
+                            )
                             else "EXECUTION_FAILED"
                         )
                         self._change(owner, execution_id, status="failed", error=code)

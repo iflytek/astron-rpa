@@ -21,10 +21,7 @@ export function safeFileName(value: unknown): string {
   return value;
 }
 
-export function validateFileContract(
-  profile: CapabilityProfile,
-  desktop = false,
-): void {
+export function validateFileBindings(profile: CapabilityProfile): void {
   const contract = object(profile.fileContract);
   const inputs = object(contract.inputs);
   const outputs = object(contract.outputs);
@@ -36,37 +33,17 @@ export function validateFileContract(
     !Object.entries(FILE_LIMITS).every(
       ([key, value]) => limits[key] === value,
     ) ||
-    !Array.isArray(profile.capabilities) ||
-    !profile.capabilities.includes(desktop ? "desktop-ui" : "office-file") ||
     !Array.isArray(operations) ||
     !operations.length ||
-    !operations.every(
-      (op) =>
-        typeof op === "string" &&
-        (OFFICE_FILE_OPERATIONS.has(op) ||
-          (desktop && DESKTOP_OPERATIONS.has(op))),
-    ) ||
     !Array.isArray(profile.allowedTransports) ||
     !profile.allowedTransports.length ||
     !profile.allowedTransports.every((v) => v === "mcp" || v === "rest") ||
     profile.fileInputs !== Object.keys(inputs).length > 0 ||
     profile.fileOutputs !== Object.keys(outputs).length > 0 ||
-    (!desktop && profile.requiresHuman !== false) ||
     profile.exclusiveTerminal !== true ||
-    !["low", "medium"].includes(String(profile.risk)) ||
     !Array.isArray(profile.sideEffects) ||
-    !profile.sideEffects.every((v) =>
-      [
-        "workspace-files",
-        "external-file-transfer",
-        ...(desktop ? ["desktop-interaction"] : []),
-      ].includes(v),
-    ) ||
     (Object.keys(outputs).length > 0 &&
       !profile.sideEffects.includes("workspace-files")) ||
-    profile.requiresGui !==
-      (desktop ||
-        operations.some((op) => /^(Excel\.|Docx\.|Browser)/.test(op))) ||
     Object.keys(inputs).length + Object.keys(outputs).length < 1 ||
     Object.keys(inputs).length + Object.keys(outputs).length >
       FILE_LIMITS.maxFiles ||
@@ -102,6 +79,35 @@ export function validateFileContract(
   if (
     new Set(Object.values(outputs).map((name) => String(name).toLowerCase()))
       .size !== Object.keys(outputs).length
+  )
+    throw new AstronError("FILE_CONTRACT_INVALID");
+}
+
+export function validateFileContract(
+  profile: CapabilityProfile,
+  desktop = false,
+): void {
+  validateFileBindings(profile);
+  const operations = profile.componentOperations as string[];
+  if (
+    !Array.isArray(profile.capabilities) ||
+    !profile.capabilities.includes(desktop ? "desktop-ui" : "office-file") ||
+    !operations.every(
+      (op) =>
+        OFFICE_FILE_OPERATIONS.has(op) ||
+        (desktop && DESKTOP_OPERATIONS.has(op)),
+    ) ||
+    (!desktop && profile.requiresHuman !== false) ||
+    !["low", "medium"].includes(String(profile.risk)) ||
+    !(profile.sideEffects as string[]).every((v) =>
+      [
+        "workspace-files",
+        "external-file-transfer",
+        ...(desktop ? ["desktop-interaction"] : []),
+      ].includes(v),
+    ) ||
+    profile.requiresGui !==
+      (desktop || operations.some((op) => /^(Excel\.|Docx\.|Browser)/.test(op)))
   )
     throw new AstronError("FILE_CONTRACT_INVALID");
 }

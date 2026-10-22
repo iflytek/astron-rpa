@@ -21,6 +21,7 @@ export interface ComponentCoverage {
   serviceReadOperations?: readonly string[];
   officeFileOperations?: readonly string[];
   desktopOperations?: readonly string[];
+  riskOperations?: readonly string[];
   note: string;
 }
 
@@ -33,11 +34,33 @@ export interface ComponentCoverage {
 export const COMPONENT_COVERAGE: readonly ComponentCoverage[] = [
   {
     component: "astronverse-ai",
+    riskOperations: [
+      "Agent.call_astron_agent",
+      "Agent.call_dify",
+      "Agent.call_dify_chatflow",
+      "Agent.call_xcagent",
+      "ChatAI.chat",
+      "ChatAI.knowledge_chat",
+      "ChatAI.single_turn_chat",
+      "ContractAI.get_factors",
+      "DocumentAI.sentence_expand",
+      "DocumentAI.sentence_reduce",
+      "DocumentAI.theme_expand",
+      "RecruitAI.generate_keywords",
+      "RecruitAI.rating_resume",
+      "SemanticAI.choose",
+    ],
     groups: ["ai-dynamic-risk"],
     note: "AI and external-agent calls",
   },
   {
     component: "astronverse-browser",
+    riskOperations: [
+      "BrowserScript.js_run",
+      "BrowserSoftware.browser_close",
+      "BrowserSoftware.empty_cookies",
+      "BrowserSoftware.set_cookies",
+    ],
     desktopOperations: [
       "BrowserElement.click",
       "BrowserElement.create_element",
@@ -123,11 +146,19 @@ export const COMPONENT_COVERAGE: readonly ComponentCoverage[] = [
   },
   {
     component: "astronverse-cua",
+    riskOperations: [
+      "ComputerUse.custom_action_screen",
+      "ComputerUse.extract_data",
+      "ComputerUse.fill_form",
+      "ComputerUse.process_captcha",
+      "ComputerUse.run",
+    ],
     groups: ["desktop-ui", "ai-dynamic-risk"],
     note: "Computer-use and screen interaction",
   },
   {
     component: "astronverse-database",
+    riskOperations: ["Database.execute_sql"],
     groups: ["browser-service", "ai-dynamic-risk"],
     serviceReadOperations: [
       "Database.connect_database",
@@ -163,6 +194,7 @@ export const COMPONENT_COVERAGE: readonly ComponentCoverage[] = [
   },
   {
     component: "astronverse-email",
+    riskOperations: ["Email.send_email"],
     officeFileOperations: ["Email.receive_email"],
     groups: ["browser-service", "office-file", "ai-dynamic-risk"],
     serviceReadOperations: ["Email.receive_email"],
@@ -175,6 +207,11 @@ export const COMPONENT_COVERAGE: readonly ComponentCoverage[] = [
   },
   {
     component: "astronverse-enterprise",
+    riskOperations: [
+      "Enterprise.download_from_sharefolder",
+      "Enterprise.get_shared_variable",
+      "Enterprise.upload_to_sharefolder",
+    ],
     officeFileOperations: [
       "Enterprise.download_from_sharefolder",
       "Enterprise.upload_to_sharefolder",
@@ -239,6 +276,12 @@ export const COMPONENT_COVERAGE: readonly ComponentCoverage[] = [
   },
   {
     component: "astronverse-network",
+    riskOperations: [
+      "Network.create_folder",
+      "Network.ftp_delete",
+      "Network.ftp_rename",
+      "Network.http_request",
+    ],
     officeFileOperations: [
       "Network.ftp_close",
       "Network.ftp_create",
@@ -293,22 +336,32 @@ export const COMPONENT_COVERAGE: readonly ComponentCoverage[] = [
   },
   {
     component: "astronverse-script",
+    riskOperations: ["Script.component", "Script.module", "Script.process"],
     groups: ["json-data", "ai-dynamic-risk"],
     note: "Only reviewed scripts can remain 4.1",
   },
   {
     component: "astronverse-smart",
+    riskOperations: ["Smart.run_code"],
     groups: ["ai-dynamic-risk"],
     note: "Dynamic code execution",
   },
   {
     component: "astronverse-software",
+    riskOperations: ["Software.close", "Software.cmd"],
     desktopOperations: ["Software.open"],
     groups: ["desktop-ui", "ai-dynamic-risk"],
     note: "Reviewed program launch; close kills every matching process name and is not admitted",
   },
   {
     component: "astronverse-system",
+    riskOperations: [
+      "System.run_command",
+      "System.terminate_process",
+      "System.printer",
+      "System.screen_lock",
+      "System.screen_unlock",
+    ],
     desktopOperations: [
       "Clipboard.clear_clip",
       "Clipboard.copy_clip",
@@ -342,11 +395,16 @@ export const COMPONENT_COVERAGE: readonly ComponentCoverage[] = [
       "Folder.folder_rename",
       "Folder.get_folder_list",
     ],
-    groups: ["office-file", "desktop-ui"],
+    groups: ["office-file", "desktop-ui", "ai-dynamic-risk"],
     note: "Files, processes and desktop state",
   },
   {
     component: "astronverse-verifycode",
+    riskOperations: [
+      "VerifyCode.click_code",
+      "VerifyCode.picture_code",
+      "VerifyCode.slider_code",
+    ],
     groups: ["desktop-ui", "ai-dynamic-risk"],
     note: "Captcha and human/vision interaction",
   },

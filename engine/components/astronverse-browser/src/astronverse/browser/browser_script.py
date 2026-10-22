@@ -79,6 +79,9 @@ class BrowserScript:
                 content = f.read()
         if not content:
             raise BaseException(CODE_EMPTY, f"脚本数据为空 {input_type} {content} {file_path}")
+        from astronverse.actionlib.managed_risk import check_code
+
+        check_code(content.encode("utf-8"))
         if "function main" not in content:
             raise BaseException(CODE_NO_MAIN_FUNC, "代码中必须包含main函数")
         is_await = False

@@ -247,7 +247,7 @@ class TestTimeProcess(unittest.TestCase):
         time_2.time = datetime(2023, 12, 25, 10, 30, 30)
 
         # 测试无效的时间单位
-        with self.assertRaises(NotImplementedError):
+        with self.assertRaises(ValueError):
             TimeProcess.get_time_difference(time_1=time_1, time_2=time_2, time_unit="INVALID_UNIT")
 
     def test_set_time_edge_cases(self):

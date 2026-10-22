@@ -1,11 +1,25 @@
 import unittest
 
+import pytest
 from astronverse.dataprocess import DeleteMethodType, InsertMethodType, ListType, SortMethodType
 from astronverse.dataprocess.list import ListProcess
 
 
 class TestListProcess(unittest.TestCase):
     """ListProcess类的测试用例"""
+
+    def test_multiple_indices_normalize_negative_and_duplicate_positions(self):
+        values = [0, 1, 2, 3, 4]
+        result = ListProcess.remove_value_from_list(
+            list_data=values, del_mode=DeleteMethodType.INDEX, del_pos="0,-1,4,0,2"
+        )
+        assert result == [1, 3]
+
+    def test_invalid_index_does_not_partially_delete(self):
+        values = [0, 1, 2]
+        with pytest.raises(ValueError):
+            ListProcess.remove_value_from_list(list_data=values, del_mode=DeleteMethodType.INDEX, del_pos="0,4")
+        assert values == [0, 1, 2]
 
     def setUp(self):
         """测试前的准备工作"""
@@ -26,12 +40,12 @@ class TestListProcess(unittest.TestCase):
     def test_create_new_list_user_defined(self):
         """测试创建用户自定义列表"""
         custom_list = [1, 2, 3, 4, 5]
-        result = ListProcess.create_new_list(list_type=ListType.USER_DEFINED, value=custom_list)
+        result = ListProcess.create_new_list(list_type=ListType.USER_DEFINED, custom_list=custom_list)
         self.assertEqual(result, custom_list)
 
     def test_create_new_list_with_string_format(self):
         """测试使用字符串格式创建列表"""
-        result = ListProcess.create_new_list(list_type=ListType.USER_DEFINED, value="[1, 2, 3, 4, 5]")
+        result = ListProcess.create_new_list(list_type=ListType.USER_DEFINED, custom_list="[1, 2, 3, 4, 5]")
         self.assertEqual(result, [1, 2, 3, 4, 5])
 
     def test_clear_list(self):

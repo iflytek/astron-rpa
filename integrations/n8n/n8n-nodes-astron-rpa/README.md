@@ -95,6 +95,8 @@ Configure the published RPA workflow for the capability it declares:
 
 Use **Get Workflow** before execution and verify `profile.capabilityClass` is `json-data`, `profile.admission.allowed` is `true`, and the returned `inputSchema` matches the data being sent. JSON values preserve `0`, `false`, `null`, arrays and nested objects. Unknown fields, non-finite numbers, runtime objects, file values and values over the published limits are rejected before dispatch.
 
+JSON-data declarations require `risk: "low"`, an empty `sideEffects` list, and `fileInputs`, `fileOutputs`, `requiresGui` and `requiresHuman` all set to `false`. A workflow needing any of those capabilities must use its corresponding reviewed category; JSON-shaped inputs and results alone do not qualify it as a data workflow.
+
 The result remains one JSON value under `result`; arrays are not expanded into n8n items. An optional declared `outputSchema` documents the result shape, but it does not enable file, GUI or runtime-object capabilities. Browser/service reads use their own peer capability module and declaration.
 
 ### Office and file workflows
@@ -128,6 +130,14 @@ Model-driven `ComputerUse` actions, CAPTCHA automation, JavaScript/command execu
 
 Common environment failures are `DESKTOP_UNAVAILABLE`, `DESKTOP_LOCKED`, `DESKTOP_SESSION_CHANGED`, `DESKTOP_RESOLUTION_MISMATCH`, `DESKTOP_SOFTWARE_UNAVAILABLE`, `DESKTOP_HUMAN_UNAVAILABLE` and `DESKTOP_POPUP_BLOCKED`. A client without the desktop protocol is rejected with `CLIENT_DESKTOP_PROTOCOL_UNSUPPORTED`. Correct the environment before deliberately starting a new execution; reuse the original key only to observe the original receipt.
 
+## AI, code and high-risk workflows
+
+`ai-dynamic-risk` uses the same execution node and MCP lifecycle. An administrator must review the published version, declare its operations and risk levels, and approve each exact request in the server's private integration policy. Supply an explicit **Idempotency Key** and an **RPA Execution Timeout** of 1–3,600 seconds. Approval binds the owner, release, declaration revision, bound input values, key and timeout; a caller cannot grant approval through node parameters. REST is available only when explicitly declared.
+
+Both input and output are bounded JSON, with an explicit frozen output schema. The client checks the operation allowlist, call count and reviewed argument hashes. Published code must match approved source hashes; generated code cannot be executed just because a model returned it. Model output used by a write operation must match that operation's reviewed arguments. Audits contain identifiers, hashes and outcomes, without prompts, credentials or code bodies. Secret-input results remain suppressed. n8n's own execution-data retention settings still apply.
+
+Mixed workflows also need the shared file contract and/or desktop environment contract. Autonomous computer-use/captcha operations, desktop unlock and designer-dependent multi-turn/knowledge chat remain denied. Review is for trusted published Python and its dependencies; this is not an arbitrary-code sandbox. See the server README's **AI, dynamic code and high-risk workflows** section for policy configuration and approval hashes.
+
 ## Capability layout
 
 The node invokes published workflows through the common transport and execution framework. Capability modules are peers and validate declarations; they do not call Engine components directly or inherit another category's validator.
@@ -144,10 +154,12 @@ n8n-nodes-astron-rpa/
 |   |-- browser-service.ts       # Browser/service read declaration checks
 |   |-- office-file.ts           # Office/file declaration checks
 |   |-- desktop-ui.ts            # Desktop/UI declaration checks
+|   |-- ai-dynamic-risk.ts       # Exact-request approval contract checks
 |   `-- shared/
 |       |-- types.ts             # Wire identifiers and profile types
 |       |-- catalog.ts           # 26 components -> five peer capability groups
 |       |-- file-contract.ts     # Shared file constraints for mixed workflows
+|       |-- desktop-contract.ts  # Shared desktop environment constraints
 |       `-- registry.ts           # Dispatch to the matching capability module
 |-- tests/
 `-- examples/
@@ -155,15 +167,15 @@ n8n-nodes-astron-rpa/
 
 `shared/catalog.ts` maps component operations to categories; it does not create a separate node for each component. A component may span several groups. Control-flow markers do not grant access to the operations nested inside them. Group names describe source organization; `capabilityClass` identifies the wire contract.
 
-| Peer group / module            | Component coverage by operation                                                                                                 |
-| ------------------------------ | ------------------------------------------------------------------------------------------------------------------------------- |
-| `json-data.ts`                 | dataprocess, datatable, encrypt, report, reviewed script                                                                        |
-| `browser-service.ts`           | browser, network, database, email, enterprise reads                                                                             |
-| `office-file.ts`               | datatable, browser, email, enterprise, excel, network, openapi, pdf, system, word file operations                               |
-| `desktop-ui.ts`                | reviewed browser, dialog, input, software, system, vision, window and winelement operations; model-driven actions remain closed |
-| `ai-dynamic-risk.ts` (planned) | ai, browser, cua, database, email, enterprise, network, script, smart, verifycode, vision dynamic or high-risk operations       |
+| Peer group / module  | Component coverage by operation                                                                                                 |
+| -------------------- | ------------------------------------------------------------------------------------------------------------------------------- |
+| `json-data.ts`       | dataprocess, datatable, encrypt, report, reviewed script                                                                        |
+| `browser-service.ts` | browser, network, database, email, enterprise reads                                                                             |
+| `office-file.ts`     | datatable, browser, email, enterprise, excel, network, openapi, pdf, system, word file operations                               |
+| `desktop-ui.ts`      | reviewed browser, dialog, input, software, system, vision, window and winelement operations; model-driven actions remain closed |
+| `ai-dynamic-risk.ts` | reviewed AI, code and high-risk combinations; the catalog also identifies operations deliberately denied                        |
 
-Future modules belong beside `json-data.ts` and `browser-service.ts`, use the shared registry and common framework, and do not import a previous category's implementation. Planned names are documentation only; no empty modules or unsupported handlers are registered. Catalog coverage is an inventory, not a claim that every listed operation has been implemented or verified. Shared utilities should stay neutral; server/client defects belong in their original modules.
+Capability modules are peers, use the shared registry and common framework, and do not import another category's implementation. Catalog coverage is an inventory, not a claim that every listed operation has been implemented or verified. Shared utilities stay neutral; server/client defects belong in their original modules.
 
 For JSON-data executions, the service freezes the output schema and JSON limits at acceptance and checks successful results before persistence. A result over the byte limit or outside the schema becomes `failed / UNSUPPORTED_RESULT`, with no business payload stored. The byte limit measures the compact UTF-8 encoding of the business result; execution IDs, status and other envelope fields do not consume its allowance. The node validates result values separately from that metadata, so an exact 1 MiB result remains readable.
 

@@ -187,8 +187,18 @@ class ToolsConfig:
     async def get_tools_for_user(self, user_id: str) -> list[types.Tool]:
         """获取用户可用的工具配置列表"""
         user_workflows = await self.get_user_workflows(user_id)
+        from app.services.integration_policy import load_policy
+
+        # Legacy dynamic tools have no explicit business key / approval workflow.
+        blocked = {
+            (d.projectId, d.version)
+            for d in load_policy().declarations
+            if d.userId == user_id and d.capabilityClass == "ai-dynamic-risk"
+        }
         user_tools = []
         for workflow in user_workflows:
+            if (workflow.get("project_id"), workflow.get("version")) in blocked:
+                continue
             try:
                 user_tools.append(self.workflow_to_tool(workflow))
             except WorkflowAccessError:

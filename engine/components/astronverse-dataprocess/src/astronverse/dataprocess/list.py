@@ -251,9 +251,9 @@ class ListProcess:
         if del_mode == DeleteMethodType.INDEX:
             if isinstance(del_pos_int, list):
                 # 从大到小排序索引，避免删除时索引变化
-                sorted_indices = sorted(del_pos, reverse=True)
+                sorted_indices = sorted({index % len(list_data) for index in del_pos_int}, reverse=True)
                 for index in sorted_indices:
-                    del list_data[int(index)]
+                    del list_data[index]
             else:
                 del list_data[del_pos_int]
             return list_data

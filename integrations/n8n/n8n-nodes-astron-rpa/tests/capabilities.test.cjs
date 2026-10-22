@@ -25,16 +25,24 @@ const base = {
   requiresHuman: false,
 };
 
+const jsonProfile = {
+  capabilityClass: "json-data",
+  capabilities: ["json-data"],
+  jsonLimits: { ...JSON_LIMITS },
+  fileInputs: false,
+  fileOutputs: false,
+  requiresGui: false,
+  requiresHuman: false,
+  risk: "low",
+  sideEffects: [],
+};
+
 test("service capability profiles preserve operation and transport declarations", () => {
   assert.deepEqual(validateCapabilityProfile(base), base);
 });
 
 test("peer capability groups validate independently without another group's fields", () => {
-  const json = {
-    capabilityClass: "json-data",
-    capabilities: ["json-data"],
-    jsonLimits: { ...JSON_LIMITS },
-  };
+  const json = structuredClone(jsonProfile);
   assert.deepEqual(validateCapabilityProfile(json), json);
   assert.throws(
     () => validateCapabilityProfile({ ...json, capabilities: [] }),
@@ -132,17 +140,33 @@ test("the operation inventory covers every Engine component directory", () => {
 });
 
 test("json-data profiles enforce the same bounded contract", () => {
-  const profile = {
-    capabilityClass: "json-data",
-    capabilities: ["json-data"],
-    jsonLimits: { ...JSON_LIMITS },
-  };
+  const profile = structuredClone(jsonProfile);
   assert.equal(validateCapabilityProfile(profile).capabilityClass, "json-data");
   profile.jsonLimits.maxDepth++;
   assert.throws(
     () => validateCapabilityProfile(profile),
     (error) => error.code === "CAPABILITY_UNSUPPORTED",
   );
+});
+
+test("json-data rejects file, interactive and higher-risk declarations", () => {
+  for (const changes of [
+    { fileInputs: true },
+    { fileOutputs: true },
+    { requiresGui: true },
+    { requiresHuman: true },
+    { requiresHuman: undefined },
+    { risk: "medium" },
+    { risk: "high" },
+    { risk: undefined },
+    { sideEffects: ["external-write"] },
+    { sideEffects: undefined },
+  ]) {
+    assert.throws(
+      () => validateCapabilityProfile({ ...jsonProfile, ...changes }),
+      /CAPABILITY_UNSUPPORTED/,
+    );
+  }
 });
 
 test("read capabilities reject unreviewed contracts and declared side effects", () => {

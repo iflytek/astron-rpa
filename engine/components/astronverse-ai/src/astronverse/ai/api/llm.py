@@ -6,6 +6,7 @@ from typing import Any
 import requests
 import sseclient
 from astronverse.actionlib.atomic import atomicMg
+from astronverse.ai.api.http import request_json
 from astronverse.ai.error import *
 from astronverse.baseline.logger.logger import logger
 
@@ -37,16 +38,19 @@ def chat_streamable(messages: Any, model: str = DEFAULT_MODEL):
     """
     chat_json = {"messages": messages, "model": model, "stream": True}
 
-    response = requests.post(API_URL, json=chat_json)
-    if response.status_code == 200:
-        client = sseclient.SSEClient(response)  # type: ignore
-        for event in client.events():
-            if event.data and event.data != "[DONE]":
-                response_json = json.loads(event.data)
-                if response_json.get("choices"):
-                    yield response_json["choices"][0]["delta"]["content"]
-    else:
-        raise BaseException(LLM_NO_RESPONSE_ERROR.format(response), "")
+    response = requests.post(API_URL, json=chat_json, timeout=(5, 35), stream=True)
+    try:
+        if response.status_code == 200:
+            client = sseclient.SSEClient(response)  # type: ignore
+            for event in client.events():
+                if event.data and event.data != "[DONE]":
+                    response_json = json.loads(event.data)
+                    if response_json.get("choices"):
+                        yield response_json["choices"][0]["delta"]["content"]
+        else:
+            raise BaseException(LLM_NO_RESPONSE_ERROR.format(response), "")
+    finally:
+        response.close()
 
 
 def chat_normal(user_input, system_input="", model=DEFAULT_MODEL):
@@ -62,11 +66,7 @@ def chat_normal(user_input, system_input="", model=DEFAULT_MODEL):
 
     try:
         # 发送 API 请求
-        response = requests.post(API_URL, json=data)
-        response.raise_for_status()  # 检查请求是否成功
-
-        # 返回模型生成的回复
-        response_json = response.json()
+        response_json = request_json("POST", API_URL, json=data)
 
         # 兼容两种响应格式
         if "data" in response_json and "choices" in response_json["data"]:
@@ -79,7 +79,7 @@ def chat_normal(user_input, system_input="", model=DEFAULT_MODEL):
             raise ValueError("未知的响应格式")
 
     except requests.exceptions.RequestException as e:
-        logger.info(f"请求错误: {e}")
+        logger.info("AI request failed")
         return None
     except KeyError:
         logger.info("响应格式不正确")
@@ -96,15 +96,11 @@ def chat_prompt(prompt_type, params, model=DEFAULT_MODEL):
 
     try:
         # 发送 API 请求
-        response = requests.post(PROMPT_URL, json=data)
-        response.raise_for_status()  # 检查请求是否成功
-
-        # 返回模型生成的回复
-        response_json = response.json()
+        response_json = request_json("POST", PROMPT_URL, json=data)
         return response_json["data"]
 
     except requests.exceptions.RequestException as e:
-        print(f"请求错误: {e}")
+        logger.info("AI request failed")
         return None
     except KeyError:
         print("响应格式不正确")

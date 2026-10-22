@@ -12,6 +12,7 @@ CAPABILITY_CLASSES = (
     "service-shared-read",
     "office-file",
     "desktop-ui",
+    "ai-dynamic-risk",
 )
 
 SERVICE_READ_CLASSES = frozenset(
@@ -67,4 +68,5 @@ CapabilityClass = Literal[
     "service-shared-read",
     "office-file",
     "desktop-ui",
+    "ai-dynamic-risk",
 ]

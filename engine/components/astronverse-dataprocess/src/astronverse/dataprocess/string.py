@@ -234,7 +234,7 @@ class StringProcess:
         if fill_type == FillStringType.LEFT:  # 左端补齐
             result_str = (add_str * n)[0 : total_length_int - len(string_data)] + string_data
         elif fill_type == FillStringType.RIGHT:  # 右端补齐
-            result_str = (string_data + add_str * n)[0:total_length]
+            result_str = (string_data + add_str * n)[0:total_length_int]
         return result_str
 
     @staticmethod

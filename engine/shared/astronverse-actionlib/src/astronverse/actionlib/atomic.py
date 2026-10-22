@@ -116,6 +116,9 @@ class AtomicManager:
 
         info = kwargs.get("__info__", [])
         if not info:
+            from astronverse.actionlib.managed_risk import check_operation
+
+            check_operation(func, key, args, base_kwargs)
             # 不是用原子能力调用，而是直接调用，不做处理
             return func(*args, **base_kwargs, **advance_kwargs)
 
@@ -170,7 +173,12 @@ class AtomicManager:
             sig = inspect.signature(func)
             base_kwargs = {k: v for k, v in base_kwargs.items() if k in set(sig.parameters.keys())}
 
+        from astronverse.actionlib.managed_risk import active, check_operation
+
+        check_operation(func, key, args, base_kwargs)
         res = func(*args, **base_kwargs, **advance_kwargs)
+        if active():
+            res_print = False
         if res_print and has_result:
             report.info(
                 ReportCode(

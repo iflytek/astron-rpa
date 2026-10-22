@@ -28,6 +28,11 @@ CLIENT_STATES = {
     "unknown": "UNKNOWN",
 }
 ERRORS = {
+    "RISK_OPERATION_DENIED",
+    "RISK_ARGUMENTS_DENIED",
+    "RISK_CODE_DENIED",
+    "RISK_AUDIT_FAILED",
+    "RISK_CONTRACT_INVALID",
     "CLIENT_BUSY",
     "CLIENT_OFFLINE",
     "EXECUTION_FAILED",
@@ -249,6 +254,7 @@ async def reconcile(service, record):
                     "secretFields": json.loads(record.secret_fields or "[]"),
                     **({"fileBundle": bundle} if bundle else {}),
                     **({"desktopContract": contract["desktopContract"]} if contract.get("desktopContract") else {}),
+                    **({"riskContract": contract["riskContract"]} if contract.get("riskContract") else {}),
                 },
             )
     try:

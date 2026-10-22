@@ -31,10 +31,7 @@ def transfer_url():
     return value
 
 
-def validate_file_review(declaration, schema, params=None, *, desktop=False):
-    from app.schemas.desktop_ui import DESKTOP_OPERATIONS
-
-    allowed_operations = OFFICE_FILE_OPERATIONS | (DESKTOP_OPERATIONS if desktop else set())
+def validate_file_contract(declaration, schema, params=None):
     contract, review = declaration.fileContract, declaration.fileReview
     if (
         not isinstance(contract, dict)
@@ -49,19 +46,11 @@ def validate_file_review(declaration, schema, params=None, *, desktop=False):
         or declaration.fileInputs != bool(contract["inputs"])
         or declaration.fileOutputs != bool(contract["outputs"])
         or not declaration.allowedTransports
-        or (not desktop and declaration.requiresHuman is not False)
         or declaration.exclusiveTerminal is not True
-        or declaration.risk not in {"low", "medium"}
         or not isinstance(declaration.sideEffects, list)
-        or not set(declaration.sideEffects)
-        <= ({"workspace-files", "external-file-transfer"} | ({"desktop-interaction"} if desktop else set()))
         or (contract["outputs"] and "workspace-files" not in declaration.sideEffects)
         or not declaration.componentOperations
-        or not set(declaration.componentOperations) <= allowed_operations
     ):
-        deny("FILE_CONTRACT_INVALID")
-    gui = desktop or any(op.startswith(("Excel.", "Docx.", "Browser")) for op in declaration.componentOperations)
-    if declaration.requiresGui is not gui:
         deny("FILE_CONTRACT_INVALID")
     external = any(
         op.startswith(("Network.", "Enterprise.", "OpenApi.", "Email."))
@@ -110,6 +99,23 @@ def validate_file_review(declaration, schema, params=None, *, desktop=False):
     if len({name.casefold() for name in contract["outputs"].values()}) != len(contract["outputs"]):
         deny("FILE_CONTRACT_INVALID")
     transfer_url()
+
+
+def validate_file_review(declaration, schema, params=None, *, desktop=False):
+    from app.schemas.desktop_ui import DESKTOP_OPERATIONS
+
+    allowed_operations = OFFICE_FILE_OPERATIONS | (DESKTOP_OPERATIONS if desktop else set())
+    validate_file_contract(declaration, schema, params)
+    if (
+        (not desktop and declaration.requiresHuman is not False)
+        or declaration.risk not in {"low", "medium"}
+        or not set(declaration.sideEffects)
+        <= ({"workspace-files", "external-file-transfer"} | ({"desktop-interaction"} if desktop else set()))
+        or not set(declaration.componentOperations) <= allowed_operations
+        or declaration.requiresGui
+        is not (desktop or any(op.startswith(("Excel.", "Docx.", "Browser")) for op in declaration.componentOperations))
+    ):
+        deny("FILE_CONTRACT_INVALID")
 
 
 async def authorize_file(row, owner, service):

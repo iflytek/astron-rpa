@@ -18,6 +18,7 @@ OPENAPI_TESTS = [
     "test_mcp_modern.py",
     "test_office_file.py",
     "test_desktop_ui.py",
+    "test_ai_dynamic_risk.py",
     "test_schema_readiness.py",
     "test_sensitive_logging.py",
     "test_service_read.py",
@@ -26,6 +27,18 @@ OPENAPI_TESTS = [
     "test_workflow_schema.py",
 ]
 ENGINE_TESTS = {
+    "dataprocess": [
+        "test_data.py",
+        "test_dataconvert.py",
+        "test_dict.py",
+        "test_list.py",
+        "test_math.py",
+        "test_string.py",
+        "test_time.py",
+    ],
+    "encrypt": ["test_encrypt.py"],
+    "risk": ["test_managed_risk.py"],
+    "ai": ["test_managed_http.py"],
     "browser": ["test_read_context.py"],
     "database": ["test_query.py"],
     "email": ["test_receive_email.py", "test_core_imap4_receive.py"],
@@ -136,6 +149,8 @@ def main():
             component = ROOT / "engine/components" / f"astronverse-{args.component}"
             if args.component in {"files", "desktop"}:
                 component = ROOT / "engine/servers/astronverse-scheduler"
+            if args.component == "risk":
+                component = ROOT / "engine/shared/astronverse-actionlib"
             sources = [
                 component / "src",
                 ROOT / "engine/shared/astronverse-actionlib/src",
@@ -155,6 +170,10 @@ def main():
                 dependencies.extend(["pyzipper", "py7zr"])
             if args.component == "datatable":
                 dependencies.append("openpyxl")
+            if args.component == "dataprocess":
+                dependencies.append("numpy")
+            if args.component == "encrypt":
+                dependencies.append("pycryptodomex")
             if args.component == "vision":
                 dependencies.extend(["opencv-python", "numpy", "pyautogui", "pillow"])
             # Reuse the committed Engine versions without resolving its full GUI/EXE graph

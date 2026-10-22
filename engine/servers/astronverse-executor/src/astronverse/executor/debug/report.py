@@ -55,7 +55,7 @@ class Report(IReport):
             return obj.__dict__
 
     def __send__(self, filtered_dict):
-        if getattr(self.svc.conf, "external_secrets", False):
+        if getattr(self.svc.conf, "external_secrets", False) or getattr(self.svc.conf, "managed_risk", False):
             filtered_dict = {
                 key: value
                 for key, value in filtered_dict.items()

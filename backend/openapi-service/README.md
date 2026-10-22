@@ -378,6 +378,54 @@ Dialog operations require `requiresHuman: true` and `humanMode: "attended"`. Man
 
 The client checks session availability, lock state, primary-screen resolution and installed programs before launching, then checks session/resolution and unexpected owned popups every 500 ms. Reserve the interactive terminal; periodic checks cannot prevent all GUI races. A detected environment loss requests precise cancellation and becomes a safe desktop error only after the process stops. Unconfirmed stops remain unknown. Reconnection/restart observes the original execution and never replays desktop side effects. The exclusive slot remains occupied during active execution, recovery and resource cleanup; there is no task queue.
 
+#### AI, dynamic code and high-risk workflows
+
+Use `capabilityClass: "ai-dynamic-risk"`, `capabilities: ["ai-dynamic-risk"]`, an explicit `outputSchema`, `exclusiveTerminal: true`, `requiresHuman: false` and `risk: "medium"` or `"high"`. Human approval is supplied by an administrator before the request, not by a caller-controlled confirmation flag or a desktop dialog. The client must advertise `riskProtocolVersion: 1`. The public contract is:
+
+```json
+{"riskContract":{"version":1,"approvalMode":"admin-exact-request","automaticExecution":false}}
+```
+
+The same declaration needs a private `riskReview`:
+
+```json
+{
+  "version": 1,
+  "trustedRelease": true,
+  "sensitiveDataReviewed": true,
+  "destinationsReviewed": true,
+  "resourcesReleased": true,
+  "maxOperations": 20,
+  "operations": {
+    "ChatAI.single_turn_chat": {"risk":"medium","argumentHashes":[]}
+  },
+  "codeHashes": [],
+  "approvals": [{
+    "id":"request-approval-id",
+    "approvedBy":"administrator-id",
+    "paramsHash":"<SHA-256 of bound input JSON>",
+    "keyHash":"<SHA-256 of JSON-encoded business key>",
+    "executionTimeout":60,
+    "issuedAt":1792627200,
+    "expiresAt":1792630800
+  }]
+}
+```
+
+Replace placeholders and timestamps before enabling admission. `operations` must exactly match `componentOperations`; `maxOperations` is 1–10,000. Approval validity is at most 24 hours and the execution timeout is 1–3,600 seconds. Approval entries are unique by ID and business-key hash. The declaration binds the owner, project, release, input schema and revision; every private review change also changes the revision. Hash JSON with the service's `execution_management.digest` (sorted keys, compact separators, ASCII escaping, finite values), after input defaults are bound. The key is hashed as a JSON string, not as unquoted text.
+
+Only the non-agent inference operations listed in `INFERENCE_OPERATIONS` may have empty `argumentHashes`. All other calls require one or more exact argument digests, including helper operations in a mixed workflow. Compute those with the client's `actionlib.managed_risk.argument_digest` against the actual function signature: defaults and enums are normalized, local handles are represented by type, and managed workspace paths use `$workspace/`. Model-selected write arguments must match these reviewed hashes. Never approve a hash without reviewing the corresponding arguments and destination.
+
+`Smart.run_code`, `Script.*` and `BrowserScript.js_run` additionally require SHA-256 `codeHashes` of the published source bytes (browser script content uses UTF-8). Review imports, package dependencies, subprocess behavior and irreversible effects as part of the trusted release. Runtime checks verify atomic calls and directly invoked code; they are not a Python sandbox or an OS access-control mechanism. Operations requiring an autonomous computer-use host, CAPTCHA handling, desktop unlock or designer-dependent multi-turn/knowledge chat are deliberately denied in `app/schemas/ai_dynamic_risk.py`.
+
+File and GUI combinations need the same bounded file bindings/private file review and desktop environment/private desktop review used elsewhere. No category inheritance grants those permissions. File workflows with secret inputs remain unsupported. The `desktopReview.noHighRiskActions` assertion applies to the `desktop-ui` category; risk-category actions require their own exact request and argument approval instead. Set `sideEffects` to the applicable values: `external-service`, `external-write`, `dynamic-code`, `desktop-interaction`, `workspace-files`, `external-file-transfer`.
+
+MCP and explicitly admitted REST enforce the same approval before dispatch. Legacy dynamic tool discovery omits these workflows; fixed tools still require approval. Repeating an already accepted request with its original key and revision returns its receipt even after approval expiry/removal, without another dispatch. Changed inputs, release or timeout require a new approval/key. Successful results are checked against the frozen schema and JSON limits before persistence.
+
+For workflows accepting secret inputs, the public result is suppressed to `null`; declare a nullable output schema (for example, `{"type": ["object", "null"], "additionalProperties": true}`). An object-only schema rejects that suppressed result. This does not enable secret-input file workflows.
+
+The existing `Execution.data_contract` stores the frozen approval and risk rules. The client's execution receipt directory also stores a private `.risk.json` contract and `.risk.audit.jsonl` events containing operation IDs, argument/code hashes and acceptance/denial. Keep these with execution audit records; do not publish private policy or audit files. Prompts, credentials and code bodies are omitted from these audit events, and managed risk diagnostic reports suppress business values. n8n execution records still follow the host's retention settings; configure execution-data pruning separately.
+
 ## 🚀 Quick Start
 
 ### Environment Requirements

@@ -137,6 +137,7 @@ def start():
     parser.add_argument("--managed_execution", default="n", choices=("y", "n"))
     parser.add_argument("--managed_files", default="n", choices=("y", "n"))
     parser.add_argument("--managed_desktop", default="n", choices=("y", "n"))
+    parser.add_argument("--managed_risk", default="n", choices=("y", "n"))
     parser.add_argument("--managed_secrets", default="n", choices=("y", "n"))
     parser.add_argument("--managed_receipt", default="")
 
@@ -207,6 +208,7 @@ def start():
     else:
         args.run_param = {}
     Config.external_secrets = Config.managed_execution and args.managed_secrets == "y"
+    Config.managed_risk = Config.managed_execution and args.managed_risk == "y"
     if args.recording_config:
         try:
             args.recording_config = unquote(args.recording_config)
@@ -218,6 +220,12 @@ def start():
 
     debug_svc = None
     try:
+        if Config.managed_execution and args.managed_risk == "y":
+            from pathlib import Path
+
+            from astronverse.actionlib.managed_risk import configure
+
+            configure(Path(Config.managed_receipt).with_suffix(".risk.json"))
         # 生成代码
         flow_svc = FlowSvc(conf=Config)
         flow_start(svc=flow_svc, args=args)
@@ -241,10 +249,12 @@ def start():
         else:
             logger.error("error {} traceback {}".format(e, traceback.format_exc()))
         if debug_svc:
+            from astronverse.actionlib.managed_risk import ManagedRiskError
             from astronverse.dialog.managed import ManagedDialogError
 
             debug_svc.end(
-                ExecuteStatus.FAIL, reason=e.code if isinstance(e, ManagedDialogError) else MSG_EXECUTION_ERROR
+                ExecuteStatus.FAIL,
+                reason=e.code if isinstance(e, (ManagedDialogError, ManagedRiskError)) else MSG_EXECUTION_ERROR,
             )
         return
     logger.debug("end")

@@ -109,6 +109,25 @@ def test_failed_file_preparation_does_not_launch(client, monkeypatch):
     assert manager.instances == []
 
 
+@pytest.mark.parametrize("bound", [False, True])
+def test_preparation_failure_is_terminal_only_before_durable_process_binding(client, monkeypatch, bound):
+    controller, manager = client
+
+    def fail(on_prepared, **kwargs):
+        if bound:
+            on_prepared(SimpleNamespace(exec_id="bound-run", ins=SimpleNamespace(set_param=lambda *a: None)))
+        raise TimeoutError("synthetic preparation timeout")
+
+    monkeypatch.setattr(manager, "create", fail)
+    request = command(controller)
+    controller.handle(request)
+    receipt = observe(controller, request, lambda row: row["status"] == ("unknown" if bound else "failed"))
+    assert not manager.instances
+    assert receipt["runId"] == ("bound-run" if bound else None)
+    assert receipt["error"] == ("EXECUTION_START_UNCONFIRMED" if bound else "EXECUTION_FAILED")
+    assert controller.handle(request)["executionId"] == receipt["executionId"]
+
+
 def test_file_result_is_uploaded_before_terminal_success(client, monkeypatch):
     controller, manager = client
     calls = []
@@ -142,6 +161,50 @@ def test_simultaneous_duplicate_executes_once_and_preserves_json(client):
     assert len(manager.instances) == 1
     assert "wait_tip_ws" not in manager.instances[0].launch_params
     assert controller.handle({**request, "payload": {"params": {"zero": 1}}})["error"] == "IDEMPOTENCY_CONFLICT"
+
+
+@pytest.mark.parametrize("outcome", ["succeeded", "failed", "missing", "secret"])
+def test_risk_completion_uses_private_receipt_not_redacted_report(client, monkeypatch, outcome):
+    controller, manager = client
+    manager.seconds = 0.3
+    manager.result = ""  # Business values and failure diagnostics were redacted.
+    request = command(controller)
+    request["payload"]["riskContract"] = {"version": 1}
+    if outcome == "secret":
+        request["payload"]["secretFields"] = ["value"]
+    create = manager.create
+
+    def start(**kwargs):
+        item = create(**kwargs)
+        if outcome != "missing":
+            path = controller.result_path("owner", request["executionId"])
+            path.write_text(
+                json.dumps(
+                    {
+                        "runId": item.exec_id,
+                        "status": "failed" if outcome == "failed" else "succeeded",
+                        "result": None if outcome == "failed" else {"answer": "approved"},
+                        "error": "RISK_ARGUMENTS_DENIED" if outcome == "failed" else None,
+                        "processId": item.proc.pid,
+                        "processStarted": __import__("psutil").Process(item.proc.pid).create_time(),
+                        "startedAt": "2026-01-01T00:00:00+00:00",
+                        "finishedAt": "2026-01-01T00:00:01+00:00",
+                    }
+                ),
+                encoding="utf-8",
+            )
+        return item
+
+    monkeypatch.setattr(manager, "create", start)
+    controller.handle(request)
+    expected = {"secret": "succeeded", "missing": "unknown"}.get(outcome, outcome)
+    receipt = observe(controller, request, lambda row: row["status"] == expected)
+    assert receipt["supportsCancel"] is False
+    assert receipt.get("result") == ({"answer": "approved"} if outcome == "succeeded" else None)
+    if outcome == "failed":
+        assert receipt["error"] == "RISK_ARGUMENTS_DENIED"
+    if outcome == "missing":
+        assert receipt["error"] == "EXECUTION_OBSERVATION_FAILED"
 
 
 def test_busy_cancel_old_id_and_wrong_run_never_stop_new_task(client):

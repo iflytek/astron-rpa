@@ -8,6 +8,7 @@ export const CAPABILITY_CLASSES = [
   "service-shared-read",
   "office-file",
   "desktop-ui",
+  "ai-dynamic-risk",
 ] as const;
 
 export type CapabilityClass = (typeof CAPABILITY_CLASSES)[number];
@@ -29,5 +30,7 @@ export interface CapabilityProfile {
   jsonLimits?: unknown;
   fileContract?: unknown;
   desktopContract?: unknown;
+  riskContract?: unknown;
+  outputSchema?: unknown;
   exclusiveTerminal?: unknown;
 }

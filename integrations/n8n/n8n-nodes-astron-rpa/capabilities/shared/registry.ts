@@ -10,6 +10,8 @@ import {
   type TransportName,
 } from "./types";
 
+import { validateRiskProfile } from "../ai-dynamic-risk";
+
 const knownClasses = new Set<string>(CAPABILITY_CLASSES);
 // Every class dispatches directly to its own peer capability module.
 // Registry entries express support, not implementation order or inheritance.
@@ -20,6 +22,7 @@ const validators: Record<
   "json-data": validateJsonDataProfile,
   "office-file": validateOfficeFileProfile,
   "desktop-ui": validateDesktopProfile,
+  "ai-dynamic-risk": validateRiskProfile,
   "browser-read": validateBrowserServiceProfile,
   "service-http-read": validateBrowserServiceProfile,
   "service-database-read": validateBrowserServiceProfile,

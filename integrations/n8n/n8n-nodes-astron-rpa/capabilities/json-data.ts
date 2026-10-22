@@ -7,6 +7,13 @@ export function validateJsonDataProfile(profile: CapabilityProfile): void {
   if (
     !Array.isArray(profile.capabilities) ||
     !profile.capabilities.includes("json-data") ||
+    profile.fileInputs !== false ||
+    profile.fileOutputs !== false ||
+    profile.requiresGui !== false ||
+    profile.requiresHuman !== false ||
+    profile.risk !== "low" ||
+    !Array.isArray(profile.sideEffects) ||
+    profile.sideEffects.length !== 0 ||
     !limits ||
     typeof limits !== "object" ||
     Array.isArray(limits) ||

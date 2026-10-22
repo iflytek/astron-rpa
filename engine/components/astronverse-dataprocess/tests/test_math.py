@@ -1,7 +1,7 @@
 import unittest
 
-from astronverse.dataprocess import *
-from astronverse.dataprocess.error import *
+from astronverse.dataprocess import AddSubType, MathOperatorType, MathRoundType, NumberType
+from astronverse.dataprocess.error import BaseException
 from astronverse.dataprocess.math import MathProcess
 
 

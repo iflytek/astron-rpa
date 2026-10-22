@@ -587,6 +587,11 @@ export class AstronRpa implements INodeType {
               !allowsTransport(profile, "rest")
             )
               throw new AstronError("TRANSPORT_NOT_ALLOWED");
+            if (
+              declaredCapability === "ai-dynamic-risk" &&
+              !String(this.getNodeParameter("idempotencyKey", i, "")).trim()
+            )
+              throw new AstronError("RISK_APPROVAL_REQUIRED");
             const key =
               String(this.getNodeParameter("idempotencyKey", i, "")).trim() ||
               `n8n:${hash([this.getInstanceId(), this.getExecutionId(), this.getNode().id, this.getWorkflowDataProxy(i).$runIndex, i])}`;
@@ -602,6 +607,11 @@ export class AstronRpa implements INodeType {
               (deadline < 1 || deadline > 3600)
             )
               throw new AstronError("FILE_EXECUTION_DEADLINE_REQUIRED");
+            if (
+              declaredCapability === "ai-dynamic-risk" &&
+              (deadline < 1 || deadline > 3600)
+            )
+              throw new AstronError("RISK_APPROVAL_REQUIRED");
             const args = {
               projectId,
               version,

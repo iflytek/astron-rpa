@@ -1,7 +1,6 @@
-import importlib
-import importlib.util
 import inspect
 from typing import Any
+
 from astronverse.actionlib.atomic import atomicMg
 from astronverse.browser.browser import Browser
 from astronverse.browser.browser_element import get_browser_instance
@@ -12,8 +11,10 @@ from astronverse.smart.error import *
 class Smart:
     @staticmethod
     def _smart_call(path: str, package: str, **kwargs):
+        from astronverse.actionlib.managed_risk import import_reviewed_module
+
         try:
-            process_module = importlib.import_module(path, package=package)
+            process_module = import_reviewed_module(path, package)
         except SyntaxError as e:
             raise e
         except Exception as e:
