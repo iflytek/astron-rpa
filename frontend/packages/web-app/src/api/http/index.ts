@@ -14,6 +14,7 @@ import { promiseWithResolvers } from '@/utils/common'
 import { ERROR_CODES, SUCCESS_CODES, UN_AUTHORIZED_CODES } from '@/constants'
 
 import { getBaseURL, unauthorize } from './env'
+import { globalLoadingTracker, shouldTrackGlobalLoading } from './loading'
 
 export type { AxiosProgressEvent } from 'axios'
 
@@ -94,8 +95,8 @@ class HttpClient {
       }
 
       // 在这里可以添加请求拦截器的逻辑，例如添加请求头、处理请求参数等
-      if (config.loading) {
-        // TODO: 添加全局 loading
+      if (shouldTrackGlobalLoading(config.loading)) {
+        globalLoadingTracker.start()
       }
 
       config.headers['Accept-Language'] = i18next.language
@@ -106,8 +107,8 @@ class HttpClient {
     this.instance.interceptors.response.use(
       (response: Response) => {
         // 在这里可以添加响应拦截器的逻辑，例如处理响应数据、处理错误等
-        if (response.config.loading) {
-          // 关闭loading
+        if (shouldTrackGlobalLoading(response.config.loading)) {
+          globalLoadingTracker.finish()
         }
 
         if (response.config.responseType === 'blob') {
@@ -145,7 +146,11 @@ class HttpClient {
       },
       (error) => {
         // 在这里可以处理请求错误，例如显示错误提示、跳转到错误页面等
-        if (error.config.toast !== false) {
+        if (error.config && shouldTrackGlobalLoading(error.config.loading)) {
+          globalLoadingTracker.finish()
+        }
+
+        if (error.config?.toast !== false) {
           if (error.response) {
             const msg = error.response?.status === 403 ? i18next.t('noPermission') : `${error.response.status} ${error.response.statusText}`
             message.error(msg)
