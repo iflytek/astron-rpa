@@ -35,7 +35,11 @@ export function useChatContext(smartComp: SmartCompContext) {
     },
   ])
 
-  const md = markdownit({ html: true, breaks: true })
+  // html: false (the default) so the model's streamed response is rendered
+  // as Markdown, never as raw HTML/script - the response text is model
+  // output and can be steered by prompt injection from whatever the agent
+  // is looking at, not just the operator's own input.
+  const md = markdownit({ html: false, breaks: true })
 
   const rolesAsFunction = (bubbleData: BubbleProps) => {
     switch (bubbleData.role) {
