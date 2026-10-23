@@ -5,8 +5,9 @@ from typing import Any
 
 import requests
 import sseclient
+from astronverse.actionlib import managed_risk
 from astronverse.actionlib.atomic import atomicMg
-from astronverse.ai.api.http import request_json
+from astronverse.ai.api.http import AIRequestError, request_json
 from astronverse.ai.error import *
 from astronverse.baseline.logger.logger import logger
 
@@ -54,7 +55,7 @@ def chat_streamable(messages: Any, model: str = DEFAULT_MODEL):
 
 
 def chat_normal(user_input, system_input="", model=DEFAULT_MODEL):
-    """构建请求的 payload"""
+    """Return None on HTTP failure in ordinary workflows; managed risk runs raise."""
     data = {
         "model": model,  # 选择大模型，替换为实际模型标识
         "messages": [
@@ -78,7 +79,9 @@ def chat_normal(user_input, system_input="", model=DEFAULT_MODEL):
         else:
             raise ValueError("未知的响应格式")
 
-    except requests.exceptions.RequestException as e:
+    except AIRequestError:
+        if managed_risk.active():
+            raise
         logger.info("AI request failed")
         return None
     except KeyError:
@@ -87,7 +90,7 @@ def chat_normal(user_input, system_input="", model=DEFAULT_MODEL):
 
 
 def chat_prompt(prompt_type, params, model=DEFAULT_MODEL):
-    """chat_prompt"""
+    """Return None on HTTP failure in ordinary workflows; managed risk runs raise."""
     data = {
         "model": model,  # 选择大模型，替换为实际模型标识
         "prompt_type": prompt_type,
@@ -99,7 +102,9 @@ def chat_prompt(prompt_type, params, model=DEFAULT_MODEL):
         response_json = request_json("POST", PROMPT_URL, json=data)
         return response_json["data"]
 
-    except requests.exceptions.RequestException as e:
+    except AIRequestError:
+        if managed_risk.active():
+            raise
         logger.info("AI request failed")
         return None
     except KeyError:

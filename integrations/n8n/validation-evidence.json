@@ -3943,5 +3943,177 @@
       "integrations/n8n/n8n-nodes-astron-rpa/tests/capabilities.test.cjs": "68b79d4ba132c6f441f7ec98a8506e1393d6d4a5d0eb4a5ffd3d13b18dfb9325",
       "integrations/n8n/n8n-nodes-astron-rpa/tests/risk.test.cjs": "68cb4e1b14bfd90c9b7768ca811b702015c2a4dd214dee7f47fa9b417b5f1462"
     }
+  },
+  "llmCompatibilityValidation": {
+    "date": "2026-10-23",
+    "head": "04b0c7697df89f32e47f50d27a50279545c51765",
+    "uncommittedChanges": true,
+    "scope": "LLM ordinary-caller HTTP failure compatibility and managed failure propagation through current n8n, deployed OpenAPI and installed Windows client",
+    "sourceSha256": {
+      "engine/components/astronverse-ai/src/astronverse/ai/api/http.py": "6ae264cd56939e4cbce5d81bb8867d0fb1760a80321d0a737a4f8c0fd4e1c1ad",
+      "engine/components/astronverse-ai/src/astronverse/ai/api/llm.py": "bcab2644daf6a68133f1e14496f93b41221def20fd0831339342a6c820515977"
+    },
+    "runtime": {
+      "n8n": "2.40.7",
+      "node": "24.18.0",
+      "client": "Existing Windows installation; two AI source files updated",
+      "tlsValidationEnabled": true,
+      "serverWritesWithinAuthorizedSource": true,
+      "noRealModelProvider": true
+    },
+    "synchronization": {
+      "clientSourcesMatched": 304,
+      "clientFilesUpdated": 2,
+      "serverSourcesMatched": 55,
+      "serverSourceChangesRequired": false,
+      "nodeInstalledFilesMatched": 45,
+      "nodeCompiledFilesMatched": 38,
+      "nodePackageSha256": "bfa5c555e639288f25163dd2fd4886db37c3cac9822157e5fa3fd5c53471a2c6"
+    },
+    "tests": {
+      "engineAI": {
+        "passed": 42,
+        "skipped": 0
+      },
+      "engineRisk": {
+        "passed": 10,
+        "skipped": 0
+      },
+      "n8n": {
+        "passed": 52,
+        "skipped": 0
+      },
+      "pythonASTAndFormatFiles": 5,
+      "newRuffDiagnostics": 0,
+      "inheritedRuffDiagnostics": 8,
+      "hostedCIRun": false
+    },
+    "live": {
+      "ordinaryValidCases": 9,
+      "managedValidCases": 9,
+      "managedStatuses": {
+        "succeeded": 3,
+        "failed": 6
+      },
+      "failureScenarios": [
+        "connection refused",
+        "HTTP 503",
+        "actual 35-second read timeout"
+      ],
+      "successScenarios": [
+        "chat choices",
+        "chat data.choices",
+        "prompt data"
+      ],
+      "ordinaryFailureResult": null,
+      "managedFailureCode": "EXECUTION_FAILED",
+      "failedBusinessResultsPersisted": false,
+      "nodeHarnessContinuesOnExpectedErrors": true,
+      "realHTTPRequests": 14,
+      "riskAuditEvents": 18,
+      "providerTextAbsentFromReceiptsAuditAndErrors": true,
+      "nonterminalExecutions": 0,
+      "remainingExecutorProcesses": 0,
+      "remainingProviderConnections": 0,
+      "managedReceipts": [
+        {
+          "executionId": "1ac3519e-2dde-46d2-b1b4-ba7b972db61e",
+          "runId": "2113447698555236352",
+          "status": "succeeded"
+        },
+        {
+          "executionId": "382565f9-b080-41d6-8463-a1a39df1a9af",
+          "runId": "2113447751474769920",
+          "status": "failed"
+        },
+        {
+          "executionId": "dcf78516-79ce-40bd-867c-d81de7165378",
+          "runId": "2113447977262542848",
+          "status": "succeeded"
+        },
+        {
+          "executionId": "64ab3aec-6653-49c2-873d-5e74ffbce9f9",
+          "runId": "2113448031675248640",
+          "status": "succeeded"
+        },
+        {
+          "executionId": "b2f9813d-bb57-42d8-b66a-e0b9e41d508f",
+          "runId": "2113448084833857536",
+          "status": "failed"
+        },
+        {
+          "executionId": "d80b00c3-c2dd-43a6-9c77-eff6e3b2a380",
+          "runId": "2113448139674382336",
+          "status": "failed"
+        },
+        {
+          "executionId": "f3d070a8-b007-4fde-b0f9-6d923f48251e",
+          "runId": "2113448192333869056",
+          "status": "failed"
+        },
+        {
+          "executionId": "03d96c30-04c7-4edc-89d8-efa3f2c239a6",
+          "runId": "2113448245014327296",
+          "status": "failed"
+        },
+        {
+          "executionId": "c5b185f9-b783-4b30-9cf5-d1c369bdb964",
+          "runId": "2113448443639787520",
+          "status": "failed"
+        }
+      ],
+      "ordinaryTimeoutSeconds": {
+        "normal": 38.508,
+        "prompt": 38.329
+      },
+      "managedTimeoutSeconds": {
+        "normal-timeout": 47.078,
+        "prompt-timeout": 47.076
+      }
+    },
+    "preparationRunsExcluded": {
+      "count": 8,
+      "reasons": [
+        "One ordinary call used an incorrect parameter container",
+        "Seven calls ran while the initial fixture provider was no longer listening"
+      ],
+      "allValidScenariosRerun": true,
+      "productionCodeChangedDuringLiveTests": false
+    },
+    "cleanup": {
+      "robots": {
+        "temporaryRobotsRemoved": 2
+      },
+      "server": {
+        "testDeclarationsRemoved": 2,
+        "originalPolicyEquivalent": true,
+        "workflowRowsRemoved": 2,
+        "executionAuditRetained": true,
+        "nonterminalExecutions": 0
+      },
+      "n8n": {
+        "testWorkflowsRemoved": 2,
+        "testExecutionsRemoved": 18,
+        "unrelatedDataPreserved": true,
+        "pendingExecutions": 0
+      },
+      "clientRuntimeDirectoryIds": [
+        "2113446711224463360",
+        "2113446718744850432"
+      ],
+      "clientRuntimeCleanup": "Awaiting manual cleanup after automatic approval rejected deletion with blocked by policy",
+      "providerStopped": true
+    },
+    "finalHealth": {
+      "n8nHealthy": true,
+      "clientIdle": true,
+      "mcpConnected": true
+    },
+    "notValidated": [
+      "Real model inference: no provider configuration available",
+      "Windows GUI and Office operations",
+      "Full client EXE/release package",
+      "Remote databases and unrelated component acceptance"
+    ]
   }
 }

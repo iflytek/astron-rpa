@@ -48,8 +48,9 @@ def test_failures_are_bounded_redacted_and_closed(monkeypatch, kind):
         return response
 
     monkeypatch.setattr(requests, "request", request)
-    with pytest.raises(RuntimeError, match="^AI_REQUEST_FAILED$"):
+    with pytest.raises(http.AIRequestError, match="^AI_REQUEST_FAILED$") as error:
         http.request_json("POST", "https://provider.invalid")
+    assert isinstance(error.value, RuntimeError)
     assert kind == "network" or response.closed
 
 

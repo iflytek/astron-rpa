@@ -38,7 +38,7 @@ ENGINE_TESTS = {
     ],
     "encrypt": ["test_encrypt.py"],
     "risk": ["test_managed_risk.py"],
-    "ai": ["test_managed_http.py"],
+    "ai": ["test_managed_http.py", "test_llm.py"],
     "browser": ["test_read_context.py"],
     "database": ["test_query.py"],
     "email": ["test_receive_email.py", "test_core_imap4_receive.py"],
@@ -174,6 +174,8 @@ def main():
                 dependencies.append("numpy")
             if args.component == "encrypt":
                 dependencies.append("pycryptodomex")
+            if args.component == "ai":
+                dependencies.append("sseclient-py")
             if args.component == "vision":
                 dependencies.extend(["opencv-python", "numpy", "pyautogui", "pillow"])
             # Reuse the committed Engine versions without resolving its full GUI/EXE graph
