@@ -1,11 +1,20 @@
 import unittest
 
 from astronverse.dataprocess import *
+from astronverse.dataprocess import FillStringType
 from astronverse.dataprocess.string import StringProcess
 
 
 class TestStringProcess(unittest.TestCase):
     """字符串处理模块测试类"""
+
+    def test_right_padding_truncates_multi_character_fill(self):
+        assert (
+            StringProcess.fill_string_to_length(
+                string_data="abc", add_str="xy", total_length="6", fill_type=FillStringType.RIGHT
+            )
+            == "abcxyx"
+        )
 
     def setUp(self):
         """测试前的准备工作"""

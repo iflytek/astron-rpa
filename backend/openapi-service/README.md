@@ -184,7 +184,7 @@ their synchronous behavior.
 
 The stable entry point accepts published JSON strings, finite numbers, booleans, arrays, objects, enums,
 dates, timezone-qualified date-times and declared secret fields. Unknown fields, file/runtime objects and
-unsupported parameter metadata are rejected. Tools advertise input and output JSON Schemas.
+unsupported parameter metadata are rejected. Approved file workflows carry opaque IDs as strings and use separate binary routes. Tools advertise input and output JSON Schemas.
 Successful calls provide both `structuredContent` and equivalent JSON text. Tool errors use `isError=true` with
 `error.code/message`, without echoing arguments or internal exceptions.
 
@@ -256,7 +256,7 @@ uses `?contract=1` for submission/query and `POST /executions/{id}/cancel`; thes
 same authorized snapshot as MCP. Deploy the matching gateway Lua policy for these routes.
 
 Unknown values remain distinct from false. The supported declaration scope is `controlled-validation`;
-file-transfer declarations are rejected. The data contract currently limits encoded JSON to 1 MiB, nesting
+file declarations require the independent `office-file` contract below. The data contract limits encoded JSON to 1 MiB, nesting
 depth to 12, object properties to 200, array items to 1,000 and each string to 100,000 characters.
 
 Within the enrolled user scope, fixed MCP, dynamic MCP and REST starts share admission checks; unknown,
@@ -273,6 +273,158 @@ changed files fail closed with `INTEGRATION_POLICY_UNAVAILABLE`, without reusing
 The public revision is a digest of the complete declaration. Changing any declaration content changes that
 revision even when its human label is unchanged. `profileRevision` binds a prepared request to it.
 Same-key recovery returns an authorized existing receipt without requiring a new declaration for that execution.
+
+#### Office and file workflows
+
+Binary storage is opt-in. Set `INTEGRATION_FILE_ROOT` to an absolute private, persistent directory available
+inside OpenAPI, and `INTEGRATION_FILE_TRANSFER_URL` to its public HTTPS base ending in `/files/transfer`,
+for example `https://rpa.example/api/rpa-openapi/files/transfer`. Mount that directory into the container;
+keep its SQLite manifest and blobs together and outside static/public serving paths. Leaving either
+setting blank prevents file admission. Deploy the matching gateway Lua policy, allow request bodies of
+at least 10 MiB at the proxy, and keep TLS verification enabled. Use the existing single-worker deployment;
+this local store is not distributed object storage.
+
+Declare `capabilityClass: "office-file"`, `capabilities: ["office-file"]`, the actual component operations,
+allowed execution transports, no human interaction, low/medium risk and `exclusiveTerminal: true`.
+Set GUI requirements for Excel, Word and browser operations. Input/output file flags must match the contract:
+
+```json
+{
+  "fileContract": {
+    "version": 1,
+    "limits": { "maxFileBytes": 10485760, "maxFiles": 8, "retentionSeconds": 86400 },
+    "inputs": { "source": [".txt"] },
+    "outputs": { "target": "result.txt" }
+  },
+  "fileReview": {
+    "version": 1,
+    "workspaceOnly": true,
+    "macrosDisabled": true,
+    "externalServicesReviewed": true,
+    "boundedResources": true,
+    "resourcesReleased": true,
+    "operations": ["File.file_read", "File.file_write"]
+  }
+}
+```
+
+The private review's operation list must exactly match `componentOperations`. Review the published code:
+all paths must derive from the supplied workspace, output files must match their declared names, Office
+macros and global close/kill operations must be disabled, resource use bounded, and connections/documents
+released on every exit. Declare `workspace-files` for output writes and `external-file-transfer` for external
+file exchange. Approve external destinations and credentials explicitly. These checks admit trusted releases;
+they do not sandbox arbitrary Python or prevent a malicious approved workflow from accessing the client.
+The public profile exposes `fileContract`, but excludes the private review. The operation inventory in
+`app/schemas/office_file.py` is an admission boundary, not proof every operation has been individually tested.
+
+File parameter names must be ASCII identifiers with string schemas. Inputs contain opaque UUID handles;
+outputs contain `output:<parameterName>`. The service freezes bindings, integrity metadata and output names
+at acceptance. The upgraded client receives execution-bound, expiring read/write grants, prepares private
+paths, uploads outputs before reporting success and removes its workspace after confirmed termination.
+The execution deadline must be 1–3,600 seconds. Secret-input file workflows are rejected. The JSON result is
+`{"data": <workflow result>, "files": {<output parameter>: <metadata>}}`; any `outputSchema` applies to this
+whole object, and the existing JSON limits also apply before persistence.
+Exact file-parameter path echoes from the executor are omitted from `data`; other workspace path
+disclosures are rejected. Use the file metadata in `files` to retrieve binary outputs.
+
+External binary routes use the same owner API-key authentication as workflow control:
+
+| Route | Purpose |
+| --- | --- |
+| `POST /files` | Reserve using `fileName` and an owner-scoped `uploadKey` |
+| `PUT /files/{id}/content` | Upload immutable bytes; identical retries are accepted |
+| `GET /files/{id}` | Read file metadata |
+| `GET /files/{id}/content` | Download authorized bytes |
+| `DELETE /files/{id}` | Delete an owned file with no active grant |
+
+Client-only `GET/PUT /files/transfer/{id}` uses a separate execution-bound bearer grant and requires an active
+execution. Tokens are hashed in the manifest and are not returned in profiles/results. Output downloads and
+reuse as inputs recheck successful parent execution and current workflow authorization. Files expire after
+24 hours; active grants may pin them through the execution/recovery window. Cleanup runs every five minutes.
+The store enforces 10 MiB per file, eight file bindings per execution, 64 records and 100 MiB allocated per
+owner; pending uploads reserve 10 MiB. Grant revocation releases unused output reservations. Server paths,
+client paths and caller-supplied URLs are never file identifiers.
+
+#### Desktop and UI workflows
+
+Use `capabilityClass: "desktop-ui"`, `capabilities: ["desktop-ui"]`, `requiresGui: true`, `exclusiveTerminal: true`, a low/medium risk declaration and `sideEffects` containing `desktop-interaction`. `componentOperations` must match the deterministic allowlist in `app/schemas/desktop_ui.py`. The client must advertise `desktopProtocolVersion: 1`; execution requires a deadline of 1–3,600 seconds. MCP and explicitly admitted REST share the same authorization, frozen contract, receipt and cancellation path.
+
+Add these fields to the existing version-bound declaration (replace the example program and window with reviewed deployment values):
+
+```json
+{
+  "desktopContract": {
+    "version": 1,
+    "resolution": {"width": 1920, "height": 1080},
+    "programs": ["business-app"],
+    "humanMode": "none"
+  },
+  "desktopReview": {
+    "version": 1,
+    "operations": ["Window.exist"],
+    "programs": {"business-app": "C:/Apps/Business/app.exe"},
+    "targets": ["Reviewed business window"],
+    "boundedResources": true,
+    "noHighRiskActions": true,
+    "inputBindingsReviewed": true,
+    "resourcesReleased": true
+  }
+}
+```
+
+`desktopReview` is private and contributes to the declaration revision. Its operations must exactly match `componentOperations`; paths must be absolute local `.exe` paths. Program identifiers are public, paths and target titles are not. These paths check installation only; they do not execute programs. Review every program argument, dynamic input, element locator, clipboard mode, browser/file switch and cleanup action against the actual published code. This does not sandbox Python or guarantee isolation from user input.
+
+Dialog operations require `requiresHuman: true` and `humanMode: "attended"`. Managed runs use process-owned native forms (Tcl/Tk is required in the client Python runtime); ordinary designer runs retain their existing form host. The execution deadline and precise cancellation also bound native dialogs. File actions or mixed Office workflows additionally require a valid `fileContract` and `fileReview`, retaining file authorization, workspace boundaries and secret-input restrictions. No file permission is implied by desktop admission. Model-driven CUA, CAPTCHA automation, commands/scripts and destructive system control remain closed.
+
+The client checks session availability, lock state, primary-screen resolution and installed programs before launching, then checks session/resolution and unexpected owned popups every 500 ms. Reserve the interactive terminal; periodic checks cannot prevent all GUI races. A detected environment loss requests precise cancellation and becomes a safe desktop error only after the process stops. Unconfirmed stops remain unknown. Reconnection/restart observes the original execution and never replays desktop side effects. The exclusive slot remains occupied during active execution, recovery and resource cleanup; there is no task queue.
+
+#### AI, dynamic code and high-risk workflows
+
+Use `capabilityClass: "ai-dynamic-risk"`, `capabilities: ["ai-dynamic-risk"]`, an explicit `outputSchema`, `exclusiveTerminal: true`, `requiresHuman: false` and `risk: "medium"` or `"high"`. Human approval is supplied by an administrator before the request, not by a caller-controlled confirmation flag or a desktop dialog. The client must advertise `riskProtocolVersion: 1`. The public contract is:
+
+```json
+{"riskContract":{"version":1,"approvalMode":"admin-exact-request","automaticExecution":false}}
+```
+
+The same declaration needs a private `riskReview`:
+
+```json
+{
+  "version": 1,
+  "trustedRelease": true,
+  "sensitiveDataReviewed": true,
+  "destinationsReviewed": true,
+  "resourcesReleased": true,
+  "maxOperations": 20,
+  "operations": {
+    "ChatAI.single_turn_chat": {"risk":"medium","argumentHashes":[]}
+  },
+  "codeHashes": [],
+  "approvals": [{
+    "id":"request-approval-id",
+    "approvedBy":"administrator-id",
+    "paramsHash":"<SHA-256 of bound input JSON>",
+    "keyHash":"<SHA-256 of JSON-encoded business key>",
+    "executionTimeout":60,
+    "issuedAt":1792627200,
+    "expiresAt":1792630800
+  }]
+}
+```
+
+Replace placeholders and timestamps before enabling admission. `operations` must exactly match `componentOperations`; `maxOperations` is 1–10,000. Approval validity is at most 24 hours and the execution timeout is 1–3,600 seconds. Approval entries are unique by ID and business-key hash. The declaration binds the owner, project, release, input schema and revision; every private review change also changes the revision. Hash JSON with the service's `execution_management.digest` (sorted keys, compact separators, ASCII escaping, finite values), after input defaults are bound. The key is hashed as a JSON string, not as unquoted text.
+
+Only the non-agent inference operations listed in `INFERENCE_OPERATIONS` may have empty `argumentHashes`. All other calls require one or more exact argument digests, including helper operations in a mixed workflow. Compute those with the client's `actionlib.managed_risk.argument_digest` against the actual function signature: defaults and enums are normalized, local handles are represented by type, and managed workspace paths use `$workspace/`. Model-selected write arguments must match these reviewed hashes. Never approve a hash without reviewing the corresponding arguments and destination.
+
+`Smart.run_code`, `Script.*` and `BrowserScript.js_run` additionally require SHA-256 `codeHashes` of the published source bytes (browser script content uses UTF-8). Review imports, package dependencies, subprocess behavior and irreversible effects as part of the trusted release. Runtime checks verify atomic calls and directly invoked code; they are not a Python sandbox or an OS access-control mechanism. Operations requiring an autonomous computer-use host, CAPTCHA handling, desktop unlock or designer-dependent multi-turn/knowledge chat are deliberately denied in `app/schemas/ai_dynamic_risk.py`.
+
+File and GUI combinations need the same bounded file bindings/private file review and desktop environment/private desktop review used elsewhere. No category inheritance grants those permissions. File workflows with secret inputs remain unsupported. The `desktopReview.noHighRiskActions` assertion applies to the `desktop-ui` category; risk-category actions require their own exact request and argument approval instead. Set `sideEffects` to the applicable values: `external-service`, `external-write`, `dynamic-code`, `desktop-interaction`, `workspace-files`, `external-file-transfer`.
+
+MCP and explicitly admitted REST enforce the same approval before dispatch. Legacy dynamic tool discovery omits these workflows; fixed tools still require approval. Repeating an already accepted request with its original key and revision returns its receipt even after approval expiry/removal, without another dispatch. Changed inputs, release or timeout require a new approval/key. Successful results are checked against the frozen schema and JSON limits before persistence.
+
+For workflows accepting secret inputs, the public result is suppressed to `null`; declare a nullable output schema (for example, `{"type": ["object", "null"], "additionalProperties": true}`). An object-only schema rejects that suppressed result. This does not enable secret-input file workflows.
+
+The existing `Execution.data_contract` stores the frozen approval and risk rules. The client's execution receipt directory also stores a private `.risk.json` contract and `.risk.audit.jsonl` events containing operation IDs, argument/code hashes and acceptance/denial. Keep these with execution audit records; do not publish private policy or audit files. Prompts, credentials and code bodies are omitted from these audit events, and managed risk diagnostic reports suppress business values. n8n execution records still follow the host's retention settings; configure execution-data pruning separately.
 
 ## 🚀 Quick Start
 

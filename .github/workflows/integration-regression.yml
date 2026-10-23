@@ -39,7 +39,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        component: [browser, database, email, network, enterprise]
+        component: [dataprocess, encrypt, risk, ai, browser, database, email, network, enterprise, files, desktop, vision, dialog, excel, word, system, datatable]
     steps:
       - uses: actions/checkout@v4
         with:

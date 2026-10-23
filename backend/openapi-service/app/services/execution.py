@@ -257,11 +257,40 @@ class ExecutionService:
         requested_class = execution_data.capability_class
         if requested_class is not None and profile["capabilityClass"] != requested_class:
             raise WorkflowAccessError("CAPABILITY_NOT_ALLOWED", "Workflow is not admitted for the requested capability")
-        bounded_json = profile["capabilityClass"] in {"json-data", *SERVICE_READ_CLASSES}
+        bounded_json = profile["capabilityClass"] in {
+            "json-data",
+            "office-file",
+            "desktop-ui",
+            "ai-dynamic-risk",
+            *SERVICE_READ_CLASSES,
+        }
         if bounded_json:
             # Bound the raw request before defaults, then again after binding.
             validate_json_value(execution_data.params or {}, require_object=True)
         data_contract = None
+        file_binding = None
+        desktop_binding = None
+        risk_binding = None
+        if profile["capabilityClass"] == "ai-dynamic-risk":
+            from app.services.ai_dynamic_risk import freeze_risk
+
+            risk_binding = freeze_risk(profile, user_id, params, key_hash, execution_data.execution_timeout)
+        if profile["capabilityClass"] == "desktop-ui" or (risk_binding and profile.get("desktopContract")):
+            from app.services.desktop_ui import freeze_desktop
+
+            desktop_binding = freeze_desktop(profile, execution_data.execution_timeout)
+        if profile["capabilityClass"] == "office-file" or (
+            (desktop_binding or risk_binding) and profile.get("fileContract")
+        ):
+            from app.services.office_file import freeze_authorized_files
+
+            if workflow_secret_fields(workflow, schema):
+                raise WorkflowAccessError(
+                    "FILE_SECRET_INPUT_UNSUPPORTED", "Secret-input file workflows are unsupported"
+                )
+            file_binding = await freeze_authorized_files(
+                profile, params, user_id, execution_data.execution_timeout, self
+            )
         if bounded_json:
             validate_json_value(params, require_object=True)
             data_contract = json.dumps(
@@ -271,6 +300,9 @@ class ExecutionService:
                     "inputSchemaHash": profile["inputSchemaHash"],
                     "outputSchema": profile["outputSchema"],
                     "limits": JSON_LIMITS,
+                    **({"fileContract": file_binding} if file_binding else {}),
+                    **({"desktopContract": desktop_binding} if desktop_binding else {}),
+                    **({"riskContract": risk_binding} if risk_binding else {}),
                 },
                 allow_nan=False,
             )
@@ -286,6 +318,14 @@ class ExecutionService:
             or any(type(value) not in (str, int, float) for value in params.values())
         )
         capability = await management.capabilities(user_id, required=requires_managed)
+        if risk_binding and (not capability or capability.get("riskProtocolVersion") != 1):
+            raise WorkflowAccessError("CLIENT_RISK_PROTOCOL_UNSUPPORTED", "Client must support risk protocol version 1")
+        if desktop_binding and (not capability or capability.get("desktopProtocolVersion") != 1):
+            raise WorkflowAccessError(
+                "CLIENT_DESKTOP_PROTOCOL_UNSUPPORTED", "Client must support desktop protocol version 1"
+            )
+        if file_binding and (not capability or capability.get("fileTransferVersion") != 1):
+            raise WorkflowAccessError("CLIENT_FILE_PROTOCOL_UNSUPPORTED", "Client must support file transfer version 1")
         if not capability and requires_managed:
             raise WorkflowAccessError(
                 "CLIENT_PROTOCOL_UNSUPPORTED", "These options or inputs require an execution-management Client"

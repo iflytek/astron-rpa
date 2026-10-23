@@ -1,4 +1,5 @@
 import ast
+import os
 import time
 from itertools import zip_longest
 
@@ -7,6 +8,7 @@ from astronverse.actionlib import AtomicFormType, AtomicFormTypeMeta, AtomicLeve
 from astronverse.actionlib.atomic import atomicMg
 from astronverse.actionlib.types import PATH
 from astronverse.excel import *
+from astronverse.excel import CloseRangeType
 from astronverse.excel.core_win.application import Application
 from astronverse.excel.core_win.range import Range
 from astronverse.excel.core_win.worksheet import Worksheet
@@ -287,6 +289,8 @@ class Excel:
         exist_handle_type: FileExistenceType = FileExistenceType.RENAME,
         pkill_flag: bool = False,
     ):
+        if os.environ.get("ASTRON_RPA_MANAGED_FILES") == "1" and (close_range_flag == CloseRangeType.ALL or pkill_flag):
+            raise ValueError("Managed file workflows may close only their explicit workbook")
         if close_range_flag == CloseRangeType.ALL:
             save_changes = False
             if save_type_all == SaveType_ALL.SAVE:

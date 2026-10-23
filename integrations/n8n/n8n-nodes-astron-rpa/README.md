@@ -7,8 +7,8 @@ Control published AstronRPA workflows through authenticated HTTPS MCP: discover 
 - This development package provides the common execution framework for individually approved workflows with `supportScope: controlled-validation`. An approved workflow does not establish support for an entire RPA capability family.
 - The verified host configuration is self-hosted n8n `2.36.9`, Node.js `24+`, one OpenAPI connection owner and one Windows client matching the repository, with managed client protocol `1`. The package declares `n8n-workflow >=2.36.4 <3`; other host versions, queue mode, multiple replicas or terminals, n8n Cloud and older clients are not covered by this validation.
 - OpenAPI must provide integration contract `1`, profile schema `1` and MCP `2025-11-25`. MCP is the primary channel. A published capability may explicitly allow the REST auxiliary transport; the node never switches transports after an uncertain start.
-- Capability declarations include a stable `capabilityClass`, `capabilities`, `componentOperations` and `allowedTransports`. Current controlled validation includes `json-data` plus reviewed service/browser-read classes. A declaration describes a workflow; it does not add an adapter for unsupported Engine operations.
-- Inputs and outputs use bounded JSON. File/binary transfer, runtime object adaptation, desktop/UI work and arbitrary local paths are unsupported in this capability. The current limits are 1 MiB encoded JSON, depth 12, 200 object properties, 1,000 array items and 100,000 characters per string. The server profile is authoritative; the node rejects a mismatched limit contract.
+- Capability declarations include a stable `capabilityClass`, `capabilities`, `componentOperations` and `allowedTransports`. The node has independent validators for `json-data`, reviewed service/browser reads, `office-file` and `desktop-ui`. A declaration describes a workflow; it does not add an adapter for unsupported Engine operations.
+- Control inputs and outputs use bounded JSON. Files use authorized handles and separate binary transfer for approved file workflows. Reviewed `desktop-ui` workflows can operate a reserved Windows session. Runtime objects and arbitrary local paths are not exposed. JSON limits are 1 MiB encoded JSON, depth 12, 200 object properties, 1,000 array items and 100,000 characters per string. The server profile is authoritative; the node rejects a mismatched limit contract.
 
 The package requires Node.js `>=24`. The [official n8n `2.36.9` Dockerfile](https://github.com/n8n-io/n8n/blob/n8n%402.36.9/docker/images/n8n/Dockerfile) pins its runtime base to Node.js `24.18.1`, which meets this requirement. Before installation, check the Node version **inside your n8n container**, for example with `docker exec YOUR_N8N_CONTAINER node --version`; the host machine's Node version does not determine the container runtime. Older images with Node.js 20 or 22 do not meet this package's requirement.
 
@@ -55,6 +55,9 @@ Start the Windows client through its desktop application. Starting Scheduler sep
 | Execute / Sync   | Use the same execution path with a wait budget capped at 30 seconds               |
 | Get Execution    | Return the actual state, including failed or unknown outcomes                     |
 | Cancel Execution | Request cancellation of the exact ID; query again to confirm the terminal outcome |
+| Upload File      | Upload one n8n Binary Data property and return an owner-scoped file handle        |
+| Download File    | Download an authorized handle into an n8n Binary Data property                    |
+| Delete File      | Remove an owned file after all active execution grants have ended                 |
 
 Execution inputs preserve zero, false, null, arrays and objects. n8n expressions are evaluated when preparing the request; the resulting JSON values are fixed for that execution. Results stay in `result`; arrays are not expanded into additional items. Output includes execution/project/version identity, state, terminal flag, timestamps and cancellation state.
 
@@ -92,11 +95,52 @@ Configure the published RPA workflow for the capability it declares:
 
 Use **Get Workflow** before execution and verify `profile.capabilityClass` is `json-data`, `profile.admission.allowed` is `true`, and the returned `inputSchema` matches the data being sent. JSON values preserve `0`, `false`, `null`, arrays and nested objects. Unknown fields, non-finite numbers, runtime objects, file values and values over the published limits are rejected before dispatch.
 
+JSON-data declarations require `risk: "low"`, an empty `sideEffects` list, and `fileInputs`, `fileOutputs`, `requiresGui` and `requiresHuman` all set to `false`. A workflow needing any of those capabilities must use its corresponding reviewed category; JSON-shaped inputs and results alone do not qualify it as a data workflow.
+
 The result remains one JSON value under `result`; arrays are not expanded into n8n items. An optional declared `outputSchema` documents the result shape, but it does not enable file, GUI or runtime-object capabilities. Browser/service reads use their own peer capability module and declaration.
 
-## Capability layout and plan mapping
+### Office and file workflows
 
-Stage 4 consists of a common framework and five peer capability groups. Sections 4.1-4.5 in `Implement.md` specify delivery order, not inheritance or nesting. The node invokes published workflows through the common transport and execution framework; capability modules validate their declarations rather than calling Engine components directly.
+The server administrator must configure persistent file storage and an HTTPS transfer endpoint, and approve the published workflow's `fileContract` and private file review. The Windows client must advertise `fileTransferVersion: 1`. See [server file configuration](../../../backend/openapi-service/README.md#office-and-file-workflows).
+
+An importable [file workflow example](examples/office-file.json) demonstrates the binary upload, execution and download sequence. DataTable exports support CSV, XLSX and JSON; use XLSX for spreadsheet output because the openpyxl backend cannot write legacy XLS files. CSV export writes the cell values held by openpyxl; formula cells are exported as their stored formula expressions rather than recalculated results.
+
+1. Use **Upload File** with the incoming Binary Property (default `data`). Its output contains `fileId`, `fileName`, `size`, `sha256` and `expiresAt`; it contains no local path or transfer credential.
+2. Select **Execute**, preferably through MCP, with the approved `office-file` project/version. Bind input file parameters to uploaded IDs and output parameters to `output:<parameterName>`. For example, a contract with input `source` and output `target` accepts `{"source":"<fileId>","target":"output:target"}`. Set an RPA Deadline between 1 and 3,600 seconds.
+3. Wait for confirmed success. The result is `{ "data": <workflow JSON>, "files": { "target": <file metadata> } }`. Exact file-parameter path echoes are omitted from `data`; other workspace paths are rejected. Pass `result.files.target.fileId` to **Download File** to obtain Binary Data for subsequent n8n nodes.
+4. Use **Delete File** after the file is no longer needed, or let it expire. A file with an active execution grant cannot be deleted. Downloads and reuse of output handles require the original execution to have succeeded and its workflow to remain authorized.
+
+File transfer always uses the HTTPS REST routes adjacent to the configured MCP endpoint; this does not change the execution transport or enable automatic fallback. Upload retries within the same n8n execution/node/run/item use the same key and require identical bytes. A new n8n execution creates a new upload. Downloaded bytes are checked against the returned size and SHA-256.
+
+Limits are 10 MiB per file, eight input and output bindings combined per execution, and 24-hour server retention. A user may hold at most 64 records and 100 MiB of allocated storage; pending uploads reserve the maximum file size. Expired records are swept every five minutes. Temporary client transfers are bound to the execution and expire after its deadline plus a short recovery allowance. Keep handles available until waiting executions have resolved; n8n's own execution/binary storage has a separate retention policy.
+
+The client downloads inputs into an execution-specific directory and replaces output placeholders with private paths. Workflows must use those paths, return bounded JSON summaries and close all resources; local workspace paths cannot be returned as results. Office runs require an installed, compatible Excel/Word or WPS COM provider, use private instances and disable macros. Do not use global Office close/kill options, clipboard operations or attachment to a user's open document. Archive extraction rejects traversal and links; managed archives are limited to 512 members, 10 MiB per member and 80 MiB expanded data. Reviewed external transfers still require the relevant service credentials and destination restrictions. File workflows accepting secret-marked parameters are currently rejected, since binary artifacts cannot use the ordinary result-suppression mechanism.
+
+### Desktop and UI workflows
+
+Select an administrator-reviewed `desktop-ui` release and set an execution deadline of 1–3,600 seconds. Keep the Windows client logged in on an unlocked, active interactive session at the declared primary-screen resolution in physical pixels. Reserve that session for the task; concurrent user input, unrelated focus changes and arbitrary application popups cannot be made safe by periodic checks. Coordinate-based components must obey their own primary-screen bounds; multiple monitors and DPI/layout changes require a separate workflow review. There is no implicit queue or automatic unlock.
+
+The public `desktopContract` declares version `1`, `resolution: {width, height}`, installed program identifiers and `humanMode` (`none` or `attended`). Private executable paths and reviewed target/popup titles stay on the server/client channel. The client checks the environment before launch and every 500 ms while running. A detected lock, session change, resolution mismatch or unreviewed owned popup requests a stop of that execution's process. A stop that cannot be confirmed remains `unknown`; it is never replayed as a new task.
+
+Deterministic window, UI element, keyboard/mouse, browser, fixed-image matching, text clipboard and reviewed application launch and window-close operations are admitted by operation name. The allowlist contains 73 operations across eight components; that count does not indicate independent runtime verification. Dialog workflows require `attended` mode and remain subject to the execution deadline. Managed runs use process-owned native message, text/password, selection and date forms, so an open designer is unnecessary; the client Python runtime must include Tcl/Tk. Ordinary designer runs keep their existing form host. Administrators must review the actual published code, input bindings, approved targets, application arguments, side effects and cleanup, and keep user-entered credentials out of public results. This is a trusted-workflow contract, not a desktop sandbox or a foreground-input interceptor.
+
+File-producing UI actions require the same `fileContract` and private file review as other file workflows; use authorized handles and Binary Data, never caller-provided client paths. Clipboard file modes, file-backed browser switches and application arguments must also stay within that reviewed workspace. Runtime element handles, generators and process objects stay inside the workflow. Managed image matching does not save diagnostic full-screen images.
+
+Model-driven `ComputerUse` actions, CAPTCHA automation, JavaScript/command execution, cookie modification, process termination (including `Software.close` and `BrowserSoftware.browser_close`, which kill all matching process names), screen lock/unlock and printing remain outside this admission. Custom dynamic dialogs and dialogs selecting arbitrary local files are also excluded. Availability in the Engine or the classification catalog does not grant integration permission.
+
+Common environment failures are `DESKTOP_UNAVAILABLE`, `DESKTOP_LOCKED`, `DESKTOP_SESSION_CHANGED`, `DESKTOP_RESOLUTION_MISMATCH`, `DESKTOP_SOFTWARE_UNAVAILABLE`, `DESKTOP_HUMAN_UNAVAILABLE` and `DESKTOP_POPUP_BLOCKED`. A client without the desktop protocol is rejected with `CLIENT_DESKTOP_PROTOCOL_UNSUPPORTED`. Correct the environment before deliberately starting a new execution; reuse the original key only to observe the original receipt.
+
+## AI, code and high-risk workflows
+
+`ai-dynamic-risk` uses the same execution node and MCP lifecycle. An administrator must review the published version, declare its operations and risk levels, and approve each exact request in the server's private integration policy. Supply an explicit **Idempotency Key** and an **RPA Execution Timeout** of 1–3,600 seconds. Approval binds the owner, release, declaration revision, bound input values, key and timeout; a caller cannot grant approval through node parameters. REST is available only when explicitly declared.
+
+Both input and output are bounded JSON, with an explicit frozen output schema. The client checks the operation allowlist, call count and reviewed argument hashes. Published code must match approved source hashes; generated code cannot be executed just because a model returned it. Model output used by a write operation must match that operation's reviewed arguments. Audits contain identifiers, hashes and outcomes, without prompts, credentials or code bodies. Secret-input results remain suppressed. n8n's own execution-data retention settings still apply.
+
+Mixed workflows also need the shared file contract and/or desktop environment contract. Autonomous computer-use/captcha operations, desktop unlock and designer-dependent multi-turn/knowledge chat remain denied. Review is for trusted published Python and its dependencies; this is not an arbitrary-code sandbox. See the server README's **AI, dynamic code and high-risk workflows** section for policy configuration and approval hashes.
+
+## Capability layout
+
+The node invokes published workflows through the common transport and execution framework. Capability modules are peers and validate declarations; they do not call Engine components directly or inherit another category's validator.
 
 ```text
 n8n-nodes-astron-rpa/
@@ -106,27 +150,32 @@ n8n-nodes-astron-rpa/
 |-- execution/                  # Shared lifecycle, idempotency and recovery
 |-- mapping/                    # Shared JSON values, snapshots and errors
 |-- capabilities/
-|   |-- json-data.ts             # 4.1-specific declaration checks
-|   |-- browser-service.ts       # 4.2-specific declaration checks
+|   |-- json-data.ts             # JSON/data declaration checks
+|   |-- browser-service.ts       # Browser/service read declaration checks
+|   |-- office-file.ts           # Office/file declaration checks
+|   |-- desktop-ui.ts            # Desktop/UI declaration checks
+|   |-- ai-dynamic-risk.ts       # Exact-request approval contract checks
 |   `-- shared/
 |       |-- types.ts             # Wire identifiers and profile types
 |       |-- catalog.ts           # 26 components -> five peer capability groups
+|       |-- file-contract.ts     # Shared file constraints for mixed workflows
+|       |-- desktop-contract.ts  # Shared desktop environment constraints
 |       `-- registry.ts           # Dispatch to the matching capability module
 |-- tests/
 `-- examples/
 ```
 
-`shared/catalog.ts` maps component operations to categories; it does not create a separate node for each component. A component may span several groups. Control-flow markers do not grant access to the operations nested inside them. `CAPABILITY_GROUPS` records the exact plan section; group names describe source organization, while existing `capabilityClass` values remain unchanged on the wire.
+`shared/catalog.ts` maps component operations to categories; it does not create a separate node for each component. A component may span several groups. Control-flow markers do not grant access to the operations nested inside them. Group names describe source organization; `capabilityClass` identifies the wire contract.
 
-| Plan | Peer group / module            | Component coverage by operation                                                                                           |
-| ---- | ------------------------------ | ------------------------------------------------------------------------------------------------------------------------- |
-| 4.1  | `json-data.ts`                 | dataprocess, datatable, encrypt, report, reviewed script                                                                  |
-| 4.2  | `browser-service.ts`           | browser, network, database, email, enterprise reads                                                                       |
-| 4.3  | `office-file.ts` (planned)     | datatable, browser, enterprise, excel, network, openapi, pdf, system, word file operations                                |
-| 4.4  | `desktop-ui.ts` (planned)      | browser, cua, dialog, input, software, system, verifycode, vision, window, winelement interaction                         |
-| 4.5  | `ai-dynamic-risk.ts` (planned) | ai, browser, cua, database, email, enterprise, network, script, smart, verifycode, vision dynamic or high-risk operations |
+| Peer group / module  | Component coverage by operation                                                                                                 |
+| -------------------- | ------------------------------------------------------------------------------------------------------------------------------- |
+| `json-data.ts`       | dataprocess, datatable, encrypt, report, reviewed script                                                                        |
+| `browser-service.ts` | browser, network, database, email, enterprise reads                                                                             |
+| `office-file.ts`     | datatable, browser, email, enterprise, excel, network, openapi, pdf, system, word file operations                               |
+| `desktop-ui.ts`      | reviewed browser, dialog, input, software, system, vision, window and winelement operations; model-driven actions remain closed |
+| `ai-dynamic-risk.ts` | reviewed AI, code and high-risk combinations; the catalog also identifies operations deliberately denied                        |
 
-Future modules belong beside `json-data.ts` and `browser-service.ts`, use the shared registry and common framework, and do not import a previous category's implementation. Planned names are documentation only; no empty modules or unsupported handlers are registered. Catalog coverage is an inventory, not a claim that every listed operation has been implemented or verified. Shared utilities should stay neutral; server/client defects belong in their original modules.
+Capability modules are peers, use the shared registry and common framework, and do not import another category's implementation. Catalog coverage is an inventory, not a claim that every listed operation has been implemented or verified. Shared utilities stay neutral; server/client defects belong in their original modules.
 
 For JSON-data executions, the service freezes the output schema and JSON limits at acceptance and checks successful results before persistence. A result over the byte limit or outside the schema becomes `failed / UNSUPPORTED_RESULT`, with no business payload stored. The byte limit measures the compact UTF-8 encoding of the business result; execution IDs, status and other envelope fields do not consume its allowance. The node validates result values separately from that metadata, so an exact 1 MiB result remains readable.
 

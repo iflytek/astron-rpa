@@ -132,7 +132,13 @@
       "workflowActionlint": "passed",
       "runnerRuffAndFormat": "passed",
       "n8nBuildTypecheckLintFormat": "passed; Prettier --end-of-line auto",
-      "summaryGateScenarios": ["success", "failure", "cancelled", "unexpected skip", "no relevant changes"]
+      "summaryGateScenarios": [
+        "success",
+        "failure",
+        "cancelled",
+        "unexpected skip",
+        "no relevant changes"
+      ]
     },
     "npmInstall": "npm ci succeeded with 12 high dependency audit advisories; no dependency or lockfile changes",
     "testIsolation": "OpenAPI uses locked dependencies in a temporary environment; Engine groups use separate processes, minimal dependencies pinned from engine/uv.lock and importlib collection; email tests retain existing actionlib/logger stubs",
@@ -1267,6 +1273,2847 @@
       "Browser reads depend on the active page in the plugin-connected window; no fixed background-tab routing",
       "Intermittent connection timeouts recovered using the original execution ID or the same idempotency key; TLS verification remained enabled",
       "Historical independent incomplete checks remain documented in VALIDATION.md"
+    ]
+  },
+  "officeFileValidation": {
+    "date": "2026-10-13",
+    "baseCommit": "4e26f0790cdaf65f0249be43ca7a15487cd05fd0",
+    "branch": "feat/office-file-workflows",
+    "workingTreeChanges": "Office/file capability, authorized binary transport, managed client file and Office lifecycle, bounded component fixes and regression coverage; not staged, committed or pushed",
+    "environment": {
+      "n8n": "2.40.7",
+      "nodeJs": "24.18.0",
+      "package": "n8n-nodes-astron-rpa@0.1.0-dev.2",
+      "client": "Existing Windows desktop with repository-matched changed Python sources; no full EXE rebuild",
+      "office": "WPS Office 2023 Professional",
+      "officeProviders": [
+        "Ket.Application",
+        "Kwps.Application"
+      ],
+      "managedProtocol": 1,
+      "fileTransferVersion": 1,
+      "tlsVerificationPassed": true,
+      "tlsNotAfter": "2026-12-13T08:16:50Z"
+    },
+    "architecture": {
+      "peerCapabilityModule": "capabilities/office-file.ts",
+      "workflowControl": "MCP by default; REST execution only when explicitly declared and selected; no automatic cross-transport redispatch",
+      "binaryTransport": "HTTPS REST with authorized opaque handles and execution-bound grants",
+      "newDatabaseMigration": false
+    },
+    "admission": {
+      "components": {
+        "astronverse-excel": 32,
+        "astronverse-word": 19,
+        "astronverse-pdf": 8,
+        "astronverse-system": 23,
+        "astronverse-datatable": 2,
+        "astronverse-browser": 12,
+        "astronverse-network": 6,
+        "astronverse-enterprise": 2,
+        "astronverse-openapi": 6,
+        "astronverse-email": 1
+      },
+      "operationCount": 111,
+      "allOperationsIndependentlyLiveTested": false,
+      "boundary": "Administrator-reviewed, version-bound trusted workflows with declared file and external-service behavior; not an arbitrary-code sandbox"
+    },
+    "fileLimits": {
+      "maxBytesPerFile": 10485760,
+      "maxCombinedInputOutputFiles": 8,
+      "retentionSeconds": 86400,
+      "ownerMaxAllocatedBytes": 104857600,
+      "ownerMaxRecords": 64
+    },
+    "localTests": {
+      "openapi": 317,
+      "engine": {
+        "datatable": 2,
+        "email": 22,
+        "excel": 6,
+        "files": 27,
+        "system": 12,
+        "word": 4
+      },
+      "engineTotal": 73,
+      "n8n": 44,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "existingSQLiteDatetimeWarnings": 4
+    },
+    "staticChecks": {
+      "n8nBuildTypecheckLint": "passed",
+      "n8nPrettier": "passed with --end-of-line auto",
+      "pythonChecksAgainstHead": [
+        {
+          "scope": "backend/openapi-service/",
+          "files": 11,
+          "mainDiagnostics": 7,
+          "currentDiagnostics": 3,
+          "newDiagnostics": [],
+          "formatPassed": true
+        },
+        {
+          "scope": "engine/",
+          "files": 15,
+          "mainDiagnostics": 398,
+          "currentDiagnostics": 383,
+          "newDiagnostics": [],
+          "formatPassed": true
+        }
+      ],
+      "regressionRunnerRuffAndFormat": "passed",
+      "workflowActionlint": "passed",
+      "gitDiffCheck": "passed for tracked and new files"
+    },
+    "ci": {
+      "workflow": ".github/workflows/integration-regression.yml",
+      "runner": ".github/scripts/run-integration-regression.py",
+      "newEngineGroups": [
+        "files",
+        "excel",
+        "word",
+        "system",
+        "datatable"
+      ],
+      "mainCiAddsSchedulerExecutorTriggers": true,
+      "hostedCiExecuted": false,
+      "otherExistingEngineGroupsRerunThisRound": [
+        "email"
+      ]
+    },
+    "liveSuccessfulCases": [
+      {
+        "case": "text",
+        "executionId": "4dfa8d02-a65b-48cd-8f35-e6cfd01a2dd0",
+        "runId": "2109918496526725120",
+        "n8nExecutionId": 572,
+        "status": "succeeded",
+        "downloadVerified": true,
+        "outputs": {
+          "target": {
+            "fileName": "result.txt",
+            "size": 35,
+            "sha256": "211695febd5b81c5ee1fb405df2a65fad5aa6addd4e2fab983f5a5285db9b85b"
+          }
+        }
+      },
+      {
+        "case": "excel",
+        "executionId": "906ac532-b806-47d7-ba32-e332557a7427",
+        "runId": "2109916735002931200",
+        "n8nExecutionId": 536,
+        "status": "succeeded",
+        "downloadVerified": true,
+        "outputs": {
+          "target": {
+            "fileName": "result.xlsx",
+            "size": 9320,
+            "sha256": "e272457de0e01a568b1008667e9c2498b3738853e1a4e0db0f1493f8513e0d1f"
+          }
+        }
+      },
+      {
+        "case": "word",
+        "executionId": "b859d532-257a-40e7-be67-00e8597a81ff",
+        "runId": "2109919817782816768",
+        "n8nExecutionId": 593,
+        "status": "succeeded",
+        "downloadVerified": true,
+        "outputs": {
+          "target": {
+            "fileName": "result.docx",
+            "size": 32317,
+            "sha256": "f564d83875c31b4d63da6d8571bf1ce61c137ac0f31f23e3ad506feec02e354e"
+          }
+        }
+      },
+      {
+        "case": "pdf",
+        "executionId": "759f3d01-6c8c-4e84-a43e-a8e292fd55e0",
+        "runId": "2109914425468153856",
+        "n8nExecutionId": 515,
+        "status": "succeeded",
+        "downloadVerified": true,
+        "outputs": {
+          "target": {
+            "fileName": "result.pdf",
+            "size": 1566,
+            "sha256": "9cdea98cf8d92761210ca7e86ad85d9952443836bf1de470df507843cc6dbdf1"
+          }
+        }
+      },
+      {
+        "case": "datatable",
+        "executionId": "e59117de-f1ac-455a-bb34-ce8ed19debcf",
+        "runId": "2109916677561937920",
+        "n8nExecutionId": 532,
+        "status": "succeeded",
+        "downloadVerified": true,
+        "outputs": {
+          "target": {
+            "fileName": "result.csv",
+            "size": 33,
+            "sha256": "8da2708c80cf393a22922b8c20b1ced62cd10203c38850b430b43edc32fbf25f"
+          }
+        }
+      },
+      {
+        "case": "browserchecked",
+        "executionId": "9fb8187b-d7b4-4266-9996-db2067bca7f6",
+        "runId": "2109918180632719360",
+        "n8nExecutionId": 553,
+        "status": "succeeded",
+        "downloadVerified": true,
+        "outputs": {
+          "target": {
+            "fileName": "result.jpg",
+            "size": 24075,
+            "sha256": "58395613d47ecdd1b1fe9620e60b1dbd2b9d46f85a20cf06481381d3f7b29e66"
+          }
+        }
+      },
+      {
+        "case": "archive",
+        "executionId": "b3b50009-a9a6-4165-af40-828e38b0e64c",
+        "runId": "2109918257178767360",
+        "n8nExecutionId": 557,
+        "status": "succeeded",
+        "downloadVerified": true,
+        "outputs": {
+          "target": {
+            "fileName": "result.txt",
+            "size": 35,
+            "sha256": "211695febd5b81c5ee1fb405df2a65fad5aa6addd4e2fab983f5a5285db9b85b"
+          }
+        }
+      },
+      {
+        "case": "archive7z",
+        "executionId": "e52e879e-aa5b-4a6c-a9ed-c5a2bf74231d",
+        "runId": "2109922526053298176",
+        "n8nExecutionId": 605,
+        "status": "succeeded",
+        "downloadVerified": true,
+        "outputs": {
+          "target": {
+            "fileName": "result.txt",
+            "size": 35,
+            "sha256": "211695febd5b81c5ee1fb405df2a65fad5aa6addd4e2fab983f5a5285db9b85b"
+          }
+        }
+      },
+      {
+        "case": "httpfile",
+        "executionId": "e0de46c4-1b7a-4e69-9eac-70941684087e",
+        "runId": "2109918435147280384",
+        "n8nExecutionId": 568,
+        "status": "succeeded",
+        "downloadVerified": true,
+        "outputs": {
+          "target": {
+            "fileName": "result.txt",
+            "size": 35,
+            "sha256": "211695febd5b81c5ee1fb405df2a65fad5aa6addd4e2fab983f5a5285db9b85b"
+          }
+        }
+      }
+    ],
+    "outputContentChecks": {
+      "text": true,
+      "excelCellUpdated": true,
+      "wordText": true,
+      "pdfPageCount": true,
+      "csvValues": true
+    },
+    "browserScreenshot": "Synthetic fixture page URL checked before capture; downloaded image visually verified",
+    "liveNegativeCases": [
+      {
+        "case": "missing",
+        "executionId": "55649511-b92a-4897-b254-c6530f757211",
+        "runId": "2109914737180438528",
+        "status": "failed",
+        "code": "FILE_OUTPUT_INVALID"
+      },
+      {
+        "case": "oversized",
+        "executionId": "668c4813-fc22-44fa-897e-a44ffc7e1f38",
+        "runId": "2109914799331635200",
+        "status": "failed",
+        "code": "FILE_OUTPUT_INVALID"
+      },
+      {
+        "case": "slow",
+        "executionId": "8ae64a75-b6d3-4ab5-9ea5-195510af68e2",
+        "runId": "2109914858672648192",
+        "status": "timeout",
+        "code": "EXECUTION_TIMEOUT"
+      },
+      {
+        "case": "archivebad",
+        "executionId": "b56e004f-98e1-46a6-a9cf-e9a49b1fd405",
+        "runId": "2109918378209603584",
+        "status": "failed",
+        "code": "EXECUTION_FAILED"
+      }
+    ],
+    "controls": {
+      "checks": [
+        "cross-transport idempotent replay",
+        "same-key changed-input rejection",
+        "authorized output reuse through explicit REST",
+        "active input delete denied",
+        "precise cancellation and repeated cancel",
+        "empty binary roundtrip",
+        "exact 10 MiB upload",
+        "10 MiB plus one rejected by node",
+        "deleted handle denied"
+      ],
+      "explicitRestOutputReuse": {
+        "n8nExecutionId": 579,
+        "executionId": "586b0c30-0bec-4664-a30c-a4c6efdf4966",
+        "runId": "2109918671928324096",
+        "status": "succeeded"
+      },
+      "cancellation": {
+        "executionId": "fd215389-f85c-451d-a775-1d5728d5cbca",
+        "runId": "2109918722385801216",
+        "status": "cancelled"
+      }
+    },
+    "n8nRestart": {
+      "parentExecution": 600,
+      "waitingExecution": 601,
+      "executionId": "120d18d2-1ea0-4766-acf3-289a5b1d99b9",
+      "runId": "2109920928925249536",
+      "sameIdentity": true,
+      "waitingBeforeRestart": true,
+      "terminalStatus": "failed",
+      "terminalCode": "FILE_OUTPUT_INVALID",
+      "expectedFailure": "Fixture intentionally omitted the declared output; recovery observed the original failure without redispatch"
+    },
+    "officeAbruptExit": [
+      {
+        "provider": "Ket.Application",
+        "abruptExecutorExitCleanup": true,
+        "workspaceRemoved": true
+      },
+      {
+        "provider": "Kwps.Application",
+        "abruptExecutorExitCleanup": true,
+        "workspaceRemoved": true
+      }
+    ],
+    "importedExample": {
+      "path": "examples/office-file.json",
+      "n8nExecutionId": 602,
+      "executionId": "eb95d81b-ecc0-4ff6-85e6-4495653ae0a9",
+      "runId": "2109921296224645120",
+      "validBinaryOutput": true,
+      "sha256": "ab0c654be766f0e36f89c948fd2ba7e4f85c8ae8a5efa50cdecfc47505b54627"
+    },
+    "issuesFixedAndRetested": [
+      "Client file-transfer TLS compatibility using verified system SSL context",
+      "Strip only executor-echoed root file parameters while continuing to reject other local path disclosure",
+      "DataTable CSV export produced XLSX bytes; corrected to CSV text and verified content",
+      "Browser fixture enum corrected before successful guarded capture"
+    ],
+    "audit": {
+      "serverTerminalCounts": {
+        "COMPLETED": 17,
+        "FAILED": 10,
+        "TIMEOUT": 1,
+        "CANCELLED": 1
+      },
+      "serverNonterminalExecutions": 0,
+      "activeTransferGrants": 0,
+      "client": {
+        "nonterminalExecutions": 0,
+        "residualExecutorProcesses": 0,
+        "residualWorkspaces": 0,
+        "clientIdle": true
+      },
+      "interpretation": "29 terminal records include early failures and an early COMPLETED CSV execution with invalid file format. Terminal counts are not feature pass counts; successful cases above identify corrected runs."
+    },
+    "consistency": {
+      "serverFilesMatched": 11,
+      "clientFilesMatched": 9,
+      "nodePackageFilesMatched": 36,
+      "packageSha256": "d558ab0cc05b5c060bbb5f685d9b44af9aaac2870305612b4a6b22cd0895f38b",
+      "deployedNginxConfigValid": true,
+      "serverWriteBoundary": "Existing source deployment directory only"
+    },
+    "cleanup": {
+      "server": {
+        "fileHandlesRemoved": 42,
+        "unrelatedFileHandlesPreserved": 0,
+        "testDeclarationsRemoved": 14,
+        "originalPolicyEquivalent": true,
+        "workflowRowsRemoved": 14,
+        "nonterminalExecutions": 0,
+        "executionAuditRetained": true,
+        "featureStorageConfigurationRetained": true
+      },
+      "serverDeploymentArtifacts": {
+        "deploymentArtifactsRemoved": true,
+        "fileConfigurationRetained": true
+      },
+      "fixtures": {
+        "temporaryRobotsRemoved": 14
+      },
+      "n8n": {
+        "testWorkflowsRemoved": 7,
+        "testExecutionsRemoved": 115,
+        "unrelatedDataPreserved": true,
+        "pendingExecutions": 0,
+        "keptRunning": true,
+        "healthStatus": 200
+      },
+      "clientAndLocal": {
+        "testRuntimeDirectoriesRemoved": 14,
+        "temporaryCredentialExportRetainedByUserRequest": true,
+        "temporaryCredentialExportPresent": true,
+        "clientExecutionAuditRetained": true,
+        "installedPackageTarballRetained": true,
+        "fixtureHttpServerStopped": true,
+        "n8nHealthStatus": 200
+      }
+    },
+    "notValidated": [
+      "Independent live execution of all 111 admitted operations",
+      "Microsoft Office providers",
+      "Fresh full client EXE build or full Engine dependency graph",
+      "Commercial OCR/document services, enterprise shared storage and other remote file services",
+      "Other pre-existing Engine groups except email in this round",
+      "Multi-instance/queue-mode production capacity",
+      "Full repository make check",
+      "GitHub-hosted CI execution"
+    ],
+    "reviewFollowup": {
+      "date": "2026-10-13",
+      "scope": "Local review corrections only; no real environment integration",
+      "changes": [
+        "Unmanaged archive checks retain host-valid names and case distinctions",
+        "Managed ZIP extraction bounds actual bytes in addition to metadata",
+        "File recovery transfer and Office cleanup run outside the scheduler state lock",
+        "COM0/LPT0 excluded from Windows reserved-name pattern",
+        "CSV formula export semantics documented"
+      ],
+      "tests": {
+        "systemArchive": "12 passed, 1 skipped for Windows symlink privilege",
+        "schedulerManagedFilesAndRecovery": "28 passed",
+        "openapiOfficeFile": "33 passed",
+        "n8n": "44 passed"
+      },
+      "staticChecks": {
+        "ruffAgainstHead": "no new diagnostics",
+        "ruffFormat": "passed",
+        "typescriptTypecheckLintPrettier": "passed",
+        "gitDiffCheck": "passed"
+      },
+      "integrationRun": "not run by request"
+    }
+  },
+  "desktopUiValidation": {
+    "date": "2026-10-14",
+    "baseCommit": "225914d15d328ec6193bbc790b52b4d00c2cc38e",
+    "branch": "feat/office-file-workflows",
+    "workingTreeChanges": "Desktop/UI peer capability, reviewed frozen desktop contract, managed Windows session checks and dialogs, execution recovery fixes and bounded regression coverage; not staged, committed or pushed",
+    "environment": {
+      "n8n": "2.40.7",
+      "node": "24.18.0",
+      "nodePackage": "n8n-nodes-astron-rpa@0.1.0-dev.2",
+      "client": "Existing Windows client with synchronized source; no full EXE rebuild",
+      "primaryPhysicalResolution": {
+        "width": 1920,
+        "height": 1200
+      },
+      "tlsVerificationEnabled": true,
+      "fixture": "Synthetic desktop window and administrator-reviewed published workflows"
+    },
+    "architecture": {
+      "peerModule": "capabilities/desktop-ui.ts",
+      "sharedFileValidation": "capabilities/shared/file-contract.ts",
+      "primaryControlTransport": "mcp",
+      "rest": "Explicit admitted auxiliary execution and existing authorized binary transfer; no uncertain redispatch",
+      "contract": "Public desktopContract and private desktopReview bound to version, schema and revision; frozen in existing data_contract",
+      "databaseMigrationAdded": false,
+      "trustBoundary": "Reviewed deterministic published workflows; not a general Python/GUI sandbox or foreground interception mechanism"
+    },
+    "admission": {
+      "components": {
+        "browser": 39,
+        "dialog": 4,
+        "input": 8,
+        "software": 1,
+        "system": 6,
+        "vision": 5,
+        "window": 4,
+        "winelement": 6
+      },
+      "totalOperations": 73,
+      "allOperationsIndependentlyLiveValidated": false,
+      "excluded": "Model-driven CUA, arbitrary scripts/commands, CAPTCHA handling, process termination, lock/unlock, printing, dynamic forms and arbitrary local file dialogs; Software.close and BrowserSoftware.browser_close excluded because they terminate all processes with the same executable name"
+    },
+    "localTests": {
+      "openapi": {
+        "passed": 342,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "engine-files": {
+        "passed": 33,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "engine-desktop": {
+        "passed": 9,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "engine-vision": {
+        "passed": 2,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "engine-dialog": {
+        "passed": 6,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "engineTotalPassed": 50,
+      "n8n": {
+        "passed": 48,
+        "failed": 0,
+        "skipped": 0
+      },
+      "openapiExistingWarnings": 4
+    },
+    "staticChecks": {
+      "nodeBuild": true,
+      "nodeTypecheck": true,
+      "nodeEslint": true,
+      "nodePrettier": "Passed with --end-of-line auto",
+      "pythonRuffBaselineComparison": [
+        {
+          "scope": "backend/openapi-service/",
+          "files": 8,
+          "headDiagnostics": 6,
+          "currentDiagnostics": 2,
+          "newDiagnostics": [],
+          "formatPassed": true
+        },
+        {
+          "scope": "engine/",
+          "files": 11,
+          "headDiagnostics": 70,
+          "currentDiagnostics": 48,
+          "newDiagnostics": [],
+          "formatPassed": true
+        }
+      ],
+      "actionlint": "main-ci.yml and integration-regression.yml passed",
+      "gitDiffCheck": "passed",
+      "stagingAreaEmpty": true
+    },
+    "ci": {
+      "newOpenapiTest": "test_desktop_ui.py",
+      "newEngineGroups": [
+        "desktop",
+        "vision",
+        "dialog"
+      ],
+      "existingFileRecoveryGroupExtended": true,
+      "githubHostedRunCompleted": false
+    },
+    "liveSuccessfulCases": [
+      {
+        "case": "keyboardMouse",
+        "n8nExecutionId": 620,
+        "executionId": "65c45857-3864-4f42-ab30-e5b1b4d858b9",
+        "runId": "2110187732138487808",
+        "status": "succeeded",
+        "terminal": true,
+        "observed": "Synthetic fixture text changed to desktop-verified"
+      },
+      {
+        "case": "windowElementRead",
+        "n8nExecutionId": 622,
+        "executionId": "4b556447-0f42-45f8-9a05-82f9704e8d5b",
+        "runId": "2110187788266663936",
+        "status": "succeeded",
+        "terminal": true,
+        "observed": "Returned Verified 1"
+      },
+      {
+        "case": "windowResize",
+        "n8nExecutionId": 636,
+        "executionId": "b40ac1a5-c665-4bc1-abf9-b07ad1a8fabf",
+        "runId": "2110195197198495744",
+        "status": "succeeded",
+        "terminal": true,
+        "observed": "Synthetic window brought to top and resized"
+      },
+      {
+        "case": "screenshot",
+        "n8nExecutionId": 638,
+        "executionId": "eb894344-ea01-48e0-bf8f-b1e21378fc4a",
+        "runId": "2110195251577647104",
+        "status": "succeeded",
+        "terminal": true,
+        "observed": "Only synthetic window captured; authorized output downloaded through n8n Binary"
+      },
+      {
+        "case": "fixedImage",
+        "n8nExecutionId": 673,
+        "executionId": "72832e4b-df9f-43c1-a19d-83578cda9d63",
+        "runId": "2110195823949148160",
+        "status": "succeeded",
+        "terminal": true,
+        "observed": "Returned true"
+      },
+      {
+        "case": "nativeMessage",
+        "n8nExecutionId": 675,
+        "executionId": "0167124b-ead3-4b93-a39b-c62222ebbc75",
+        "runId": "2110195876784795648",
+        "status": "succeeded",
+        "terminal": true,
+        "observed": "Returned confirm"
+      },
+      {
+        "case": "nativeInput",
+        "n8nExecutionId": 677,
+        "executionId": "48e0c3b6-374d-48a7-abc3-fe1b369730ef",
+        "runId": "2110195929146486784",
+        "status": "succeeded",
+        "terminal": true,
+        "observed": "Returned native-input-verified"
+      },
+      {
+        "case": "nativeSelection",
+        "n8nExecutionId": 681,
+        "executionId": "8c137715-10b1-4b0b-9308-ff0d77d42d5f",
+        "runId": "2110196485806125056",
+        "status": "succeeded",
+        "terminal": true,
+        "observed": "Returned the fixture option literal containing double quotes: \"beta\""
+      },
+      {
+        "case": "nativeDate",
+        "n8nExecutionId": 683,
+        "executionId": "f5539d2c-caad-4d5a-adcc-17f070eb020d",
+        "runId": "2110196653511176192",
+        "status": "succeeded",
+        "terminal": true,
+        "observed": "Returned 2026-10-14"
+      },
+      {
+        "case": "windowClose",
+        "n8nExecutionId": 698,
+        "executionId": "3ac61950-600a-44b9-a6cb-936dfc7181e0",
+        "runId": "2110198298387181568",
+        "status": "succeeded",
+        "terminal": true,
+        "observed": "Closed the targeted synthetic fixture window"
+      }
+    ],
+    "screenshot": {
+      "executionId": "eb894344-ea01-48e0-bf8f-b1e21378fc4a",
+      "size": 16974,
+      "sha256": "52a30e97de95354f94e3605cce190d96720645ae416bb5642dcbe19fc042c632",
+      "downloadSha256Verified": true,
+      "width": 880,
+      "height": 550,
+      "visuallyCheckedSyntheticFixtureOnly": true
+    },
+    "controls": {
+      "mcp": {
+        "n8nExecutionId": 642,
+        "executionId": "6cb59600-ba5b-488c-ba07-8b1a97be94ae",
+        "runId": "2110195368653254656",
+        "status": "succeeded",
+        "terminal": true
+      },
+      "cross-channel-replay": {
+        "n8nExecutionId": 644,
+        "executionId": "6cb59600-ba5b-488c-ba07-8b1a97be94ae",
+        "runId": "2110195368653254656",
+        "status": "succeeded",
+        "terminal": true
+      },
+      "rest": {
+        "n8nExecutionId": 646,
+        "executionId": "ff07ee05-d870-408a-8402-e2f987e86840",
+        "runId": "2110195423351173120",
+        "status": "succeeded",
+        "terminal": true
+      },
+      "busy": {
+        "executionId": "eaf4cd04-afcf-4632-9e7e-02191338702f",
+        "runId": null,
+        "status": "failed",
+        "terminal": true,
+        "errorCode": "CLIENT_BUSY"
+      },
+      "cancelled": {
+        "executionId": "287c4c16-23eb-4b88-8744-862f30d575a5",
+        "runId": "2110195470130245632",
+        "status": "cancelled",
+        "terminal": true
+      },
+      "popup-blocked": {
+        "executionId": "3a32a420-9125-41d5-9d1b-9bc4bbbeb0b8",
+        "runId": "2110195554800660480",
+        "status": "failed",
+        "terminal": true,
+        "errorCode": "DESKTOP_POPUP_BLOCKED"
+      },
+      "old-cancel-isolated": {
+        "executionId": "d0c435e2-3ab4-4de3-901b-73361133080b",
+        "runId": "2110195605790814208",
+        "status": "running",
+        "terminal": false
+      },
+      "next-cleaned": {
+        "executionId": "d0c435e2-3ab4-4de3-901b-73361133080b",
+        "runId": "2110195605790814208",
+        "status": "cancelled",
+        "terminal": true
+      }
+    },
+    "executionDeadlines": [
+      {
+        "case": "runningWorkflow",
+        "n8nExecutionId": 640,
+        "executionId": "edb7badc-462a-4283-9b3d-5bd3a21d188b",
+        "runId": "2110195302278393856",
+        "status": "timeout",
+        "terminal": true,
+        "code": "EXECUTION_TIMEOUT",
+        "errorCode": "EXECUTION_TIMEOUT",
+        "processStopConfirmed": true
+      },
+      {
+        "case": "unansweredNativeForm",
+        "n8nExecutionId": 679,
+        "executionId": "40a5407b-3c41-4095-bf30-33f66412bb79",
+        "runId": "2110196084134408192",
+        "status": "timeout",
+        "terminal": true,
+        "code": "EXECUTION_TIMEOUT",
+        "errorCode": "EXECUTION_TIMEOUT",
+        "processStopConfirmed": true
+      }
+    ],
+    "n8nRestart": {
+      "parentExecutionId": 685,
+      "waitingExecutionId": 686,
+      "waitingBeforeRestart": true,
+      "afterRestart": {
+        "executionId": "ec19ed7e-aa67-475a-b67d-2d453986b3eb",
+        "runId": "2110197101672558592",
+        "status": "running",
+        "terminal": false,
+        "code": "WAIT_BUDGET_EXPIRED"
+      },
+      "queriedAfterRestart": {
+        "executionId": "ec19ed7e-aa67-475a-b67d-2d453986b3eb",
+        "runId": "2110197101672558592",
+        "status": "succeeded",
+        "terminal": true
+      },
+      "sameIdentity": true,
+      "interpretation": "Original 60-second wait budget expired during downtime; recovered caller reported WAIT_BUDGET_EXPIRED with original identity and last running snapshot. Explicit query found succeeded. Parent wait was not a successful completion."
+    },
+    "clientChannelReconnect": {
+      "trigger": "OpenAPI restart while execution was running",
+      "before": {
+        "executionId": "2b241899-6c46-46db-a9ec-580929e4e0f5",
+        "runId": "2110197992488202240",
+        "status": "running",
+        "terminal": false
+      },
+      "after": {
+        "executionId": "2b241899-6c46-46db-a9ec-580929e4e0f5",
+        "runId": "2110197992488202240",
+        "status": "succeeded",
+        "terminal": true
+      },
+      "clientReconnected": true,
+      "sameIdentity": true
+    },
+    "importedExample": {
+      "file": "examples/desktop-ui.json",
+      "n8nExecutionId": 688,
+      "executionId": "c83b3a0f-97d8-40cc-95c9-621aa738a4e7",
+      "runId": "2110197940332032000",
+      "status": "succeeded",
+      "terminal": true
+    },
+    "finalClientRestartChecks": {
+      "clientRestartReplay": {
+        "n8nExecutionId": 700,
+        "executionId": "b40ac1a5-c665-4bc1-abf9-b07ad1a8fabf",
+        "runId": "2110195197198495744",
+        "status": "succeeded",
+        "terminal": true
+      },
+      "latestClientSuccess": {
+        "n8nExecutionId": 702,
+        "executionId": "8415f715-89e1-4a8b-830d-fd0885d25605",
+        "runId": "2110198656819818496",
+        "status": "succeeded",
+        "terminal": true
+      },
+      "resolution": {
+        "n8nExecutionId": 704,
+        "executionId": "108f9c34-4b87-4f92-8bf3-68c719868e28",
+        "runId": null,
+        "status": "failed",
+        "terminal": true,
+        "code": "DESKTOP_RESOLUTION_MISMATCH",
+        "errorCode": "DESKTOP_RESOLUTION_MISMATCH"
+      },
+      "missing": {
+        "n8nExecutionId": 706,
+        "executionId": "b5d1221e-23f4-43af-a8b6-5bfd272dd12a",
+        "runId": null,
+        "status": "failed",
+        "terminal": true,
+        "code": "DESKTOP_SOFTWARE_UNAVAILABLE",
+        "errorCode": "DESKTOP_SOFTWARE_UNAVAILABLE"
+      }
+    },
+    "issuesFixedAndRetested": [
+      "Use physical display settings rather than DPI-virtualized metrics",
+      "Use user32.GetLastActivePopup for owned popup detection",
+      "Managed native forms no longer depend on designer WebSocket; ordinary designer path preserved",
+      "Guarded desktop runs do not wait for log overlay WebSocket",
+      "Managed vision does not write extra full-screen debug images"
+    ],
+    "finalRecoveryFix": {
+      "change": "Apply persisted desktop interruption before file finish/upload; retain exclusive slot through recovery and cleanup",
+      "validation": "Final unit regressions passed, latest sources synchronized, client restarted, prior execution replay and new success/preflight failures verified",
+      "allGuiGesturesRepeatedAfterThisFix": false
+    },
+    "audit": {
+      "serverClientReceiptsMatched": 35,
+      "statuses": {
+        "COMPLETED": 19,
+        "FAILED": 11,
+        "CANCELLED": 3,
+        "TIMEOUT": 2
+      },
+      "nonterminalExecutions": 0,
+      "testExecutorProcesses": 0,
+      "executorRunning": false,
+      "interpretation": "Includes expected failures, early fixture errors and successful empty branches. COMPLETED count is not a count of independently verified GUI operations."
+    },
+    "consistency": {
+      "clientFilesMatched": 7,
+      "nodePackageFilesMatched": 41,
+      "packageSha256": "c1c6904c5cf673a1e4ae7db14b9d7bedbb2983da7a52cac78d463fe32e5125e1",
+      "serverFilesMatched": 7,
+      "serverWritesRestrictedToSource": true
+    },
+    "cleanup": {
+      "server": {
+        "fileHandlesRemoved": 1,
+        "unrelatedFileHandlesPreserved": 0,
+        "testDeclarationsRemoved": 23,
+        "originalPolicyEquivalent": true,
+        "workflowRowsRemoved": 23,
+        "nonterminalExecutions": 0,
+        "executionAuditRetained": true,
+        "featureStorageConfigurationRetained": true
+      },
+      "serverTemporaryPaths": [
+        ".desktop-ui-source.tgz",
+        ".desktop-ui-20261014"
+      ],
+      "robots": {
+        "temporaryRobotsRemoved": 23
+      },
+      "n8n": {
+        "testWorkflowsRemoved": 7,
+        "testExecutionsRemoved": 100,
+        "unrelatedDataPreserved": true,
+        "pendingExecutions": 0
+      },
+      "client": {
+        "testRuntimeDirectoriesRemoved": 14,
+        "manualCleanupConfirmedAndVerified": true,
+        "remainingTestRuntimeDirectories": 0,
+        "executionAuditRetained": true,
+        "fixturePortClosed": true,
+        "existingOfficeCredentialCopyPreserved": true
+      },
+      "nativeFormsClosed": true,
+      "clientLeftReadyAndIdle": true,
+      "n8nLeftRunningAndHealthy": true,
+      "noNewCredentialExport": true
+    },
+    "notValidated": [
+      "Independent live validation of all 73 admitted operations",
+      "Actual Windows lock/unlock or session switching; failure paths simulated in unit tests",
+      "Password, multi-selection and date-range form interaction; only unit/dispatch coverage",
+      "Every browser desktop gesture, software launch or multi-monitor adaptation",
+      "Full client EXE rebuild",
+      "Full repository make check",
+      "GitHub-hosted CI execution"
+    ]
+  },
+  "aiDynamicRiskValidation": {
+    "date": "2026-10-22",
+    "branch": "feat/office-file-workflows",
+    "baseCommit": "fa08450439b195d2535568f968683d03ba782191",
+    "worktree": "uncommitted",
+    "scope": "Trusted published AI, dynamic-code and high-risk workflow contracts with administrator exact-request approval; peer capability module, shared lifecycle and bounded file/desktop contracts.",
+    "environment": {
+      "client": "existing Windows client with synchronized Python sources",
+      "n8n": "2.40.7",
+      "node": "24.18.0",
+      "python": "3.13.14",
+      "tlsVerification": true,
+      "protocol": "MCP primary; explicit REST auxiliary"
+    },
+    "tests": {
+      "engine-ai": {
+        "passed": 8,
+        "skipped": 0,
+        "failures": 0
+      },
+      "engine-browser": {
+        "passed": 6,
+        "skipped": 0,
+        "failures": 0
+      },
+      "engine-database": {
+        "passed": 12,
+        "skipped": 0,
+        "failures": 0
+      },
+      "engine-datatable": {
+        "passed": 2,
+        "skipped": 0,
+        "failures": 0
+      },
+      "engine-desktop": {
+        "passed": 9,
+        "skipped": 0,
+        "failures": 0
+      },
+      "engine-dialog": {
+        "passed": 6,
+        "skipped": 0,
+        "failures": 0
+      },
+      "engine-email": {
+        "passed": 22,
+        "skipped": 0,
+        "failures": 0
+      },
+      "engine-enterprise": {
+        "passed": 2,
+        "skipped": 0,
+        "failures": 0
+      },
+      "engine-excel": {
+        "passed": 6,
+        "skipped": 0,
+        "failures": 0
+      },
+      "engine-files": {
+        "passed": 39,
+        "skipped": 0,
+        "failures": 0
+      },
+      "engine-network": {
+        "passed": 4,
+        "skipped": 0,
+        "failures": 0
+      },
+      "engine-risk": {
+        "passed": 7,
+        "skipped": 0,
+        "failures": 0
+      },
+      "engine-system": {
+        "passed": 12,
+        "skipped": 1,
+        "failures": 0
+      },
+      "engine-vision": {
+        "passed": 2,
+        "skipped": 0,
+        "failures": 0
+      },
+      "engine-word": {
+        "passed": 4,
+        "skipped": 0,
+        "failures": 0
+      },
+      "n8n": {
+        "passed": 50,
+        "skipped": 0,
+        "failures": 0
+      },
+      "openapi": {
+        "passed": 369,
+        "skipped": 0,
+        "failures": 0
+      }
+    },
+    "ruff": {
+      "files": 29,
+      "formatFailures": [],
+      "newDiagnostics": []
+    },
+    "checks": {
+      "typecheck": true,
+      "eslint": true,
+      "prettierCheckoutLineEndings": true,
+      "build": true,
+      "packInstall": true,
+      "actionlint": true,
+      "hostedCI": "not run",
+      "fullRepoCheck": "not completed; existing frontend enumeration limitation"
+    },
+    "live": {
+      "server": {
+        "serverFilesMatched": 55,
+        "statuses": {
+          "FAILED": 11,
+          "COMPLETED": 6,
+          "CANCELLED": 1,
+          "TIMEOUT": 1
+        },
+        "executions": [
+          {
+            "executionId": "56c46f16-57e3-4deb-bd15-a131582a9649",
+            "projectId": "2113125767092137984",
+            "status": "FAILED",
+            "runId": "2113126285650718720",
+            "error": "UNSUPPORTED_RESULT",
+            "resultSuppressed": false
+          },
+          {
+            "executionId": "b3702d66-c598-4510-abaf-1ad0285edd13",
+            "projectId": "2113125767092137984",
+            "status": "COMPLETED",
+            "runId": "2113127169625452544",
+            "error": null,
+            "resultSuppressed": false
+          },
+          {
+            "executionId": "4c7391c0-a3ab-434c-b49a-cd19cd5107eb",
+            "projectId": "2113125772234354688",
+            "status": "FAILED",
+            "runId": "2113127223249629184",
+            "error": "RISK_CODE_DENIED",
+            "resultSuppressed": false
+          },
+          {
+            "executionId": "d134b407-f313-4272-afb5-a076593c511e",
+            "projectId": "2113125775837261824",
+            "status": "FAILED",
+            "runId": null,
+            "error": "EXECUTION_FAILED",
+            "resultSuppressed": false
+          },
+          {
+            "executionId": "e250e63d-a0bd-4f1f-b13b-fb23e512bee3",
+            "projectId": "2113125775837261824",
+            "status": "FAILED",
+            "runId": "2113128518169686016",
+            "error": "RISK_ARGUMENTS_DENIED",
+            "resultSuppressed": false
+          },
+          {
+            "executionId": "11686221-2b90-48f3-9eb4-7843dd58b197",
+            "projectId": "2113125779385643008",
+            "status": "COMPLETED",
+            "runId": "2113130763959431168",
+            "error": null,
+            "resultSuppressed": false
+          },
+          {
+            "executionId": "d96aad39-a655-4788-ab0d-4c2e990f8b77",
+            "projectId": "2113125779385643008",
+            "status": "COMPLETED",
+            "runId": "2113127542989811712",
+            "error": null,
+            "resultSuppressed": false
+          },
+          {
+            "executionId": "5dbe42a8-6911-449f-90a9-8557945f052b",
+            "projectId": "2113125783047270400",
+            "status": "FAILED",
+            "runId": "2113127596110671872",
+            "error": "RISK_OPERATION_DENIED",
+            "resultSuppressed": false
+          },
+          {
+            "executionId": "5537ae3c-f2fa-4598-af1a-4df715a1310a",
+            "projectId": "2113125786872475648",
+            "status": "FAILED",
+            "runId": "2113127654520549376",
+            "error": "RISK_OPERATION_DENIED",
+            "resultSuppressed": false
+          },
+          {
+            "executionId": "c2c3eadf-c647-4ee5-839e-676fceb53631",
+            "projectId": "2113125790563463168",
+            "status": "CANCELLED",
+            "runId": "2113130430445154304",
+            "error": null,
+            "resultSuppressed": false
+          },
+          {
+            "executionId": "f4ff91e0-3ec6-41b1-979c-8d38eb8ff1a1",
+            "projectId": "2113125790563463168",
+            "status": "TIMEOUT",
+            "runId": "2113128059753230336",
+            "error": null,
+            "resultSuppressed": false
+          },
+          {
+            "executionId": "0cfea86c-74cc-4efd-a4f6-6fcbed69b1be",
+            "projectId": "2113125795189780480",
+            "status": "FAILED",
+            "runId": "2113127713295331328",
+            "error": "UNSUPPORTED_RESULT",
+            "resultSuppressed": true
+          },
+          {
+            "executionId": "d8ca813f-c97f-4203-8466-8a0810199d41",
+            "projectId": "2113125795189780480",
+            "status": "COMPLETED",
+            "runId": "2113128796503699456",
+            "error": null,
+            "resultSuppressed": true
+          },
+          {
+            "executionId": "35783fb0-5eb0-4b5b-9c43-dc1ab31fb108",
+            "projectId": "2113125799040151552",
+            "status": "FAILED",
+            "runId": "2113127782841085952",
+            "error": "UNSUPPORTED_RESULT",
+            "resultSuppressed": false
+          },
+          {
+            "executionId": "ce21e05e-7f35-4637-9265-3b2383103e4a",
+            "projectId": "2113125802903105536",
+            "status": "FAILED",
+            "runId": "2113127846598701056",
+            "error": "UNSUPPORTED_RESULT",
+            "resultSuppressed": false
+          },
+          {
+            "executionId": "81cbebdb-c9a8-4970-bfa7-1f8113ca4320",
+            "projectId": "2113125806736699392",
+            "status": "COMPLETED",
+            "runId": "2113127899690201088",
+            "error": null,
+            "resultSuppressed": false
+          },
+          {
+            "executionId": "95d920aa-cb72-4e44-9012-6a97f3def893",
+            "projectId": "2113125810742259712",
+            "status": "COMPLETED",
+            "runId": "2113128477191335936",
+            "error": null,
+            "resultSuppressed": false
+          },
+          {
+            "executionId": "c66c3585-414f-4432-8c3e-5e3f383fd583",
+            "projectId": "2113125810742259712",
+            "status": "FAILED",
+            "runId": "2113127951670210560",
+            "error": null,
+            "resultSuppressed": false
+          },
+          {
+            "executionId": "6d05e9a8-ba22-472d-81c3-388d2cd5eedd",
+            "projectId": "2113125814840094720",
+            "status": "FAILED",
+            "runId": "2113128008700162048",
+            "error": null,
+            "resultSuppressed": false
+          }
+        ],
+        "invalidResultsNotPersisted": true,
+        "nonterminal": 0
+      },
+      "client": {
+        "clientSourcesMatched": 228,
+        "clientReceipts": [
+          {
+            "executionId": "56c46f16-57e3-4deb-bd15-a131582a9649",
+            "clientStatus": "succeeded",
+            "serverStatus": "FAILED"
+          },
+          {
+            "executionId": "b3702d66-c598-4510-abaf-1ad0285edd13",
+            "clientStatus": "succeeded",
+            "serverStatus": "COMPLETED"
+          },
+          {
+            "executionId": "4c7391c0-a3ab-434c-b49a-cd19cd5107eb",
+            "clientStatus": "failed",
+            "serverStatus": "FAILED"
+          },
+          {
+            "executionId": "d134b407-f313-4272-afb5-a076593c511e",
+            "clientStatus": "failed",
+            "serverStatus": "FAILED"
+          },
+          {
+            "executionId": "d96aad39-a655-4788-ab0d-4c2e990f8b77",
+            "clientStatus": "succeeded",
+            "serverStatus": "COMPLETED"
+          },
+          {
+            "executionId": "5dbe42a8-6911-449f-90a9-8557945f052b",
+            "clientStatus": "failed",
+            "serverStatus": "FAILED"
+          },
+          {
+            "executionId": "5537ae3c-f2fa-4598-af1a-4df715a1310a",
+            "clientStatus": "failed",
+            "serverStatus": "FAILED"
+          },
+          {
+            "executionId": "0cfea86c-74cc-4efd-a4f6-6fcbed69b1be",
+            "clientStatus": "succeeded",
+            "serverStatus": "FAILED"
+          },
+          {
+            "executionId": "35783fb0-5eb0-4b5b-9c43-dc1ab31fb108",
+            "clientStatus": "succeeded",
+            "serverStatus": "FAILED"
+          },
+          {
+            "executionId": "ce21e05e-7f35-4637-9265-3b2383103e4a",
+            "clientStatus": "succeeded",
+            "serverStatus": "FAILED"
+          },
+          {
+            "executionId": "81cbebdb-c9a8-4970-bfa7-1f8113ca4320",
+            "clientStatus": "succeeded",
+            "serverStatus": "COMPLETED"
+          },
+          {
+            "executionId": "c66c3585-414f-4432-8c3e-5e3f383fd583",
+            "clientStatus": "failed",
+            "serverStatus": "FAILED"
+          },
+          {
+            "executionId": "6d05e9a8-ba22-472d-81c3-388d2cd5eedd",
+            "clientStatus": "failed",
+            "serverStatus": "FAILED"
+          },
+          {
+            "executionId": "f4ff91e0-3ec6-41b1-979c-8d38eb8ff1a1",
+            "clientStatus": "timeout",
+            "serverStatus": "TIMEOUT"
+          },
+          {
+            "executionId": "95d920aa-cb72-4e44-9012-6a97f3def893",
+            "clientStatus": "succeeded",
+            "serverStatus": "COMPLETED"
+          },
+          {
+            "executionId": "e250e63d-a0bd-4f1f-b13b-fb23e512bee3",
+            "clientStatus": "failed",
+            "serverStatus": "FAILED"
+          },
+          {
+            "executionId": "d8ca813f-c97f-4203-8466-8a0810199d41",
+            "clientStatus": "succeeded",
+            "serverStatus": "COMPLETED"
+          },
+          {
+            "executionId": "c2c3eadf-c647-4ee5-839e-676fceb53631",
+            "clientStatus": "cancelled",
+            "serverStatus": "CANCELLED"
+          },
+          {
+            "executionId": "11686221-2b90-48f3-9eb4-7843dd58b197",
+            "clientStatus": "succeeded",
+            "serverStatus": "COMPLETED"
+          }
+        ],
+        "riskAuditEvents": 42,
+        "auditEvents": {
+          "accepted": 25,
+          "code-accepted": 13,
+          "code-denied": 1,
+          "denied": 3
+        },
+        "sensitiveAuditValuesAbsent": true,
+        "testExecutorProcesses": 0,
+        "clientIdle": true
+      },
+      "lifecycle": {
+        "crossTransportReplay": {
+          "executionId": "b3702d66-c598-4510-abaf-1ad0285edd13",
+          "runId": "2113127169625452544"
+        },
+        "restQuery": true,
+        "fileBinary": {
+          "fileName": "risk.txt",
+          "sha256": "4a56a0dd21a085cd30c0528409428eef513357e1f0a12bab220ddf6ca720ecf9",
+          "size": 25
+        },
+        "cancelExecutionId": "c2c3eadf-c647-4ee5-839e-676fceb53631",
+        "cancel": {
+          "executionId": "c2c3eadf-c647-4ee5-839e-676fceb53631",
+          "runId": "2113130430445154304",
+          "status": "cancelled"
+        },
+        "preparationRecovery": {
+          "executionId": "d134b407-f313-4272-afb5-a076593c511e",
+          "status": "failed",
+          "runId": null
+        }
+      },
+      "revokedApprovalReplay": [
+        {
+          "transport": "mcp",
+          "executionId": "b3702d66-c598-4510-abaf-1ad0285edd13",
+          "runId": "2113127169625452544"
+        },
+        {
+          "transport": "rest",
+          "executionId": "b3702d66-c598-4510-abaf-1ad0285edd13",
+          "runId": "2113127169625452544"
+        }
+      ],
+      "finalRestExecution": {
+        "revokedNewRequestCode": "RISK_APPROVAL_REQUIRED",
+        "restFreshExecution": {
+          "executionId": "11686221-2b90-48f3-9eb4-7843dd58b197",
+          "projectId": "2113125779385643008",
+          "version": 1,
+          "status": "succeeded",
+          "terminal": true,
+          "acceptedAt": "2026-10-22T04:50:08+00:00",
+          "startedAt": "2026-10-22T04:50:09+00:00",
+          "finishedAt": "2026-10-22T04:50:11+00:00",
+          "clientId": "549738d6-5ccc-4af2-9748-dc9511862e06",
+          "runId": "2113130763959431168",
+          "cancelRequested": false,
+          "error": null,
+          "supportsCancel": false,
+          "resultVisibility": "json",
+          "result": {
+            "value": "fixture",
+            "result": {
+              "rows": "[{\"value\": 7}]"
+            }
+          }
+        },
+        "oldCancellationIsolation": true
+      },
+      "approvalRejections": [
+        {
+          "name": "missing",
+          "code": "RISK_APPROVAL_REQUIRED",
+          "executionId": null
+        },
+        {
+          "name": "changedParams",
+          "code": "RISK_APPROVAL_REQUIRED",
+          "executionId": null
+        },
+        {
+          "name": "changedDeadline",
+          "code": "RISK_APPROVAL_REQUIRED",
+          "executionId": null
+        },
+        {
+          "name": "expired",
+          "code": "RISK_APPROVAL_REQUIRED",
+          "executionId": null
+        }
+      ],
+      "modelProvider": "Synthetic loopback Dify-compatible provider only; real inference returned HTTP 500. The user confirmed no usable model configuration is available, so successful real-model inference remains unverified.",
+      "auditPolicy": "Private events contain identifiers, hashes and counts only; contracts and execution audit retained."
+    },
+    "consistency": {
+      "serverSources": 55,
+      "clientSources": 228,
+      "installedPackageFiles": 45,
+      "compiledFiles": 38,
+      "tarballSha256": "b713aa9da10336a0c9a1c4d5e404e16f0f778159f5949a009f4deceb760759ed"
+    },
+    "cleanup": {
+      "robots": {
+        "temporaryRobotsRemoved": 13
+      },
+      "server": {
+        "fileHandlesRemoved": 1,
+        "unrelatedFileHandlesPreserved": 0,
+        "testDeclarationsRemoved": 13,
+        "originalPolicyEquivalent": true,
+        "workflowRowsRemoved": 13,
+        "nonterminalExecutions": 0,
+        "executionAuditRetained": true,
+        "featureStorageConfigurationRetained": true
+      },
+      "n8n": {
+        "testWorkflowsRemoved": 4,
+        "testExecutionsRemoved": 74,
+        "unrelatedDataPreserved": true,
+        "pendingExecutions": 0
+      },
+      "serverTemporaryFiles": {
+        "serverSourcesMatched": 55,
+        "temporaryServerPathsRemoved": 2,
+        "outsideSourceModified": false
+      },
+      "localRuntimeCaches": "Read-only verification after user cleanup confirmed all 13 client directories and the n8n storage/workflows/risk20261022downloadFile binary directory are absent. Execution audit is retained; temporary runtime cache cleanup is complete.",
+      "auditRetained": true,
+      "existingCredentialCopyPreservedPerUser": true
+    },
+    "health": {
+      "n8nHealthy": true,
+      "clientIdle": true,
+      "mcpConnected": true
+    },
+    "unverified": [
+      "Real model success requires provider configuration",
+      "Full packaged EXE rebuild",
+      "All individual AI/dynamic/high-risk operations",
+      "Real irreversible actions",
+      "Remote database and external agent products",
+      "All mixed GUI workflows",
+      "GitHub hosted CI"
+    ],
+    "noStageCommitPush": true
+  },
+  "stage4RebaseAudit": {
+    "date": "2026-10-22",
+    "branch": "feat/office-file-workflows",
+    "rebase": {
+      "beforeHead": "fa08450439b195d2535568f968683d03ba782191",
+      "afterHead": "e7e07c9fe6fa293719189be696c2aa7c61e0fd8b",
+      "upstream": "65e97b93e4adc262d1a98dfabb9a6450f20f0384",
+      "stash": "3d37c92a9d9cb4e7b0541f5b9ad6af1d63d0e711",
+      "exactFiles": 43,
+      "lineEndingOnlyFiles": [],
+      "unexpectedChanges": [],
+      "stashDisposition": "Dropped after byte-for-byte restoration was verified, at user request in the subsequent closure run; stash list empty"
+    },
+    "scope": "Local static and regression audit of public framework and five peer capability groups; no deployed host operations",
+    "fixes": [
+      "JSON-data now rejects file/GUI/human requirements, non-low risk and declared side effects in server and node",
+      "Risk approval resolves reviewed method identities when legacy metadata uses a different group, preserving existing keys and refusing alias fallback after argument denial",
+      "Node/server risk operation inventories and deliberate denials have an additional regression check"
+    ],
+    "inventory": {
+      "componentDirectories": 26,
+      "catalogComponents": 26,
+      "operationCounts": {
+        "serviceReadOperations": 29,
+        "officeFileOperations": 111,
+        "desktopOperations": 73,
+        "riskOperations": 46
+      },
+      "missingAtomicKeys": [],
+      "serverNodeDrift": {},
+      "metadataAliases": {
+        "GuiKeyBoard.keyboard": "Gui.keyboard",
+        "GuiKeyBoard.key_input": "Gui.key_input",
+        "GuiMouse.mouse": "Gui.mouse",
+        "GuiMouse.mouse_wheel": "Gui.mouse_wheel",
+        "GuiMouse.mouse_move": "Gui.mouse_move",
+        "GuiMouse.mouse_move_new": "Gui.mouse_move_new",
+        "GuiMouse.mouse_drag": "Gui.mouse_drag",
+        "GuiMouse.mouse_position": "Gui.mouse_position",
+        "FTP.ftp_create": "Network.ftp_create",
+        "FTP.ftp_close": "Network.ftp_close",
+        "FTP.get_work_dir": "Network.get_work_dir",
+        "FTP.change_working_dir": "Network.change_working_dir",
+        "FTP.create_folder": "Network.create_folder",
+        "FTP.get_ftp_list": "Network.get_ftp_list",
+        "FTP.ftp_rename": "Network.ftp_rename",
+        "FTP.ftp_upload": "Network.ftp_upload",
+        "FTP.ftp_download": "Network.ftp_download",
+        "FTP.ftp_delete": "Network.ftp_delete",
+        "Clipboard.copy_clip": "System.copy_clip",
+        "Clipboard.clear_clip": "System.clear_clip",
+        "Clipboard.paste_clip": "System.paste_clip",
+        "Compress.compress": "System.compress",
+        "Compress.uncompress": "System.uncompress",
+        "Process.run_command": "System.run_command",
+        "Process.get_pid": "System.get_pid",
+        "Process.terminate_process": "System.terminate_process"
+      },
+      "operationsOutsideExplicitLists": {
+        "astronverse-dialog": [
+          "Dialog.custom_box",
+          "Dialog.select_file_box"
+        ],
+        "astronverse-excel": [
+          "Excel.copy_excel",
+          "Excel.get_excel",
+          "Excel.paste_excel"
+        ]
+      }
+    },
+    "tests": {
+      "engine-ai": {
+        "total": 8,
+        "failed": 0,
+        "skipped": 0,
+        "passed": 8
+      },
+      "engine-browser": {
+        "total": 6,
+        "failed": 0,
+        "skipped": 0,
+        "passed": 6
+      },
+      "engine-database": {
+        "total": 12,
+        "failed": 0,
+        "skipped": 0,
+        "passed": 12
+      },
+      "engine-datatable": {
+        "total": 2,
+        "failed": 0,
+        "skipped": 0,
+        "passed": 2
+      },
+      "engine-desktop": {
+        "total": 9,
+        "failed": 0,
+        "skipped": 0,
+        "passed": 9
+      },
+      "engine-dialog": {
+        "total": 6,
+        "failed": 0,
+        "skipped": 0,
+        "passed": 6
+      },
+      "engine-email": {
+        "total": 22,
+        "failed": 0,
+        "skipped": 0,
+        "passed": 22
+      },
+      "engine-enterprise": {
+        "total": 2,
+        "failed": 0,
+        "skipped": 0,
+        "passed": 2
+      },
+      "engine-excel": {
+        "total": 6,
+        "failed": 0,
+        "skipped": 0,
+        "passed": 6
+      },
+      "engine-files": {
+        "total": 39,
+        "failed": 0,
+        "skipped": 0,
+        "passed": 39
+      },
+      "engine-network": {
+        "total": 4,
+        "failed": 0,
+        "skipped": 0,
+        "passed": 4
+      },
+      "engine-risk": {
+        "total": 10,
+        "failed": 0,
+        "skipped": 0,
+        "passed": 10
+      },
+      "engine-system": {
+        "total": 13,
+        "failed": 0,
+        "skipped": 1,
+        "passed": 12
+      },
+      "engine-vision": {
+        "total": 2,
+        "failed": 0,
+        "skipped": 0,
+        "passed": 2
+      },
+      "engine-word": {
+        "total": 4,
+        "failed": 0,
+        "skipped": 0,
+        "passed": 4
+      },
+      "n8n": {
+        "total": 52,
+        "failed": 0,
+        "skipped": 0,
+        "passed": 52
+      },
+      "openapi": {
+        "total": 373,
+        "failed": 0,
+        "skipped": 0,
+        "passed": 373
+      }
+    },
+    "supplementalDataBaseline": {
+      "dataprocess": {
+        "current": {
+          "tests": 218,
+          "failures": [
+            "test_get_shared_variable_empty_list",
+            "test_get_shared_variable_encrypted_variables",
+            "test_get_shared_variable_mixed_variables",
+            "test_get_shared_variable_no_sub_var_list",
+            "test_get_shared_variable_normal_variables",
+            "test_get_value_from_dict_nonexistent_key_return_default_none",
+            "test_create_new_list_user_defined",
+            "test_create_new_list_with_string_format",
+            "test_remove_value_from_list_by_index_multiple",
+            "test_generate_random_number_float_multiple",
+            "test_generate_random_number_integer_multiple",
+            "test_fill_string_to_length_right",
+            "test_get_time_difference_invalid_unit"
+          ]
+        },
+        "main": {
+          "tests": 218,
+          "failures": [
+            "test_get_shared_variable_empty_list",
+            "test_get_shared_variable_encrypted_variables",
+            "test_get_shared_variable_mixed_variables",
+            "test_get_shared_variable_no_sub_var_list",
+            "test_get_shared_variable_normal_variables",
+            "test_get_value_from_dict_nonexistent_key_return_default_none",
+            "test_create_new_list_user_defined",
+            "test_create_new_list_with_string_format",
+            "test_remove_value_from_list_by_index_multiple",
+            "test_generate_random_number_float_multiple",
+            "test_generate_random_number_integer_multiple",
+            "test_fill_string_to_length_right",
+            "test_get_time_difference_invalid_unit"
+          ]
+        },
+        "sameFailures": true
+      },
+      "encrypt": {
+        "current": {
+          "tests": 3,
+          "failures": [
+            "test_base64_encode"
+          ]
+        },
+        "main": {
+          "tests": 3,
+          "failures": [
+            "test_base64_encode"
+          ]
+        },
+        "sameFailures": true
+      }
+    },
+    "pythonStatic": {
+      "scope": "Python files changed by public framework and five capability delivery commits plus worktree",
+      "files": 88,
+      "ast": "passed",
+      "formatFailures": [],
+      "inheritedRuffDiagnostics": 580,
+      "newRuffDiagnostics": []
+    },
+    "checks": {
+      "typecheck": "passed",
+      "eslint": "passed",
+      "prettier": "passed (--end-of-line auto)",
+      "build": "passed",
+      "actionlint": "passed (main-ci and integration-regression)",
+      "engineLock": "passed",
+      "openapiLock": "passed",
+      "diffCheck": "passed",
+      "rootMakeCheck": {
+        "status": "timeout",
+        "timeoutSeconds": 45,
+        "reason": "Root check did not finish; only the newly started check process tree was stopped"
+      }
+    },
+    "package": {
+      "files": 45,
+      "sha256": "bfa5c555e639288f25163dd2fd4886db37c3cac9822157e5fa3fd5c53471a2c6",
+      "compiledFilesMatchLocalBuild": true,
+      "installedIntoHost": false
+    },
+    "acceptance": "Not complete for all planned functionality and coverage: targeted integration regression passes, but 14 supplemental original-component tests fail identically on main and the current branch; host/provider acceptance remains bounded",
+    "unverified": [
+      "All operation-by-operation live checks",
+      "Successful real-model inference (user has no usable provider configuration)",
+      "Complete client EXE rebuild and installed-host checks",
+      "Remote databases, all Office/GUI combinations and external providers",
+      "Hosted GitHub CI"
+    ],
+    "workspace": "Existing commits rebased; original 43 worktree files restored before bounded fixes; historical snapshot subsequently dropped at user request; worktree retained unstaged; no new feature commit or push"
+  },
+  "stage4ClosureValidation": {
+    "date": "2026-10-22",
+    "branch": "feat/office-file-workflows",
+    "head": "e7e07c9fe6fa293719189be696c2aa7c61e0fd8b",
+    "scope": "Bounded fixes from the prior full-category audit; targeted static regression and current three-host controlled validation; no commit/push",
+    "fixes": [
+      "Normalize parsed multi-delete list indices before reverse deletion",
+      "Use integer right-padding length",
+      "Preserve existing dictionary null values",
+      "Only read files for Base64 picture mode",
+      "Migrate shared-variable tests to Enterprise and correct obsolete arguments/assertions",
+      "Add dataprocess and encrypt to isolated Engine CI matrix"
+    ],
+    "prior14Failures": "Resolved by component fixes or current-interface test migration; dataprocess 217, encrypt 4 and enterprise 6 pass",
+    "tests": {
+      "engine-ai": {
+        "passed": 8,
+        "skipped": 0,
+        "failures": 0
+      },
+      "engine-browser": {
+        "passed": 6,
+        "skipped": 0,
+        "failures": 0
+      },
+      "engine-database": {
+        "passed": 12,
+        "skipped": 0,
+        "failures": 0
+      },
+      "engine-dataprocess": {
+        "passed": 217,
+        "skipped": 0,
+        "failures": 0
+      },
+      "engine-datatable": {
+        "passed": 2,
+        "skipped": 0,
+        "failures": 0
+      },
+      "engine-desktop": {
+        "passed": 9,
+        "skipped": 0,
+        "failures": 0
+      },
+      "engine-dialog": {
+        "passed": 6,
+        "skipped": 0,
+        "failures": 0
+      },
+      "engine-email": {
+        "passed": 22,
+        "skipped": 0,
+        "failures": 0
+      },
+      "engine-encrypt": {
+        "passed": 4,
+        "skipped": 0,
+        "failures": 0
+      },
+      "engine-enterprise": {
+        "passed": 6,
+        "skipped": 0,
+        "failures": 0
+      },
+      "engine-excel": {
+        "passed": 6,
+        "skipped": 0,
+        "failures": 0
+      },
+      "engine-files": {
+        "passed": 39,
+        "skipped": 0,
+        "failures": 0
+      },
+      "engine-network": {
+        "passed": 4,
+        "skipped": 0,
+        "failures": 0
+      },
+      "engine-risk": {
+        "passed": 10,
+        "skipped": 0,
+        "failures": 0
+      },
+      "engine-system": {
+        "passed": 12,
+        "skipped": 1,
+        "failures": 0
+      },
+      "engine-vision": {
+        "passed": 2,
+        "skipped": 0,
+        "failures": 0
+      },
+      "engine-word": {
+        "passed": 4,
+        "skipped": 0,
+        "failures": 0
+      },
+      "openapi": {
+        "passed": 373,
+        "skipped": 0,
+        "failures": 0
+      },
+      "n8n": {
+        "passed": 52,
+        "skipped": 0,
+        "failures": 0
+      }
+    },
+    "engineTotals": {
+      "groups": 17,
+      "passed": 369,
+      "skipped": 1,
+      "failures": 0,
+      "skipReason": "POSIX-only archive member names on Windows"
+    },
+    "checks": {
+      "typecheck": "passed",
+      "eslint": "passed",
+      "prettier": "passed (--end-of-line auto)",
+      "build": "passed",
+      "pack": "passed",
+      "actionlint": "passed",
+      "engineLock": "passed",
+      "openapiLock": "passed",
+      "hostedCI": "not run",
+      "fullRepositoryMakeCheck": "Prior 45-second timeout; not passed"
+    },
+    "pythonStatic": {
+      "scope": "Python files changed by public framework and five capability delivery commits plus worktree",
+      "files": 99,
+      "ast": "passed",
+      "formatFailures": [],
+      "inheritedRuffDiagnostics": 877,
+      "newRuffDiagnostics": []
+    },
+    "inventory": {
+      "componentDirectories": 26,
+      "catalogComponents": 26,
+      "operationCounts": {
+        "serviceReadOperations": 29,
+        "officeFileOperations": 111,
+        "desktopOperations": 73,
+        "riskOperations": 46
+      },
+      "missingAtomicKeys": [],
+      "serverNodeDrift": {},
+      "metadataAliases": {
+        "GuiKeyBoard.keyboard": "Gui.keyboard",
+        "GuiKeyBoard.key_input": "Gui.key_input",
+        "GuiMouse.mouse": "Gui.mouse",
+        "GuiMouse.mouse_wheel": "Gui.mouse_wheel",
+        "GuiMouse.mouse_move": "Gui.mouse_move",
+        "GuiMouse.mouse_move_new": "Gui.mouse_move_new",
+        "GuiMouse.mouse_drag": "Gui.mouse_drag",
+        "GuiMouse.mouse_position": "Gui.mouse_position",
+        "FTP.ftp_create": "Network.ftp_create",
+        "FTP.ftp_close": "Network.ftp_close",
+        "FTP.get_work_dir": "Network.get_work_dir",
+        "FTP.change_working_dir": "Network.change_working_dir",
+        "FTP.create_folder": "Network.create_folder",
+        "FTP.get_ftp_list": "Network.get_ftp_list",
+        "FTP.ftp_rename": "Network.ftp_rename",
+        "FTP.ftp_upload": "Network.ftp_upload",
+        "FTP.ftp_download": "Network.ftp_download",
+        "FTP.ftp_delete": "Network.ftp_delete",
+        "Clipboard.copy_clip": "System.copy_clip",
+        "Clipboard.clear_clip": "System.clear_clip",
+        "Clipboard.paste_clip": "System.paste_clip",
+        "Compress.compress": "System.compress",
+        "Compress.uncompress": "System.uncompress",
+        "Process.run_command": "System.run_command",
+        "Process.get_pid": "System.get_pid",
+        "Process.terminate_process": "System.terminate_process"
+      },
+      "operationsOutsideExplicitLists": {
+        "astronverse-dialog": [
+          "Dialog.custom_box",
+          "Dialog.select_file_box"
+        ],
+        "astronverse-excel": [
+          "Excel.copy_excel",
+          "Excel.get_excel",
+          "Excel.paste_excel"
+        ]
+      }
+    },
+    "successfulLiveOperations": {
+      "json-data": [
+        "DictProcess.get_value_from_dict",
+        "Encrypt.base64_encoding",
+        "ListProcess.remove_value_from_list",
+        "StringProcess.fill_string_to_length"
+      ],
+      "ai-dynamic-risk": [
+        "Agent.call_dify",
+        "Compress.compress",
+        "Database.connect_database",
+        "Database.execute_sql",
+        "Database.query_sql",
+        "Smart.run_code"
+      ],
+      "office-file": [
+        "Compress.uncompress",
+        "DataTable.export_data_table_to_file",
+        "DataTable.import_data_table_from_file",
+        "Docx.close_docx",
+        "Docx.open_docx",
+        "Docx.read_docx",
+        "Docx.save_docx",
+        "Excel.edit_excel",
+        "Excel.open_excel",
+        "Excel.read_excel",
+        "Excel.save_excel",
+        "File.file_read",
+        "File.file_write",
+        "PDF.extract_pdf_file",
+        "PDF.get_pages_num"
+      ],
+      "desktop-ui": [
+        "GuiKeyBoard.keyboard",
+        "GuiMouse.mouse",
+        "GuiMouse.mouse_move",
+        "System.screen_shot",
+        "WinEle.get_element_text",
+        "Window.exist",
+        "Window.set_size",
+        "Window.top"
+      ],
+      "service-http-read": [
+        "Network.http_request"
+      ],
+      "service-database-read": [
+        "Database.connect_database",
+        "Database.disconnect_database",
+        "Database.query_sql"
+      ]
+    },
+    "liveAssertions": {
+      "assertedScenarios": 19,
+      "preliminaryFailures": [
+        {
+          "name": "http",
+          "executionId": "34ff2769-ec63-4df3-b518-b77a27f3903b"
+        },
+        {
+          "name": "sqlite",
+          "executionId": "3f43bc63-3379-493c-a16b-aa6f3120cc21"
+        }
+      ],
+      "allExpected": true
+    },
+    "preliminaryFixtureIssues": [
+      "Loopback provider had exited before first HTTP request; restarted for successful verification",
+      "SQLite read_only mode expects an existing file; replaced :memory: with a real disposable database file",
+      "One JSON denial attempt returned TRANSPORT_UNCONFIRMED; connection recovered and denial verified before dispatch"
+    ],
+    "lifecycle": {
+      "data": {
+        "executionId": "e86736e9-7dc9-42b1-bc6b-7b9e7743fab8",
+        "runId": "2113160289615638528",
+        "crossTransportReplay": true
+      },
+      "dynamic": {
+        "executionId": "5864b474-d907-4d44-99eb-f476d64f5e48",
+        "runId": "2113160343264980992",
+        "crossTransportReplay": true
+      },
+      "http": {
+        "executionId": "af02277f-f1be-4c59-a910-ffeee0e51a0e",
+        "runId": "2113161962211799040",
+        "crossTransportReplay": true
+      },
+      "sqliteRead": {
+        "executionId": "6bf1866b-9a96-4c3f-960f-bf5f535e563c",
+        "runId": "2113162013185175552",
+        "crossTransportReplay": true
+      },
+      "office": {
+        "executionId": "cdec82c9-ecbe-45af-9bcc-6a386217e0c1",
+        "runId": "2113160517076938752",
+        "crossTransportReplay": true
+      },
+      "cancel": {
+        "executionId": "1d67f1f7-82b6-4e8e-b469-35edc583ca0d",
+        "runId": "2113163493602521088",
+        "status": "cancelled"
+      }
+    },
+    "approvalBoundaries": [
+      {
+        "name": "missing",
+        "code": "RISK_APPROVAL_REQUIRED",
+        "notDispatched": true
+      },
+      {
+        "name": "changedParams",
+        "code": "RISK_APPROVAL_REQUIRED",
+        "notDispatched": true
+      },
+      {
+        "name": "changedDeadline",
+        "code": "RISK_APPROVAL_REQUIRED",
+        "notDispatched": true
+      },
+      {
+        "name": "expired",
+        "code": "RISK_APPROVAL_REQUIRED",
+        "notDispatched": true
+      }
+    ],
+    "jsonAdmission": {
+      "jsonHumanRequiredFixture": true,
+      "admission": {
+        "allowed": false,
+        "reason": "JSON_DATA_UNSUPPORTED",
+        "enforced": true
+      }
+    },
+    "nodeJsonDenial": {
+      "code": "ADMISSION_DENIED",
+      "notDispatched": true
+    },
+    "revokedReplay": [
+      {
+        "transport": "mcp",
+        "executionId": "5864b474-d907-4d44-99eb-f476d64f5e48",
+        "runId": "2113160343264980992"
+      },
+      {
+        "transport": "rest",
+        "executionId": "5864b474-d907-4d44-99eb-f476d64f5e48",
+        "runId": "2113160343264980992"
+      }
+    ],
+    "freshRestAndOldCancellationIsolation": {
+      "revokedNewRequestCode": "RISK_APPROVAL_REQUIRED",
+      "restFreshExecution": {
+        "executionId": "566c5b80-ad22-44a4-a47d-7c631ae127b3",
+        "projectId": "2113160033695985664",
+        "version": 1,
+        "status": "succeeded",
+        "terminal": true,
+        "acceptedAt": "2026-10-22T07:03:20+00:00",
+        "startedAt": "2026-10-22T07:03:20+00:00",
+        "finishedAt": "2026-10-22T07:03:22+00:00",
+        "clientId": "549738d6-5ccc-4af2-9748-dc9511862e06",
+        "runId": "2113164280705609728",
+        "cancelRequested": false,
+        "error": null,
+        "supportsCancel": false,
+        "resultVisibility": "json",
+        "result": {
+          "value": "fixture",
+          "result": {
+            "rows": "[{\"value\": 7}]"
+          }
+        }
+      },
+      "oldCancellationIsolation": true
+    },
+    "desktop": {
+      "textVerified": true,
+      "rect": [
+        80,
+        80,
+        427,
+        300
+      ]
+    },
+    "fileContentChecks": {
+      "text": true,
+      "zip": true,
+      "sevenZip": true,
+      "compressAliasArchiveContent": true,
+      "excelCellUpdated": true,
+      "wordText": true,
+      "pdfPageCount": true,
+      "csvValues": true,
+      "desktopPng": true
+    },
+    "binary": {
+      "desktop": {
+        "bytes": 13467,
+        "sha256": "cddfc2fad4d64431590255242886d2a4c893f4c8060c56990cfdb04695561a4c"
+      },
+      "office": {
+        "bytes": 19,
+        "sha256": "4b7e024e175b8576a31fd2524b7b8ec84be6ffac24ddf432cc63b8e30d2794b9"
+      },
+      "compress": {
+        "bytes": 142,
+        "sha256": "fc06d08dd526e5995f5295eeb4ed445e2c22b39e7ff9746dcb6865ce62cd95d1"
+      }
+    },
+    "abruptOfficeExit": [
+      {
+        "provider": "Ket.Application",
+        "abruptExecutorExitCleanup": true,
+        "workspaceRemoved": true
+      },
+      {
+        "provider": "Kwps.Application",
+        "abruptExecutorExitCleanup": true,
+        "workspaceRemoved": true
+      }
+    ],
+    "server": {
+      "serverFilesMatched": 55,
+      "statuses": {
+        "COMPLETED": 18,
+        "FAILED": 9,
+        "TIMEOUT": 1,
+        "CANCELLED": 1
+      },
+      "executions": [
+        {
+          "executionId": "5864b474-d907-4d44-99eb-f476d64f5e48",
+          "projectId": "2113160022484611072",
+          "status": "COMPLETED",
+          "runId": "2113160343264980992",
+          "error": null,
+          "resultSuppressed": false
+        },
+        {
+          "executionId": "f6155318-fed1-4488-bdfa-c63c3a871e23",
+          "projectId": "2113160026217541632",
+          "status": "FAILED",
+          "runId": "2113162068759703552",
+          "error": "RISK_CODE_DENIED",
+          "resultSuppressed": false
+        },
+        {
+          "executionId": "2fc624bf-d8ca-4c66-987d-be4bc236ebb5",
+          "projectId": "2113160029782700032",
+          "status": "FAILED",
+          "runId": "2113162118885830656",
+          "error": "RISK_ARGUMENTS_DENIED",
+          "resultSuppressed": false
+        },
+        {
+          "executionId": "566c5b80-ad22-44a4-a47d-7c631ae127b3",
+          "projectId": "2113160033695985664",
+          "status": "COMPLETED",
+          "runId": "2113164280705609728",
+          "error": null,
+          "resultSuppressed": false
+        },
+        {
+          "executionId": "fba694ee-f71c-47eb-a808-c7cc232b462a",
+          "projectId": "2113160033695985664",
+          "status": "COMPLETED",
+          "runId": "2113162174825263104",
+          "error": null,
+          "resultSuppressed": false
+        },
+        {
+          "executionId": "ffb5d1e5-5a54-45be-a948-174f22b43586",
+          "projectId": "2113160037219201024",
+          "status": "FAILED",
+          "runId": "2113162229321854976",
+          "error": "RISK_OPERATION_DENIED",
+          "resultSuppressed": false
+        },
+        {
+          "executionId": "64a1583b-998e-4d45-b14c-c4a05f713a2f",
+          "projectId": "2113160040767582208",
+          "status": "FAILED",
+          "runId": "2113162280832102400",
+          "error": "RISK_OPERATION_DENIED",
+          "resultSuppressed": false
+        },
+        {
+          "executionId": "01c5f7ba-5fef-4ea6-aa50-c6df2ff264c1",
+          "projectId": "2113160044366295040",
+          "status": "TIMEOUT",
+          "runId": "2113162332807917568",
+          "error": null,
+          "resultSuppressed": false
+        },
+        {
+          "executionId": "1d67f1f7-82b6-4e8e-b469-35edc583ca0d",
+          "projectId": "2113160044366295040",
+          "status": "CANCELLED",
+          "runId": "2113163493602521088",
+          "error": null,
+          "resultSuppressed": false
+        },
+        {
+          "executionId": "24828801-e434-41a6-a3fd-e4da9b1f8538",
+          "projectId": "2113160047944036352",
+          "status": "COMPLETED",
+          "runId": "2113162384712429568",
+          "error": null,
+          "resultSuppressed": true
+        },
+        {
+          "executionId": "bed3deda-13e8-48af-bcf9-feb0b38af2eb",
+          "projectId": "2113160051576303616",
+          "status": "FAILED",
+          "runId": "2113162439406153728",
+          "error": "UNSUPPORTED_RESULT",
+          "resultSuppressed": false
+        },
+        {
+          "executionId": "690150da-a7f3-42df-9598-d507b02abf3a",
+          "projectId": "2113160057259585536",
+          "status": "FAILED",
+          "runId": "2113162493445566464",
+          "error": "UNSUPPORTED_RESULT",
+          "resultSuppressed": false
+        },
+        {
+          "executionId": "10c014d4-4a51-4201-b249-74ead380a6d2",
+          "projectId": "2113160061105762304",
+          "status": "COMPLETED",
+          "runId": "2113162546524483584",
+          "error": null,
+          "resultSuppressed": false
+        },
+        {
+          "executionId": "f6123047-2b24-4da3-bdc2-5446dcc63b0a",
+          "projectId": "2113160064679309312",
+          "status": "COMPLETED",
+          "runId": "2113162598210891776",
+          "error": null,
+          "resultSuppressed": false
+        },
+        {
+          "executionId": "92462318-c55e-4e56-bb66-b5a7cdcd0dc4",
+          "projectId": "2113160067858591744",
+          "status": "COMPLETED",
+          "runId": "2113160569572847616",
+          "error": null,
+          "resultSuppressed": false
+        },
+        {
+          "executionId": "e86736e9-7dc9-42b1-bc6b-7b9e7743fab8",
+          "projectId": "2113160072220667904",
+          "status": "COMPLETED",
+          "runId": "2113160289615638528",
+          "error": null,
+          "resultSuppressed": false
+        },
+        {
+          "executionId": "34ff2769-ec63-4df3-b518-b77a27f3903b",
+          "projectId": "2113160078596009984",
+          "status": "FAILED",
+          "runId": "2113160394963972096",
+          "error": "EXECUTION_FAILED",
+          "resultSuppressed": false
+        },
+        {
+          "executionId": "af02277f-f1be-4c59-a910-ffeee0e51a0e",
+          "projectId": "2113160078596009984",
+          "status": "COMPLETED",
+          "runId": "2113161962211799040",
+          "error": null,
+          "resultSuppressed": false
+        },
+        {
+          "executionId": "3f43bc63-3379-493c-a16b-aa6f3120cc21",
+          "projectId": "2113160081196478464",
+          "status": "FAILED",
+          "runId": "2113160459879215104",
+          "error": "EXECUTION_FAILED",
+          "resultSuppressed": false
+        },
+        {
+          "executionId": "cdec82c9-ecbe-45af-9bcc-6a386217e0c1",
+          "projectId": "2113160083889221632",
+          "status": "COMPLETED",
+          "runId": "2113160517076938752",
+          "error": null,
+          "resultSuppressed": false
+        },
+        {
+          "executionId": "6bf1866b-9a96-4c3f-960f-bf5f535e563c",
+          "projectId": "2113160914776649728",
+          "status": "COMPLETED",
+          "runId": "2113162013185175552",
+          "error": null,
+          "resultSuppressed": false
+        },
+        {
+          "executionId": "777d344d-b89b-466e-bc23-8f45e56be178",
+          "projectId": "2113160918014652416",
+          "status": "COMPLETED",
+          "runId": "2113162833351962624",
+          "error": null,
+          "resultSuppressed": false
+        },
+        {
+          "executionId": "57e5185f-a8e3-4a3c-be1c-de0eb60f9b00",
+          "projectId": "2113160921449787392",
+          "status": "COMPLETED",
+          "runId": "2113162893896740864",
+          "error": null,
+          "resultSuppressed": false
+        },
+        {
+          "executionId": "d82d9ba0-9489-4616-b5b0-1cff6d9fcfc8",
+          "projectId": "2113160924855562240",
+          "status": "FAILED",
+          "runId": "2113162951862022144",
+          "error": "EXECUTION_FAILED",
+          "resultSuppressed": false
+        },
+        {
+          "executionId": "67fcce8f-0ca8-4d4b-862e-d9e8f56c67a6",
+          "projectId": "2113160928286502912",
+          "status": "COMPLETED",
+          "runId": "2113163005679136768",
+          "error": null,
+          "resultSuppressed": false
+        },
+        {
+          "executionId": "f74635d7-096b-4d4e-bf4b-be55345dd80a",
+          "projectId": "2113160931977490432",
+          "status": "COMPLETED",
+          "runId": "2113163078135738368",
+          "error": null,
+          "resultSuppressed": false
+        },
+        {
+          "executionId": "5bf82dd3-5fed-4568-bdd6-2220052c6096",
+          "projectId": "2113160936142434304",
+          "status": "COMPLETED",
+          "runId": "2113163152228118528",
+          "error": null,
+          "resultSuppressed": false
+        },
+        {
+          "executionId": "05efef06-c340-435e-af8d-fe1e91a21a2d",
+          "projectId": "2113160939749535744",
+          "status": "COMPLETED",
+          "runId": "2113163227746562048",
+          "error": null,
+          "resultSuppressed": false
+        },
+        {
+          "executionId": "7098a55a-629b-439e-973c-419d96b64f7c",
+          "projectId": "2113161726605160448",
+          "status": "COMPLETED",
+          "runId": "2113161768753721344",
+          "error": null,
+          "resultSuppressed": false
+        }
+      ],
+      "invalidResultsNotPersisted": true,
+      "nonterminal": 0
+    },
+    "client": {
+      "clientSourcesMatched": 304,
+      "clientReceipts": [
+        {
+          "executionId": "e86736e9-7dc9-42b1-bc6b-7b9e7743fab8",
+          "clientStatus": "succeeded",
+          "serverStatus": "COMPLETED"
+        },
+        {
+          "executionId": "5864b474-d907-4d44-99eb-f476d64f5e48",
+          "clientStatus": "succeeded",
+          "serverStatus": "COMPLETED"
+        },
+        {
+          "executionId": "34ff2769-ec63-4df3-b518-b77a27f3903b",
+          "clientStatus": "failed",
+          "serverStatus": "FAILED"
+        },
+        {
+          "executionId": "3f43bc63-3379-493c-a16b-aa6f3120cc21",
+          "clientStatus": "failed",
+          "serverStatus": "FAILED"
+        },
+        {
+          "executionId": "cdec82c9-ecbe-45af-9bcc-6a386217e0c1",
+          "clientStatus": "succeeded",
+          "serverStatus": "COMPLETED"
+        },
+        {
+          "executionId": "92462318-c55e-4e56-bb66-b5a7cdcd0dc4",
+          "clientStatus": "succeeded",
+          "serverStatus": "COMPLETED"
+        },
+        {
+          "executionId": "7098a55a-629b-439e-973c-419d96b64f7c",
+          "clientStatus": "succeeded",
+          "serverStatus": "COMPLETED"
+        },
+        {
+          "executionId": "af02277f-f1be-4c59-a910-ffeee0e51a0e",
+          "clientStatus": "succeeded",
+          "serverStatus": "COMPLETED"
+        },
+        {
+          "executionId": "6bf1866b-9a96-4c3f-960f-bf5f535e563c",
+          "clientStatus": "succeeded",
+          "serverStatus": "COMPLETED"
+        },
+        {
+          "executionId": "f6155318-fed1-4488-bdfa-c63c3a871e23",
+          "clientStatus": "failed",
+          "serverStatus": "FAILED"
+        },
+        {
+          "executionId": "2fc624bf-d8ca-4c66-987d-be4bc236ebb5",
+          "clientStatus": "failed",
+          "serverStatus": "FAILED"
+        },
+        {
+          "executionId": "fba694ee-f71c-47eb-a808-c7cc232b462a",
+          "clientStatus": "succeeded",
+          "serverStatus": "COMPLETED"
+        },
+        {
+          "executionId": "ffb5d1e5-5a54-45be-a948-174f22b43586",
+          "clientStatus": "failed",
+          "serverStatus": "FAILED"
+        },
+        {
+          "executionId": "64a1583b-998e-4d45-b14c-c4a05f713a2f",
+          "clientStatus": "failed",
+          "serverStatus": "FAILED"
+        },
+        {
+          "executionId": "01c5f7ba-5fef-4ea6-aa50-c6df2ff264c1",
+          "clientStatus": "timeout",
+          "serverStatus": "TIMEOUT"
+        },
+        {
+          "executionId": "24828801-e434-41a6-a3fd-e4da9b1f8538",
+          "clientStatus": "succeeded",
+          "serverStatus": "COMPLETED"
+        },
+        {
+          "executionId": "bed3deda-13e8-48af-bcf9-feb0b38af2eb",
+          "clientStatus": "succeeded",
+          "serverStatus": "FAILED"
+        },
+        {
+          "executionId": "690150da-a7f3-42df-9598-d507b02abf3a",
+          "clientStatus": "succeeded",
+          "serverStatus": "FAILED"
+        },
+        {
+          "executionId": "10c014d4-4a51-4201-b249-74ead380a6d2",
+          "clientStatus": "succeeded",
+          "serverStatus": "COMPLETED"
+        },
+        {
+          "executionId": "f6123047-2b24-4da3-bdc2-5446dcc63b0a",
+          "clientStatus": "succeeded",
+          "serverStatus": "COMPLETED"
+        },
+        {
+          "executionId": "777d344d-b89b-466e-bc23-8f45e56be178",
+          "clientStatus": "succeeded",
+          "serverStatus": "COMPLETED"
+        },
+        {
+          "executionId": "57e5185f-a8e3-4a3c-be1c-de0eb60f9b00",
+          "clientStatus": "succeeded",
+          "serverStatus": "COMPLETED"
+        },
+        {
+          "executionId": "d82d9ba0-9489-4616-b5b0-1cff6d9fcfc8",
+          "clientStatus": "failed",
+          "serverStatus": "FAILED"
+        },
+        {
+          "executionId": "67fcce8f-0ca8-4d4b-862e-d9e8f56c67a6",
+          "clientStatus": "succeeded",
+          "serverStatus": "COMPLETED"
+        },
+        {
+          "executionId": "f74635d7-096b-4d4e-bf4b-be55345dd80a",
+          "clientStatus": "succeeded",
+          "serverStatus": "COMPLETED"
+        },
+        {
+          "executionId": "5bf82dd3-5fed-4568-bdd6-2220052c6096",
+          "clientStatus": "succeeded",
+          "serverStatus": "COMPLETED"
+        },
+        {
+          "executionId": "05efef06-c340-435e-af8d-fe1e91a21a2d",
+          "clientStatus": "succeeded",
+          "serverStatus": "COMPLETED"
+        },
+        {
+          "executionId": "1d67f1f7-82b6-4e8e-b469-35edc583ca0d",
+          "clientStatus": "cancelled",
+          "serverStatus": "CANCELLED"
+        },
+        {
+          "executionId": "566c5b80-ad22-44a4-a47d-7c631ae127b3",
+          "clientStatus": "succeeded",
+          "serverStatus": "COMPLETED"
+        }
+      ],
+      "riskAuditEvents": 39,
+      "auditEvents": {
+        "accepted": 23,
+        "code-accepted": 12,
+        "code-denied": 1,
+        "denied": 3
+      },
+      "sensitiveAuditValuesAbsent": true,
+      "testExecutorProcesses": 0,
+      "clientIdle": true
+    },
+    "package": {
+      "installedFilesMatched": 45,
+      "compiledFilesMatched": 38,
+      "tarballSha256": "bfa5c555e639288f25163dd2fd4886db37c3cac9822157e5fa3fd5c53471a2c6"
+    },
+    "cleanup": {
+      "server": {
+        "fileHandlesRemoved": 17,
+        "unrelatedFileHandlesPreserved": 0,
+        "testDeclarationsRemoved": 26,
+        "originalPolicyEquivalent": true,
+        "workflowRowsRemoved": 26,
+        "nonterminalExecutions": 0,
+        "executionAuditRetained": true,
+        "featureStorageConfigurationRetained": true
+      },
+      "robots": {
+        "temporaryRobotsRemoved": 26
+      },
+      "n8n": {
+        "testWorkflowsRemoved": 5,
+        "testExecutionsRemoved": 105,
+        "unrelatedDataPreserved": true,
+        "pendingExecutions": 0
+      },
+      "serverTemporaryFiles": {
+        "serverSourcesMatched": 55,
+        "temporaryServerPathsRemoved": 2,
+        "outsideSourceModified": false
+      },
+      "runtimePathsRemoved": 28,
+      "runtimePathsAbsent": true,
+      "auditRetained": true,
+      "stashEmpty": true,
+      "repositoryTestArtifacts": "outside repository"
+    },
+    "finalHealth": {
+      "n8nHealthy": true,
+      "clientIdle": true,
+      "mcpConnected": true,
+      "integration": {
+        "contractVersion": 1,
+        "serviceVersion": "1.0.0+public-framework.1",
+        "profileSchemaVersion": 1,
+        "requiredClientProtocol": 1,
+        "durableIdempotency": true,
+        "operations": [
+          "workflow_list",
+          "workflow_get",
+          "workflow_execute",
+          "execution_get",
+          "execution_cancel"
+        ],
+        "capabilityClasses": [
+          "json-data",
+          "browser-read",
+          "service-http-read",
+          "service-database-read",
+          "service-mail-read",
+          "service-openapi-read",
+          "service-shared-read",
+          "office-file",
+          "desktop-ui",
+          "ai-dynamic-risk"
+        ],
+        "jsonLimits": {
+          "maxBytes": 1048576,
+          "maxDepth": 12,
+          "maxObjectProperties": 200,
+          "maxArrayItems": 1000,
+          "maxStringLength": 100000
+        },
+        "client": {
+          "state": "ready",
+          "protocol": 1,
+          "supportsCancel": true
+        },
+        "limitations": [
+          "single-openapi-owner",
+          "controlled-validation",
+          "secret-inputs-suppress-results"
+        ]
+      }
+    },
+    "finalCleanupCheck": {
+      "all26FixtureRuntimeDirectoriesAbsent": true,
+      "all28RuntimeAndBinaryPathsAbsent": true,
+      "noPendingN8nExecutions": true,
+      "testWorkflowsAbsent": true,
+      "fixtureServicesStopped": true,
+      "auditPreserved": true,
+      "stashEmpty": true,
+      "indexEmpty": true
+    },
+    "unverified": [
+      "Successful real-model inference (no usable provider configuration)",
+      "Complete client EXE rebuild",
+      "Remote databases, external Agent/paid services and Microsoft Office",
+      "All operation-by-operation GUI/browser combinations; browser/FTP/mail/shared-variable current full live retest",
+      "Hosted GitHub CI and full-repository check"
+    ],
+    "acceptance": "Reproducible source defects and listed targeted scenarios are closed; not an unconditional claim that every operation or external environment has been validated",
+    "worktreeCodeSha256": {
+      ".github/scripts/run-integration-regression.py": "81dd1b01298b0b7c4b759bbf34d78c21f199ddf37ae24393b9342d00f47b42f8",
+      ".github/workflows/integration-regression.yml": "0cf065342017853e8d3d4092d7c63356c14f8e66fbf3983c90c995755f649d60",
+      "backend/openapi-service/README.md": "e16115e935b98ef8ab72718ef2323a7cc0e1def9964d679d9b784db3ba479512",
+      "backend/openapi-service/app/schemas/ai_dynamic_risk.py": "d161dace7249d2f6110c0f9b9c074fbab1362a21d6dd4ca5e9e2abeadfc3adbc",
+      "backend/openapi-service/app/schemas/integration.py": "a88da9860a27aadac967fac069be3b089a7bcc7ed7b8789662febce336043820",
+      "backend/openapi-service/app/services/ai_dynamic_risk.py": "d99c229f27a16100c68e3dc5ccf33804fa31b30aec69befe96a57a1d86b61f25",
+      "backend/openapi-service/app/services/desktop_ui.py": "dd95b1e4fd342e08f36e920bf833bdd58c5ebcdcb485a5601cc4059d9ee91dcc",
+      "backend/openapi-service/app/services/execution.py": "97a65083e2ff02ff5fc03b121e10d97fc0df5d799296731394580df74093dc6b",
+      "backend/openapi-service/app/services/execution_management.py": "6a9ffc4fe651d7f3b878110db1e25a5c11e5339ca93eaf48031058d242284b3a",
+      "backend/openapi-service/app/services/integration_policy.py": "ecedaddbf8d31d4be6c4b2ed47e1498c220a019f0b15ac45d3f16d03adfdf622",
+      "backend/openapi-service/app/services/office_file.py": "f2ae6a34fc1835335a044f10da4b1e99a1184867508be6e95180f511e1e80b0f",
+      "backend/openapi-service/app/services/streamable_mcp.py": "2ed25946a8a7d1a60ebd634d0860a4afdb333360aa0afb3829d2a48b2bd4a785",
+      "backend/openapi-service/tests/test_ai_dynamic_risk.py": "2b416e1ff709e2f62abffaa216a239714df8e2177361d3acbe15c9b55ac2b909",
+      "backend/openapi-service/tests/test_integration_policy.py": "236f4e6309e96b5d05f624898b32746093416937bd57040cd315bea7a536bb48",
+      "engine/components/astronverse-ai/src/astronverse/ai/agent.py": "b053130f1d7cdf4ad32576d7526a753acb1161bc8072d9ca0746338100329565",
+      "engine/components/astronverse-ai/src/astronverse/ai/api/dify.py": "a06f5f1944f73878d2314718413ba70f0e03828319aea9d13177ff96996fb75c",
+      "engine/components/astronverse-ai/src/astronverse/ai/api/http.py": "d4a4ce7e945cb3e174bc5126cc2891ba3bd38348bd8fedfdfa7befa4fa803aca",
+      "engine/components/astronverse-ai/src/astronverse/ai/api/llm.py": "c050a2e0790a282d55d812541ed80791adc97ec9277f4aa03b81588747525694",
+      "engine/components/astronverse-ai/src/astronverse/ai/api/xcagent.py": "ea0545f051ef8abbdba6f41a00f09fc415558ecff8f377bf1817b9d4e782b878",
+      "engine/components/astronverse-ai/src/astronverse/ai/recruit.py": "7bf9abbd6284a3aaa353593562a949d061180d66a42408219bafaabe93d08b1c",
+      "engine/components/astronverse-ai/tests/test_managed_http.py": "014b353883ddabb607ea7ffb79bdc49ef7e4be89adc47ef73b29038dbdfea57f",
+      "engine/components/astronverse-browser/src/astronverse/browser/browser_script.py": "76fb69efe9593ce4811c0a9a2bfaaf6c8e1145632510176c4abea1861c009f87",
+      "engine/components/astronverse-dataprocess/src/astronverse/dataprocess/dict.py": "c846b88faf09efc49e2be13557f08b0daa0d77cf9969056b85dc910a84c4dcc7",
+      "engine/components/astronverse-dataprocess/src/astronverse/dataprocess/list.py": "1a3f93c55a06b9d635bcfff5a422a63229201edafd36d19696bdefce8eb86024",
+      "engine/components/astronverse-dataprocess/src/astronverse/dataprocess/string.py": "456cde360e1ef30af158276472baab9661404228a10975d3fce9bfeda804dc5e",
+      "engine/components/astronverse-dataprocess/tests/test_data.py": "7dc34a16ef62050631a54031b534aa06ad7e7c897bb33ca7e710b7b18df4af4a",
+      "engine/components/astronverse-dataprocess/tests/test_dict.py": "059af453759defb4edff51f9e948004232e17694e791d1b9c9f049eb20e26d02",
+      "engine/components/astronverse-dataprocess/tests/test_list.py": "664320b52aa2ef1ebf0ec6c3c28f55a54ea36397a5fd753942b5d4d88d61b5f3",
+      "engine/components/astronverse-dataprocess/tests/test_math.py": "48a31af320cc1b6714bf10b6829080a30b46a886fd38b7ddc7df95d0362b1ecf",
+      "engine/components/astronverse-dataprocess/tests/test_string.py": "7df47804eef2ac777d07a1f5e375d274a80db00fd0c6919f93e65d13335befe8",
+      "engine/components/astronverse-dataprocess/tests/test_time.py": "a21a2ed619ec233317a883df3419ba09730ac49d11f76ffbd771a73cf5095def",
+      "engine/components/astronverse-encrypt/src/astronverse/encrypt/core.py": "3340a39b9c723da05c356a06083a8a01b79421887db211e0e64e059b84013ef4",
+      "engine/components/astronverse-encrypt/tests/test_encrypt.py": "01cd9759138d591868a2d3fa1070a67ce17f661a556d2eeebd190d126af6db28",
+      "engine/components/astronverse-enterprise/tests/test_shared_read.py": "339a1257aa86e45d9031a299ae1c3f233bc8e1065555dfddea050f0d3301e2cc",
+      "engine/components/astronverse-script/src/astronverse/script/script.py": "05d58fd8bb7ae6f4ef0169e827a1921ff9c8600bb23c8f971772210ea2eb5cdd",
+      "engine/components/astronverse-smart/src/astronverse/smart/smart.py": "0de6fa17aa92cfa7bbfee1766b04d289ae3ff8ea850e543a4f58de50963b738f",
+      "engine/servers/astronverse-executor/src/astronverse/executor/debug/debug_svc.py": "e2131f498fbf558d235852f8afdc15d8c4abef1cc61f00e52e0a340a94180a8e",
+      "engine/servers/astronverse-executor/src/astronverse/executor/debug/report.py": "446687f7c6795f2440a8e59e7fed07cf07429a28ebdedf3c2d806b77d8e981ac",
+      "engine/servers/astronverse-executor/src/astronverse/executor/start.py": "bcefd5df8f048bd4e3a1fff975b764285c32006e1e1ff8df3a1c55f9770d4c5e",
+      "engine/servers/astronverse-scheduler/src/astronverse/scheduler/core/executor/managed_execution.py": "51432317aa9c4987da70bc7352b79483116deb938df9ad5ab9f77636d976ee65",
+      "engine/servers/astronverse-scheduler/tests/test_managed_execution.py": "ae9e792cda78fd078638c5246b980b59e234e2c1168ad644755676ca2d6942f0",
+      "engine/shared/astronverse-actionlib/src/astronverse/actionlib/atomic.py": "18b8b486124e6d4c18682a419b15b6e3ab9d43a2941e201f86cd56fea6597991",
+      "engine/shared/astronverse-actionlib/src/astronverse/actionlib/managed_risk.py": "40fe2a79f1a3bd855c72c24040ed5f7b962b1a4a1d7687f0262bbeed1840aef7",
+      "engine/shared/astronverse-actionlib/tests/test_managed_risk.py": "c6d8fb0893df0a4cd36b8f201cdadb518da09be39c5a1d9ef69a9c9e45f0c6c5",
+      "integrations/n8n/n8n-nodes-astron-rpa/README.md": "52b056205a3516457a3f2c4bee1761beb199be78a39037e19603f8b9bb0378e7",
+      "integrations/n8n/n8n-nodes-astron-rpa/capabilities/ai-dynamic-risk.ts": "cd28a227b4bccd3c1ebecf4090cb68f77434acf5ddf8dfbfef7fe81851d7330d",
+      "integrations/n8n/n8n-nodes-astron-rpa/capabilities/desktop-ui.ts": "482557a09857d4198eb213f65750b374f6189a1ef06da5c4d8b4619582b6c498",
+      "integrations/n8n/n8n-nodes-astron-rpa/capabilities/json-data.ts": "458f95e3a5fb9df2611e2956411b68813cd7f29b8fc00dac099103ababffd380",
+      "integrations/n8n/n8n-nodes-astron-rpa/capabilities/shared/catalog.ts": "cae2761c4c3809233a2725c98e8e95b5fee5cb223175f2653738dd606642ccb1",
+      "integrations/n8n/n8n-nodes-astron-rpa/capabilities/shared/desktop-contract.ts": "9a2083f115c582afc147ab7773b9fba5873de8e08ca56878ecd197e29ff4dfda",
+      "integrations/n8n/n8n-nodes-astron-rpa/capabilities/shared/file-contract.ts": "18667354c71924734c1567f659fcd9661331e640b7fd07059ce0bc1e6db99bbc",
+      "integrations/n8n/n8n-nodes-astron-rpa/capabilities/shared/registry.ts": "e743ca586b0d9c516b6dda8dbcb12e5b70aaf82f1f45a584ab4946031bbd5ea4",
+      "integrations/n8n/n8n-nodes-astron-rpa/capabilities/shared/types.ts": "627e18488bf5043e1adeb5324d9b6e706c53a8db3cd96ded926db44755e052b7",
+      "integrations/n8n/n8n-nodes-astron-rpa/nodes/AstronRpa/AstronRpa.node.ts": "b3b2467285c2a3ad00ef87b4769fe9c8da4549858021718e195964188742d9cf",
+      "integrations/n8n/n8n-nodes-astron-rpa/tests/capabilities.test.cjs": "68b79d4ba132c6f441f7ec98a8506e1393d6d4a5d0eb4a5ffd3d13b18dfb9325",
+      "integrations/n8n/n8n-nodes-astron-rpa/tests/risk.test.cjs": "68cb4e1b14bfd90c9b7768ca811b702015c2a4dd214dee7f47fa9b417b5f1462"
+    }
+  },
+  "llmCompatibilityValidation": {
+    "date": "2026-10-23",
+    "head": "04b0c7697df89f32e47f50d27a50279545c51765",
+    "uncommittedChanges": true,
+    "scope": "LLM ordinary-caller HTTP failure compatibility and managed failure propagation through current n8n, deployed OpenAPI and installed Windows client",
+    "sourceSha256": {
+      "engine/components/astronverse-ai/src/astronverse/ai/api/http.py": "6ae264cd56939e4cbce5d81bb8867d0fb1760a80321d0a737a4f8c0fd4e1c1ad",
+      "engine/components/astronverse-ai/src/astronverse/ai/api/llm.py": "bcab2644daf6a68133f1e14496f93b41221def20fd0831339342a6c820515977"
+    },
+    "runtime": {
+      "n8n": "2.40.7",
+      "node": "24.18.0",
+      "client": "Existing Windows installation; two AI source files updated",
+      "tlsValidationEnabled": true,
+      "serverWritesWithinAuthorizedSource": true,
+      "noRealModelProvider": true
+    },
+    "synchronization": {
+      "clientSourcesMatched": 304,
+      "clientFilesUpdated": 2,
+      "serverSourcesMatched": 55,
+      "serverSourceChangesRequired": false,
+      "nodeInstalledFilesMatched": 45,
+      "nodeCompiledFilesMatched": 38,
+      "nodePackageSha256": "bfa5c555e639288f25163dd2fd4886db37c3cac9822157e5fa3fd5c53471a2c6"
+    },
+    "tests": {
+      "engineAI": {
+        "passed": 42,
+        "skipped": 0
+      },
+      "engineRisk": {
+        "passed": 10,
+        "skipped": 0
+      },
+      "n8n": {
+        "passed": 52,
+        "skipped": 0
+      },
+      "pythonASTAndFormatFiles": 5,
+      "newRuffDiagnostics": 0,
+      "inheritedRuffDiagnostics": 8,
+      "hostedCIRun": false
+    },
+    "live": {
+      "ordinaryValidCases": 9,
+      "managedValidCases": 9,
+      "managedStatuses": {
+        "succeeded": 3,
+        "failed": 6
+      },
+      "failureScenarios": [
+        "connection refused",
+        "HTTP 503",
+        "actual 35-second read timeout"
+      ],
+      "successScenarios": [
+        "chat choices",
+        "chat data.choices",
+        "prompt data"
+      ],
+      "ordinaryFailureResult": null,
+      "managedFailureCode": "EXECUTION_FAILED",
+      "failedBusinessResultsPersisted": false,
+      "nodeHarnessContinuesOnExpectedErrors": true,
+      "realHTTPRequests": 14,
+      "riskAuditEvents": 18,
+      "providerTextAbsentFromReceiptsAuditAndErrors": true,
+      "nonterminalExecutions": 0,
+      "remainingExecutorProcesses": 0,
+      "remainingProviderConnections": 0,
+      "managedReceipts": [
+        {
+          "executionId": "1ac3519e-2dde-46d2-b1b4-ba7b972db61e",
+          "runId": "2113447698555236352",
+          "status": "succeeded"
+        },
+        {
+          "executionId": "382565f9-b080-41d6-8463-a1a39df1a9af",
+          "runId": "2113447751474769920",
+          "status": "failed"
+        },
+        {
+          "executionId": "dcf78516-79ce-40bd-867c-d81de7165378",
+          "runId": "2113447977262542848",
+          "status": "succeeded"
+        },
+        {
+          "executionId": "64ab3aec-6653-49c2-873d-5e74ffbce9f9",
+          "runId": "2113448031675248640",
+          "status": "succeeded"
+        },
+        {
+          "executionId": "b2f9813d-bb57-42d8-b66a-e0b9e41d508f",
+          "runId": "2113448084833857536",
+          "status": "failed"
+        },
+        {
+          "executionId": "d80b00c3-c2dd-43a6-9c77-eff6e3b2a380",
+          "runId": "2113448139674382336",
+          "status": "failed"
+        },
+        {
+          "executionId": "f3d070a8-b007-4fde-b0f9-6d923f48251e",
+          "runId": "2113448192333869056",
+          "status": "failed"
+        },
+        {
+          "executionId": "03d96c30-04c7-4edc-89d8-efa3f2c239a6",
+          "runId": "2113448245014327296",
+          "status": "failed"
+        },
+        {
+          "executionId": "c5b185f9-b783-4b30-9cf5-d1c369bdb964",
+          "runId": "2113448443639787520",
+          "status": "failed"
+        }
+      ],
+      "ordinaryTimeoutSeconds": {
+        "normal": 38.508,
+        "prompt": 38.329
+      },
+      "managedTimeoutSeconds": {
+        "normal-timeout": 47.078,
+        "prompt-timeout": 47.076
+      }
+    },
+    "preparationRunsExcluded": {
+      "count": 8,
+      "reasons": [
+        "One ordinary call used an incorrect parameter container",
+        "Seven calls ran while the initial fixture provider was no longer listening"
+      ],
+      "allValidScenariosRerun": true,
+      "productionCodeChangedDuringLiveTests": false
+    },
+    "cleanup": {
+      "robots": {
+        "temporaryRobotsRemoved": 2
+      },
+      "server": {
+        "testDeclarationsRemoved": 2,
+        "originalPolicyEquivalent": true,
+        "workflowRowsRemoved": 2,
+        "executionAuditRetained": true,
+        "nonterminalExecutions": 0
+      },
+      "n8n": {
+        "testWorkflowsRemoved": 2,
+        "testExecutionsRemoved": 18,
+        "unrelatedDataPreserved": true,
+        "pendingExecutions": 0
+      },
+      "clientRuntimeDirectoryIds": [
+        "2113446711224463360",
+        "2113446718744850432"
+      ],
+      "clientRuntimeCleanup": "Awaiting manual cleanup after automatic approval rejected deletion with blocked by policy",
+      "providerStopped": true
+    },
+    "finalHealth": {
+      "n8nHealthy": true,
+      "clientIdle": true,
+      "mcpConnected": true
+    },
+    "notValidated": [
+      "Real model inference: no provider configuration available",
+      "Windows GUI and Office operations",
+      "Full client EXE/release package",
+      "Remote databases and unrelated component acceptance"
     ]
   }
 }

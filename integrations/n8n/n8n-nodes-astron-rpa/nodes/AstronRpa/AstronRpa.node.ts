@@ -35,6 +35,7 @@ import {
   validateCapabilityProfile,
 } from "../../capabilities/shared/registry";
 import { withRest } from "../../transport/rest";
+import { FileConnection, fileId } from "../../transport/files";
 
 const executeOnly = { show: { operation: ["execute"] } };
 const readId = { show: { operation: ["getExecution", "cancelExecution"] } };
@@ -80,11 +81,46 @@ const properties: INodeProperties[] = [
       },
       { name: "Get Execution", value: "getExecution", action: "Get execution" },
       {
+        name: "Upload File",
+        value: "uploadFile",
+        action: "Upload binary data as an authorized file",
+      },
+      {
+        name: "Download File",
+        value: "downloadFile",
+        action: "Download an authorized file as binary data",
+      },
+      {
+        name: "Delete File",
+        value: "deleteFile",
+        action: "Delete an authorized file",
+      },
+      {
         name: "Cancel Execution",
         value: "cancelExecution",
         action: "Request execution cancellation",
       },
     ],
+  },
+  {
+    displayName: "Binary Property",
+    name: "binaryProperty",
+    type: "string",
+    default: "data",
+    required: true,
+    displayOptions: { show: { operation: ["uploadFile", "downloadFile"] } },
+    description:
+      "Input or output n8n binary property. File bytes are transferred over authenticated HTTPS REST.",
+  },
+  {
+    displayName: "File ID",
+    name: "fileId",
+    type: "string",
+    default: "",
+    required: true,
+    displayOptions: { show: { operation: ["downloadFile", "deleteFile"] } },
+    description:
+      "Authorized file handle returned by upload or a successful execution",
   },
   {
     displayName: "Project ID",
@@ -465,6 +501,57 @@ export class AstronRpa implements INodeType {
           knownExecutionId = value;
         }
         const timeout = integer(this, "requestTimeout", i, 3, 120, 15);
+        if (["uploadFile", "downloadFile", "deleteFile"].includes(operation)) {
+          const files = new FileConnection(connection, timeout * 1000);
+          const property = String(
+            this.getNodeParameter("binaryProperty", i, "data"),
+          );
+          if (
+            !property ||
+            ["__proto__", "constructor", "prototype"].includes(property)
+          )
+            throw new AstronError("INVALID_ARGUMENTS");
+          if (operation === "uploadFile") {
+            const binary = this.helpers.assertBinaryData(i, property);
+            const buffer = await this.helpers.getBinaryDataBuffer(i, property);
+            const key = hash([
+              this.getInstanceId(),
+              this.getExecutionId(),
+              this.getNode().id,
+              this.getWorkflowDataProxy(i).$runIndex,
+              i,
+              property,
+            ]);
+            const metadata = await files.upload(
+              binary.fileName ?? "file.bin",
+              buffer,
+              key,
+            );
+            output.push({ json: { ...metadata }, pairedItem: { item: i } });
+          } else {
+            const id = fileId(this.getNodeParameter("fileId", i));
+            if (operation === "deleteFile") {
+              await files.delete(id);
+              output.push({
+                json: { fileId: id, deleted: true },
+                pairedItem: { item: i },
+              });
+            } else {
+              const { metadata, data } = await files.download(id);
+              output.push({
+                json: { ...metadata },
+                pairedItem: { item: i },
+                binary: {
+                  [property]: await this.helpers.prepareBinaryData(
+                    data,
+                    metadata.fileName,
+                  ),
+                },
+              });
+            }
+          }
+          continue;
+        }
         await withMcp(connection, timeout * 1000, async (client) => {
           if (operation === "execute") {
             checkIntegration(await client.call("astron_integration_get", {}));
@@ -500,11 +587,31 @@ export class AstronRpa implements INodeType {
               !allowsTransport(profile, "rest")
             )
               throw new AstronError("TRANSPORT_NOT_ALLOWED");
+            if (
+              declaredCapability === "ai-dynamic-risk" &&
+              !String(this.getNodeParameter("idempotencyKey", i, "")).trim()
+            )
+              throw new AstronError("RISK_APPROVAL_REQUIRED");
             const key =
               String(this.getNodeParameter("idempotencyKey", i, "")).trim() ||
               `n8n:${hash([this.getInstanceId(), this.getExecutionId(), this.getNode().id, this.getWorkflowDataProxy(i).$runIndex, i])}`;
             if (key.length > 200) throw new AstronError("INVALID_ARGUMENTS");
             const deadline = integer(this, "executionTimeout", i, 0, 86400, 0);
+            if (
+              declaredCapability === "desktop-ui" &&
+              (deadline < 1 || deadline > 3600)
+            )
+              throw new AstronError("DESKTOP_EXECUTION_DEADLINE_REQUIRED");
+            if (
+              declaredCapability === "office-file" &&
+              (deadline < 1 || deadline > 3600)
+            )
+              throw new AstronError("FILE_EXECUTION_DEADLINE_REQUIRED");
+            if (
+              declaredCapability === "ai-dynamic-risk" &&
+              (deadline < 1 || deadline > 3600)
+            )
+              throw new AstronError("RISK_APPROVAL_REQUIRED");
             const args = {
               projectId,
               version,

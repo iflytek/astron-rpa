@@ -127,7 +127,7 @@ class EncryptCore:  # pylint: disable=too-few-public-methods
         """Base64 编码。可处理字符串或文件。
 
         当 encode_type == PICTURE 时，会增加 data URI 前缀。"""
-        if file_path:
+        if encode_type == Base64CodeType.PICTURE:
             input_content = Path(file_path).read_bytes()
         else:
             input_content = string_data.encode("utf-8")

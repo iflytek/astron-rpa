@@ -1,0 +1,42 @@
+{
+  "name": "AstronRPA reviewed desktop workflow",
+  "active": false,
+  "nodes": [
+    {
+      "id": "start",
+      "name": "Start",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": {}
+    },
+    {
+      "id": "execute",
+      "name": "Execute Desktop Workflow",
+      "type": "n8n-nodes-astron-rpa.astronRpa",
+      "typeVersion": 1,
+      "position": [260, 0],
+      "parameters": {
+        "operation": "execute",
+        "transport": "mcp",
+        "mode": "wait",
+        "projectId": "REPLACE_WITH_APPROVED_DESKTOP_PROJECT_ID",
+        "version": 1,
+        "params": "{}",
+        "idempotencyKey": "",
+        "executionTimeout": 60,
+        "waitSeconds": 120,
+        "pollSeconds": 2,
+        "requestTimeout": 30
+      }
+    }
+  ],
+  "connections": {
+    "Start": {
+      "main": [
+        [{ "node": "Execute Desktop Workflow", "type": "main", "index": 0 }]
+      ]
+    }
+  },
+  "settings": { "executionOrder": "v1" }
+}

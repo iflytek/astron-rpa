@@ -3,7 +3,7 @@
 import mimetypes
 import os
 
-import requests
+from astronverse.ai.api.http import request_json
 from astronverse.baseline.logger.logger import logger
 
 mimetypes.add_type("text/markdown", ".md")
@@ -40,16 +40,12 @@ class Dify:
                 }
                 data = {"user": user, "type": file_extension}  # 设置文件类型为扩展名
 
-                response = requests.post(upload_url, headers=self.headers, files=files, data=data)
-                if response.status_code == 201:  # 201 表示创建成功
-                    logger.info("文件上传成功")
-                    return response.json().get("id")  # 获取上传的文件 ID
-                else:
-                    logger.info(f"文件上传失败，状态码: {response.status_code}")
-                    return None
-        except Exception as e:
-            logger.info(f"发生错误: {str(e)}")
-            return None
+                result = request_json("POST", upload_url, headers=self.headers, files=files, data=data)
+                return result.get("id")
+
+        except Exception:
+            logger.info("AI request failed")
+            raise RuntimeError("AI_REQUEST_FAILED") from None
 
     def run_workflow(
         self,
@@ -84,19 +80,11 @@ class Dify:
 
         try:
             logger.info("运行工作流...")
-            response = requests.post(workflow_url, headers=self.headers, json=data)
-            if response.status_code == 200:
-                logger.info("工作流执行成功")
-                return response.json()
-            else:
-                logger.info(f"工作流执行失败，状态码: {response.status_code}")
-                return {
-                    "status": "error",
-                    "message": f"Failed to execute workflow, status code: {response.status_code}",
-                }
-        except Exception as e:
-            logger.info(f"发生错误: {str(e)}")
-            return {"status": "error", "message": str(e)}
+            return request_json("POST", workflow_url, headers=self.headers, json=data)
+
+        except Exception:
+            logger.info("AI request failed")
+            raise RuntimeError("AI_REQUEST_FAILED") from None
 
     def run_chatflow(
         self,
@@ -127,16 +115,8 @@ class Dify:
 
         try:
             logger.info("运行工作流...")
-            response = requests.post(chatflow_url, headers=self.headers, json=data)
-            if response.status_code == 200:
-                logger.info("工作流执行成功")
-                return response.json()
-            else:
-                logger.info(f"工作流执行失败，状态码: {response.status_code}")
-                return {
-                    "status": "error",
-                    "message": f"Failed to execute workflow, status code: {response.status_code}",
-                }
-        except Exception as e:
-            logger.info(f"发生错误: {str(e)}")
-            return {"status": "error", "message": str(e)}
+            return request_json("POST", chatflow_url, headers=self.headers, json=data)
+
+        except Exception:
+            logger.info("AI request failed")
+            raise RuntimeError("AI_REQUEST_FAILED") from None

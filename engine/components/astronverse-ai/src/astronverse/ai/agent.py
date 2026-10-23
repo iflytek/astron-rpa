@@ -1,13 +1,12 @@
 """Agent related atomic operations and workflow integration for AI interactions."""
 
-import requests
 from astronverse.actionlib import AtomicFormType, AtomicFormTypeMeta, AtomicLevel, DynamicsItem
 from astronverse.actionlib.atomic import atomicMg
 from astronverse.actionlib.types import PATH
 from astronverse.ai import DifyFileTypes
 from astronverse.ai.api.dify import Dify
+from astronverse.ai.api.http import request_json
 from astronverse.ai.api.xcagent import xcAgent
-from astronverse.baseline.logger.logger import logger
 
 AUTH_URL = "http://127.0.0.1:{}/api/rpa-openapi/api-keys/get-astron-by-id".format(
     atomicMg.cfg().get("GATEWAY_PORT") if atomicMg.cfg().get("GATEWAY_PORT") else "13159"
@@ -85,10 +84,8 @@ class Agent:
             # 文件上传成功，继续运行工作流
             # result = dify.run_workflow(user, "input_files", True, file_id, "document")
             result = dify.run_workflow(user, variable_name, file_flag, file_id, file_type.value)
-            logger.info(result)
         else:
             result = dify.run_workflow(user, variable_name, file_flag, variable_value, file_type.value)
-            logger.info(result)
         return result
 
     @staticmethod
@@ -161,10 +158,8 @@ class Agent:
             # 文件上传成功，继续运行工作流
             # result = dify.run_workflow(user, "input_files", True, file_id, "document")
             result = dify.run_chatflow(user, query, variable_name, file_flag, file_id, file_type.value)
-            logger.info(result)
         else:
             result = dify.run_chatflow(user, query, variable_name, file_flag, variable_value, file_type.value)
-            logger.info(result)
         return result
 
     @staticmethod
@@ -239,9 +234,7 @@ class Agent:
         workflow_id = astron_workflow.get("agentId")
         inputs = astron_workflow.get("inputs")
 
-        response = requests.get(AUTH_URL, params={"id": auth_id})
-        response_data = response.json().get("data")
-        logger.info(response_data)
+        response_data = request_json("GET", AUTH_URL, params={"id": auth_id}).get("data")
 
         xc_agent = xcAgent(response_data.get("api_key"), response_data.get("api_secret"))
         xc_agent_result = xc_agent.run_astron_flow(workflow_id, False, inputs)

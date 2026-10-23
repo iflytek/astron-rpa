@@ -144,6 +144,10 @@ def test_service_read_profile_rejects_incomplete_or_writing_shape(policy, change
     [
         {"capabilities": ["json-data"], "capabilityClass": "json-data", "fileInputs": True},
         {"capabilities": ["json-data"], "capabilityClass": "json-data", "requiresGui": True},
+        {"capabilities": ["json-data"], "capabilityClass": "json-data", "requiresHuman": True},
+        {"capabilities": ["json-data"], "capabilityClass": "json-data", "risk": "medium"},
+        {"capabilities": ["json-data"], "capabilityClass": "json-data", "risk": "high"},
+        {"capabilities": ["json-data"], "capabilityClass": "json-data", "sideEffects": ["external-write"]},
         {
             "capabilities": ["json-data"],
             "capabilityClass": "json-data",

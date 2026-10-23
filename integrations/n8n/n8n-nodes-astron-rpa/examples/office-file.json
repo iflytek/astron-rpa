@@ -1,0 +1,110 @@
+{
+  "name": "AstronRPA managed file workflow",
+  "active": false,
+  "nodes": [
+    {
+      "id": "start",
+      "name": "Start",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": {}
+    },
+    {
+      "id": "sample",
+      "name": "Sample Text",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [200, 0],
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "text",
+              "name": "text",
+              "value": "AstronRPA file example",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "binary",
+      "name": "Create Binary",
+      "type": "n8n-nodes-base.convertToFile",
+      "typeVersion": 1.1,
+      "position": [400, 0],
+      "parameters": {
+        "operation": "toText",
+        "sourceProperty": "text",
+        "binaryPropertyName": "data",
+        "options": { "fileName": "input.txt" }
+      }
+    },
+    {
+      "id": "upload",
+      "name": "Upload File",
+      "type": "n8n-nodes-astron-rpa.astronRpa",
+      "typeVersion": 1,
+      "position": [600, 0],
+      "parameters": {
+        "operation": "uploadFile",
+        "binaryProperty": "data",
+        "requestTimeout": 30
+      }
+    },
+    {
+      "id": "execute",
+      "name": "Execute",
+      "type": "n8n-nodes-astron-rpa.astronRpa",
+      "typeVersion": 1,
+      "position": [800, 0],
+      "parameters": {
+        "operation": "execute",
+        "transport": "mcp",
+        "mode": "wait",
+        "projectId": "REPLACE_WITH_APPROVED_FILE_PROJECT_ID",
+        "version": 1,
+        "params": "={{ JSON.stringify({ source: $json.fileId, target: 'output:target' }) }}",
+        "idempotencyKey": "",
+        "executionTimeout": 60,
+        "waitSeconds": 120,
+        "pollSeconds": 2,
+        "requestTimeout": 30
+      }
+    },
+    {
+      "id": "download",
+      "name": "Download File",
+      "type": "n8n-nodes-astron-rpa.astronRpa",
+      "typeVersion": 1,
+      "position": [1000, 0],
+      "parameters": {
+        "operation": "downloadFile",
+        "fileId": "={{ $json.result.files.target.fileId }}",
+        "binaryProperty": "data",
+        "requestTimeout": 30
+      }
+    }
+  ],
+  "connections": {
+    "Start": {
+      "main": [[{ "node": "Sample Text", "type": "main", "index": 0 }]]
+    },
+    "Sample Text": {
+      "main": [[{ "node": "Create Binary", "type": "main", "index": 0 }]]
+    },
+    "Create Binary": {
+      "main": [[{ "node": "Upload File", "type": "main", "index": 0 }]]
+    },
+    "Upload File": {
+      "main": [[{ "node": "Execute", "type": "main", "index": 0 }]]
+    },
+    "Execute": {
+      "main": [[{ "node": "Download File", "type": "main", "index": 0 }]]
+    }
+  },
+  "settings": { "executionOrder": "v1" }
+}

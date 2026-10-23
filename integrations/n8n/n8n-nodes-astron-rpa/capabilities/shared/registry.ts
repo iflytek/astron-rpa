@@ -1,12 +1,16 @@
 import { AstronError, object } from "../../mapping/contracts";
 import { validateBrowserServiceProfile } from "../browser-service";
 import { validateJsonDataProfile } from "../json-data";
+import { validateOfficeFileProfile } from "../office-file";
+import { validateDesktopProfile } from "../desktop-ui";
 import {
   CAPABILITY_CLASSES,
   type CapabilityClass,
   type CapabilityProfile,
   type TransportName,
 } from "./types";
+
+import { validateRiskProfile } from "../ai-dynamic-risk";
 
 const knownClasses = new Set<string>(CAPABILITY_CLASSES);
 // Every class dispatches directly to its own peer capability module.
@@ -16,6 +20,9 @@ const validators: Record<
   (profile: CapabilityProfile) => void
 > = {
   "json-data": validateJsonDataProfile,
+  "office-file": validateOfficeFileProfile,
+  "desktop-ui": validateDesktopProfile,
+  "ai-dynamic-risk": validateRiskProfile,
   "browser-read": validateBrowserServiceProfile,
   "service-http-read": validateBrowserServiceProfile,
   "service-database-read": validateBrowserServiceProfile,

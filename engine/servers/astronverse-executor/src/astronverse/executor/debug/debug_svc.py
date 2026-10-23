@@ -67,7 +67,13 @@ class DebugSvc:
 
     def end(self, status: ExecuteStatus, data=None, reason=""):
         if getattr(self.conf, "managed_execution", False):
+            from astronverse.actionlib.managed_risk import ManagedRiskError, assert_safe
             from astronverse.executor.external_values import json_value
+
+            try:
+                assert_safe()
+            except ManagedRiskError as error:
+                status, data, reason = ExecuteStatus.FAIL, None, error.code
 
             try:
                 data = json_value(data)
@@ -96,7 +102,18 @@ class DebugSvc:
                                 outcome,
                                 data,
                                 self.conf.managed_started_at,
-                                "UNSUPPORTED_RESULT" if reason == "UNSUPPORTED_RESULT" else None,
+                                reason
+                                if reason
+                                in (
+                                    "UNSUPPORTED_RESULT",
+                                    "DESKTOP_HUMAN_UNAVAILABLE",
+                                    "RISK_OPERATION_DENIED",
+                                    "RISK_ARGUMENTS_DENIED",
+                                    "RISK_CODE_DENIED",
+                                    "RISK_AUDIT_FAILED",
+                                    "RISK_CONTRACT_INVALID",
+                                )
+                                else None,
                             )
                         except (OSError, ValueError, TypeError):
                             logger.error("Managed terminal receipt could not be persisted")

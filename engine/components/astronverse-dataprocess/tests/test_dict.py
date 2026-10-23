@@ -7,6 +7,15 @@ from astronverse.dataprocess.dict import DictProcess
 class TestDictProcess(unittest.TestCase):
     """DictProcess类的测试用例"""
 
+    def test_existing_null_is_not_a_missing_key(self):
+        for option in (NoKeyOptionType.RAISE_ERROR, NoKeyOptionType.RETURN_DEFAULT):
+            assert (
+                DictProcess.get_value_from_dict(
+                    dict_data={"answer": None}, dict_key="answer", fail_option=option, default_value="fallback"
+                )
+                is None
+            )
+
     def setUp(self):
         """测试前的准备工作"""
         self.test_dict = {"name": "张三", "age": 25, "city": "北京"}
@@ -123,7 +132,7 @@ class TestDictProcess(unittest.TestCase):
             fail_option=NoKeyOptionType.RETURN_DEFAULT,
             default_value=None,
         )
-        self.assertEqual(result, "")
+        assert result is None
 
     def test_get_value_from_dict_complex_value(self):
         """测试获取复杂类型的值"""

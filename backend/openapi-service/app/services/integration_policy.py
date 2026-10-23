@@ -20,7 +20,10 @@ from app.schemas.integration import (
     CapabilityClass,
 )
 from app.security.workflow_authorization import WorkflowAccessError
+from app.services.ai_dynamic_risk import validate_risk_review
+from app.services.desktop_ui import validate_desktop_review
 from app.services.execution_management import digest
+from app.services.office_file import validate_file_review
 from app.services.service_read import validate_read_review
 from app.services.workflow_schema import (
     JSON_LIMITS,
@@ -46,6 +49,12 @@ class Declaration(BaseModel):
     capabilityClass: CapabilityClass | None = None
     componentOperations: list[str] | None = None
     readOnlyReview: dict | None = None
+    fileContract: dict | None = None
+    fileReview: dict | None = None
+    desktopContract: dict | None = None
+    desktopReview: dict | None = None
+    riskContract: dict | None = None
+    riskReview: dict | None = None
     allowedTransports: list[Literal["mcp", "rest"]] = Field(default_factory=lambda: ["mcp"])
     fileInputs: bool | None = None
     fileOutputs: bool | None = None
@@ -105,6 +114,27 @@ def load_policy() -> Policy:
         raise WorkflowAccessError("INTEGRATION_POLICY_UNAVAILABLE", "Integration policy is unavailable") from None
 
 
+def declaration_revision(declaration):
+    data = declaration.model_dump()
+    for field in (
+        "fileContract",
+        "fileReview",
+        "desktopContract",
+        "desktopReview",
+        "riskContract",
+        "riskReview",
+        "readOnlyReview",
+    ):
+        if data[field] is None:
+            data.pop(field)
+    if declaration.capabilityClass is None:
+        data.pop("capabilityClass")
+    elif declaration.capabilityClass == JSON_DATA_CLASS:
+        data["jsonLimits"] = JSON_LIMITS
+        data["dataContractVersion"] = 1
+    return digest(data)
+
+
 def workflow_profile(workflow: Workflow, user_id: str, params: dict | None = None) -> dict:
     policy = load_policy()
     schema = workflow_input_schema(workflow)
@@ -125,6 +155,9 @@ def workflow_profile(workflow: Workflow, user_id: str, params: dict | None = Non
         "capabilityClass": None,
         "componentOperations": None,
         "readContractVersion": None,
+        "fileContract": None,
+        "desktopContract": None,
+        "riskContract": None,
         "allowedTransports": None,
         "fileInputs": None,
         "fileOutputs": None,
@@ -141,12 +174,23 @@ def workflow_profile(workflow: Workflow, user_id: str, params: dict | None = Non
     if declaration:
         public.update(
             declaration.model_dump(
-                exclude={"userId", "projectId", "version", "allowed", "inputSchemaHash", "readOnlyReview"}
+                exclude={
+                    "userId",
+                    "projectId",
+                    "version",
+                    "allowed",
+                    "inputSchemaHash",
+                    "readOnlyReview",
+                    "fileReview",
+                    "desktopReview",
+                    "riskReview",
+                }
             )
         )
         output_schema_invalid = False
         if (
-            declaration.capabilityClass in (JSON_DATA_CLASS, *SERVICE_READ_CLASSES)
+            declaration.capabilityClass
+            in (JSON_DATA_CLASS, "office-file", "desktop-ui", "ai-dynamic-risk", *SERVICE_READ_CLASSES)
             and declaration.outputSchema is not None
         ):
             try:
@@ -157,16 +201,7 @@ def workflow_profile(workflow: Workflow, user_id: str, params: dict | None = Non
         public["revisionLabel"] = declaration.revision
         # Bind every declaration change, even if an administrator forgets to
         # increment its human-readable label.
-        revision_data = declaration.model_dump()
-        if declaration.readOnlyReview is None:
-            revision_data.pop("readOnlyReview")
-        if declaration.capabilityClass is None:
-            # Preserve existing framework revisions when this optional field is absent.
-            revision_data.pop("capabilityClass")
-        elif declaration.capabilityClass == JSON_DATA_CLASS:
-            revision_data["jsonLimits"] = JSON_LIMITS
-            revision_data["dataContractVersion"] = 1
-        public["revision"] = digest(revision_data)
+        public["revision"] = declaration_revision(declaration)
         unknown = (
             any(
                 public[k] is None
@@ -191,7 +226,12 @@ def workflow_profile(workflow: Workflow, user_id: str, params: dict | None = Non
             and declaration.capabilityClass not in declaration.capabilities
         )
         category_unsupported = declaration.capabilityClass == JSON_DATA_CLASS and (
-            declaration.fileInputs or declaration.fileOutputs or declaration.requiresGui
+            declaration.fileInputs
+            or declaration.fileOutputs
+            or declaration.requiresGui
+            or declaration.requiresHuman
+            or declaration.risk != "low"
+            or bool(declaration.sideEffects)
         )
         service_incomplete = declaration.capabilityClass in SERVICE_READ_CLASSES and (
             not declaration.componentOperations
@@ -221,6 +261,31 @@ def workflow_profile(workflow: Workflow, user_id: str, params: dict | None = Non
                 public["readContractVersion"] = 1
             except WorkflowAccessError:
                 read_review_invalid = True
+        file_error = None
+        if declaration.capabilityClass == "office-file":
+            try:
+                validate_file_review(declaration, schema, params)
+            except WorkflowAccessError as error:
+                file_error = error.code
+        if declaration.capabilityClass == "desktop-ui":
+            try:
+                validate_desktop_review(declaration)
+                if declaration.fileContract:
+                    validate_file_review(declaration, schema, params, desktop=True)
+            except WorkflowAccessError as error:
+                file_error = error.code
+        if declaration.capabilityClass == "ai-dynamic-risk":
+            try:
+                from app.services.desktop_ui import validate_desktop_environment
+                from app.services.office_file import validate_file_contract
+
+                validate_risk_review(declaration)
+                if declaration.desktopContract:
+                    validate_desktop_environment(declaration)
+                if declaration.fileContract:
+                    validate_file_contract(declaration, schema, params)
+            except WorkflowAccessError as error:
+                file_error = error.code
         if output_schema_invalid:
             reason = "OUTPUT_SCHEMA_UNSUPPORTED"
         elif declaration.inputSchemaHash != digest(schema):
@@ -237,13 +302,17 @@ def workflow_profile(workflow: Workflow, user_id: str, params: dict | None = Non
             reason = "CAPABILITY_DECLARATION_INVALID"
         elif read_review_invalid:
             reason = "READ_CONSTRAINT_INVALID"
+        elif file_error:
+            reason = file_error
         elif not declaration.allowed:
             reason = "PROFILE_DENIED"
-        elif declaration.fileInputs or declaration.fileOutputs:
+        elif declaration.capabilityClass not in {"office-file", "desktop-ui", "ai-dynamic-risk"} and (
+            declaration.fileInputs or declaration.fileOutputs
+        ):
             reason = "FILE_TRANSFER_UNSUPPORTED"
         else:
             reason = None
-        if declaration.capabilityClass == JSON_DATA_CLASS:
+        if declaration.capabilityClass in (JSON_DATA_CLASS, "office-file", "desktop-ui", "ai-dynamic-risk"):
             public["jsonLimits"] = JSON_LIMITS.copy()
     return {
         "schemaVersion": 1,
@@ -272,7 +341,7 @@ def require_admission(
             )
         if revision is not None and revision != profile["revision"]:
             raise WorkflowAccessError("PROFILE_STALE", "The workflow declaration changed; prepare a new request")
-    if profile["capabilityClass"] in SERVICE_READ_CLASSES:
+    if profile["capabilityClass"] in {*SERVICE_READ_CLASSES, "office-file", "desktop-ui", "ai-dynamic-risk"}:
         if not profile["admission"]["allowed"]:
             raise WorkflowAccessError(profile["admission"]["reason"], "Workflow has no valid read admission")
         if transport is not None and transport not in profile["allowedTransports"]:

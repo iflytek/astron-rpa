@@ -5,7 +5,6 @@ from astronverse.actionlib.atomic import atomicMg
 from astronverse.ai import InputType, JobWebsitesTypes, RatingSystemTypes
 from astronverse.ai.api.llm import chat_prompt
 from astronverse.ai.utils.extract import FileExtractor
-from astronverse.baseline.logger.logger import logger
 
 
 class RecruitAI:
@@ -82,7 +81,6 @@ class RecruitAI:
             reply = chat_prompt(prompt_type="recruit_keywords", params=params, model=model)
         else:
             reply = chat_prompt(prompt_type="recruit_keywords", params=params)
-        logger.info("RecruitAI generate_keywords: {}".format(reply))
         return reply
 
     @atomicMg.atomic(
@@ -175,5 +173,4 @@ class RecruitAI:
         else:
             reply = chat_prompt(prompt_type=prompt_type, params=params)
 
-        logger.info("RecruitAI rating_resume: {}".format(reply))
         return reply

@@ -88,7 +88,7 @@ class DictProcess:
         """
         字典获取一项
         """
-        if dict_data.get(dict_key) is not None:
+        if dict_key in dict_data:
             return dict_data[dict_key]
         else:
             if fail_option == NoKeyOptionType.RAISE_ERROR:

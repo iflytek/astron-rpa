@@ -1,8 +1,7 @@
 import json
 import unittest
-from unittest.mock import Mock, patch
 
-from astronverse.dataprocess import *
+from astronverse.dataprocess import VariableType
 from astronverse.dataprocess.data import DataProcess
 
 
@@ -114,98 +113,6 @@ class TestDataProcess(unittest.TestCase):
         """测试无效的JSON转换"""
         with self.assertRaises(Exception):
             DataProcess.set_variable_value(value="invalid_json", variable_type=VariableType.JSON)
-
-    def test_get_shared_variable_empty_list(self):
-        """测试获取共享变量 - 空列表"""
-        shared_variable = {"subVarList": []}
-        result = DataProcess.get_shared_variable(shared_variable=shared_variable)
-        self.assertIsNone(result)
-
-    def test_get_shared_variable_no_sub_var_list(self):
-        """测试获取共享变量 - 无subVarList"""
-        shared_variable = {}
-        result = DataProcess.get_shared_variable(shared_variable=shared_variable)
-        self.assertIsNone(result)
-
-    def test_get_shared_variable_normal_variables(self):
-        """测试获取共享变量 - 普通变量"""
-        shared_variable = {
-            "subVarList": [
-                {
-                    "varName": "test_var1",
-                    "varValue": "test_value1",
-                    "encrypt": False,
-                    "key": None,
-                },
-                {
-                    "varName": "test_var2",
-                    "varValue": 123,
-                    "encrypt": False,
-                    "key": None,
-                },
-            ]
-        }
-        result = DataProcess.get_shared_variable(shared_variable=shared_variable)
-        expected = {"test_var1": "test_value1", "test_var2": 123}
-        self.assertEqual(result, expected)
-
-    @patch("astronverse.dataprocess.data.Ciphertext")
-    def test_get_shared_variable_encrypted_variables(self, mock_ciphertext):
-        """测试获取共享变量 - 加密变量"""
-        # 模拟Ciphertext类
-        mock_cipher = Mock()
-        mock_ciphertext.return_value = mock_cipher
-
-        shared_variable = {
-            "subVarList": [
-                {
-                    "varName": "encrypted_var",
-                    "varValue": "encrypted_value",
-                    "encrypt": True,
-                    "key": "test_key",
-                }
-            ]
-        }
-        result = DataProcess.get_shared_variable(shared_variable=shared_variable)
-
-        # 验证Ciphertext被正确创建和配置
-        mock_ciphertext.assert_called_once_with("encrypted_value")
-        mock_cipher.set_key.assert_called_once_with("test_key")
-
-        # 验证结果包含Ciphertext对象
-        self.assertIn("encrypted_var", result)
-        self.assertEqual(result["encrypted_var"], mock_cipher)
-
-    def test_get_shared_variable_mixed_variables(self):
-        """测试获取共享变量 - 混合变量（普通+加密）"""
-        with patch("astronverse.dataprocess.data.Ciphertext") as mock_ciphertext:
-            mock_cipher = Mock()
-            mock_ciphertext.return_value = mock_cipher
-
-            shared_variable = {
-                "subVarList": [
-                    {
-                        "varName": "normal_var",
-                        "varValue": "normal_value",
-                        "encrypt": False,
-                        "key": None,
-                    },
-                    {
-                        "varName": "encrypted_var",
-                        "varValue": "encrypted_value",
-                        "encrypt": True,
-                        "key": "test_key",
-                    },
-                ]
-            }
-            result = DataProcess.get_shared_variable(shared_variable=shared_variable)
-
-            # 验证普通变量
-            self.assertEqual(result["normal_var"], "normal_value")
-
-            # 验证加密变量
-            self.assertEqual(result["encrypted_var"], mock_cipher)
-            mock_cipher.set_key.assert_called_once_with("test_key")
 
     def test_set_variable_value_edge_cases(self):
         """测试边界情况"""

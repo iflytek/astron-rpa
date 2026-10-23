@@ -1,5 +1,3 @@
-import importlib
-import importlib.util
 import inspect
 from typing import Any
 
@@ -12,8 +10,10 @@ from astronverse.script.error import *
 class Script:
     @staticmethod
     def _call(path: str, package: str, **kwargs):
+        from astronverse.actionlib.managed_risk import import_reviewed_module
+
         try:
-            process_module = importlib.import_module(path, package=package)
+            process_module = import_reviewed_module(path, package)
         except SyntaxError as e:
             raise e
         except Exception as e:
@@ -29,8 +29,10 @@ class Script:
 
     @staticmethod
     def _module_call(path: str, package: str, out_kwargs, out_param_meta, inn_kwargs):
+        from astronverse.actionlib.managed_risk import import_reviewed_module
+
         try:
-            process_module = importlib.import_module(path, package=package)
+            process_module = import_reviewed_module(path, package)
         except SyntaxError as e:
             raise e
         except Exception as e:
