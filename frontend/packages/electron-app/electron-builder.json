@@ -22,7 +22,7 @@
     "target": "nsis",
     "icon": "../../public/icons/icon.ico",
     "publisherName": "astron-rpa",
-    "verifyUpdateCodeSignature": false,
+    "verifyUpdateCodeSignature": true,
     "publish": {
       "provider": "generic",
       "url": ""
