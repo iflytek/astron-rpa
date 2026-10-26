@@ -70,6 +70,7 @@ mybatis-plus:
 
 
 resource:
+  base-url: http://rpa-opensource-resource-service:8030
   download:
     url: /api/resource/file/download?fileId=
 
