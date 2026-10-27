@@ -111,6 +111,7 @@ test("query/cancel reject arbitrary IDs without reflecting input; connection fai
             { json: { private: "synthetic-private-input" } },
           ],
           getCredentials: async () => ({}),
+          getExecutionId: () => "diagnostic-execution",
           getNode: () => ({ name: "AstronRPA" }),
           continueOnFail: () => true,
         };
@@ -217,20 +218,34 @@ test("resume callback ignores supplied result and preserves persisted state", as
   const response = await new AstronRpa().webhook.call(context);
   assert.deepEqual(response.workflowData[0][0].json, state);
 });
-test("inline workflow uses credential references and checkpoint before observation", () => {
-  const parent = {
-    name: "Astron",
-    type: "n8n-nodes-astron-rpa.astronRpa",
-    typeVersion: 1,
-    credentials: { astronRpaApi: { id: "credential-reference", name: "test" } },
-  };
-  const workflow = runnerWorkflow(parent, true);
-  assert.equal(workflow.connections.State.main[0][0].node, "Checkpoint");
-  assert.equal(workflow.connections.Checkpoint.main[0][0].node, "Observe");
-  assert.equal(
-    workflow.nodes.find((n) => n.name === "Observe").credentials.astronRpaApi
-      .id,
-    "credential-reference",
-  );
-  assert(!JSON.stringify(workflow).includes("apiKey"));
-});
+for (const type of [
+  "n8n-nodes-astron-rpa.astronRpa",
+  "@iflytekopensource/n8n-nodes-astron-rpa.astronRpa",
+]) {
+  test(`inline workflow preserves ${type} and credential references across checkpoints`, () => {
+    const parent = {
+      name: "Astron",
+      type,
+      typeVersion: 1,
+      credentials: {
+        astronRpaApi: { id: "credential-reference", name: "test" },
+      },
+    };
+    const workflow = runnerWorkflow(parent, true);
+    assert.equal(workflow.connections.State.main[0][0].node, "Checkpoint");
+    assert.equal(workflow.connections.Checkpoint.main[0][0].node, "Observe");
+    assert.equal(
+      workflow.nodes.find((n) => n.name === "Observe").credentials.astronRpaApi
+        .id,
+      "credential-reference",
+    );
+    assert(!JSON.stringify(workflow).includes("apiKey"));
+    for (const node of workflow.nodes.filter((node) =>
+      node.type.endsWith(".astronRpa"),
+    )) {
+      assert.equal(node.type, parent.type);
+      assert.equal(node.typeVersion, parent.typeVersion);
+      assert.deepEqual(node.credentials, parent.credentials);
+    }
+  });
+}

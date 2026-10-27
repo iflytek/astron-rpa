@@ -9,8 +9,10 @@ from starlette.types import Receive, Scope, Send
 from app.config import get_settings
 from app.database import AsyncSessionLocal
 from app.logger import get_logger
+from app.middlewares.tracing import safe_id
 from app.routers.mcp_modern import DualProtocolMCP
 from app.schemas.mcp import CONTROL_TOOLS
+from app.security.integration_rate_limit import enforce_rate_limit
 from app.security.mcp_auth import MCPAPIKeyAuthMiddleware
 from app.services.streamable_mcp import ToolsConfig
 from app.services.workflow_control import WorkflowControlError, WorkflowControlService, validate_arguments
@@ -42,8 +44,10 @@ def get_authenticated_user_id(ctx) -> str:
     return str(user_id)
 
 
-def control_error(code: str, message: str) -> types.CallToolResult:
+def control_error(code: str, message: str, validation: dict | None = None) -> types.CallToolResult:
     payload = {"error": {"code": code, "message": message}}
+    if code == "INVALID_ARGUMENTS" and validation is not None:
+        payload["error"]["validation"] = validation
     return types.CallToolResult(
         isError=True,
         content=[types.TextContent(type="text", text=json.dumps(payload))],
@@ -59,8 +63,30 @@ async def call_tool(name: str, arguments: dict) -> list[types.ContentBlock] | di
 
 
 async def dispatch_tool(user_id, name, arguments, request_id=None, session=None):
-    logger.info("MCP tool=%s request_id=%s user_id=%s", name, request_id, user_id)
+    from app.services.observability import event, increment
 
+    # Arbitrary dynamic tool names and RPC ids never become metric labels.
+    tool = name if name in CONTROL_TOOLS else "legacy_dynamic"
+    event("mcp_call", tool=tool, rpc_id=request_id)
+    result = await _dispatch_tool(user_id, name, arguments, request_id, session)
+    outcome = "success"
+    code = None
+    if isinstance(result, types.CallToolResult) and result.isError:
+        code = (result.structuredContent or {}).get("error", {}).get("code")
+        outcome = "busy" if code == "CLIENT_BUSY" else "error"
+    increment("astron_mcp_calls_total", outcome)
+    event(
+        "mcp_result",
+        tool=tool,
+        rpc_id=request_id,
+        outcome=outcome,
+        error_code=code,
+        execution_id=result.get("executionId") if isinstance(result, dict) else None,
+    )
+    return result
+
+
+async def _dispatch_tool(user_id, name, arguments, request_id=None, session=None):
     if name in CONTROL_TOOLS:
         try:
             validate_arguments(arguments, CONTROL_TOOLS[name].inputSchema)
@@ -92,19 +118,13 @@ async def dispatch_tool(user_id, name, arguments, request_id=None, session=None)
             # Validate before the SDK so serialization errors cannot echo results.
             json.dumps(payload, allow_nan=False)
             Draft202012Validator(CONTROL_TOOLS[name].outputSchema).validate(payload)
-            logger.info(
-                "MCP tool=%s request_id=%s execution_id=%s",
-                name,
-                request_id,
-                payload.get("executionId"),
-            )
             return payload
         except WorkflowControlError as exc:
-            return control_error(exc.code, str(exc))
+            return control_error(exc.code, str(exc), exc.validation)
         except Exception as exc:
             # SQL/validation exception strings can contain credentials or inputs.
             logger.error(  # noqa: TRY400 -- do not log exception text containing SQL parameters
-                "MCP control failed: tool=%s request_id=%s error_type=%s", name, request_id, type(exc).__name__
+                "MCP control failed: tool=%s request_id=%s error_type=%s", name, safe_id(request_id), type(exc).__name__
             )
             return control_error(
                 "INTERNAL_ERROR", "Workflow control is unavailable; do not automatically retry a start"
@@ -117,7 +137,7 @@ async def dispatch_tool(user_id, name, arguments, request_id=None, session=None)
             try:
                 validate_arguments(arguments, tool.inputSchema)
             except WorkflowControlError as exc:
-                return control_error(exc.code, str(exc))
+                return control_error(exc.code, str(exc), exc.validation)
             break
 
     # 使用 ToolsConfig 执行工作流
@@ -168,6 +188,7 @@ mcp_auth_app = MCPAPIKeyAuthMiddleware(
     ),
     tools_config.get_uid_from_raw_key,
     allow_query_api_key=get_settings().MCP_ALLOW_QUERY_API_KEY,
+    limiter=enforce_rate_limit,
 )
 
 

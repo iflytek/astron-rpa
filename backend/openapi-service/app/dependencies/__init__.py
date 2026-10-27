@@ -63,6 +63,9 @@ async def get_user_id_from_api_key(request: Request, db: Annotated[AsyncSession,
         raise HTTPException(503, "Authentication service unavailable") from None
     if not identity:
         raise authentication_error()
+    from app.security.integration_rate_limit import enforce_rate_limit
+
+    await enforce_rate_limit(identity)
     return identity
 
 

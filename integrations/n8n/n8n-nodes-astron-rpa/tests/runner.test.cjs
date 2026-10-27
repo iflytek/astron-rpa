@@ -62,6 +62,40 @@ const receipt = (status = "running", changes = {}) => ({
   ...changes,
 });
 
+test("schema denial reaches caller output without starting or copying input values", async () => {
+  const req = request();
+  const hint = { field: "$/count", rule: "type", expected: ["integer"] };
+  let calls = 0;
+  const result = await step(
+    initialState([req], 0),
+    [req],
+    {
+      call: async (name) => {
+        calls++;
+        if (name === "astron_integration_get") return info;
+        throw new AstronError("INVALID_ARGUMENTS", false, hint);
+      },
+    },
+    () => 1,
+  );
+  assert.equal(calls, 2);
+  assert.equal(result.done, true);
+  assert.deepEqual(result.results[0].callerError.validation, hint);
+  assert.equal(result.results[0].executionId, undefined);
+  assert(!JSON.stringify(result).includes("items"));
+  assert.equal(
+    new AstronError("INVALID_ARGUMENTS", false, {
+      ...hint,
+      field: "$/bad\nvalue",
+    }).validation,
+    undefined,
+  );
+  assert.equal(
+    new AstronError("INTERNAL_ERROR", false, hint).validation,
+    undefined,
+  );
+});
+
 test("response loss replays the original key/content, then resumes by ID only", async () => {
   const req = request();
   const sent = [];

@@ -1,0 +1,27 @@
+# Optional, persistent operations overlay. Use with the deployment's base files.
+# Keep .integration-ops.env private; pin ASTRON_PROMETHEUS_IMAGE to a digest.
+services:
+  openapi-service:
+    env_file:
+      - ./.integration-ops.env
+    environment:
+      LOG_FORMAT: json
+
+  integration-monitoring:
+    profiles: [integration-monitoring]
+    image: ${ASTRON_PROMETHEUS_IMAGE:?Set a pinned Prometheus image in .integration-ops.env}
+    restart: unless-stopped
+    command:
+      - --config.file=/etc/prometheus/astron.yml
+      - --storage.tsdb.path=/prometheus
+      - --storage.tsdb.retention.time=7d
+      - --storage.tsdb.retention.size=512MB
+    ports:
+      - 127.0.0.1:19090:9090
+    volumes:
+      - ./monitoring/astron-prometheus.yml:/etc/prometheus/astron.yml:ro
+      - ../integrations/n8n/monitoring-alerts.yml:/etc/prometheus/astron-alerts.yml:ro
+      - ./monitoring/secrets/openapi-token:/run/secrets/openapi-token:ro
+      - ./data/integration-monitoring:/prometheus
+    networks:
+      - rpa-opensource-network

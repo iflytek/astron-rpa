@@ -1,17 +1,45 @@
 {
-  "name": "n8n-nodes-astron-rpa",
-  "version": "0.1.0-dev.2",
-  "description": "AstronRPA published workflow control through MCP",
+  "name": "@iflytekopensource/n8n-nodes-astron-rpa",
+  "version": "0.1.0",
+  "description": "Astron-RPA for n8n: automate JSON data, browser and service reads, Office and files, Windows desktop tasks, and approved AI/code workflows through MCP.",
   "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/iflytek/astron-rpa.git",
+    "directory": "integrations/n8n/n8n-nodes-astron-rpa"
+  },
+  "homepage": "https://github.com/iflytek/astron-rpa/tree/main/integrations/n8n/n8n-nodes-astron-rpa#readme",
+  "bugs": {
+    "url": "https://github.com/iflytek/astron-rpa/issues"
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
   "keywords": [
+    "Astron-RPA",
+    "rpa",
+    "robotic-process-automation",
+    "workflow-automation",
+    "browser-automation",
+    "office-automation",
+    "desktop-automation",
+    "data-processing",
+    "ai-automation",
+    "mcp",
+    "n8n",
     "n8n-community-node-package"
   ],
   "engines": {
     "node": ">=24"
   },
   "files": [
-    "dist",
-    "examples",
+    "dist/**/*.js",
+    "dist/package.json",
+    "examples/desktop-ui.json",
+    "examples/execute-and-query.json",
+    "examples/office-file.json",
+    "examples/README.md",
     "README.md",
     "LICENSE"
   ],
@@ -22,6 +50,8 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "test": "npm run build && node --test tests/*.test.cjs",
+    "test:package": "npm run build && node tests/package.cjs",
+    "release:check": "npm run typecheck && npm run lint && npm run format:check -- --end-of-line auto && npm test && npm audit --omit=dev --audit-level=moderate && npm run test:package && npm audit --include=dev --audit-level=moderate",
     "prepack": "npm run build"
   },
   "n8n": {
@@ -34,7 +64,18 @@
     ]
   },
   "dependencies": {
-    "@modelcontextprotocol/sdk": "1.30.0"
+    "@modelcontextprotocol/sdk": "1.32.2"
+  },
+  "bundleDependencies": [
+    "@modelcontextprotocol/sdk"
+  ],
+  "overrides": {
+    "@modelcontextprotocol/sdk": {
+      "zod": "4.6.7"
+    },
+    "n8n-workflow": {
+      "axios": "1.20.0"
+    }
   },
   "peerDependencies": {
     "n8n-workflow": ">=2.36.4 <3"

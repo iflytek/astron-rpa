@@ -1,11 +1,66 @@
 import type { IDataObject } from "n8n-workflow";
 
+export interface ValidationHint extends IDataObject {
+  field: string;
+  rule: string;
+  expected: string[];
+}
+
+export function validationHint(value: unknown): ValidationHint | undefined {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return;
+  const v = value as Record<string, unknown>;
+  if (
+    typeof v.field !== "string" ||
+    v.field.length > 1024 ||
+    !/^\$(?:\/(?:[\p{L}\p{N}_-]{1,64}|\*))*$/u.test(v.field) ||
+    typeof v.rule !== "string" ||
+    ![
+      "type",
+      "required",
+      "additionalProperties",
+      "enum",
+      "minimum",
+      "maximum",
+      "exclusiveMinimum",
+      "exclusiveMaximum",
+      "minLength",
+      "maxLength",
+      "minItems",
+      "maxItems",
+      "uniqueItems",
+      "minProperties",
+      "maxProperties",
+      "format",
+      "schema",
+    ].includes(v.rule) ||
+    !Array.isArray(v.expected) ||
+    v.expected.length > 7 ||
+    !v.expected.every((kind) =>
+      [
+        "string",
+        "integer",
+        "number",
+        "boolean",
+        "array",
+        "object",
+        "null",
+      ].includes(kind),
+    )
+  )
+    return;
+  return { field: v.field, rule: v.rule, expected: [...v.expected] };
+}
+
 export class AstronError extends Error {
+  public readonly validation?: ValidationHint;
   constructor(
     public readonly code: string,
     public readonly uncertain = false,
+    validation?: unknown,
   ) {
     super(code);
+    if (code === "INVALID_ARGUMENTS")
+      this.validation = validationHint(validation);
   }
 }
 

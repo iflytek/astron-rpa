@@ -8,6 +8,7 @@ from datetime import UTC
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.config import get_settings
 from app.models.workflow import Execution, Workflow
 from app.schemas.integration import CAPABILITY_CLASSES
 from app.schemas.workflow import ExecutionCreate
@@ -91,7 +92,11 @@ class WorkflowControlService:
             "capabilityClasses": list(CAPABILITY_CLASSES),
             "jsonLimits": JSON_LIMITS.copy(),
             "client": client,
-            "limitations": ["single-openapi-owner", "controlled-validation", "secret-inputs-suppress-results"],
+            "limitations": [
+                "same-host-shared-storage" if get_settings().EXECUTION_ROUTING == "redis" else "single-openapi-owner",
+                "controlled-validation",
+                "secret-inputs-suppress-results",
+            ],
         }
 
     async def execute_workflow(

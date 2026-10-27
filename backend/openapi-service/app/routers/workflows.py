@@ -41,6 +41,8 @@ async def get_integration(
 
 
 def _execution_http_error(exc: WorkflowAccessError, *, contract: bool = False) -> HTTPException:
+    if contract and exc.code == "INVALID_ARGUMENTS" and exc.validation is not None:
+        return HTTPException(403, detail={"code": exc.code, "validation": exc.validation})
     client_status = {
         "CLIENT_OFFLINE": status.HTTP_503_SERVICE_UNAVAILABLE,
         "CLIENT_CAPABILITY_UNCONFIRMED": status.HTTP_503_SERVICE_UNAVAILABLE,

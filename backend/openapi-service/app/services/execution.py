@@ -189,8 +189,18 @@ class ExecutionService:
                     update_data[Execution.parameters] = json.dumps(params, allow_nan=False)
 
             update_stmt = update_stmt.values(update_data)
-            await self.db.execute(update_stmt)
+            updated = await self.db.execute(update_stmt)
             await self.db.commit()
+            if updated.rowcount and status in management.TERMINAL:
+                from app.services.observability import event, execution_finished
+
+                execution_finished(status, error)
+                event(
+                    "execution_terminal",
+                    execution_id=execution_id,
+                    outcome=status,
+                    error_code=error if error in management.ERRORS else None,
+                )
 
             # 返回更新后的执行记录
             return await self.get_execution_internal(execution_id)
@@ -377,6 +387,10 @@ class ExecutionService:
             execution.id,
             execution.user_id,
         )
+        from app.services.observability import event, increment
+
+        increment("astron_executions_accepted_total")
+        event("execution_accepted", execution_id=execution.id, client_id=execution.client_id)
 
         # 保存 execution_id，后续需要用
         execution_id = execution.id

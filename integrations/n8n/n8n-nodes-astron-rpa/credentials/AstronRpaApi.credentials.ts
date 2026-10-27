@@ -2,7 +2,7 @@ import type { ICredentialType, INodeProperties } from "n8n-workflow";
 
 export class AstronRpaApi implements ICredentialType {
   name = "astronRpaApi";
-  displayName = "AstronRPA MCP API";
+  displayName = "Astron-RPA MCP API";
   documentationUrl = "https://github.com/iflytek/astron-rpa";
   properties: INodeProperties[] = [
     {

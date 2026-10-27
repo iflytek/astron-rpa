@@ -205,7 +205,10 @@ test("file uploads preserve bytes and use exact REST paths without redirect or e
   const client = new FileConnection(connection, 1000, async (url, init) => {
     calls.push([String(url), init]);
     assert.equal(init.redirect, "error");
-    assert.equal(init.headers.Authorization, "Bearer test-key");
+    assert.equal(
+      new Headers(init.headers).get("Authorization"),
+      "Bearer test-key",
+    );
     if (init.method === "POST") {
       assert.equal(url.pathname, "/api/rpa-openapi/files");
       assert.deepEqual(JSON.parse(init.body), {

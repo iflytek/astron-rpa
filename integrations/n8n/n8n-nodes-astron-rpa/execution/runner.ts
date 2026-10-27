@@ -6,6 +6,7 @@ import {
   object,
   snapshot,
   type Snapshot,
+  type ValidationHint,
 } from "../mapping/contracts";
 import type { McpConnection } from "../transport/mcp";
 import { safeError } from "../transport/mcp";
@@ -92,6 +93,7 @@ function envelope(
   req: Prepared,
   state: RunState,
   errorCode?: string,
+  validation?: ValidationHint,
 ): IDataObject {
   return {
     ...(state.active.snapshot ?? {
@@ -106,7 +108,13 @@ function envelope(
       profileRevision: req.args.profileRevision,
     },
     ...(errorCode
-      ? { callerError: { code: errorCode, message: errorCode } }
+      ? {
+          callerError: {
+            code: errorCode,
+            message: errorCode,
+            ...(validation ? { validation } : {}),
+          },
+        }
       : {}),
   };
 }
@@ -122,6 +130,7 @@ export async function step(
   if (state.done) return state;
   const req = requests[state.cursor];
   let failure: string | undefined;
+  let validation: ValidationHint | undefined;
   let unresolved = false;
   try {
     if (req.preparationError) throw new AstronError(req.preparationError);
@@ -182,8 +191,9 @@ export async function step(
       return state;
     }
     failure = safe.code;
+    validation = safe.validation;
   }
-  state.results.push(envelope(req, state, failure));
+  state.results.push(envelope(req, state, failure, validation));
   state.cursor++;
   if (unresolved || (failure && !continueOnFail)) {
     for (; state.cursor < requests.length; state.cursor++) {

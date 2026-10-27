@@ -4,6 +4,7 @@ from logging.handlers import RotatingFileHandler
 
 from app.config import get_settings
 from app.middlewares.tracing import RequestIdFilter
+from app.services.observability import JsonFormatter
 from app.utils.sensitive_logging import SensitiveDataFilter, SensitiveFormatter
 
 LOG_LEVEL = get_settings().LOG_LEVEL
@@ -27,6 +28,8 @@ def get_logger(name=None, log_level=LOG_LEVEL):
         "%(asctime)s - %(name)s - [%(request_id)s] - %(levelname)s - %(message)s",
         datefmt="%Y-%m-%d %H:%M:%S",
     )
+    if get_settings().LOG_FORMAT == "json":
+        default_formatter = JsonFormatter()
 
     # uvicorn_logger = logging.getLogger("uvicorn")
     # # 一行式写法

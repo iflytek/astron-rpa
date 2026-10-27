@@ -1,5 +1,6 @@
 import { AstronError, object, snapshot } from "../mapping/contracts";
 import type { Connection } from "./mcp";
+import { observedFetch } from "./correlation";
 
 type Fetcher = typeof fetch;
 
@@ -30,19 +31,25 @@ export class RestConnection {
     init: RequestInit = {},
   ): Promise<Record<string, unknown>> {
     const url = new URL(path.replace(/^\//, ""), this.base);
-    const response = await this.fetcher(url, {
-      ...init,
-      redirect: "error",
-      headers: {
-        Authorization: `Bearer ${this.connection.apiKey}`,
-        Accept: "application/json",
-        ...(init.headers ?? {}),
+    const response = await observedFetch(
+      this.fetcher,
+      url,
+      {
+        ...init,
+        redirect: "error",
+        headers: {
+          Authorization: `Bearer ${this.connection.apiKey}`,
+          Accept: "application/json",
+          ...(init.headers ?? {}),
+        },
+        signal: AbortSignal.any([
+          ...(init.signal ? [init.signal] : []),
+          AbortSignal.timeout(this.timeout),
+        ]),
       },
-      signal: AbortSignal.any([
-        ...(init.signal ? [init.signal] : []),
-        AbortSignal.timeout(this.timeout),
-      ]),
-    }).catch((error) => {
+      this.connection.correlation,
+      "rest",
+    ).catch((error) => {
       if (error instanceof AstronError) throw error;
       throw new AstronError("TRANSPORT_UNCONFIRMED", true);
     });
@@ -62,15 +69,20 @@ export class RestConnection {
           code,
           response.status >= 500 &&
             !["CLIENT_OFFLINE", "CLIENT_CAPABILITY_UNCONFIRMED"].includes(code),
+          detail && typeof detail === "object" && "validation" in detail
+            ? detail.validation
+            : undefined,
         );
       throw new AstronError(
         response.status === 401
           ? "AUTHENTICATION_FAILED"
           : response.status === 403
             ? "PERMISSION_DENIED"
-            : response.status >= 500
-              ? "REST_REQUEST_UNCONFIRMED"
-              : "REST_REQUEST_FAILED",
+            : response.status === 429
+              ? "RATE_LIMITED"
+              : response.status >= 500
+                ? "REST_REQUEST_UNCONFIRMED"
+                : "REST_REQUEST_FAILED",
         response.status >= 500,
       );
     }

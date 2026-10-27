@@ -46,7 +46,7 @@
     {
       "id": "upload",
       "name": "Upload File",
-      "type": "n8n-nodes-astron-rpa.astronRpa",
+      "type": "@iflytekopensource/n8n-nodes-astron-rpa.astronRpa",
       "typeVersion": 1,
       "position": [600, 0],
       "parameters": {
@@ -58,7 +58,7 @@
     {
       "id": "execute",
       "name": "Execute",
-      "type": "n8n-nodes-astron-rpa.astronRpa",
+      "type": "@iflytekopensource/n8n-nodes-astron-rpa.astronRpa",
       "typeVersion": 1,
       "position": [800, 0],
       "parameters": {
@@ -78,7 +78,7 @@
     {
       "id": "download",
       "name": "Download File",
-      "type": "n8n-nodes-astron-rpa.astronRpa",
+      "type": "@iflytekopensource/n8n-nodes-astron-rpa.astronRpa",
       "typeVersion": 1,
       "position": [1000, 0],
       "parameters": {

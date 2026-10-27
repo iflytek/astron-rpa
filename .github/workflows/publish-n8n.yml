@@ -1,0 +1,86 @@
+name: Publish Astron-RPA community node
+
+on:
+  push:
+    tags:
+      - 'n8n-v*'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: publish-n8n-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  regression:
+    uses: ./.github/workflows/integration-regression.yml
+
+  publish:
+    needs: regression
+    # The first scoped release is published manually; tags for later versions
+    # use the reviewed GitHub Environment and npm Trusted Publisher.
+    if: github.ref_name != 'n8n-v0.1.0'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    environment: npm
+    permissions:
+      contents: read
+      id-token: write
+    defaults:
+      run:
+        working-directory: integrations/n8n/n8n-nodes-astron-rpa
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          registry-url: https://registry.npmjs.org
+          cache: npm
+          cache-dependency-path: integrations/n8n/n8n-nodes-astron-rpa/package-lock.json
+      - name: Verify release identity and main ancestry
+        env:
+          RELEASE_TAG: ${{ github.ref_name }}
+          PUBLISH_REPOSITORY: ${{ github.repository }}
+        run: |
+          git merge-base --is-ancestor HEAD origin/main
+          node - <<'JS'
+          const assert = require('node:assert/strict');
+          const pkg = require('./package.json');
+          const lock = require('./package-lock.json');
+          assert.equal(pkg.name, '@iflytekopensource/n8n-nodes-astron-rpa');
+          assert.equal(pkg.repository.url, `git+https://github.com/${process.env.PUBLISH_REPOSITORY}.git`);
+          assert.match(pkg.version, /^\d+\.\d+\.\d+$/);
+          assert.equal(process.env.RELEASE_TAG, `n8n-v${pkg.version}`);
+          assert.equal(lock.packages[''].name, pkg.name);
+          assert.equal(lock.packages[''].version, pkg.version);
+          JS
+      - run: npm ci
+      - name: Audit full release dependency tree
+        run: npm audit --include=dev --audit-level=moderate --json > "${{ runner.temp }}/n8n-publish-audit.json"
+      - name: Preserve dependency audit
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: n8n-publish-audit-${{ github.ref_name }}
+          path: ${{ runner.temp }}/n8n-publish-audit.json
+          if-no-files-found: warn
+          retention-days: 30
+      - name: Build release tarball
+        run: npm pack --pack-destination "${{ runner.temp }}"
+      - name: Preserve the release artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: astron-rpa-npm-${{ github.ref_name }}
+          path: ${{ runner.temp }}/iflytekopensource-n8n-nodes-astron-rpa-*.tgz
+          if-no-files-found: error
+          retention-days: 30
+      - name: Publish public package with provenance
+        env:
+          # Prefer npm Trusted Publishing (OIDC). NPM_TOKEN is a fallback
+          # for later releases when Trusted Publishing is unavailable.
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: npm publish "${{ runner.temp }}/iflytekopensource-n8n-nodes-astron-rpa-$(node -p 'require("./package.json").version').tgz" --access public --provenance --tag latest

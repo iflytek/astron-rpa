@@ -140,15 +140,21 @@ identities are not provided by this contract.
 Use normal certificate-chain/hostname validation. Loopback/tunnel transport is
 only a development test environment, not a Community Node requirement. The
 [AstronRPA community node](../../integrations/n8n/n8n-nodes-astron-rpa/README.md)
-provides the Credentials UI and uses MCP for all business operations. Its n8n SDK
-dependency is confined to the independent node package.
+provides the Credentials UI and uses MCP for discovery and execution control.
+An Execute operation can explicitly select REST only when the workflow permits
+it; file transfer uses separate authenticated HTTPS REST routes. There is no
+automatic channel fallback. Its n8n SDK dependency is confined to the independent
+node package.
 
 Connection testing may initialize MCP, discover tools and perform an authorized
 read. It must not call execute/stop, use REST fallback starts, or auto-retry a
 start. Distinguish invalid/revoked key, TLS/network failure, protocol mismatch,
 discovery-service failure and authenticated identity with no visible workflows.
-n8n workflows retain only a Credential reference. Instance encryption keys,
-credential sharing and encrypted backups belong to the n8n administrator.
+The configured API key is referenced through n8n Credentials. Workflow inputs,
+including secret-marked parameters, may still be saved in execution records;
+see [input retention](../../integrations/n8n/n8n-nodes-astron-rpa/README.md#sensitive-inputs-and-retention).
+Instance encryption keys, credential sharing, execution retention and encrypted
+backups belong to the n8n administrator.
 
 ## Deployment and acceptance
 

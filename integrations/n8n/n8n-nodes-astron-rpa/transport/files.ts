@@ -5,6 +5,7 @@ import {
 } from "../capabilities/shared/file-contract";
 import { AstronError, object } from "../mapping/contracts";
 import type { Connection } from "./mcp";
+import { observedFetch } from "./correlation";
 
 export interface FileMetadata {
   fileId: string;
@@ -68,7 +69,8 @@ export class FileConnection {
   ): Promise<unknown> {
     let response: Response;
     try {
-      response = await this.fetcher(
+      response = await observedFetch(
+        this.fetcher,
         new URL(path || this.base.pathname.slice(0, -1), this.base),
         {
           ...init,
@@ -79,6 +81,8 @@ export class FileConnection {
             ...(init.headers ?? {}),
           },
         },
+        this.connection.correlation,
+        "file",
       );
     } catch {
       throw new AstronError("FILE_TRANSFER_UNCONFIRMED", true);

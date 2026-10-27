@@ -1,11 +1,14 @@
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { StreamableHTTPClientTransport } from "@modelcontextprotocol/sdk/client/streamableHttp.js";
 import { AstronError, object } from "../mapping/contracts";
+import { observedFetch, type Correlation } from "./correlation";
+import { name, version } from "../package.json";
 
 export interface Connection {
   endpoint: string;
   apiKey: string;
   protocol: string;
+  correlation?: Correlation;
 }
 export function endpoint(raw: string): URL {
   let url: URL;
@@ -31,10 +34,7 @@ export function endpoint(raw: string): URL {
 }
 
 export class McpConnection {
-  private client = new Client({
-    name: "n8n-nodes-astron-rpa",
-    version: "0.1.0-dev.2",
-  });
+  private client = new Client({ name, version });
   private transport: StreamableHTTPClientTransport;
   constructor(
     connection: Connection,
@@ -54,21 +54,29 @@ export class McpConnection {
         // Refuse every redirect, including same-origin changes to the configured path.
         fetch: async (url, init) => {
           try {
-            const response = await fetcher(url, {
-              ...init,
-              redirect: "error",
-              signal: AbortSignal.any([
-                ...(init?.signal ? [init.signal] : []),
-                AbortSignal.timeout(timeout),
-              ]),
-            });
+            const response = await observedFetch(
+              fetcher,
+              url,
+              {
+                ...init,
+                redirect: "error",
+                signal: AbortSignal.any([
+                  ...(init?.signal ? [init.signal] : []),
+                  AbortSignal.timeout(timeout),
+                ]),
+              },
+              connection.correlation,
+              "mcp",
+            );
             if (!response.ok && response.status !== 405) {
               throw new AstronError(
                 response.status === 401
                   ? "AUTHENTICATION_FAILED"
                   : response.status === 403
                     ? "PERMISSION_DENIED"
-                    : "HTTP_ERROR",
+                    : response.status === 429
+                      ? "RATE_LIMITED"
+                      : "HTTP_ERROR",
                 response.status >= 500,
               );
             }
@@ -126,6 +134,7 @@ export class McpConnection {
         throw new AstronError(
           safeCode,
           ["INTERNAL_ERROR", "MCP_TOOL_ERROR"].includes(safeCode),
+          object(value.error).validation,
         );
       }
       return value;

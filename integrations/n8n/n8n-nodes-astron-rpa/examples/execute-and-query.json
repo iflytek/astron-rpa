@@ -12,7 +12,7 @@
     {
       "id": "execute",
       "name": "AstronRPA Execute",
-      "type": "n8n-nodes-astron-rpa.astronRpa",
+      "type": "@iflytekopensource/n8n-nodes-astron-rpa.astronRpa",
       "typeVersion": 1,
       "position": [240, 0],
       "parameters": {
@@ -31,7 +31,7 @@
     {
       "id": "query",
       "name": "AstronRPA Query",
-      "type": "n8n-nodes-astron-rpa.astronRpa",
+      "type": "@iflytekopensource/n8n-nodes-astron-rpa.astronRpa",
       "typeVersion": 1,
       "position": [480, 0],
       "parameters": {
