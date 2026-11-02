@@ -32,6 +32,11 @@ from app.utils.sensitive_logging import SensitiveDataFilter, SensitiveFormatter,
             '"password":["[REDACTED]"]',
         ),
         (
+            str({"password": "it's-a-secret", "status": "ok"}),
+            ("s-a-secret",),
+            "'password': \"[REDACTED]\"",
+        ),
+        (
             "Authorization: Bearer bearer-secret",
             ("bearer-secret",),
             "Authorization: [REDACTED]",

@@ -11,7 +11,8 @@ _SENSITIVE_KEY = (
     r"verification[ _-]?code|verify[ _-]?code|sms[ _-]?code|captcha|credential)"
 )
 
-_QUOTED_VALUE = re.compile(rf"(?i)([\"']{_SENSITIVE_KEY}[\"']\s*[:=]\s*[\"'])(.*?)([\"'])")
+# The value must close with its own opening quote, e.g. repr() of "it's".
+_QUOTED_VALUE = re.compile(rf"(?i)([\"']{_SENSITIVE_KEY}[\"']\s*[:=]\s*([\"']))(.*?)\2")
 _QUOTED_ARRAY_VALUE = re.compile(rf"(?i)([\"']{_SENSITIVE_KEY}[\"']\s*[:=]\s*\[)[^\]]*(\])")
 _LABEL_VALUE = re.compile(rf"(?i)(\b{_SENSITIVE_KEY}\b\s*[:=：]\s*)(?!{re.escape(REDACTED)})([^\s,;&}}\]]+)")
 _CHINESE_SECRET_VALUE = re.compile(
@@ -32,7 +33,7 @@ def redact_sensitive_text(value: object) -> str:
 
     text = str(value)
     text = _QUOTED_ARRAY_VALUE.sub(rf'\1"{REDACTED}"\2', text)
-    text = _QUOTED_VALUE.sub(rf"\1{REDACTED}\3", text)
+    text = _QUOTED_VALUE.sub(rf"\1{REDACTED}\2", text)
     text = _COOKIE_HEADER.sub(rf"\1{REDACTED}", text)
     text = _BEARER_VALUE.sub(rf"\1{REDACTED}", text)
     text = _QUERY_API_KEY.sub(rf"\1{REDACTED}", text)
