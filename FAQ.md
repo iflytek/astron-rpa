@@ -612,6 +612,24 @@ After changing `.env`, run `docker compose up -d` again so the new settings take
 
 ---
 
+### Q: Why is the client's Settings → Plugin Installation page blank?
+
+**A:** Check the client logs first. A blank page alone does not establish that WebView2 is missing: a damaged browser profile can also break plugin detection even when WebView2 is installed.
+
+1. Record the client and browser versions, then inspect `%APPDATA%\astron-rpa\logs\scheduler-YYYY-MM-DD.log` for errors when opening the page.
+2. If the log names a missing Chrome profile `Extensions` directory, such as `%LOCALAPPDATA%\Google\Chrome\User Data\Profile N\Extensions`, confirm whether that exact profile is still used. In an October community case, support verified the path and the user confirmed recovery after restoring the missing directory. Do not copy another user's name or profile number, or delete the browser's entire user-data directory.
+3. Prefer a client version containing [#899](https://github.com/iflytek/astron-rpa/pull/899). Current plugin detection skips missing extension directories; see the [implementation](engine/shared/astronverse-browser-plugin/src/astronverse/browser_plugin/utils.py) and [regression case](engine/shared/astronverse-browser-plugin/tests/test_utils.py). If it still fails after updating, provide redacted logs and the actual missing path to support.
+
+For manual browser-plugin installation, the client bundles plugin files under:
+
+```text
+%APPDATA%\astron-rpa\python_core\Lib\site-packages\astronverse\browser_plugin\plugins
+```
+
+This entry concerns the open-source Astron RPA client. Troubleshoot Cowork against its own client version.
+
+---
+
 ## 📞 Get Help
 
 ### 🌐 Official Channels
