@@ -11,8 +11,8 @@ _SENSITIVE_KEY = (
     r"verification[ _-]?code|verify[ _-]?code|sms[ _-]?code|captcha|credential)"
 )
 
-# The value must close with its own opening quote, e.g. repr() of "it's".
-_QUOTED_VALUE = re.compile(rf"(?i)([\"']{_SENSITIVE_KEY}[\"']\s*[:=]\s*([\"']))(.*?)\2")
+# Match the opening delimiter and consume escapes before looking for its closing quote.
+_QUOTED_VALUE = re.compile(rf"(?i)([\"']{_SENSITIVE_KEY}[\"']\s*[:=]\s*([\"']))(?:\\.|(?!\2)[^\\])*\2")
 _QUOTED_ARRAY_VALUE = re.compile(rf"(?i)([\"']{_SENSITIVE_KEY}[\"']\s*[:=]\s*\[)[^\]]*(\])")
 _LABEL_VALUE = re.compile(rf"(?i)(\b{_SENSITIVE_KEY}\b\s*[:=：]\s*)(?!{re.escape(REDACTED)})([^\s,;&}}\]]+)")
 _CHINESE_SECRET_VALUE = re.compile(
