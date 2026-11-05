@@ -47,7 +47,10 @@ def chat_streamable(messages: Any, model: str = DEFAULT_MODEL):
                 if event.data and event.data != "[DONE]":
                     response_json = json.loads(event.data)
                     if response_json.get("choices"):
-                        yield response_json["choices"][0]["delta"]["content"]
+                        delta = response_json["choices"][0].get("delta") or {}
+                        content = delta.get("content")
+                        if content:
+                            yield content
         else:
             raise BaseException(LLM_NO_RESPONSE_ERROR.format(response), "")
     finally:
