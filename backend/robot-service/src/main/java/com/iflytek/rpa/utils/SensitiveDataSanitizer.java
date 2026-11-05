@@ -18,7 +18,7 @@ public final class SensitiveDataSanitizer {
                     + "param[ _-]?json)";
 
     private static final Pattern QUOTED_VALUE = Pattern.compile(
-            "([\"']" + SENSITIVE_KEY + "[\"']\\s*[:=]\\s*)" + "(\"(?:\\\\.|[^\"\\\\])*\"|'(?:\\\\.|[^'\\\\])*')",
+            "([\"']" + SENSITIVE_KEY + "[\"']\\s*[:=]\\s*)" + "(\"(?:\\\\.|[^\"\\\\])*+\"|'(?:\\\\.|[^'\\\\])*+')",
             Pattern.CASE_INSENSITIVE);
     private static final Pattern QUOTED_ARRAY_VALUE =
             Pattern.compile("([\"']" + SENSITIVE_KEY + "[\"']\\s*[:=]\\s*\\[)[^\\]]*(\\])", Pattern.CASE_INSENSITIVE);
