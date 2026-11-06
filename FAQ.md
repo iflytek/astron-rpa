@@ -26,6 +26,37 @@
 
 **A:** ✅ **Normal!** The Atlas container is used for database Schema migration and will automatically exit upon task completion. As long as the log shows "Schema is synced", it means success.
 
+### Q: 🆕 Why does gateway authentication report DNS errors on Kubernetes while normal proxy routes work?
+
+**A:** The supplied gateway configuration targets Docker Compose. Its [shared HTTP configuration](docker/volumes/nginx/includes/http-common.conf) sets `resolver 127.0.0.11 valid=5s;`, which is Docker's embedded DNS address, not the cluster DNS address. The authentication handler uses a Lua HTTP client to resolve `robot-service` at request time. A working Nginx upstream does not prove that this runtime resolver can resolve the same name.
+
+For a Kubernetes deployment, adapt the configuration mounted into the gateway Pod:
+
+1. Read the gateway Pod's DNS settings and inspect the backend Service. Replace the namespace and Pod placeholders with your deployment's values:
+
+   ```sh
+   kubectl -n <namespace> exec <gateway-pod> -- cat /etc/resolv.conf
+   kubectl -n <namespace> get service robot-service
+   ```
+
+2. Replace the Docker resolver in the mounted `includes/http-common.conf` with the reachable `nameserver` IP from that Pod. For example, **only if the Pod lists `10.96.0.10`**:
+
+   ```nginx
+   resolver 10.96.0.10 valid=5s;
+   ```
+
+   Use your actual cluster or NodeLocal DNS address, not a public DNS service. Check that network policies allow DNS traffic to it.
+
+   With the Linux OpenResty image used by this repository, you can instead replace that directive with `resolver local=on valid=5s;` to read nameservers from `/etc/resolv.conf` when the configuration is loaded. This [OpenResty extension](https://github.com/openresty/openresty/blob/v1.27.1.1/README.markdown#resolvconf-parsing) is not supported by stock Nginx and does not add DNS search-suffix expansion.
+
+3. In the mounted [`lua/auth_handler.lua`](docker/volumes/nginx/lua/auth_handler.lua), replace the hostname in `getUserUrl` with the Service's fully qualified DNS name, such as `robot-service.rpa.svc.cluster.local`. Replace `rpa` and `cluster.local` with your namespace and cluster domain, and keep the actual Service port and `/api/robot/user/info` path. The Lua runtime lookup does not expand the Pod's DNS search suffixes like a system resolver, so changing only the resolver IP can still leave the short name unresolved. Audit other Lua HTTP URLs for the same issue. Do not pin a Pod IP, since it changes when Pods are replaced.
+
+4. Check the loaded configuration with `nginx -T`, validate it with `nginx -t` inside the gateway container, then reload or roll out the gateway using your deployment process. Retest an authenticated request through the gateway and inspect its error log; a successful direct backend request alone does not exercise Lua authentication.
+
+If an HTTPS backend is used, configure its CA trust and certificate hostname verification. Disabling certificate checks or switching to a public address does not fix DNS resolution.
+
+See the [Nginx resolver directive](https://nginx.org/en/docs/http/ngx_http_core_module.html#resolver) and [Kubernetes Service DNS documentation](https://kubernetes.io/docs/concepts/services-networking/dns-pod-service/) for details. This is deployment troubleshooting guidance; the repository's Compose files are not Kubernetes manifests.
+
 ### Q: 🆕 Agent server cannot connect to RPA service?
 
 **A:** Please check the `.env` file in the Agent deployment directory to ensure `RPA_URL` is set to the public HTTPS address of the RPA server (e.g., `https://rpa.example.com`).

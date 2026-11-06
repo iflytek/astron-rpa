@@ -26,6 +26,37 @@
 
 **A:** ✅ **正常！** Atlas 容器用于数据库 Schema 迁移，任务完成后会自动退出。只要日志显示 "Schema is synced" 即表示成功。
 
+### Q: 🆕 Kubernetes 部署中，普通代理路由正常，但网关鉴权报 DNS 错误怎么办？
+
+**A:** 仓库提供的网关配置面向 Docker Compose。[共享 HTTP 配置](docker/volumes/nginx/includes/http-common.conf) 中的 `resolver 127.0.0.11 valid=5s;` 使用 Docker 内置 DNS 地址，不是集群 DNS 地址。鉴权脚本通过 Lua HTTP 客户端在请求时解析 `robot-service`；Nginx upstream 能正常访问，并不代表这个运行时解析器也能解析同一个名字。
+
+迁移到 Kubernetes 时，请调整挂载进网关 Pod 的配置：
+
+1. 查看网关 Pod 的 DNS 配置和后端 Service；将下面的命名空间及 Pod 占位符替换为实际值：
+
+   ```sh
+   kubectl -n <namespace> exec <gateway-pod> -- cat /etc/resolv.conf
+   kubectl -n <namespace> get service robot-service
+   ```
+
+2. 将挂载的 `includes/http-common.conf` 中的 Docker resolver 替换为该 Pod 可访问的 `nameserver` IP。例如，**仅当 Pod 中显示的是 `10.96.0.10` 时**，配置为：
+
+   ```nginx
+   resolver 10.96.0.10 valid=5s;
+   ```
+
+   请使用实际的集群或 NodeLocal DNS 地址，不要换成公共 DNS，并检查网络策略是否允许访问该 DNS 服务。
+
+   使用仓库提供的 Linux OpenResty 镜像时，也可将该指令替换为 `resolver local=on valid=5s;`，在加载配置时读取 `/etc/resolv.conf` 中的 nameserver。这个 [OpenResty 扩展](https://github.com/openresty/openresty/blob/v1.27.1.1/README.markdown#resolvconf-parsing)不适用于原版 Nginx，也不会增加 DNS 搜索后缀展开能力。
+
+3. 在挂载的 [`lua/auth_handler.lua`](docker/volumes/nginx/lua/auth_handler.lua) 中，将 `getUserUrl` 的主机名改为 Service 的完整 DNS 名称，例如 `robot-service.rpa.svc.cluster.local`。将 `rpa`、`cluster.local` 替换为实际命名空间和集群域名，并保留实际 Service 端口及 `/api/robot/user/info` 路径。Lua 的运行时查询不会像系统解析器一样展开 Pod 的 DNS 搜索后缀，所以只替换 resolver IP 后，短名称仍可能解析失败。其他 Lua HTTP 地址也应检查。不要固定 Pod IP，Pod 重建后地址会变化。
+
+4. 在网关容器中用 `nginx -T` 确认生效配置，运行 `nginx -t` 校验，再按部署流程重新加载或滚动更新网关。随后通过网关重试需要鉴权的请求，并查看错误日志；仅验证后端直连成功不能覆盖 Lua 鉴权链路。
+
+如果后端使用 HTTPS，请配置正确的 CA 信任和证书主机名校验。关闭证书校验或改走公网地址不能解决 DNS 解析问题。
+
+参考 [Nginx resolver 指令](https://nginx.org/en/docs/http/ngx_http_core_module.html#resolver)和 [Kubernetes Service DNS 文档](https://kubernetes.io/zh-cn/docs/concepts/services-networking/dns-pod-service/)。此处是部署排障说明，仓库内的 Compose 文件不是 Kubernetes 部署清单。
+
 ### Q: 🆕 Agent 服务端无法连接 RPA 服务？
 
 **A:** 请按以下顺序检查 Agent、RPA 服务端和客户端是否使用了同一个可达地址：
