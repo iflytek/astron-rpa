@@ -1,3 +1,5 @@
+import ast
+import json
 import logging
 import os
 import sys
@@ -32,6 +34,11 @@ from app.utils.sensitive_logging import SensitiveDataFilter, SensitiveFormatter,
             '"password":["[REDACTED]"]',
         ),
         (
+            str({"password": "it's-a-secret", "status": "ok"}),
+            ("s-a-secret",),
+            "'password': \"[REDACTED]\"",
+        ),
+        (
             "Authorization: Bearer bearer-secret",
             ("bearer-secret",),
             "Authorization: [REDACTED]",
@@ -64,6 +71,28 @@ def test_redact_sensitive_text(source, secrets, expected):
     assert expected in sanitized
     for secret in secrets:
         assert secret not in sanitized
+
+
+@pytest.mark.parametrize("serialize", [json.dumps, repr], ids=["json", "python-repr"])
+@pytest.mark.parametrize(
+    "secret",
+    [
+        "it's-a-secret",
+        'before"after-secret',
+        "before'middle\"after-secret",
+        'backslash\\and"quote-secret',
+        "trailing-backslash\\",
+        'two-backslashes\\\\before"quote-secret',
+    ],
+)
+def test_redact_escaped_quoted_values_preserves_neighboring_fields(serialize, secret):
+    payload = {"password": secret, "access_token": secret, "status": "ok"}
+
+    sanitized = redact_sensitive_text(serialize(payload))
+    restored = json.loads(sanitized) if serialize is json.dumps else ast.literal_eval(sanitized)
+
+    assert restored == {"password": "[REDACTED]", "access_token": "[REDACTED]", "status": "ok"}
+    assert payload["password"] == secret
 
 
 def test_sensitive_filter_redacts_rendered_message_without_mutating_source():
