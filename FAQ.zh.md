@@ -619,11 +619,19 @@ docker logs [container_name] > logs.txt
 
 ### Q: 🆕 客户端「设置 → 插件安装」页面显示空白？
 
-**A:** 这是已知 BUG。可手动安装浏览器插件，插件目录位于：
+**A:** 先检查客户端日志，不要仅凭空白页判断为 WebView2 缺失。即使 WebView2 已安装，浏览器配置目录异常也可能导致插件检测失败。
 
+1. 记录客户端与浏览器版本，查看 `%APPDATA%\astron-rpa\logs\scheduler-YYYY-MM-DD.log` 中打开页面时的错误。
+2. 如果日志指向 Chrome 用户配置下缺失的 `Extensions` 目录（例如 `%LOCALAPPDATA%\Google\Chrome\User Data\Profile N\Extensions`），先核对日志中的实际配置目录是否仍在使用。10 月社区案例在技术支持确认后补齐该目录，用户确认页面恢复；不要照抄他人的用户名或 Profile 编号，也不要删除整个浏览器用户数据目录。
+3. 优先更新到包含 [#899](https://github.com/iflytek/astron-rpa/pull/899) 的客户端版本。当前插件检测会跳过不存在的扩展目录，见 [实现](engine/shared/astronverse-browser-plugin/src/astronverse/browser_plugin/utils.py) 与 [回归用例](engine/shared/astronverse-browser-plugin/tests/test_utils.py)。更新后仍失败，请提供脱敏日志及实际缺失路径供支持人员确认。
+
+需要手动安装浏览器插件时，客户端随附的插件文件位于：
+
+```text
+%APPDATA%\astron-rpa\python_core\Lib\site-packages\astronverse\browser_plugin\plugins
 ```
-C:\Users\{用户名}\AppData\Roaming\astron-rpa\python_core\Lib\site-packages\astronverse\browser_plugin\plugins
-```
+
+此条针对 Astron RPA 开源客户端；Cowork 的浏览器问题应按其对应客户端排查。
 
 ### Q: 服务端 Redis 容器一直重启？
 
