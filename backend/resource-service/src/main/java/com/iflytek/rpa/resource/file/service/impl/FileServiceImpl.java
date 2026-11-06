@@ -19,10 +19,16 @@ import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Date;
+import java.util.UUID;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.tomcat.util.http.fileupload.IOUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 import org.springframework.web.multipart.MultipartFile;
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
@@ -39,6 +45,8 @@ import software.amazon.awssdk.services.s3.model.*;
  */
 @Service
 public class FileServiceImpl extends ServiceImpl<FileMapper, File> implements FileService {
+
+    private static final Logger logger = LoggerFactory.getLogger(FileServiceImpl.class);
 
     @Autowired
     private S3Config s3Config;
@@ -121,7 +129,12 @@ public class FileServiceImpl extends ServiceImpl<FileMapper, File> implements Fi
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public AppResponse<String> uploadFile(MultipartFile file) throws IOException {
+        if (!TransactionSynchronizationManager.isActualTransactionActive()
+                || !TransactionSynchronizationManager.isSynchronizationActive()) {
+            throw new ServiceException(ErrorCodeEnum.E_SERVICE.getCode(), "文件上传需要事务");
+        }
 
         // 1. 获取原始文件名并URL解码
         String originalFileName = file.getOriginalFilename();
@@ -132,7 +145,7 @@ public class FileServiceImpl extends ServiceImpl<FileMapper, File> implements Fi
         // 2. 生成文件ID和随机文件名
         String fileId = String.valueOf(idWorker.nextId());
         String fileExtension = getFileExtension(decodedFileName);
-        String replaceName = fileId + fileExtension;
+        String replaceName = fileId + "-" + UUID.randomUUID() + fileExtension;
 
         // 3. 构建目标路径
         String date = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
@@ -140,11 +153,49 @@ public class FileServiceImpl extends ServiceImpl<FileMapper, File> implements Fi
 
         // 4. 上传文件到S3
         uploadFileToS3(file.getBytes(), targetPath);
+        TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+            private boolean commitStarted;
+
+            @Override
+            public void beforeCommit(boolean readOnly) {
+                commitStarted = true;
+            }
+
+            @Override
+            public void afterCompletion(int status) {
+                // 提交阶段的异常可能发生在数据库已提交之后，后续回滚也不能证明数据未保存。
+                if (status == STATUS_ROLLED_BACK && !commitStarted) {
+                    deleteRolledBackUpload(targetPath);
+                } else if (status != STATUS_COMMITTED) {
+                    logger.warn("文件事务结果未知，保留上传对象: {}", targetPath);
+                }
+            }
+        });
 
         // 5. 保存文件信息到数据库
         saveFileInfo(fileId, targetPath, decodedFileName);
 
         return AppResponse.success(fileId);
+    }
+
+    /**
+     * 只清理本次上传且数据库事务已确认回滚的对象，不接受客户端提供的文件ID。
+     */
+    private void deleteRolledBackUpload(String filePath) {
+        try (S3Client s3Client = buildS3Client()) {
+            DeleteObjectRequest deleteObjectRequest = DeleteObjectRequest.builder()
+                    .bucket(s3Config.getBucket())
+                    .key(filePath)
+                    .build();
+
+            s3Client.deleteObject(deleteObjectRequest);
+
+        } catch (NoSuchKeyException e) {
+            // 对象已不在S3上，视为删除成功
+        } catch (Exception e) {
+            // 补偿失败不能覆盖原始事务错误，遗留对象交由后续清理处理。
+            logger.warn("清理回滚事务的上传对象失败: {}", filePath, e);
+        }
     }
 
     /**
@@ -208,7 +259,9 @@ public class FileServiceImpl extends ServiceImpl<FileMapper, File> implements Fi
         file.setCreateTime(new Date());
         file.setUpdateTime(new Date());
 
-        baseMapper.insert(file);
+        if (baseMapper.insert(file) != 1) {
+            throw new ServiceException(ErrorCodeEnum.E_SQL.getCode(), "文件信息保存失败");
+        }
     }
 
     /**

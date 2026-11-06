@@ -4,16 +4,22 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.iflytek.rpa.resource.common.exp.ServiceException;
 import com.iflytek.rpa.resource.common.response.AppResponse;
 import com.iflytek.rpa.resource.file.service.FileService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.mockito.Mockito;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.util.ReflectionTestUtils;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 class FileControllerTest {
 
@@ -57,5 +63,19 @@ class FileControllerTest {
 
         assertThat(response.getData()).isEqualTo("file-id");
         verify(fileService).uploadFile(file);
+    }
+
+    @ParameterizedTest
+    @CsvSource({"owner, shared-image", "other-user, shared-image", "other-user, private-image"})
+    void fileIdsCannotBeUsedToDeleteExistingObjects(String user, String fileId) throws Exception {
+        MockMvcBuilders.standaloneSetup(fileController)
+                .build()
+                .perform(delete("/api/resource/file/delete")
+                        .contextPath("/api/resource")
+                        .principal(() -> user)
+                        .param("fileId", fileId))
+                .andExpect(status().isNotFound());
+
+        verifyNoInteractions(fileService);
     }
 }
