@@ -1,3 +1,4 @@
+import asyncio
 from typing import Any
 
 from fastapi import WebSocket
@@ -44,3 +45,18 @@ def ws_log(msg):
 class WsManagerService:
     def __init__(self):
         self.ws_manager = MessageBoundWsManager(log=ws_log)
+        self.maintenance = []
+
+    def start(self):
+        # The dependency's AsyncOnce loops live for the process, not for the
+        # first connected user's request. A disconnect must not orphan them.
+        self.maintenance = [
+            asyncio.create_task(self.ws_manager.start_ping(), name="websocket-ping"),
+            asyncio.create_task(self.ws_manager.clear_watch(), name="websocket-watch"),
+        ]
+
+    async def stop(self):
+        for task in self.maintenance:
+            task.cancel()
+        await asyncio.gather(*self.maintenance, return_exceptions=True)
+        self.maintenance.clear()

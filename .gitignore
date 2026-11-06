@@ -167,6 +167,8 @@ coverage.out
 /pack_workspace/*
 
 /docker/data/
+/docker/.integration-ops.env
+/docker/monitoring/secrets/
 
 resources/*.7z
 resources/*.sha256.txt

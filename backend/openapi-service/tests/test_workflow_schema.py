@@ -9,9 +9,50 @@ from app.services.workflow_schema import (
     bind_arguments,
     data_output_schema,
     secret_fields,
+    validate_arguments,
     validate_json_value,
     workflow_input_schema,
 )
+
+
+@pytest.mark.parametrize(
+    ("values", "field", "rule", "expected"),
+    [
+        ({"rows": [{"count": "private-value"}]}, "$/rows/*/count", "type", ["integer"]),
+        ({"rows": [{}]}, "$/rows/*/count", "required", ["integer"]),
+        ({"private-key": "private-value"}, "$", "additionalProperties", ["object"]),
+    ],
+)
+def test_schema_diagnostics_use_only_declared_fields(values, field, rule, expected):
+    contract = {
+        "type": "object",
+        "properties": {
+            "rows": {
+                "type": "array",
+                "items": {"type": "object", "properties": {"count": {"type": "integer"}}, "required": ["count"]},
+            }
+        },
+        "additionalProperties": False,
+    }
+    with pytest.raises(WorkflowAccessError) as captured:
+        validate_arguments(values, contract)
+    error = captured.value
+    assert error.validation == {"field": field, "rule": rule, "expected": expected}
+    from app.routers.streamable_mcp import control_error
+    from app.routers.workflows import _execution_http_error
+
+    mcp = control_error(error.code, str(error), error.validation).structuredContent
+    rest = _execution_http_error(error, contract=True).detail
+    assert mcp["error"]["validation"] == rest["validation"] == error.validation
+    assert "private" not in json.dumps([mcp, rest])
+
+
+def test_schema_diagnostics_do_not_expose_dynamic_dictionary_keys_or_enum_values():
+    contract = {"type": "object", "additionalProperties": {"type": "string", "enum": ["private-enum"]}}
+    with pytest.raises(WorkflowAccessError) as captured:
+        validate_arguments({"private-key": "private-value"}, contract)
+    assert captured.value.validation == {"field": "$/*", "rule": "enum", "expected": ["string"]}
+    assert "private" not in json.dumps(captured.value.validation)
 
 
 def schema(parameters):

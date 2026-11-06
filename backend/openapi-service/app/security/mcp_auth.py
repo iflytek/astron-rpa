@@ -2,6 +2,8 @@ import json
 import logging
 from collections.abc import Awaitable, Callable
 
+from fastapi import HTTPException
+from starlette.responses import JSONResponse
 from starlette.types import ASGIApp, Receive, Scope, Send
 
 from app.security.api_key import APIKeyAuthenticationError as MCPAuthenticationError
@@ -21,10 +23,12 @@ class MCPAPIKeyAuthMiddleware:
         validator: APIKeyValidator,
         *,
         allow_query_api_key: bool = False,
+        limiter=None,
     ) -> None:
         self.app = app
         self.validator = validator
         self.allow_query_api_key = allow_query_api_key
+        self.limiter = limiter
 
     async def __call__(self, scope: Scope, receive: Receive, send: Send) -> None:
         if scope["type"] != "http":
@@ -50,6 +54,14 @@ class MCPAPIKeyAuthMiddleware:
             return
 
         scope.setdefault("state", {})["mcp_user_id"] = str(user_id)
+        if self.limiter is not None:
+            try:
+                await self.limiter(str(user_id))
+            except HTTPException as exc:
+                await JSONResponse({"detail": exc.detail}, status_code=exc.status_code, headers=exc.headers)(
+                    scope, receive, send
+                )
+                return
         await self.app(scope, receive, send)
 
     @staticmethod

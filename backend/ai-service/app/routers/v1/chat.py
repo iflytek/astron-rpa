@@ -51,7 +51,7 @@ async def chat_prompt(
     """
     根据预设prompt调用大模型对话
     """
-    logger.info(f"Processing chat prompt request: {params.prompt_type}")
+    logger.info("Processing chat prompt request")
 
     # 检查prompt类型是否存在
     if params.prompt_type not in prompt_dict:
@@ -63,7 +63,6 @@ async def chat_prompt(
     # 格式化prompt
     try:
         formatted_prompt = format_prompt(params.prompt_type, params.params or {})
-        logger.info(f"Formatted prompt: {formatted_prompt[:100]}...")
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
 
@@ -75,8 +74,6 @@ async def chat_prompt(
         "messages": messages,
         "stream": params.stream,
     }
-
-    logger.info(f"Request data: {data}")
 
     chat_model = ChatCompletionParam.model_validate(data)
     response = await chat_completions(chat_model, API_KEY, API_ENDPOINT)

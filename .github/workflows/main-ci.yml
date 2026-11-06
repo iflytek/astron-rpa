@@ -48,6 +48,7 @@ jobs:
               - '.github/workflows/main-ci.yml'
             integration:
               - 'backend/openapi-service/**'
+              - 'backend/ai-service/**'
               - 'integrations/n8n/**'
               - 'engine/shared/**'
               - 'engine/servers/astronverse-scheduler/**'
@@ -57,7 +58,10 @@ jobs:
               - 'engine/pyproject.toml'
               - 'engine/uv.lock'
               - '.github/scripts/run-integration-regression.py'
+              - '.github/scripts/test-ci-summary.py'
+              - '.github/scripts/*n8n-audit.cjs'
               - '.github/workflows/integration-regression.yml'
+              - '.github/workflows/publish-n8n.yml'
               - '.github/workflows/main-ci.yml'
 
   # Run tests in parallel
@@ -137,14 +141,16 @@ jobs:
             overall_success=false
           fi
           
-          # Only check style if engine changed
-          if [[ "${{ needs.check-changes.outputs.engine-changed }}" == "true" ]]; then
+          # Match the style-check scheduling condition, including frontend/backend.
+          if [[ "${{ needs.check-changes.outputs.engine-changed }}" == "true" ||
+                "${{ needs.check-changes.outputs.frontend-changed }}" == "true" ||
+                "${{ needs.check-changes.outputs.backend-changed }}" == "true" ]]; then
             if [[ "${{ needs.style-check.result }}" != "success" ]]; then
               echo "❌ Style check failed"
               overall_success=false
             fi
           else
-            echo "ℹ️ Style check skipped (no engine changes)"
+            echo "ℹ️ Style check skipped (no engine/frontend/backend changes)"
           fi
 
           if [[ "${{ needs.check-changes.outputs.deployment-changed }}" == "true" ]]; then

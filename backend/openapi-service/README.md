@@ -197,7 +197,7 @@ Legacy Clients/records retain their capability limitations and cannot confirm a 
 With an upgraded Client, a stable `idempotencyKey` and identical request return the original execution ID
 across retries and restarts. Calls without that key must not automatically retry a start. Never recover an
 uncertain MCP start by issuing a new REST start. Poll the original ID; caller wait expiry does not stop it.
-See [execution management](EXECUTION_MANAGEMENT.md) for the single-worker deployment requirement,
+See [execution management](EXECUTION_MANAGEMENT.md) for local and Redis routing requirements,
 durable reconciliation, supported protocols, input retention, migration and rollback limits.
 
 #### Integration admission
@@ -281,8 +281,10 @@ inside OpenAPI, and `INTEGRATION_FILE_TRANSFER_URL` to its public HTTPS base end
 for example `https://rpa.example/api/rpa-openapi/files/transfer`. Mount that directory into the container;
 keep its SQLite manifest and blobs together and outside static/public serving paths. Leaving either
 setting blank prevents file admission. Deploy the matching gateway Lua policy, allow request bodies of
-at least 10 MiB at the proxy, and keep TLS verification enabled. Use the existing single-worker deployment;
-this local store is not distributed object storage.
+at least 10 MiB at the proxy, and keep TLS verification enabled. Local routing requires a single OpenAPI
+process. Same-host replicas using Redis routing must mount the same directory with working SQLite locks;
+separate replica stores and multi-host network filesystems are not supported by this topology. This is not
+distributed object storage. See the [operations guide](../../integrations/n8n/OPERATIONS.md#openapi-routing-and-persistent-state).
 
 Declare `capabilityClass: "office-file"`, `capabilities: ["office-file"]`, the actual component operations,
 allowed execution transports, no human interaction, low/medium risk and `exclusiveTerminal: true`.

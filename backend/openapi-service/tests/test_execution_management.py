@@ -86,6 +86,45 @@ async def test_concurrent_duplicate_survives_new_sessions_and_reauthorizes(store
     await asyncio.gather(*list(_execution_tasks))
 
 
+@pytest.mark.asyncio
+async def test_recovery_scan_is_bounded_and_rotates_past_unresolved_records(store, monkeypatch):
+    _, factory = store
+    for index in range(70):
+        async with factory() as db:
+            await ExecutionService(db).execute_authorized_workflow(
+                ExecutionCreate(project_id="project", params={"value": index}, idempotency_key=f"recovery-{index}"),
+                "owner",
+                wait=False,
+            )
+    await asyncio.gather(*list(_execution_tasks))
+    monkeypatch.setattr("app.database.AsyncSessionLocal", factory)
+    observed = []
+    batches = []
+    original_sleep = asyncio.sleep
+
+    async def observe(service, record):
+        observed.append(record.id)
+
+    async def tick(seconds):
+        if seconds != 2:
+            await original_sleep(seconds)
+            return
+        await original_sleep(0)
+        await asyncio.gather(*list(_execution_tasks))
+        batches.append(len(observed))
+        if len(observed) >= 70:
+            raise asyncio.CancelledError
+
+    monkeypatch.setattr(management, "reconcile", observe)
+    monkeypatch.setattr(management.asyncio, "sleep", tick)
+    with pytest.raises(asyncio.CancelledError):
+        await management.recover_executions()
+    assert batches[-1] == 70
+    assert all(0 <= current - previous <= 32 for previous, current in zip([0, *batches], batches))
+    assert len(batches) <= 6  # Capacity checks may yield once for done callbacks.
+    assert len(set(observed)) == 70
+
+
 def receipt(record, state="running", **changes):
     stamp = datetime.now(UTC).isoformat()
     return {

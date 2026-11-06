@@ -133,12 +133,53 @@ def validate_json_value(value, *, require_object=False, limits=None):
     return value
 
 
+def _validation_hint(error, schema):
+    """Describe public schema locations, never instance keys, values or validator messages."""
+    field = "$"
+    current = schema
+    path = list(error.absolute_schema_path)
+    while path:
+        key = path.pop(0)
+        if key == "properties" and path:
+            name = path.pop(0)
+            field += "/" + (name if re.fullmatch(r"[\w-]{1,64}", name) else "*")
+            current = current["properties"][name]
+        elif key == "items" and isinstance(current.get("items"), dict):
+            field += "/*"
+            current = current["items"]
+        elif key == "additionalProperties" and isinstance(current.get(key), dict):
+            field += "/*"
+            current = current[key]
+        else:
+            break
+    if error.validator == "required" and isinstance(error.instance, dict):
+        missing = next((name for name in current.get("required", []) if name not in error.instance), None)
+        if missing in current.get("properties", {}):
+            field += "/" + (missing if re.fullmatch(r"[\w-]{1,64}", missing) else "*")
+            current = current["properties"][missing]
+    kinds = current.get("type", [])
+    kinds = [kinds] if isinstance(kinds, str) else kinds
+    return {
+        "field": field[:1024],
+        "rule": error.validator if error.validator in KEYWORDS else "schema",
+        "expected": [
+            kind for kind in kinds if kind in {"string", "integer", "number", "boolean", "array", "object", "null"}
+        ],
+    }
+
+
 def validate_arguments(arguments, schema):
     try:
         validate_json_value(arguments, require_object=True)
         Draft202012Validator.check_schema(schema)
         Draft202012Validator(schema, format_checker=FORMATS).validate(arguments)
-    except (ValueError, TypeError, RecursionError, ValidationError, SchemaError):
+    except ValidationError as exc:
+        raise WorkflowAccessError(
+            "INVALID_ARGUMENTS",
+            "Arguments do not match the tool input schema",
+            validation=_validation_hint(exc, schema),
+        ) from None
+    except (ValueError, TypeError, RecursionError, SchemaError):
         raise WorkflowAccessError("INVALID_ARGUMENTS", "Arguments do not match the tool input schema") from None
 
 

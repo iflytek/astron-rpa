@@ -1,0 +1,57 @@
+# Load into the deployment's existing Prometheus rule_files. Scrape each
+# one-worker OpenAPI replica privately with its separate monitoring token.
+groups:
+  - name: astron-openapi
+    rules:
+      - alert: AstronOpenAPIUnavailable
+        expr: up{job="astron-openapi"} == 0 or astron_ready{job="astron-openapi"} == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: OpenAPI is unavailable or a required dependency is not ready
+      - alert: AstronNoClientsOnline
+        # Enable only for a deployment that requires an always-connected Client.
+        expr: sum(astron_clients_online{job="astron-openapi"}) == 0
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: No Client connection is owned by the OpenAPI replicas
+      - alert: AstronHTTPErrorRate
+        expr: >-
+          (sum(rate(astron_http_requests_total{job="astron-openapi",status="5xx"}[5m]))
+          / clamp_min(sum(rate(astron_http_requests_total{job="astron-openapi"}[5m])), 0.001)) > 0.05
+          and sum(increase(astron_http_requests_total{job="astron-openapi"}[5m])) >= 20
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: More than five percent of OpenAPI requests return server errors
+      - alert: AstronExecutionFailureRate
+        expr: >-
+          (sum(rate(astron_execution_transitions_total{job="astron-openapi",outcome=~"failed|timeout"}[5m]))
+          / clamp_min(sum(rate(astron_execution_transitions_total{job="astron-openapi"}[5m])), 0.001)) > 0.05
+          and sum(increase(astron_execution_transitions_total{job="astron-openapi"}[5m])) >= 20
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: Confirmed execution failure or timeout rate is elevated
+      - alert: AstronClientBusyRate
+        expr: >-
+          (sum(rate(astron_client_busy_total{job="astron-openapi"}[5m]))
+          / clamp_min(sum(rate(astron_executions_accepted_total{job="astron-openapi"}[5m])), 0.001)) > 0.1
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: Reduce dispatch concurrency or polling for the current Client capacity
+      - alert: AstronRequestLatency
+        expr: >-
+          histogram_quantile(0.95, sum by (le) (rate(astron_http_duration_seconds_bucket{job="astron-openapi"}[5m]))) > 5
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: OpenAPI request duration p95 exceeds five seconds

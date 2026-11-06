@@ -1,0 +1,17 @@
+# Single OpenAPI process. With replicas, configure one target per process.
+global:
+  scrape_interval: 30s
+  scrape_timeout: 5s
+  evaluation_interval: 30s
+
+rule_files:
+  - /etc/prometheus/astron-alerts.yml
+
+scrape_configs:
+  - job_name: astron-openapi
+    metrics_path: /health/metrics
+    authorization:
+      type: Bearer
+      credentials_file: /run/secrets/openapi-token
+    static_configs:
+      - targets: [openapi-service:8020]

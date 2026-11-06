@@ -10,6 +10,8 @@ import tomllib
 
 ROOT = Path(__file__).resolve().parents[2]
 OPENAPI_TESTS = [
+    "test_production_operations.py",
+    "test_execution_routing.py",
     "test_execution_isolation.py",
     "test_execution_management.py",
     "test_external_security.py",
@@ -72,8 +74,12 @@ def run(command, *, cwd, env):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("suite", choices=["openapi", "engine"])
+    parser.add_argument("suite", choices=["openapi", "engine", "ai-service"])
     parser.add_argument("--component", choices=ENGINE_TESTS)
+    parser.add_argument(
+        "--redis-url",
+        help="Isolated Redis for the real cross-process routing test (OpenAPI only)",
+    )
     parser.add_argument("--report-dir", type=Path, required=True)
     args = parser.parse_args()
     if (args.suite == "engine") != bool(args.component):
@@ -110,7 +116,14 @@ def main():
                 REDIS_URL="redis://127.0.0.1:6380/0",
                 LOG_DIR=str(work / "logs"),
                 INTEGRATION_POLICY_FILE="",
+                EXECUTION_ROUTING="local",
+                INTEGRATION_RATE_PER_MINUTE="0",
+                MONITORING_TOKEN="",
             )
+            selected_tests = list(OPENAPI_TESTS)
+            if args.redis_url:
+                env["ASTRON_TEST_REDIS_URL"] = args.redis_url
+                selected_tests.append("test_execution_routing_redis.py")
             run(
                 [
                     "uv",
@@ -140,7 +153,46 @@ def main():
                     "pytest_asyncio.plugin",
                     *pytest_args,
                     f"--junitxml={reports / 'openapi.xml'}",
-                    *[str(project / "tests" / test) for test in OPENAPI_TESTS],
+                    *[str(project / "tests" / test) for test in selected_tests],
+                ],
+                cwd=project,
+                env=env,
+            )
+        elif args.suite == "ai-service":
+            project = ROOT / "backend/ai-service"
+            env["UV_PROJECT_ENVIRONMENT"] = str(work / "venv")
+            run(
+                [
+                    "uv",
+                    "sync",
+                    "--locked",
+                    "--project",
+                    str(project),
+                    "--python",
+                    "3.13",
+                    "--group",
+                    "dev",
+                ],
+                cwd=work,
+                env=env,
+            )
+            # These offline tests isolate settings and never contact a model or database.
+            run(
+                [
+                    "uv",
+                    "run",
+                    "--no-sync",
+                    "--project",
+                    str(project),
+                    "python",
+                    "-m",
+                    "pytest",
+                    "-p",
+                    "pytest_asyncio.plugin",
+                    *pytest_args,
+                    "--confcutdir=tests/unit",
+                    f"--junitxml={reports / 'ai-service.xml'}",
+                    "tests/unit",
                 ],
                 cwd=project,
                 env=env,

@@ -399,7 +399,7 @@ importers:
         specifier: ^2.1.11
         version: 2.1.11
       electron:
-        specifier: ^25.9.8
+        specifier: 25.9.8
         version: 25.9.8
       electron-builder:
         specifier: ^24.13.3

@@ -44,7 +44,13 @@ def policy(tmp_path, monkeypatch):
             "allowed": True,
         }
         declaration.update(changes)
-        path.write_text(json.dumps({"schemaVersion": 1, "enforcedUsers": ["owner"], "declarations": [declaration]}))
+        # Match the documented deployment path. Same-size in-place writes can
+        # share an mtime tick on Windows and incorrectly reuse a cached fixture.
+        replacement = path.with_suffix(".tmp")
+        replacement.write_text(
+            json.dumps({"schemaVersion": 1, "enforcedUsers": ["owner"], "declarations": [declaration]})
+        )
+        replacement.replace(path)
 
     return write
 

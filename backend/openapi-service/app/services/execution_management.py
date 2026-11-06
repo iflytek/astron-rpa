@@ -204,6 +204,19 @@ async def apply_receipt(service, record, receipt):
     result = await service.db.execute(statement.values(**values))
     await service.db.commit()
     await service.db.refresh(record)
+    if result.rowcount and status in TERMINAL:
+        from app.services.observability import event, execution_finished, increment
+
+        execution_finished(status, code, (finished - started).total_seconds() if started and finished else None)
+        if code == "CLIENT_BUSY":
+            increment("astron_client_busy_total")
+        event(
+            "execution_terminal",
+            execution_id=record.id,
+            run_id=record.run_id,
+            outcome=status,
+            error_code=code if code in ERRORS else None,
+        )
     if record.status in TERMINAL and record.data_contract and json.loads(record.data_contract).get("fileContract"):
         from app.services.integration_files import store
 
@@ -286,18 +299,27 @@ async def recover_executions():
     from app.database import AsyncSessionLocal
     from app.services.execution import ExecutionService, _execution_task_done, _execution_tasks
 
+    cursor = ""
+    observing = set()
     while True:
         try:
+            if len(observing) >= 32:
+                await asyncio.sleep(2)
+                continue
             async with AsyncSessionLocal() as db:
                 ids = (
                     (
                         await db.execute(
-                            select(Execution.id).where(Execution.protocol == 1, Execution.status.not_in(TERMINAL))
+                            select(Execution.id)
+                            .where(Execution.protocol == 1, Execution.status.not_in(TERMINAL), Execution.id > cursor)
+                            .order_by(Execution.id)
+                            .limit(32 - len(observing))
                         )
                     )
                     .scalars()
                     .all()
                 )
+            cursor = ids[-1] if ids else ""
             active = {task.get_name() for task in _execution_tasks}
             for execution_id in ids:
                 name = f"execution-{execution_id}"
@@ -312,6 +334,8 @@ async def recover_executions():
                             await reconcile(service, record)
 
                 task = asyncio.create_task(observe(), name=name)
+                observing.add(task)
+                task.add_done_callback(observing.discard)
                 _execution_tasks.add(task)
                 task.add_done_callback(_execution_task_done)
         except Exception:

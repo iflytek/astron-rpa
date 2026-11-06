@@ -13,7 +13,7 @@
     {
       "id": "execute",
       "name": "Execute Desktop Workflow",
-      "type": "n8n-nodes-astron-rpa.astronRpa",
+      "type": "@iflytekopensource/n8n-nodes-astron-rpa.astronRpa",
       "typeVersion": 1,
       "position": [260, 0],
       "parameters": {

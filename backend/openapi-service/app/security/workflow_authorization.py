@@ -8,9 +8,10 @@ from app.models.workflow import Execution, Workflow
 class WorkflowAccessError(Exception):
     """Safe denial; protocol adapters choose their response envelope."""
 
-    def __init__(self, code: str, message: str):
+    def __init__(self, code: str, message: str, *, validation: dict | None = None):
         super().__init__(message)
         self.code = code
+        self.validation = validation
 
 
 def require_workflow_access(workflow: Workflow | None, user_id: str, version: int | None = None) -> Workflow:

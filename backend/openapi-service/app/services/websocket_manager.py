@@ -14,12 +14,26 @@ from rpawebsocket.ws_service import WsManager
 
 
 class MessageBoundWsManager(WsManager):
+    router = None
+
     async def execution_request(self, user_id: str, data: dict, timeout: float = 5):
+        if self.router is not None:
+            return await self.router.request(user_id, data, timeout)
+        return await self.local_execution_request(user_id, data, timeout)
+
+    async def online(self, user_id):
+        if self.router is not None:
+            return await self.router.online(user_id)
+        return bool(self.conns.get(str(user_id)))
+
+    async def local_execution_request(self, user_id: str, data: dict, timeout: float = 5, *, expected=None):
         """Send once to one connection, accepting a reply only from that peer."""
         connections = self.conns.get(str(user_id), [])
         if not connections:
             raise ConnectionError("CLIENT_OFFLINE")
         conn = connections[-1]
+        if expected is not None and conn is not expected:
+            raise ConnectionError("CLIENT_OFFLINE")
         msg = BaseMsg(
             channel="execution",
             key="control",
@@ -30,6 +44,8 @@ class MessageBoundWsManager(WsManager):
         ).init()
         if not hasattr(self, "execution_waiters"):
             self.execution_waiters = {}
+        if len(self.execution_waiters) >= 64:
+            raise TimeoutError("EXECUTION_REQUEST_CAPACITY")
         future = asyncio.get_running_loop().create_future()
         self.execution_waiters[msg.event_id] = (conn, future)
         try:
@@ -91,11 +107,18 @@ class MessageBoundWsManager(WsManager):
                 self.log("error handling WebSocket message")
 
         self._add_conn(uuid, conn)
+        generation = None
         try:
+            if self.router is not None:
+                generation = await self.router.register(uuid, conn)
             while True:
+                if len(tasks) >= 64:
+                    await asyncio.wait(tasks, return_when=asyncio.FIRST_COMPLETED)
                 text = await conn.ws.receive_text()
                 try:
                     msg = BaseMsg(**json.loads(text))
+                    if msg.channel == "execution" and len(text.encode()) > 4 * 1024 * 1024:
+                        raise ValueError("Managed WebSocket message exceeds limit")
                     if not msg.channel:
                         raise ValueError("Missing channel")
                     msg.uuid = msg.uuid or conn.uuid
@@ -110,6 +133,8 @@ class MessageBoundWsManager(WsManager):
             self.log("listen error")
             await self._send_exit(conn, exc)
         finally:
+            if generation is not None:
+                await self.router.unregister(uuid, generation)
             if self._del_conn(conn.uuid, conn):
                 try:
                     await conn.ws.close()

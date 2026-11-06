@@ -46,14 +46,14 @@ async def chat_completions(
             response = await handle_stream_request(headers, data, endpoint)
         else:
             response = await handle_non_stream_request(headers, data, endpoint)
-        logger.info(f"Response: {response}")
+        logger.info("Chat completion response received")
 
         return response
     except HTTPException as e:
-        logger.warning(f"HTTP error: {e.detail}")
+        logger.warning("Chat completion HTTP error: %s", e.status_code)
         raise e
     except Exception:
-        logger.error("Internal server error", exc_info=True)
+        logger.error("Chat completion failed")
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
 
@@ -83,16 +83,16 @@ async def handle_stream_request(headers, data, endpoint):
                     status_code=e.response.status_code,
                     detail=f"Upstream API error: {e.response.status_code}",
                 )
-            except httpx.TimeoutException as e:
+            except httpx.TimeoutException:
                 # 超时错误
-                logger.error(f"Request timeout: {str(e)}")
+                logger.error("Upstream request timeout")
                 raise HTTPException(
                     status_code=504,
                     detail="大模型调用超时，请稍后重试",
                 )
             except Exception as e:
                 # 其他错误
-                logger.error(f"Request error: {str(e)}")
+                logger.error("Upstream request failed")
                 raise e
 
     return StreamingResponse(
@@ -118,31 +118,22 @@ async def handle_non_stream_request(headers, data, endpoint):
                 status_code=upstream_response.status_code,
             )
         except httpx.HTTPStatusError as e:
-            # 获取请求的 URL 和 方法
-            url = e.request.url
-            method = e.request.method
-
-            # 获取上游返回的具体内容 (通常包含具体的错误原因，如 "Invalid API Key")
-            error_content = e.response.text
-
-            # 记录详细日志
-            logger.error(
-                f"Upstream API error: {e.response.status_code} | Request: {method} {url} | Response: {error_content}"
-            )
+            # Upstream URLs, response bodies and exception text can contain secrets.
+            logger.error("Upstream API error: %s", e.response.status_code)
 
             # 向上抛出异常
             raise HTTPException(
                 status_code=e.response.status_code,
                 detail=f"Upstream API error: {e.response.status_code}",
             )
-        except httpx.TimeoutException as e:
+        except httpx.TimeoutException:
             # 超时错误
-            logger.error(f"Request timeout: {str(e)}")
+            logger.error("Upstream request timeout")
             raise HTTPException(
                 status_code=504,
                 detail="大模型调用超时，请稍后重试",
             )
         except Exception as e:
             # 其他错误
-            logger.error(f"Request error: {str(e)}")
+            logger.error("Upstream request failed")
             raise e

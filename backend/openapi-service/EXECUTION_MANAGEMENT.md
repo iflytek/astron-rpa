@@ -87,10 +87,15 @@ workflow. Do not purge these identities as a routine log cleanup. If an operator
 resets the database or journal, fence old callers and rotate the integration Key
 before accepting new work; retries from the old deployment have no guarantee.
 
-The existing WebSocket ownership model requires one OpenAPI worker/replica per
-deployment. Database arbitration is durable, but this change does not introduce
-distributed WebSocket routing or a multi-Client scheduler. Only the current
-connection receives a command; replies from other/older connections are ignored.
+The default `EXECUTION_ROUTING=local` requires one OpenAPI process per deployment.
+For managed protocol-1 clients, `EXECUTION_ROUTING=redis` routes requests to the
+replica holding the current authenticated owner's connection. All replicas need
+the same routing mode, private Redis, database, policy and persistent file store.
+Legacy clients retain the single-process requirement. This is not a multi-Client
+scheduler: only the current connection generation receives commands, and stale
+replies are ignored. Redis pub/sub is transient; a missing reply remains
+unconfirmed and never authorizes another start. The SQL dispatch claim remains
+authoritative. See [routing and storage requirements](../../integrations/n8n/OPERATIONS.md#openapi-routing-and-persistent-state).
 
 ## JSON inputs and sensitive values
 
