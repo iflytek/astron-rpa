@@ -67,6 +67,10 @@ When unavailable, the component tree hides this node. Its definition remains
 available so saved workflows can open; the designer warns about unavailable
 semantic nodes, and execution reports the configuration variable to change.
 Other nodes remain available if the capability service cannot be reached.
+The robot service caches capability results, including failures, for 30 seconds
+per instance. Configuration changes may take up to 30 seconds to appear in the
+component tree. After expiry, concurrent requests share one refresh; a failed
+refresh hides the component instead of retaining a stale enabled result.
 
 ## Example: route a support ticket
 
