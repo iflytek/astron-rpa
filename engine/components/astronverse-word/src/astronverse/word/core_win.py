@@ -826,11 +826,9 @@ class WordDocumentCore(IDocumentCore):
             elif save_type == SaveFileType.OVERWRITE:
                 fullpath = os.path.join(output_path, filename)
                 os.remove(fullpath)
-        oldfilepath = doc.FullName
-        pydoc = Document(oldfilepath)
         new_path = os.path.join(output_path, filename)
         with open(new_path, "w", encoding="utf-8") as txt_file:
-            txt_file.writelines(para.text + "\n" for para in pydoc.paragraphs)
+            txt_file.writelines(para.Range.Text.rstrip("\r\a") + "\n" for para in doc.Paragraphs)
 
     @classmethod
     def convert_to_pdf(
