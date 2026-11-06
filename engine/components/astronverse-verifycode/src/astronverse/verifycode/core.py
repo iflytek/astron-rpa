@@ -1,6 +1,7 @@
 import base64
 import random
 import re
+import sys
 import time
 from io import BytesIO
 
@@ -47,17 +48,29 @@ class VerifyCodeCore:
         start_pos = (start_pos.x, start_pos.y)
         smooth_move(*start_pos, duration=0.5)
         pyautogui.mouseDown(*start_pos, button="left")
-        time.sleep(0.5)
-        # 为了绕过轨迹验证
-        distance = end_pos[0] - start_pos[0]
-        pos_1 = [start_pos[0] + distance * 0.7, end_pos[1] + 10]
-        smooth_move(*pos_1, duration=random.choice([0.2, 0.4, 0.6]))
-        pos_1 = [start_pos[0] + distance * 0.8, end_pos[1] + 10]
-        smooth_move(*pos_1, duration=random.choice([0.2, 0.4, 0.61]))
-        pos_1 = [start_pos[0] + distance * 1.2, end_pos[1] + 10]
-        smooth_move(*pos_1, duration=random.choice([0.2, 0.4, 0.6]))
-        smooth_move(*end_pos, duration=0.2)
-        pyautogui.mouseUp(*end_pos, button="left")
+        try:
+            time.sleep(0.5)
+            # 为了绕过轨迹验证
+            distance = end_pos[0] - start_pos[0]
+            pos_1 = [start_pos[0] + distance * 0.7, end_pos[1] + 10]
+            smooth_move(*pos_1, duration=random.choice([0.2, 0.4, 0.6]))
+            pos_1 = [start_pos[0] + distance * 0.8, end_pos[1] + 10]
+            smooth_move(*pos_1, duration=random.choice([0.2, 0.4, 0.61]))
+            pos_1 = [start_pos[0] + distance * 1.2, end_pos[1] + 10]
+            smooth_move(*pos_1, duration=random.choice([0.2, 0.4, 0.6]))
+            smooth_move(*end_pos, duration=0.2)
+        finally:
+            VerifyCodeCore.release_left_button()
+
+    @staticmethod
+    def release_left_button():
+        original_error = sys.exc_info()[1]
+        try:
+            pyautogui.mouseUp(button="left")
+        except Exception:
+            if original_error is None:
+                raise
+            logger.exception("Failed to release the left mouse button after a slider error")
 
     @staticmethod
     def get_margin_left(browser_obj, element):
