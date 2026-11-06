@@ -20,8 +20,8 @@ class SensitiveDataSanitizerTest {
                     value.append(unit);
                 }
                 String source = "{\"paramJson\":" + quote + value + quote + ",\"status\":\"ok\"}";
-                assertEquals("{\"paramJson\":\"[REDACTED]\",\"status\":\"ok\"}",
-                        SensitiveDataSanitizer.sanitize(source));
+                assertEquals(
+                        "{\"paramJson\":\"[REDACTED]\",\"status\":\"ok\"}", SensitiveDataSanitizer.sanitize(source));
             }
         }
     }
