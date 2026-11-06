@@ -212,7 +212,7 @@ public class SharedVarServiceImpl extends ServiceImpl<SharedVarDao, SharedVar> i
             throw new ServiceException(ErrorCodeEnum.E_SQL_EMPTY.getCode(), "租户密钥不存在");
         }
         String aesKey = keyTenant.getKey();
-        List<SharedVar> availableVars = sharedVarDao.getAvailableByIds(ids);
+        List<SharedVar> availableVars = sharedVarDao.getAvailableByIds(tenantId, ids);
         if (availableVars.isEmpty()) {
             return AppResponse.success(new ArrayList<>());
         }
