@@ -333,7 +333,16 @@ def parsing_response_to_pyautogui_code(responses, image_height: int, image_width
             thought = ""
 
         if response_id == 0:
-            pyautogui_code += f"'''\nObservation:\n{observation}\n\nThought:\n{thought}\n'''\n"
+            # observation/thought are model output - potentially steered by
+            # prompt injection from on-screen content - embedded as a comment
+            # block for human readability, never as executable code. A run of
+            # three or more single quotes would otherwise close this
+            # triple-quoted string early and let the rest run as real Python
+            # when this code is exec()'d, so collapse any such run to two
+            # quotes, which cannot terminate it.
+            safe_observation = re.sub(r"'{3,}", "''", str(observation))
+            safe_thought = re.sub(r"'{3,}", "''", str(thought))
+            pyautogui_code += f"'''\nObservation:\n{safe_observation}\n\nThought:\n{safe_thought}\n'''\n"
         else:
             pyautogui_code += "\ntime.sleep(1)\n"
 
