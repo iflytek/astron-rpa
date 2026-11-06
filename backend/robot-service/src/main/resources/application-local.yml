@@ -73,6 +73,15 @@ resource:
   download:
     url: /api/resource/file/download?fileId=
 
+# 原子能力写接口（/atom/add-common、/atom/update-common、/atom/save-atomics）的访问控制
+# token 为空时这些接口一律拒绝，见 issue #790
+atom:
+  admin:
+    token: ${ATOM_ADMIN_TOKEN:}
+    rate-limit:
+      max-requests: 20   # 每个窗口允许的写请求数
+      window-seconds: 60 # 限流窗口，单位秒
+
 
 #日志相关配置
 logging:
