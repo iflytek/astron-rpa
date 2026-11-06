@@ -1,5 +1,6 @@
 package com.iflytek.rpa.utils;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -9,6 +10,21 @@ import java.util.Map;
 import org.junit.jupiter.api.Test;
 
 class SensitiveDataSanitizerTest {
+
+    @Test
+    void redactsLongQuotedValuesWithoutOverflowOrChangingAdjacentFields() {
+        for (char quote : new char[] {'"', '\''}) {
+            for (String unit : new String[] {"A", "\\" + quote, "\\\\"}) {
+                StringBuilder value = new StringBuilder();
+                for (int i = 0; i < 100000; i++) {
+                    value.append(unit);
+                }
+                String source = "{\"paramJson\":" + quote + value + quote + ",\"status\":\"ok\"}";
+                assertEquals(
+                        "{\"paramJson\":\"[REDACTED]\",\"status\":\"ok\"}", SensitiveDataSanitizer.sanitize(source));
+            }
+        }
+    }
 
     @Test
     void redactsTerminalPasswordWithoutChangingOtherFields() {
