@@ -182,3 +182,4 @@ engine/servers/astronverse-executor/astron_extension/*
 
 # Generated component metadata
 resources/meta/*
+.winc/

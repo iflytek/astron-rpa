@@ -18,11 +18,49 @@ from astronverse.scheduler.utils.clipboard import Clipboard
 from astronverse.scheduler.utils.pip import PipManager
 from astronverse.scheduler.utils.subprocess import SubPopen
 from astronverse.scheduler.utils.utils import EmitType, emit_to_front
+from astronverse.scheduler.utils.validators import (
+    validate_mirror,
+    validate_package_name,
+    validate_project_id,
+    validate_version,
+)
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel, field_validator
 
 router = APIRouter()
+
+# Files the frontend may access through /file/read and /file/write, relative to the scheduler cwd
+SETTING_FILE = ".setting.json"
+READABLE_DIRS = ("logs",)
+
+
+def _resolve_safe_path(path: str, write: bool = False) -> str:
+    """
+    Resolve a frontend supplied path and make sure it stays inside the allowed area.
+    Read: the setting file or any file under logs/. Write: the setting file only.
+    """
+    root = os.path.normcase(os.path.realpath(os.getcwd()))
+    target = os.path.normcase(os.path.realpath(os.path.join(root, path)))
+
+    def _is_within(base: str) -> bool:
+        try:
+            return os.path.commonpath([base, target]) == base
+        except ValueError:
+            # different drives on Windows
+            return False
+
+    if not _is_within(root):
+        raise HTTPException(status_code=403, detail="path not allowed")
+
+    if target == os.path.normcase(os.path.join(root, SETTING_FILE)):
+        return target
+    if not write:
+        for sub_dir in READABLE_DIRS:
+            base = os.path.normcase(os.path.join(root, sub_dir))
+            if target != base and _is_within(base):
+                return target
+    raise HTTPException(status_code=403, detail="path not allowed")
 
 
 class FilePath(BaseModel):
@@ -116,17 +154,18 @@ def read_file(file_path: FilePath):
     """
     前端通用的读取文件的方法，包括日志文件
     """
+    safe_path = _resolve_safe_path(file_path.path)
     # 检查文件是否存在
-    if not os.path.isfile(file_path.path):
+    if not os.path.isfile(safe_path):
         raise HTTPException(status_code=404, detail="File not found")
 
     try:
-        mime_type, _ = mimetypes.guess_type(file_path.path)
+        mime_type, _ = mimetypes.guess_type(safe_path)
         if mime_type is None:
             mime_type = "application/octet-stream"  # 默认 MIME 类型
 
         def file_iterator():
-            with open(file_path.path, "rb") as file:
+            with open(safe_path, "rb") as file:
                 while True:
                     chunk = file.read(1024)  # 每次读取 1024 字节
                     if not chunk:
@@ -144,13 +183,11 @@ def read_write(write_file: WriteFile):
     """
     前端通用的覆盖写文件的方法
     """
-    # 检查文件夹是否存在
-    if not os.path.exists(os.path.dirname(write_file.path)):
-        os.mkdir(os.path.dirname(write_file.path))
+    safe_path = _resolve_safe_path(write_file.path, write=True)
 
     # 写入文件
     try:
-        with open(write_file.path, "w", encoding="utf-8") as f:
+        with open(safe_path, "w", encoding="utf-8") as f:
             f.write(write_file.content)
         return res_msg(code=ResCode.SUCCESS, msg="", data=None)
     except Exception as e:
@@ -312,8 +349,27 @@ def clipboard_get(is_html: bool):
     return res_msg(code=ResCode.SUCCESS, msg="", data={"content": content})
 
 
+def _validate_pip_packages(pck: PipPackages, need_mirror: bool = True):
+    validate_project_id(pck.project_id)
+    validate_package_name(pck.package)
+    validate_version(pck.version)
+    if need_mirror:
+        validate_mirror(pck.mirror)
+
+
 @router.post("/pip/install")
 def stream_sse(pck: PipPackages, svc: Svc = Depends(get_svc)):
+    try:
+        _validate_pip_packages(pck)
+    except ValueError as e:
+        logger.warning("pip install rejected: {}".format(e))
+
+        def reject_generator(err: str):
+            yield "data: {}\n\n".format(json.dumps({"stderr": err}))
+            yield "event: done\ndata: [DONE]\n\n"
+
+        return StreamingResponse(reject_generator(str(e)), media_type="text/event-stream")
+
     def sse_async_generator(pck: PipPackages):
         """
         实现前端包安装交互
@@ -353,7 +409,7 @@ def stream_sse(pck: PipPackages, svc: Svc = Depends(get_svc)):
             install_proc = SubPopen(cmd=PipManager.install_pip_cmd(package, version, exec_python=exec_python)).run(
                 log=True
             )
-            sub_processes.append(download_proc)
+            sub_processes.append(install_proc)
             for log_data in log(install_proc):
                 yield log_data
         except Exception as e:
@@ -371,6 +427,10 @@ def stream_sse(pck: PipPackages, svc: Svc = Depends(get_svc)):
 
 @router.post("/package/version")
 def package_version(pck: PipPackages, svc: Svc = Depends(get_svc)):
+    try:
+        _validate_pip_packages(pck, need_mirror=False)
+    except ValueError as e:
+        return res_msg(code=ResCode.ERR, msg=str(e), data=None)
     package = pck.package
     project_id = pck.project_id
     exec_python = get_project_venv(svc, project_id)

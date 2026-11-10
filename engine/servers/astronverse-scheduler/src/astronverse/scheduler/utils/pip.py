@@ -5,6 +5,12 @@ from urllib.parse import urlparse
 
 from astronverse.scheduler.logger import logger
 from astronverse.scheduler.utils.subprocess import SubPopen
+from astronverse.scheduler.utils.validators import (
+    is_insecure_mirror,
+    validate_mirror,
+    validate_package_name,
+    validate_version,
+)
 from importlib_metadata import version
 
 
@@ -12,6 +18,24 @@ class PipManager:
     """pip管理类"""
 
     DOWNLOADED_PACKAGES = {}
+
+    @staticmethod
+    def _requirement(package, ver) -> str:
+        """Build a validated "name" or "name==version" requirement"""
+        validate_package_name(package)
+        validate_version(ver)
+        if ver:
+            return "{}=={}".format(package, ver)
+        return package
+
+    @staticmethod
+    def _index_args(mirror) -> list:
+        """Build validated index arguments; --trusted-host is only kept for plain http mirrors"""
+        validate_mirror(mirror)
+        args = ["--index-url={}".format(mirror)]
+        if is_insecure_mirror(mirror):
+            args += ["--trusted-host", urlparse(mirror).hostname]
+        return args
 
     @staticmethod
     def get_installed_packages(exec_python=None):
@@ -41,12 +65,14 @@ class PipManager:
         """
         校验本地包版本，如果没有这个包，版本为空
         """
+        validate_package_name(package_name)
         if not exec_python:
             exec_python = sys.executable
         cmd = [
             exec_python,
             "-c",
-            "from importlib_metadata import version; print(version('{}'))".format(package_name),
+            "import sys; from importlib_metadata import version; print(version(sys.argv[1]))",
+            package_name,
         ]
         stdout, stderr = SubPopen(cmd=cmd).run(log=True).proc.communicate()
         if stderr:
@@ -64,9 +90,7 @@ class PipManager:
 
     @staticmethod
     def download_pip_cmd(package, ver, mirror, exec_python=None, pip_cache_dir="pip_cache"):
-        pck = package
-        if ver:
-            pck = "{}=={}".format(package, ver)
+        pck = PipManager._requirement(package, ver)
         if not exec_python:
             exec_python = sys.executable
 
@@ -78,9 +102,7 @@ class PipManager:
             pck,
             "-w",
             pip_cache_dir,
-            "--index-url={}".format(mirror),
-            "--trusted-host",
-            urlparse(mirror).hostname,
+            *PipManager._index_args(mirror),
             "--disable-pip-version-check",
             "--prefer-binary",
         ]
@@ -88,9 +110,7 @@ class PipManager:
     @staticmethod
     def download_pip(package, ver, mirror, exec_python=None, pip_cache_dir="pip_cache", time_out=30):
         # 下载缓存
-        pck = package
-        if ver:
-            pck = "{}=={}".format(package, ver)
+        pck = PipManager._requirement(package, ver)
         if not exec_python:
             exec_python = sys.executable
 
@@ -113,9 +133,7 @@ class PipManager:
             pck,
             "-w",
             pip_cache_dir,
-            "--index-url={}".format(mirror),
-            "--trusted-host",
-            urlparse(mirror).hostname,
+            *PipManager._index_args(mirror),
             "--disable-pip-version-check",
             "--prefer-binary",
         ]
@@ -129,9 +147,7 @@ class PipManager:
 
     @staticmethod
     def install_pip_cmd(package, ver, exec_python=None, pip_cache_dir="pip_cache"):
-        pck = package
-        if ver:
-            pck += "=={}".format(ver)
+        pck = PipManager._requirement(package, ver)
         if not exec_python:
             exec_python = sys.executable
 
@@ -156,9 +172,7 @@ class PipManager:
         error_try=False,
         mirror="",
     ):
-        pck = package
-        if ver:
-            pck += "=={}".format(ver)
+        pck = PipManager._requirement(package, ver)
         if not exec_python:
             exec_python = sys.executable
 
@@ -173,19 +187,19 @@ class PipManager:
             "--no-warn-script-location",
             "--disable-pip-version-check",
         ]
-        cmd2 = [
-            exec_python,
-            "-m",
-            "pip",
-            "install",
-            pck,
-            "--find-links={}".format(pip_cache_dir),
-            "--index-url={}".format(mirror),
-            "--trusted-host",
-            urlparse(mirror).hostname,
-            "--no-warn-script-location",
-            "--disable-pip-version-check",
-        ]
+
+        def __fallback_cmd():
+            return [
+                exec_python,
+                "-m",
+                "pip",
+                "install",
+                pck,
+                "--find-links={}".format(pip_cache_dir),
+                *PipManager._index_args(mirror),
+                "--no-warn-script-location",
+                "--disable-pip-version-check",
+            ]
 
         def __install_pip(cmd):
             try:
@@ -206,6 +220,6 @@ class PipManager:
             __install_pip(cmd1)
         except Exception as e:
             if error_try:
-                __install_pip(cmd2)
+                __install_pip(__fallback_cmd())
             else:
                 raise e

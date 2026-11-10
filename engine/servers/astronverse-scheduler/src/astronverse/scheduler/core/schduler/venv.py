@@ -5,6 +5,7 @@ import sys
 from astronverse.scheduler.logger import logger
 from astronverse.scheduler.utils.platform_utils import platform_python_venv_path
 from astronverse.scheduler.utils.subprocess import SubPopen
+from astronverse.scheduler.utils.validators import validate_project_id
 
 
 class VenvManager:
@@ -110,6 +111,7 @@ def create_project_venv(svc, project_id: str):
     """
     创建一个工程的虚拟环境
     """
+    validate_project_id(project_id)
     if svc.is_venv:
         return svc.config.python_base
 
@@ -124,6 +126,7 @@ def create_project_venv(svc, project_id: str):
 
 
 def get_project_venv(svc, project_id: str):
+    validate_project_id(project_id)
     if svc.is_venv:
         return svc.config.python_base
 
