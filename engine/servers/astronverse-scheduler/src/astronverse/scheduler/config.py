@@ -22,3 +22,9 @@ class Config:
     python_base = sys.executable
     # 虚拟环境dir
     venv_base_dir = "venvs"
+    # extra pip index hosts allowed in addition to the built-in list
+    pip_mirror_allow_hosts: list = []
+    # Scheduler is local by default. Remote operator access must explicitly
+    # bind a non-loopback address and provide this token.
+    scheduler_bind_host: str = "127.0.0.1"
+    scheduler_api_token: str = ""

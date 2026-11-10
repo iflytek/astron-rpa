@@ -1,4 +1,8 @@
 remote_addr: http://127.0.0.1:32742/
+# Keep the scheduler local by default. Set scheduler_bind_host and a strong
+# scheduler_api_token together only for an explicitly enabled remote operator.
+scheduler_bind_host: 127.0.0.1
+scheduler_api_token: ""
 skip_engine_start: false
 app_auth_type: casdoor
 app_edition: saas

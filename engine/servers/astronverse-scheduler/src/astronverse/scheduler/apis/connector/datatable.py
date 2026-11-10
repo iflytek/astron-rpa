@@ -7,6 +7,7 @@ from astronverse.scheduler.core.datatable.excel_service import ExcelService
 from astronverse.scheduler.core.datatable.file_watcher import AsyncFileWatcher
 from astronverse.scheduler.core.svc import Svc, get_svc
 from astronverse.scheduler.logger import logger
+from astronverse.scheduler.utils.validators import validate_project_id
 from fastapi import APIRouter, Depends
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
@@ -53,7 +54,15 @@ def get_project_dir(svc: Svc, project_id: str) -> str:
     Returns:
         工程目录的完整路径（{venv_base_dir}/{project_id}/astron）
     """
-    return os.path.join(svc.config.venv_base_dir, project_id, "astron")
+    validate_project_id(project_id)
+    base = os.path.realpath(svc.config.venv_base_dir)
+    project_dir = os.path.realpath(os.path.join(base, project_id, "astron"))
+    try:
+        if os.path.commonpath((base, project_dir)) != base:
+            raise ValueError("project path escapes venv directory")
+    except ValueError as exc:
+        raise ValueError("project path escapes venv directory") from exc
+    return project_dir
 
 
 def ensure_project_dir(svc: Svc, project_id: str) -> str:

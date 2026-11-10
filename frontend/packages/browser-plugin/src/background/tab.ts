@@ -346,7 +346,7 @@ export const Tabs = {
           tabId,
         },
         (frames: FrameDetails[]) => {
-          const supportFrames = frames.filter(frame => Utils.isSupportProtocal(frame.url))
+          const supportFrames: FrameDetails[] = frames
           const promises = supportFrames.map((frame, index) => {
             const args = [{ frameId: frame.frameId }]
             return Tabs.executeFuncOnFrame(

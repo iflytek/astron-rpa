@@ -1,5 +1,6 @@
 import os
 from collections.abc import Generator
+from pathlib import Path
 from typing import Any
 
 from astronverse.scheduler.logger import logger
@@ -16,7 +17,26 @@ class ExcelService:
         Args:
             resource_dir: 工程资源目录
         """
-        self.resource_dir = resource_dir
+        self.resource_dir = os.path.realpath(resource_dir)
+
+    def _validate_filename(self, filename: str) -> str:
+        if not isinstance(filename, str) or not filename.strip():
+            raise ValueError("invalid Excel filename")
+        if any(char in filename for char in ("/", "\\", ":", "\x00")):
+            raise ValueError("Excel filename must not contain path separators")
+        normalized = filename if filename.lower().endswith(".xlsx") else f"{filename}.xlsx"
+        if normalized in {".", ".."} or Path(normalized).name != normalized:
+            raise ValueError("invalid Excel filename")
+        return normalized
+
+    def _safe_path(self, filename: str) -> str:
+        candidate = os.path.realpath(os.path.join(self.resource_dir, self._validate_filename(filename)))
+        try:
+            if os.path.commonpath((self.resource_dir, candidate)) != self.resource_dir:
+                raise ValueError("Excel path escapes project directory")
+        except ValueError as exc:
+            raise ValueError("Excel path escapes project directory") from exc
+        return candidate
 
     def get_file_path(self, filename: str) -> str:
         """
@@ -28,9 +48,7 @@ class ExcelService:
         Returns:
             完整的文件路径
         """
-        if not filename.endswith(".xlsx"):
-            filename = f"{filename}.xlsx"
-        return os.path.join(self.resource_dir, filename)
+        return self._safe_path(filename)
 
     def file_exists(self, filename: str) -> bool:
         """

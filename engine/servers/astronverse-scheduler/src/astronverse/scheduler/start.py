@@ -37,6 +37,14 @@ def start(args):
 
         Config.conf_file = conf_path
         Config.remote_addr = conf_data.get("remote_addr")
+        Config.pip_mirror_allow_hosts = conf_data.get("pip_mirror_allow_hosts") or []
+        Config.scheduler_bind_host = conf_data.get("scheduler_bind_host") or "127.0.0.1"
+        Config.scheduler_api_token = conf_data.get("scheduler_api_token") or ""
+        if (
+            Config.scheduler_bind_host not in {"127.0.0.1", "::1", "localhost"}
+            and not Config.scheduler_api_token
+        ):
+            raise ValueError("scheduler_api_token is required for non-loopback scheduler_bind_host")
         svc = get_svc()
         svc.set_config(Config)
 
@@ -71,7 +79,7 @@ def start(args):
         # 7. 启动服务
         uvicorn.run(
             app=app,
-            host="0.0.0.0",
+            host=Config.scheduler_bind_host,
             port=svc.scheduler_port,
             ws="websockets-sansio",
             timeout_graceful_shutdown=5,

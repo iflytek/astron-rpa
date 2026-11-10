@@ -32,7 +32,7 @@ export function generateManifest(mode: string, environment) {
         js: ['content.js'],
         css: ['rpa.css'],
         run_at: 'document_start',
-        match_about_blank: false,
+        match_about_blank: true,
         world: 'ISOLATED',
       },
     ],
