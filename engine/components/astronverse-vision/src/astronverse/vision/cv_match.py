@@ -143,13 +143,13 @@ class AnchorMatch:
             # w, h = int(w*rw), int(h*rh)
             w, h = int(element.shape[1] * rw), int(element.shape[0] * rh)
             element = cv2.resize(element, (w, h), interpolation=cv2.INTER_CUBIC)
-            small_gray = cv2.cvtColor(element, cv2.COLOR_RGB2GRAY)
+            small_gray = cv2.cvtColor(element, cv2.COLOR_BGR2GRAY)
             if canny_flag:
                 small_gray = cv2.Canny(small_gray, 50, 250)
 
             if anchor is not None:
                 # 要求锚点在屏幕显示且唯一
-                anchor_gray = cv2.cvtColor(anchor, cv2.COLOR_RGB2GRAY)
+                anchor_gray = cv2.cvtColor(anchor, cv2.COLOR_BGR2GRAY)
                 anchor_threshold = match_similarity
                 if canny_flag:
                     anchor_gray = cv2.Canny(anchor_gray, 50, 250)
