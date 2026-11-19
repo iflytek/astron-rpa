@@ -3,6 +3,7 @@ set -eu
 
 SCRIPT_DIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
 DOCKER_DIR=$(CDPATH= cd -- "$SCRIPT_DIR/.." && pwd)
+OPENRESTY_IMAGE=${OPENRESTY_IMAGE:-openresty/openresty:1.27.1.1-alpine}
 TEST_ROOT=$(mktemp -d)
 NETWORK_NAME="astron-rpa-auth-test-$$"
 MOCK_NAME="astron-rpa-auth-mock-$$"
@@ -86,14 +87,14 @@ docker run -d --name "$MOCK_NAME" \
     --network "$NETWORK_NAME" \
     --network-alias robot-service \
     -v "$TEST_ROOT/mock.conf:/usr/local/openresty/nginx/conf/nginx.conf:ro" \
-    openresty/openresty:1.27.1.1-alpine >/dev/null
+    "$OPENRESTY_IMAGE" >/dev/null
 
 docker run -d --name "$GATEWAY_NAME" \
     --network "$NETWORK_NAME" \
     -p 127.0.0.1::8080 \
     -v "$TEST_ROOT/gateway.conf:/usr/local/openresty/nginx/conf/nginx.conf:ro" \
     -v "$DOCKER_DIR/volumes/nginx/lua:/usr/local/openresty/nginx/lua:ro" \
-    openresty/openresty:1.27.1.1-alpine >/dev/null
+    "$OPENRESTY_IMAGE" >/dev/null
 
 GATEWAY_PORT=$(docker port "$GATEWAY_NAME" 8080/tcp | sed 's/.*://')
 attempt=0
