@@ -1,7 +1,41 @@
+from types import SimpleNamespace
 from unittest.mock import Mock
 
 import pytest
-from astronverse.word import core_win
+from astronverse.word import SaveFileType, core_win
+
+
+def test_convert_to_txt_reads_open_document_paragraphs(tmp_path):
+    # No FullName: an unsaved document must not be reopened from disk.
+    document = SimpleNamespace(
+        Paragraphs=[
+            SimpleNamespace(Range=SimpleNamespace(Text=text))
+            for text in ["中文 paragraph\r", "\r", "cell\r\a", "trailing spaces  \r"]
+        ]
+    )
+    core_win.WordDocumentCore.convert_to_txt(document, str(tmp_path), "output")
+    assert (tmp_path / "output.txt").read_text(encoding="utf-8") == ("中文 paragraph\n\ncell\ntrailing spaces  \n")
+
+
+@pytest.mark.parametrize("policy", [SaveFileType.WARN, SaveFileType.GENERATE, SaveFileType.OVERWRITE])
+def test_convert_to_txt_preserves_collision_policy(tmp_path, policy):
+    destination = tmp_path / "output.txt"
+    destination.write_text("original", encoding="utf-8")
+    (tmp_path / "output_1.txt").write_text("previous copy", encoding="utf-8")
+    document = SimpleNamespace(Paragraphs=[SimpleNamespace(Range=SimpleNamespace(Text="new\r"))])
+
+    if policy == SaveFileType.WARN:
+        with pytest.raises(core_win.BaseException):
+            core_win.WordDocumentCore.convert_to_txt(document, str(tmp_path), "output", policy)
+        assert destination.read_text(encoding="utf-8") == "original"
+        assert not (tmp_path / "output_2.txt").exists()
+    else:
+        core_win.WordDocumentCore.convert_to_txt(document, str(tmp_path), "output", policy)
+        target = tmp_path / "output_2.txt" if policy == SaveFileType.GENERATE else destination
+        assert target.read_text(encoding="utf-8") == "new\n"
+        if policy == SaveFileType.GENERATE:
+            assert destination.read_text(encoding="utf-8") == "original"
+    assert (tmp_path / "output_1.txt").read_text(encoding="utf-8") == "previous copy"
 
 
 @pytest.fixture(autouse=True)
