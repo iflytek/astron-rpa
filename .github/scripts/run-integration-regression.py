@@ -48,7 +48,7 @@ ENGINE_TESTS = {
     "enterprise": ["test_shared_read.py"],
     "files": ["test_managed_files.py", "test_managed_execution.py"],
     "desktop": ["test_managed_desktop.py"],
-    "vision": ["test_managed_images.py"],
+    "vision": ["test_managed_images.py", "test_cv_match_grayscale.py"],
     "dialog": ["test_managed_dialog.py"],
     "excel": ["test_managed_office.py"],
     "word": ["test_managed_office.py"],
