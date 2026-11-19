@@ -41,6 +41,7 @@ import org.springframework.transaction.annotation.Transactional;
  */
 @Service("cElementService")
 public class CElementServiceImpl extends ServiceImpl<CElementDao, CElement> implements CElementService {
+
     @Resource
     private CElementDao cElementDao;
 
@@ -58,6 +59,7 @@ public class CElementServiceImpl extends ServiceImpl<CElementDao, CElement> impl
 
     @Autowired
     private RpaAuthFeign rpaAuthFeign;
+
     //    @Override
     //    @RobotVersionAnnotation
     //    public AppResponse<?> getElementNameList(BaseDto baseDto) throws NoLoginException {
@@ -257,7 +259,7 @@ public class CElementServiceImpl extends ServiceImpl<CElementDao, CElement> impl
                 element.getElementName(),
                 cGroup.getElementType());
         if (null != sameNameElement) {
-            // todo 删除oss图片
+            // imageId 来自客户端，可能属于其他用户或被已有元素引用，不能在此删除。
             return AppResponse.error(ErrorCodeEnum.E_SERVICE, "名称重复，请重新命名");
         }
         cElementDao.insertElement(element);
