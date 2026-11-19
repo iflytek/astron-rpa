@@ -307,7 +307,7 @@ class FTP:
                 else:
                     raise NotImplementedError()
             try:
-                FtpCore.ftp_rename(ftp_instance, cur_file_name, new_folder_name)
+                FtpCore.ftp_rename(ftp_instance, cur_folder_name, new_folder_name)
                 return FtpCore.get_path(ftp_instance, new_folder_name)
             except Exception as e:
                 raise BaseException(FTP_RENAME_FORMAT.format(e), "FTP文件重命名失败")
