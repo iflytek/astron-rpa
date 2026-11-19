@@ -163,7 +163,7 @@ services:
       - rpa-opensource-network
 
   openresty-nginx:
-    image: openresty/openresty:1.27.1.1-alpine
+    image: ${OPENRESTY_IMAGE:-openresty/openresty:1.27.1.1-alpine}
     container_name: rpa-opensource-openresty-nginx
     restart: always
     environment:

@@ -1,5 +1,9 @@
 # HTTPS deployment, migration, and rollback
 
+For OpenResty/NGINX patching, including the November 18, 2026 advisories,
+read [Security updates](SECURITY_UPDATES.md). An HTTPS deployment alone does
+not prove that its proxy image contains security fixes.
+
 AstronRPA terminates public TLS in OpenResty. Communication between containers
 continues to use the existing private Docker network and HTTP service names.
 The default deployment mode is `https`; `legacy-http` is an explicit,

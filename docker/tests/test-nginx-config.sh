@@ -3,6 +3,7 @@ set -eu
 
 SCRIPT_DIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
 DOCKER_DIR=$(CDPATH= cd -- "$SCRIPT_DIR/.." && pwd)
+OPENRESTY_IMAGE=${OPENRESTY_IMAGE:-openresty/openresty:1.27.1.1-alpine}
 TEST_ROOT=$(mktemp -d)
 CONTAINER_NAME="astron-rpa-nginx-test-$$"
 
@@ -125,7 +126,7 @@ docker compose --project-directory "$TEST_ROOT/compose" \
     -f "$TEST_ROOT/compose/docker-compose.legacy-http.yml" \
     config --format json > "$TEST_ROOT/compose-legacy-http.json"
 
-python3 - "$TEST_ROOT/compose-https.json" "$TEST_ROOT/compose-legacy-http.json" <<'PY'
+python3 - "$TEST_ROOT/compose-https.json" "$TEST_ROOT/compose-legacy-http.json" "$OPENRESTY_IMAGE" <<'PY'
 import json
 import sys
 
@@ -152,6 +153,7 @@ https_config = load(sys.argv[1])
 legacy_config = load(sys.argv[2])
 
 gateway = https_config["services"]["openresty-nginx"]
+require(gateway["image"] == sys.argv[3], "HTTPS gateway must use the selected OpenResty image")
 require(gateway["environment"]["DEPLOYMENT_MODE"] == "https", "HTTPS must be the default deployment mode")
 require(gateway["environment"]["RPA_SERVER_NAME"] == "localhost", "RPA server name default is missing")
 require(gateway["environment"]["CASDOOR_SERVER_NAME"] == "localhost", "Casdoor server name default is missing")
@@ -182,6 +184,7 @@ require(
 )
 
 legacy_gateway = legacy_config["services"]["openresty-nginx"]
+require(legacy_gateway["image"] == sys.argv[3], "legacy gateway must use the same selected OpenResty image")
 require(legacy_gateway["environment"]["DEPLOYMENT_MODE"] == "legacy-http", "legacy mode override is missing")
 assert_port(legacy_gateway, 80, 32742, "127.0.0.1")
 assert_port(legacy_gateway, 8080, 8000, "127.0.0.1")
@@ -213,7 +216,7 @@ run_nginx_test() {
         -v "$DOCKER_DIR/volumes/nginx/lua:/usr/local/openresty/nginx/lua:ro" \
         -v "$TEST_ROOT:/etc/nginx/certs:ro" \
         --entrypoint /bin/sh \
-        openresty/openresty:1.27.1.1-alpine \
+        "$OPENRESTY_IMAGE" \
         /etc/nginx/render-config.sh /usr/local/openresty/bin/openresty -t
 }
 
@@ -239,7 +242,7 @@ docker run -d --name "$CONTAINER_NAME" \
     -v "$TEST_ROOT/logs:/usr/local/openresty/nginx/logs" \
     -v "$TEST_ROOT/upstream.conf:/etc/nginx/conf.d/upstream.conf:ro" \
     --entrypoint /bin/sh \
-    openresty/openresty:1.27.1.1-alpine \
+    "$OPENRESTY_IMAGE" \
     /etc/nginx/render-config.sh /usr/local/openresty/bin/openresty -g 'daemon off;' >/dev/null
 
 HTTP_PORT=$(docker port "$CONTAINER_NAME" 80/tcp | sed 's/.*://')
@@ -292,7 +295,7 @@ docker run -d --name "$CONTAINER_NAME" \
     -v "$TEST_ROOT/logs:/usr/local/openresty/nginx/logs" \
     -v "$TEST_ROOT/upstream.conf:/etc/nginx/conf.d/upstream.conf:ro" \
     --entrypoint /bin/sh \
-    openresty/openresty:1.27.1.1-alpine \
+    "$OPENRESTY_IMAGE" \
     /etc/nginx/render-config.sh /usr/local/openresty/bin/openresty -g 'daemon off;' >/dev/null
 
 LEGACY_HTTP_PORT=$(docker port "$CONTAINER_NAME" 80/tcp | sed 's/.*://')
