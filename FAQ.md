@@ -502,6 +502,33 @@ In an environment without external network access, normal `pip install` or offli
 
 ## 🐛 Troubleshooting
 
+### Q: After local Docker deployment, why does the client open the cloud phone-login page or have verification-code problems?
+
+**A:** Start by checking which server and authentication provider the client uses:
+
+1. Open `resources/conf.yaml` in the **client installation directory**. Set `remote_addr` to the gateway of your own RPA deployment. For the default open-source Casdoor stack, confirm `app_auth_type: casdoor`:
+
+   ```yaml
+   remote_addr: https://rpa.example.com/
+   app_auth_type: casdoor
+   ```
+
+2. Restart the RPA client after changing its configuration, then sign in with an account from that deployment's Casdoor instance. The deployment operator manages its account registration and any configured verification-code delivery.
+3. If you intended to use the hosted SaaS service, follow the migration and sign-in guidance in **Client Related** above.
+4. When asking for help, include the client/server versions, the gateway you intended to use, a screenshot of the login page, and relevant client/server logs. These identify whether the problem is server selection, authentication configuration or message delivery.
+
+See the [HTTPS deployment guide](docker/HTTPS_DEPLOYMENT.md) for gateway and Casdoor setup.
+
+### Q: After signing in on another computer, why do I see an older workflow or missing subprocesses?
+
+**A:** Check the environment, workflow identity and save state in this order:
+
+1. Compare the two clients' `remote_addr` values, including protocol, host and port, and the account and space selected after sign-in.
+2. Open the same workflow from the design list. In workflow management, check its main process and subprocess entries, and compare the workflow/process IDs and names.
+3. On the original computer, check the last save result. When leaving the editor through its save flow, wait for saving to complete; reopen the workflow from the list and check the edits again. If automatic saving is used, also check its setting.
+4. Compare the design version with the published or installed execution version. The **Feature Usage** section above describes workflow version management and centralized distribution.
+5. Preserve the workflow content still visible on the original computer and collect the last edit/save time, client/server versions, workflow/process IDs, screenshots and related logs for the maintainer to inspect the save and version records.
+
 ### Q: How do I collect diagnostic information?
 
 **A:** 
