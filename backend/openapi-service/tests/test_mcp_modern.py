@@ -52,11 +52,17 @@ async def test_modern_discover_list_call_without_initialize_or_session(endpoint)
             response = await client.post("/", json=message(method), headers=headers(method))
             assert response.status_code == 200
             assert "mcp-session-id" not in response.headers
+            result = response.json()["result"]
+            assert result["resultType"] == "complete"
+            if method in ("server/discover", "tools/list"):
+                assert result["ttlMs"] == 0
+                assert result["cacheScope"] == "private"
             assert response.json()["result"]["_meta"][PREFIX + "serverInfo"]["name"] == "iflyrpa-mcp"
         tool = "astron_workflow_execute"
         h = headers("tools/call", tool)
         h.update({"Mcp-Session-Id": "ignored", "Last-Event-ID": "ignored"})
         response = await client.post("/", json=message("tools/call", {"name": tool, "arguments": {}}), headers=h)
+        assert response.json()["result"]["resultType"] == "complete"
         assert response.json()["result"]["structuredContent"] == {"executionId": "one"}
         calls.assert_awaited_once_with("owner", tool, {}, 1)
 

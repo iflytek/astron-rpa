@@ -152,6 +152,9 @@ class DualProtocolMCP:
                 }
         else:
             return error(-32601, "Method not found", identifier, status=404)
+        result["resultType"] = "complete"
+        if method in {"server/discover", "tools/list"}:
+            result.update(ttlMs=0, cacheScope="private")
         result["_meta"] = {PREFIX + "serverInfo": {"name": "iflyrpa-mcp", "version": "1.2.0"}}
         return JSONResponse(
             {"jsonrpc": "2.0", "id": identifier, "result": result}, headers={"Cache-Control": "no-store"}
