@@ -15,6 +15,7 @@ VERSION = "2026-07-28"
 LEGACY = {"2025-03-26", "2025-06-18", "2025-11-25"}
 SUPPORTED = [VERSION, *sorted(LEGACY, reverse=True)]
 PREFIX = "io.modelcontextprotocol/"
+DIRECTORY_METHODS = frozenset({"server/discover", "tools/list"})
 
 
 def error(code, message, identifier=None, status=400, data=None):
@@ -152,8 +153,8 @@ class DualProtocolMCP:
                 }
         else:
             return error(-32601, "Method not found", identifier, status=404)
-        result["resultType"] = "complete"
-        if method in {"server/discover", "tools/list"}:
+        result.setdefault("resultType", "complete")
+        if method in DIRECTORY_METHODS:
             result.update(ttlMs=0, cacheScope="private")
         result["_meta"] = {PREFIX + "serverInfo": {"name": "iflyrpa-mcp", "version": "1.2.0"}}
         return JSONResponse(
