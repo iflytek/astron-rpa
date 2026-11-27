@@ -3,6 +3,7 @@ from unittest.mock import AsyncMock
 
 import pytest
 from httpx import ASGITransport, AsyncClient
+from pydantic import BaseModel
 from starlette.responses import Response
 
 from app.routers.mcp_modern import PREFIX, VERSION, DualProtocolMCP
@@ -52,11 +53,20 @@ async def test_modern_discover_list_call_without_initialize_or_session(endpoint)
             response = await client.post("/", json=message(method), headers=headers(method))
             assert response.status_code == 200
             assert "mcp-session-id" not in response.headers
+            result = response.json()["result"]
+            assert result["resultType"] == "complete"
+            if method in ("server/discover", "tools/list"):
+                assert result["ttlMs"] == 0
+                assert result["cacheScope"] == "private"
+            else:
+                assert "ttlMs" not in result
+                assert "cacheScope" not in result
             assert response.json()["result"]["_meta"][PREFIX + "serverInfo"]["name"] == "iflyrpa-mcp"
         tool = "astron_workflow_execute"
         h = headers("tools/call", tool)
         h.update({"Mcp-Session-Id": "ignored", "Last-Event-ID": "ignored"})
         response = await client.post("/", json=message("tools/call", {"name": tool, "arguments": {}}), headers=h)
+        assert response.json()["result"]["resultType"] == "complete"
         assert response.json()["result"]["structuredContent"] == {"executionId": "one"}
         calls.assert_awaited_once_with("owner", tool, {}, 1)
 
@@ -142,3 +152,33 @@ async def test_modern_requires_authentication_and_legacy_route_is_preserved(endp
         assert response.status_code == 204
     calls.assert_not_awaited()
     legacy.assert_awaited_once()
+
+
+class ToolResult(BaseModel):
+    resultType: str
+
+
+class TextItem(BaseModel):
+    type: str = "text"
+    text: str
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    ("value", "expected"),
+    [
+        (ToolResult(resultType="input_required"), {"resultType": "input_required"}),
+        ([TextItem(text="ok")], {"resultType": "complete", "content": [{"type": "text", "text": "ok"}]}),
+    ],
+)
+async def test_call_preserves_result_type_and_omits_directory_cache_hints(endpoint, value, expected):
+    app, calls, _ = endpoint
+    calls.return_value = value
+    tool = "astron_workflow_execute"
+    async with AsyncClient(transport=ASGITransport(app=app), base_url="https://service") as client:
+        response = await client.post(
+            "/", json=message("tools/call", {"name": tool}), headers=headers("tools/call", tool)
+        )
+    assert response.status_code == 200
+    result = response.json()["result"]
+    assert {key: value for key, value in result.items() if key != "_meta"} == expected
