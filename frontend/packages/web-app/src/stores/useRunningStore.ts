@@ -240,7 +240,7 @@ export const useRunningStore = defineStore('running', () => {
       RpaExecutorUrl = await startExecutor({
         ...params,
         jwt: getCookie('jwt'),
-        hide_log_window: !userSettingStore.openLogModalAfterRun,
+        hide_log_window: userSettingStore.userSetting?.commonSetting?.hideLogWindow,
         project_name: params.project_name || processStore.project.name,
       })
       // 连接 ws
